@@ -24,11 +24,11 @@ const DAY_NAMES = [
 
 const SLOT_LABEL = {
   breakfast: 'Café da Manhã',
-  shake_morning: 'Shake da Manhã',
+  shake_morning: 'Shake Bomba Calórica',
   lunch: 'Almoço',
-  shake_afternoon: 'Shake da Tarde',
+  shake_afternoon: 'Shake Energia Instantânea',
   dinner: 'Jantar',
-  shake_night: 'Shake da Ceia',
+  shake_night: 'Shake Crescimento Noturno',
   shake_extra: 'Shake Extra',
   shake_extra2: 'Shake Extra 2',
 };

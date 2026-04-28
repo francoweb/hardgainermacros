@@ -24,11 +24,11 @@ import { generatePlan } from '../modules/meal-planner.js';
 
 const SLOT_LABEL = {
   breakfast: 'Café da Manhã',
-  shake_morning: 'Shake da Manhã',
+  shake_morning: 'Shake Bomba Calórica',
   lunch: 'Almoço',
-  shake_afternoon: 'Shake da Tarde',
+  shake_afternoon: 'Shake Energia Instantânea',
   dinner: 'Jantar',
-  shake_night: 'Shake da Ceia',
+  shake_night: 'Shake Crescimento Noturno',
   shake_extra: 'Shake Extra',
   shake_extra2: 'Shake Extra 2',
   pre_workout_light: 'Shake Pré-Treino Leve',
@@ -431,11 +431,14 @@ function rebuildTimesAroundTraining(slots, routine) {
   const n = slots.length;
   if (n === 0) return slots;
 
-  const spaceTimes = (ws, we, count) => {
+  const MEAL_DUR = { solid: 30, shake: 15, pre_workout_light: 10 };
+  const slotDur = s => (s?.slot === 'pre_workout_light' ? 10 : MEAL_DUR[s?.type] ?? 15);
+
+  const spaceTimes = (ws, we, count, durMin = 0) => {
     if (count === 0) return [];
-    if (count === 1) return [roundQ(Math.max(ws, Math.min(we, (ws + we) / 2)))];
-    const step = (we - ws) / (count - 1);
-    return Array.from({ length: count }, (_, i) => roundQ(ws + i * step));
+    if (count === 1) return [roundQ(Math.max(ws, Math.min(we - durMin, (ws + we - durMin) / 2)))];
+    const gap = Math.max(0, (we - ws - count * durMin) / (count - 1));
+    return Array.from({ length: count }, (_, i) => roundQ(ws + i * (durMin + gap)));
   };
 
   const POST_BUFFER = 20;
@@ -462,7 +465,7 @@ function rebuildTimesAroundTraining(slots, routine) {
     }
     const firstSlot = { ...slots[0], time: toTime(firstMealTime) };
     if (n === 1) return [firstSlot];
-    const restTimes = spaceTimes(firstMealTime + 150, effectiveDayEnd, n - 1);
+    const restTimes = spaceTimes(firstMealTime + 150, effectiveDayEnd, n - 1, slotDur(slots[n - 1]));
     const restSlots = slots.slice(1).map((s, i) => ({ ...s, time: i < restTimes.length ? toTime(restTimes[i]) : s.time }));
     return [firstSlot, ...restSlots];
   }
@@ -481,7 +484,7 @@ function rebuildTimesAroundTraining(slots, routine) {
       : restSlots;
     const postWindowStart = tEndAdj + POST_BUFFER;
     const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
-    const postTimes = spaceTimes(postWindowStart, effectiveDayEnd, adjustedRest.length);
+    const postTimes = spaceTimes(postWindowStart, effectiveDayEnd, adjustedRest.length, slotDur(adjustedRest[adjustedRest.length - 1]));
     const postSlots = adjustedRest.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
     return [preSlot, ...postSlots];
   }
@@ -489,27 +492,57 @@ function rebuildTimesAroundTraining(slots, routine) {
   // Buffer pré-treino: 7+ refeições → 120 min (rotina densa), 6 ou menos → 180 min (digestão ideal)
   const PRE_BUFFER = (mealsPerDay || 6) >= 7 ? 120 : 180;
 
-  const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
+  // Estende a janela quando o buffer pós-treino já ultrapassa o dayEnd (ex.: treino perto da hora de dormir)
+  const effectiveDayEnd = tEndAdj + POST_BUFFER > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
 
   // Treino à tarde/noite (≥ 16:00, ciclo normalizado): distribuição ancorada para horários humanos
-  // — pino pré-treino 90 min antes + mínimo 2 slots pós-treino (jantar + ceia)
-  if (tStart >= 960 && n >= 2 && (effectiveDayEnd - (tEndAdj + POST_BUFFER)) >= 60) {
-    const preAnchor = roundQ(tStart - 90);
-    const nPost = Math.min(n - 1, 2);
+  // — pino pré-treino 90 min antes + slots pós-treino adaptativos (2 se janela ≥ 60 min, 1 caso contrário)
+  if (tStart >= 960 && n >= 2 && (effectiveDayEnd - (tEndAdj + POST_BUFFER)) >= 30) {
+    const postWin = effectiveDayEnd - (tEndAdj + POST_BUFFER);
+    const nPost = postWin >= 60 ? Math.min(n - 1, 2) : 1;
     const nPre  = n - nPost;
+    // Distância mínima ao treino = digestão + duração real da refeição:
+    // sólido → 210 min (180 digestão + 30 duração); shake → 90 min (digestão rápida, duração curta já incluída)
+    const preSlotType = nPre > 0 ? (slots[nPre - 1]?.type || 'solid') : 'solid';
+    const preBuffer   = preSlotType === 'solid' ? 210 : 90;
+    const preAnchor   = roundQ(tStart - preBuffer);
 
-    const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost);
+    const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost, slotDur(slots[n - 1]));
 
     let preTimes;
-    const earlyEnd = preAnchor - 150;
     if (nPre === 0) {
       preTimes = [];
     } else if (nPre === 1) {
       preTimes = [preAnchor];
-    } else if (earlyEnd > dayStart) {
-      preTimes = [...spaceTimes(dayStart, earlyEnd, nPre - 1), preAnchor];
     } else {
-      preTimes = spaceTimes(dayStart, preAnchor, nPre);
+      // Janelas naturais para refeições sólidas (em minutos desde meia-noite)
+      // Café da Manhã: 07:15 (435), Almoço: 13:00 (780)
+      const NATURAL_ANCHOR = { breakfast: wakeMin + 15, lunch: 780 };
+      const preSlots = slots.slice(0, nPre);
+      const anchorsValid = Object.values(NATURAL_ANCHOR).every(a => a >= dayStart && a < preAnchor);
+      if (!anchorsValid) {
+        const earlyEnd = preAnchor - 150;
+        preTimes = earlyEnd > dayStart
+          ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, slotDur(slots[nPre - 2])), preAnchor]
+          : spaceTimes(dayStart, preAnchor, nPre);
+      } else {
+        const raw = preSlots.map((s, i) => {
+          if (i === nPre - 1) return preAnchor;
+          const a = NATURAL_ANCHOR[s.slot];
+          return (s.type === 'solid' && a !== undefined) ? a : null;
+        });
+        for (let i = 0; i < raw.length - 1; i++) {
+          if (raw[i] !== null) continue;
+          const prev = raw.slice(0, i).reverse().find(v => v !== null) ?? dayStart;
+          let ni = i + 1;
+          while (ni < raw.length && raw[ni] === null) ni++;
+          const next = raw[ni] ?? preAnchor;
+          const gap = ni - i;
+          for (let k = 0; k < gap; k++) raw[i + k] = prev + (next - prev) * (k + 1) / (gap + 1);
+          i = ni - 1;
+        }
+        preTimes = raw.map(t => roundQ(t ?? preAnchor));
+      }
     }
 
     const times = [...preTimes, ...postTimes];
@@ -540,8 +573,8 @@ function rebuildTimesAroundTraining(slots, routine) {
   }
 
   const times = [
-    ...spaceTimes(dayStart, preWindowEnd, nPre),
-    ...spaceTimes(postWindowStart, effectiveDayEnd, nPost),
+    ...spaceTimes(dayStart, preWindowEnd, nPre, slotDur(slots[nPre - 1])),
+    ...spaceTimes(postWindowStart, effectiveDayEnd, nPost, slotDur(slots[n - 1])),
   ];
 
   return slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time }));
