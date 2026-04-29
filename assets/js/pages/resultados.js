@@ -91,8 +91,10 @@ export function renderResultadosPage(mount) {
     : trainLabel;
   const trainDurDisplay = routine.trainDurationMinutes ? `${routine.trainDurationMinutes} min` : '';
   const _toMins = t => { if (!t) return Infinity; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const scheduleData = rebuildTimesAroundTraining(results.slotDistribution || [], routine);
+  const spacingFeedback = scheduleData.spacingFeedback;
   const slotsWithTraining = (() => {
-    const corrected = rebuildTimesAroundTraining(results.slotDistribution || [], routine);
+    const corrected = scheduleData.slots;
     if (!hasTraining) return corrected;
     const entry = { slot: '__train__', type: 'train', kcal: null, time: routine.trainStartTime || '' };
     if (!routine.trainStartTime) return [...corrected, entry];
@@ -209,6 +211,100 @@ export function renderResultadosPage(mount) {
       <!-- Macros distribution -->
       <div class="card">
         <h3 class="card-title">Distribuição Diária de Macros</h3>
+        ${spacingFeedback ? `
+          <div
+            style="
+              margin: 16px 0 24px;
+              padding: 18px 18px 16px;
+              border-radius: 18px;
+              border-left: 6px solid ${
+                spacingFeedback.level === 'success' ? '#16a34a' :
+                spacingFeedback.level === 'info' ? '#3b82f6' :
+                spacingFeedback.level === 'warning' ? '#d97706' :
+                '#dc2626'
+              };
+              border: 1px solid ${
+                spacingFeedback.level === 'success' ? 'rgba(34, 197, 94, .20)' :
+                spacingFeedback.level === 'info' ? 'rgba(59, 130, 246, .22)' :
+                spacingFeedback.level === 'warning' ? 'rgba(245, 158, 11, .24)' :
+                'rgba(239, 68, 68, .22)'
+              };
+              background: ${
+                spacingFeedback.level === 'success' ? 'linear-gradient(135deg, rgba(34, 197, 94, .12), rgba(255,255,255,.96))' :
+                spacingFeedback.level === 'info' ? 'linear-gradient(135deg, rgba(59, 130, 246, .08), rgba(239,246,255,.98))' :
+                spacingFeedback.level === 'warning' ? 'linear-gradient(135deg, rgba(250, 204, 21, .14), rgba(255,248,235,.98))' :
+                'linear-gradient(135deg, rgba(248, 113, 113, .10), rgba(255,241,242,.98))'
+              };
+              box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+            "
+          >
+            <div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">
+              <div
+                style="
+                  flex: 0 0 auto;
+                  width: 40px;
+                  height: 40px;
+                  border-radius: 12px;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  background: ${
+                    spacingFeedback.level === 'success' ? 'rgba(34, 197, 94, .16)' :
+                    spacingFeedback.level === 'info' ? 'rgba(59, 130, 246, .12)' :
+                    spacingFeedback.level === 'warning' ? 'rgba(245, 158, 11, .18)' :
+                    'rgba(239, 68, 68, .12)'
+                  };
+                  color: ${
+                    spacingFeedback.level === 'success' ? '#15803d' :
+                    spacingFeedback.level === 'info' ? '#1d4ed8' :
+                    spacingFeedback.level === 'warning' ? '#b45309' :
+                    '#b91c1c'
+                  };
+                "
+              >
+                ${spacingFeedback.level === 'success'
+                  ? '✅'
+                  : spacingFeedback.level === 'info'
+                    ? 'ℹ️'
+                    : spacingFeedback.level === 'warning'
+                      ? '⚠️'
+                      : '🚨'}
+              </div>
+              <div style="min-width:0; flex:1 1 260px;">
+                <div style="font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; color:${
+                  spacingFeedback.level === 'success' ? '#166534' :
+                  spacingFeedback.level === 'info' ? '#1e3a8a' :
+                  spacingFeedback.level === 'warning' ? '#92400e' :
+                  '#991b1b'
+                };">Diagnóstico Inteligente da Rotina</div>
+                <div style="font-size:1.12rem; font-weight:900; line-height:1.3; margin-bottom:8px; color:${
+                  spacingFeedback.level === 'success' ? '#166534' :
+                  spacingFeedback.level === 'info' ? '#1e3a8a' :
+                  spacingFeedback.level === 'warning' ? '#92400e' :
+                  '#991b1b'
+                };">${spacingFeedback.headline}</div>
+                <div style="line-height:1.6; color:var(--ink, #1f2937);">
+                  ${spacingFeedback.message}
+                </div>
+                ${spacingFeedback.detail ? `
+                  <details style="margin-top:12px;">
+                    <summary style="cursor:pointer; font-weight:700; font-size:.9rem; list-style:none; display:flex; align-items:center; gap:6px; user-select:none; color:${
+                      spacingFeedback.level === 'success' ? '#166534' :
+                      spacingFeedback.level === 'info' ? '#1e40af' :
+                      spacingFeedback.level === 'warning' ? '#a16207' :
+                      '#991b1b'
+                    };">
+                      <span>&#9658;</span> Entenda por que isto acontece
+                    </summary>
+                    <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(0,0,0,.08); font-size:.93rem; line-height:1.7; color:var(--ink, #1f2937);">
+                      ${spacingFeedback.detail.split('\n\n').map(p => `<p style="margin:0 0 10px 0;">${p.replace(/\n/g, '<br>')}</p>`).join('')}
+                    </div>
+                  </details>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        ` : ''}
         <div class="tabs" role="tablist">
           <button type="button" class="tab active" data-tab="visual" role="tab">Visual</button>
           <button type="button" class="tab" data-tab="tabela" role="tab">Tabela</button>
@@ -402,8 +498,8 @@ function buildRecommendations(profile, routine, results) {
  */
 function rebuildTimesAroundTraining(slots, routine) {
   const { trainStartTime, trainEndTime, trainDays, trainFasted, mealsPerDay, sleepStartTime, sleepEndTime } = routine;
-  if (!trainDays || trainDays <= 0) return slots;
-  if (!trainStartTime || !trainEndTime) return slots;
+  if (!trainDays || trainDays <= 0) return { slots, spacingFeedback: null };
+  if (!trainStartTime || !trainEndTime) return { slots, spacingFeedback: null };
 
   const toMins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const toTime = m => {
@@ -429,16 +525,150 @@ function rebuildTimesAroundTraining(slots, routine) {
   const tEndAdj = tEnd <= tStart ? tEnd + 1440 : tEnd;
 
   const n = slots.length;
-  if (n === 0) return slots;
+  if (n === 0) return { slots, spacingFeedback: null };
 
   const MEAL_DUR = { solid: 30, shake: 15, pre_workout_light: 10 };
   const slotDur = s => (s?.slot === 'pre_workout_light' ? 10 : MEAL_DUR[s?.type] ?? 15);
+  const TARGET_GAPS = [180, 165, 150, 120];
+  const spacingChecks = [];
+  const averageMealDuration = slots.reduce((sum, s) => sum + slotDur(s), 0) / n;
+  const getWindowCapacity = (ws, we, gapTarget) => {
+    if (we < ws) return 0;
+    return Math.max(1, Math.floor((we - ws) / (averageMealDuration + gapTarget)) + 1);
+  };
+  const buildSpacingFeedback = (windows, fixedMeals = 0) => {
+    const tightestGap = spacingChecks.reduce((min, item) => Math.min(min, item.gapUsed), Infinity);
+
+    if (tightestGap < 90) {
+      return {
+        level: 'danger',
+        headline: 'Analisámos a sua rotina: os intervalos ficaram curtos demais.',
+        message: 'Algumas refeições ficaram próximas demais para uma rotina confortável. Este cenário pode ser difícil de manter na prática.',
+        detail: `A sua 'janela acordado' é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app tenta encaixar refeições, shakes e treino.\n\nQuando o intervalo real entre refeições fica abaixo de 1h30, pode ser difícil digerir bem, sentir fome novamente e repetir a rotina todos os dias sem desconforto.\n\nIsso não significa que você falhou. Significa apenas que a sua rotina atual tem pouco espaço para tantas refeições.\n\nTente uma destas soluções:\n• reduzir o número de refeições;\n• transformar uma refeição sólida em shake;\n• acordar um pouco mais cedo ou dormir um pouco mais tarde, se isso fizer sentido;\n• manter 6 refeições em vez de 7 ou 8.`,
+      };
+    }
+
+    if (tightestGap < 120) {
+      return {
+        level: 'warning',
+        headline: 'Analisámos a sua rotina: os intervalos ficaram abaixo do ideal.',
+        message: 'Algumas refeições ficaram muito próximas. Para melhor conforto digestivo e maior consistência, tente reduzir o número de refeições ou aumentar a janela acordado.',
+        detail: `A sua 'janela acordado' é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app tenta encaixar refeições, shakes e treino.\n\nO mínimo aceitável para esta calculadora é cerca de 2h reais entre refeições. Quando o intervalo fica abaixo disso, pode ser mais difícil digerir bem, sentir fome novamente e manter a rotina sem desconforto.\n\nIsso não significa que você falhou. Significa apenas que a sua rotina atual tem pouco espaço para tantas refeições.`,
+      };
+    }
+
+    if (n >= 8) {
+      return {
+        level: 'warning',
+        headline: `Analisámos a sua rotina: ${n} refeições são possíveis, mas deixam o dia mais comprimido.`,
+        message: 'A app conseguiu encaixar os horários, mas já existe menos margem entre refeições. Este formato exige mais disciplina e pode não ser confortável para todos.',
+        detail: `A sua "janela acordado" é o espaço entre acordar e dormir. Quando tenta encaixar ${n} refeições nesse período, os intervalos entre elas ficam naturalmente mais curtos.\n\nIsso acontece porque o dia continua tendo o mesmo tamanho, mas há mais refeições, shakes e possivelmente treino para distribuir.\n\nO Sistema Híbrido continua útil porque os shakes reduzem o volume de comida sólida. Mesmo assim, ${n} refeições podem ser excessivas para algumas pessoas, especialmente para quem sente desconforto digestivo ou tem pouco apetite.\n\nSe o plano parecer apertado na prática, reduza para 6 refeições ou aumente a janela acordado. O objetivo não é comer a toda hora, é criar uma rotina que você consiga repetir.`,
+      };
+    }
+
+    if (n === 7) {
+      return {
+        level: 'info',
+        headline: 'Analisámos a sua rotina: 7 refeições ainda cabem na sua janela diária.',
+        message: 'A estrutura continua possível, mas os intervalos começam a ficar mais curtos. Aqui, seguir os horários com consistência faz mais diferença.',
+        detail: 'A sua "janela acordado" é o tempo disponível entre acordar e dormir. Quando coloca 7 refeições dentro dessa janela, a app precisa distribuir mais blocos no mesmo dia.\n\nIsso não significa que o plano esteja errado. Significa apenas que haverá menos folga entre refeições, principalmente quando existe treino no meio do dia.\n\nNesta situação, os shakes tornam o plano mais viável porque ocupam menos tempo, pesam menos no estômago e ajudam a manter o superávit calórico sem depender apenas de comida sólida.\n\nSe sentir desconforto ou falta de apetite, uma boa alternativa é voltar para 6 refeições ou aumentar a janela acordado.',
+      };
+    }
+
+    if (n === 6 && tightestGap < 150) {
+      return {
+        level: 'info',
+        headline: 'Analisámos a sua rotina: o Sistema Híbrido encaixa na sua janela diária.',
+        message: 'Com 6 refeições, a estrutura clássica do Sistema Híbrido fica bem distribuída, desde que mantenha consistência nos horários.',
+        detail: 'A sua "janela acordado" é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app tenta encaixar café da manhã, almoço, jantar, shakes e treino.\n\nQuanto mais refeições entram dentro da mesma janela, menor fica o intervalo entre uma refeição e outra. Por isso, 6 refeições continuam a fazer sentido no Sistema Híbrido, mas exigem mais organização.\n\nOs shakes ajudam exatamente aqui: são mais rápidos de consumir, mais leves que refeições sólidas e facilitam atingir calorias sem obrigar você a comer pratos grandes o tempo todo.\n\nO ideal é manter 2h30 a 3h entre refeições. Mas se a rotina permitir pelo menos 2h reais entre elas, o plano continua funcional.',
+      };
+    }
+
+    if (n === 6) {
+      return {
+        level: 'success',
+        headline: 'Analisámos a sua rotina: o Sistema Híbrido encaixa confortavelmente na sua janela diária.',
+        message: 'Com 6 refeições e uma boa margem entre elas, a estrutura clássica do Sistema Híbrido funciona bem na sua rotina.',
+        detail: 'A sua "janela acordado" é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app distribui café da manhã, almoço, jantar, shakes e treino.\n\n6 refeições é a estrutura clássica do Sistema Híbrido: normalmente 3 refeições sólidas e 3 shakes anabólicos. Essa combinação existe por um motivo concreto — os shakes são consumidos mais rapidamente, pesam menos no estômago e facilitam atingir o superávit calórico sem precisar comer grandes volumes a cada refeição.\n\nCom a sua janela acordado atual, há espaço confortável entre cada refeição. Isso significa menos pressão para seguir horários exatos e mais margem para quando o dia não corre perfeito — o que torna o plano mais sustentável a longo prazo.',
+      };
+    }
+
+    return {
+      level: 'success',
+      headline: 'Analisámos a sua rotina: esta quantidade de refeições encaixa bem na sua janela diária.',
+      message: 'A distribuição atual está dentro de uma janela confortável para digestão e consistência ao longo do dia, sem necessidade de apertar demasiado os intervalos.',
+      detail: null,
+    };
+  };
 
   const spaceTimes = (ws, we, count, durMin = 0) => {
     if (count === 0) return [];
-    if (count === 1) return [roundQ(Math.max(ws, Math.min(we - durMin, (ws + we - durMin) / 2)))];
-    const gap = Math.max(0, (we - ws - count * durMin) / (count - 1));
-    return Array.from({ length: count }, (_, i) => roundQ(ws + i * (durMin + gap)));
+
+    const durations = Array.isArray(durMin)
+      ? Array.from({ length: count }, (_, i) => Math.max(0, Number(durMin[i] ?? 0)))
+      : Array.from({ length: count }, () => Math.max(0, Number(durMin) || 0));
+
+    if (count === 1) return [roundQ(Math.max(ws, Math.min(we, (ws + we) / 2)))];
+
+    const totalPrevDur = durations.slice(0, -1).reduce((sum, d) => sum + d, 0);
+    const availableSpan = we - ws;
+    const tryBuildTimes = gap => {
+      const requiredSpan = totalPrevDur + gap * (count - 1);
+      if (requiredSpan > availableSpan) return null;
+      const start = ws + (availableSpan - requiredSpan) / 2;
+      const times = [start];
+      for (let i = 1; i < count; i++) times.push(times[i - 1] + durations[i - 1] + gap);
+      return times;
+    };
+
+    for (const gapTarget of TARGET_GAPS) {
+      const times = tryBuildTimes(gapTarget);
+      if (times) {
+        spacingChecks.push({ gapUsed: gapTarget });
+        return times.map(roundQ);
+      }
+    }
+
+    const compressedGap = (availableSpan - totalPrevDur) / (count - 1);
+    const times = [ws];
+    for (let i = 1; i < count; i++) times.push(times[i - 1] + durations[i - 1] + compressedGap);
+    const rounded = times.map(roundQ);
+    let minActualGap = Infinity;
+    for (let i = 1; i < count; i++) {
+      minActualGap = Math.min(minActualGap, rounded[i] - rounded[i - 1] - durations[i - 1]);
+    }
+    spacingChecks.push({ gapUsed: minActualGap });
+    return rounded;
+  };
+
+  const spaceTimesFromStart = (startTime, we, durations = []) => {
+    if (!durations.length) return [];
+    if (durations.length === 1) return [roundQ(startTime)];
+
+    const safeDurations = durations.map(d => Math.max(0, Number(d) || 0));
+    const times = [startTime];
+
+    for (let i = 1; i < safeDurations.length; i++) {
+      const currentStart = times[i - 1];
+      const prevDur = safeDurations[i - 1];
+      const remainingDur = safeDurations.slice(i, -1).reduce((sum, d) => sum + d, 0);
+      const remainingIntervals = safeDurations.length - i - 1;
+      const minFutureSpan = remainingDur + Math.max(0, remainingIntervals) * 120;
+
+      let chosenGap = 120;
+      for (const gapTarget of TARGET_GAPS) {
+        const nextStart = currentStart + prevDur + gapTarget;
+        if (nextStart + minFutureSpan <= we) {
+          chosenGap = gapTarget;
+          break;
+        }
+      }
+
+      times.push(currentStart + prevDur + chosenGap);
+      spacingChecks.push({ gapUsed: chosenGap });
+    }
+
+    return times.map(roundQ);
   };
 
   const POST_BUFFER = 20;
@@ -460,14 +690,20 @@ function rebuildTimesAroundTraining(slots, routine) {
       const base = earlyTemplates[n];
       if (base) {
         const delta = firstMealTime > base[0] ? firstMealTime - base[0] : 0;
-        return slots.map((s, i) => ({ ...s, time: toTime(base[i] + delta) }));
+        return {
+          slots: slots.map((s, i) => ({ ...s, time: toTime(base[i] + delta) })),
+          spacingFeedback: buildSpacingFeedback([[base[0] + delta, effectiveDayEnd]]),
+        };
       }
     }
     const firstSlot = { ...slots[0], time: toTime(firstMealTime) };
-    if (n === 1) return [firstSlot];
-    const restTimes = spaceTimes(firstMealTime + 150, effectiveDayEnd, n - 1, slotDur(slots[n - 1]));
-    const restSlots = slots.slice(1).map((s, i) => ({ ...s, time: i < restTimes.length ? toTime(restTimes[i]) : s.time }));
-    return [firstSlot, ...restSlots];
+    if (n === 1) return { slots: [firstSlot], spacingFeedback: null };
+    const allTimes = spaceTimesFromStart(firstMealTime, effectiveDayEnd, slots.map(slotDur));
+    const restSlots = slots.slice(1).map((s, i) => ({ ...s, time: i + 1 < allTimes.length ? toTime(allTimes[i + 1]) : s.time }));
+    return {
+      slots: [firstSlot, ...restSlots],
+      spacingFeedback: buildSpacingFeedback([[firstMealTime, effectiveDayEnd]]),
+    };
   }
 
   // Treino antes das 10:00 (ciclo normalizado) sem jejum → primeiro slot vira pré-treino leve
@@ -484,9 +720,12 @@ function rebuildTimesAroundTraining(slots, routine) {
       : restSlots;
     const postWindowStart = tEndAdj + POST_BUFFER;
     const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
-    const postTimes = spaceTimes(postWindowStart, effectiveDayEnd, adjustedRest.length, slotDur(adjustedRest[adjustedRest.length - 1]));
+    const postTimes = spaceTimes(postWindowStart, effectiveDayEnd, adjustedRest.length, adjustedRest.map(slotDur));
     const postSlots = adjustedRest.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
-    return [preSlot, ...postSlots];
+    return {
+      slots: [preSlot, ...postSlots],
+      spacingFeedback: buildSpacingFeedback([[postWindowStart, effectiveDayEnd]], 1),
+    };
   }
 
   // Buffer pré-treino: 7+ refeições → 120 min (rotina densa), 6 ou menos → 180 min (digestão ideal)
@@ -507,7 +746,7 @@ function rebuildTimesAroundTraining(slots, routine) {
     const preBuffer   = preSlotType === 'solid' ? 210 : 90;
     const preAnchor   = roundQ(tStart - preBuffer);
 
-    const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost, slotDur(slots[n - 1]));
+    const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost, slots.slice(nPre).map(slotDur));
 
     let preTimes;
     if (nPre === 0) {
@@ -523,8 +762,8 @@ function rebuildTimesAroundTraining(slots, routine) {
       if (!anchorsValid) {
         const earlyEnd = preAnchor - 150;
         preTimes = earlyEnd > dayStart
-          ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, slotDur(slots[nPre - 2])), preAnchor]
-          : spaceTimes(dayStart, preAnchor, nPre);
+          ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, slots.slice(0, nPre - 1).map(slotDur)), preAnchor]
+          : spaceTimes(dayStart, preAnchor, nPre, slots.slice(0, nPre).map(slotDur));
       } else {
         const raw = preSlots.map((s, i) => {
           if (i === nPre - 1) return preAnchor;
@@ -546,7 +785,15 @@ function rebuildTimesAroundTraining(slots, routine) {
     }
 
     const times = [...preTimes, ...postTimes];
-    return slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time }));
+    if (spacingChecks.length === 0) {
+      for (let i = 1; i < times.length; i++) {
+        spacingChecks.push({ gapUsed: times[i] - times[i - 1] - slotDur(slots[i - 1]) });
+      }
+    }
+    return {
+      slots: slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
+      spacingFeedback: buildSpacingFeedback([[dayStart, preAnchor], [tEndAdj + POST_BUFFER, effectiveDayEnd]]),
+    };
   }
 
   const preWindowEnd = tStart - PRE_BUFFER;
@@ -573,9 +820,12 @@ function rebuildTimesAroundTraining(slots, routine) {
   }
 
   const times = [
-    ...spaceTimes(dayStart, preWindowEnd, nPre, slotDur(slots[nPre - 1])),
-    ...spaceTimes(postWindowStart, effectiveDayEnd, nPost, slotDur(slots[n - 1])),
+    ...spaceTimes(dayStart, preWindowEnd, nPre, slots.slice(0, nPre).map(slotDur)),
+    ...spaceTimes(postWindowStart, effectiveDayEnd, nPost, slots.slice(nPre).map(slotDur)),
   ];
 
-  return slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time }));
+  return {
+    slots: slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
+    spacingFeedback: buildSpacingFeedback([[dayStart, preWindowEnd], [postWindowStart, effectiveDayEnd]]),
+  };
 }
