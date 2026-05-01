@@ -740,10 +740,7 @@ function rebuildTimesAroundTraining(slots, routine) {
     const postWin = effectiveDayEnd - (tEndAdj + POST_BUFFER);
     const nPost = postWin >= 60 ? Math.min(n - 1, 2) : 1;
     const nPre  = n - nPost;
-    // Distância mínima ao treino = digestão + duração real da refeição:
-    // sólido → 210 min (180 digestão + 30 duração); shake → 90 min (digestão rápida, duração curta já incluída)
-    const preSlotType = nPre > 0 ? (slots[nPre - 1]?.type || 'solid') : 'solid';
-    const preBuffer   = preSlotType === 'solid' ? 210 : 90;
+    const preBuffer   = 90;
     const preAnchor   = roundQ(tStart - preBuffer);
 
     const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost, slots.slice(nPre).map(slotDur));
