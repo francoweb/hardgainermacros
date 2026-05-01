@@ -664,8 +664,9 @@ function rebuildTimesAroundTraining(slots, routine) {
         }
       }
 
-      times.push(currentStart + prevDur + chosenGap);
-      spacingChecks.push({ gapUsed: chosenGap });
+      const nextTime = Math.min(currentStart + prevDur + chosenGap, we);
+      times.push(nextTime);
+      spacingChecks.push({ gapUsed: nextTime - currentStart - prevDur });
     }
 
     return times.map(roundQ);
