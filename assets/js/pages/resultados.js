@@ -539,7 +539,7 @@ function rebuildTimesAroundTraining(slots, routine) {
   const buildSpacingFeedback = (windows, fixedMeals = 0) => {
     const tightestGap = spacingChecks.reduce((min, item) => Math.min(min, item.gapUsed), Infinity);
 
-    if (tightestGap < 90 && n > 6) {
+    if (tightestGap < 90 && n >= 8) {
       return {
         level: 'danger',
         headline: 'Analisámos a sua rotina: os intervalos ficaram curtos demais.',
