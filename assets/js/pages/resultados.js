@@ -646,6 +646,12 @@ function rebuildTimesAroundTraining(slots, routine) {
     if (durations.length === 1) return [roundQ(startTime)];
 
     const safeDurations = durations.map(d => Math.max(0, Number(d) || 0));
+    const totalPrevDurs = safeDurations.slice(0, -1).reduce((s, d) => s + d, 0);
+    const nGaps = safeDurations.length - 1;
+    const overflow = startTime + totalPrevDurs + nGaps * 120 - we;
+    const floorGap = overflow > 120
+      ? Math.max(15, Math.floor((we - startTime - totalPrevDurs) / nGaps))
+      : 120;
     const times = [startTime];
 
     for (let i = 1; i < safeDurations.length; i++) {
@@ -653,9 +659,9 @@ function rebuildTimesAroundTraining(slots, routine) {
       const prevDur = safeDurations[i - 1];
       const remainingDur = safeDurations.slice(i, -1).reduce((sum, d) => sum + d, 0);
       const remainingIntervals = safeDurations.length - i - 1;
-      const minFutureSpan = remainingDur + Math.max(0, remainingIntervals) * 120;
+      const minFutureSpan = remainingDur + Math.max(0, remainingIntervals) * floorGap;
 
-      let chosenGap = 120;
+      let chosenGap = floorGap;
       for (const gapTarget of TARGET_GAPS) {
         const nextStart = currentStart + prevDur + gapTarget;
         if (nextStart + minFutureSpan <= we) {
