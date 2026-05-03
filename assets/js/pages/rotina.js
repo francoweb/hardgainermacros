@@ -267,7 +267,7 @@ export function renderRotinaPage(mount) {
     const [sh, sm] = start.split(':').map(Number);
     const [eh, em] = end.split(':').map(Number);
     let s = sh * 60 + sm, e = eh * 60 + em;
-    if (e <= s) e += 1440;
+    if (e < s) e += 1440;
     return e - s;
   };
 
@@ -315,6 +315,7 @@ export function renderRotinaPage(mount) {
   document.getElementById('in-train-start').addEventListener('change', (e) => {
     state.trainStartTime = e.target.value;
     errTrain.textContent = '';
+    errTrain.classList.remove('show');
     inferTrainTime();
     updateTrainHint();
     updateFastedVisibility();
@@ -323,6 +324,7 @@ export function renderRotinaPage(mount) {
   document.getElementById('in-train-end').addEventListener('change', (e) => {
     state.trainEndTime = e.target.value;
     errTrain.textContent = '';
+    errTrain.classList.remove('show');
     updateTrainHint();
     updateFastedVisibility();
   });
@@ -391,6 +393,7 @@ export function renderRotinaPage(mount) {
     hintTrain.textContent = 'Preencha o horário de início para detectar o período';
     hintTrain.classList.remove('highlight');
     errTrain.textContent = '';
+    errTrain.classList.remove('show');
     fieldFasted.style.display = 'none';
     state.sleepStartTime = '23:00'; state.sleepEndTime = '07:00';
     document.getElementById('in-sleep-start').value = '23:00';
@@ -402,20 +405,50 @@ export function renderRotinaPage(mount) {
   // Calculate
   document.getElementById('btn-calc').addEventListener('click', () => {
     errTrain.textContent = '';
+    errTrain.classList.remove('show');
 
     if (state.trainDays > 0) {
       if (!state.trainStartTime && !state.trainEndTime) {
         errTrain.textContent = 'Com dias de treino definidos, informe o início e o fim do treino.';
+        errTrain.classList.add('show');
         errTrain.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
       if (!state.trainStartTime) {
         errTrain.textContent = 'Informe o horário de início do treino.';
+        errTrain.classList.add('show');
         errTrain.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
       if (!state.trainEndTime) {
         errTrain.textContent = 'Informe o horário de fim do treino.';
+        errTrain.classList.add('show');
+        errTrain.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (state.trainStartTime && state.trainEndTime && state.trainStartTime === state.trainEndTime) {
+        errTrain.textContent = 'O fim do treino deve ser diferente do início.';
+        errTrain.classList.add('show');
+        errTrain.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      const _wake = toMinsW(state.sleepEndTime || '07:00');
+      let _sleep = toMinsW(state.sleepStartTime || '23:00');
+      if (_sleep <= _wake) _sleep += 1440;
+      const _rawStart = toMinsW(state.trainStartTime);
+      const _normStart = (_sleep > 1440 && _rawStart < _wake && (_rawStart + 1440) <= _sleep) ? _rawStart + 1440 : _rawStart;
+      const _rawEnd = toMinsW(state.trainEndTime);
+      const _dur = (_rawEnd < _rawStart ? _rawEnd + 1440 : _rawEnd) - _rawStart;
+      const _normEnd = _normStart + _dur;
+      if (_normStart < _wake || _normStart >= _sleep || _normEnd > _sleep) {
+        errTrain.textContent = 'O treino está dentro do horário de sono. Escolha um horário em que esteja acordado.';
+        errTrain.classList.add('show');
+        errTrain.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (_normStart < _wake + 30 || _normEnd > _sleep - 30) {
+        errTrain.textContent = 'Deixe pelo menos 30 minutos entre acordar/deitar e o treino.';
+        errTrain.classList.add('show');
         errTrain.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
