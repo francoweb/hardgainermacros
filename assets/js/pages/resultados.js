@@ -719,7 +719,7 @@ function rebuildTimesAroundTraining(slots, routine) {
     const originalKcal = slots[0].kcal || 0;
     const preKcal = originalKcal < 180 ? originalKcal : Math.min(originalKcal, 250);
     const excedente = originalKcal - preKcal;
-    const preSlot = { ...slots[0], slot: 'pre_workout_light', type: 'shake', kcal: preKcal, time: toTime(Math.max(0, tStart - 30)) };
+    const preSlot = { ...slots[0], slot: 'pre_workout_light', type: 'shake', kcal: preKcal, time: toTime(Math.max(wakeMin + 15, tStart - 30)) };
     const restSlots = slots.slice(1);
     // Redistribuir excedente proporcionalmente pelas kcal originais dos slots pós-treino
     const totalRestKcal = restSlots.reduce((sum, s) => sum + (s.kcal || 0), 0);
