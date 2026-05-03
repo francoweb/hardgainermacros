@@ -32,6 +32,7 @@ const SLOT_LABEL = {
   shake_extra: 'Shake Extra',
   shake_extra2: 'Shake Extra 2',
   pre_workout_light: 'Shake Pré-Treino Leve',
+  post_workout_night: 'Shake Pós-Treino Leve Antes de Dormir',
 };
 
 const DIFFICULTY_LABEL = {
@@ -740,6 +741,63 @@ function rebuildTimesAroundTraining(slots, routine) {
 
   // Estende a janela quando o buffer pós-treino já ultrapassa o dayEnd (ex.: treino perto da hora de dormir)
   const effectiveDayEnd = tEndAdj + POST_BUFFER > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
+
+  // Treino noturno tardio: termina 30–60 min antes de dormir → shake leve pós-treino sem slot extra
+  if (tStart >= 960 && n >= 2 && (sleepMin - tEnd) >= 30 && (sleepMin - tEnd) <= 60) {
+    const postIdx = (() => {
+      for (let i = slots.length - 1; i >= 0; i--) { if (slots[i].type === 'shake') return i; }
+      return -1;
+    })();
+    if (postIdx !== -1) {
+      const shakeTime = roundQ(tEnd + 10);
+      const postSlot = { ...slots[postIdx], slot: 'post_workout_night' };
+      const preSlots = [...slots.slice(0, postIdx), ...slots.slice(postIdx + 1)];
+      const nPre = preSlots.length;
+      const preAnchor = roundQ(tStart - 90);
+      let preTimes;
+      if (nPre === 0) {
+        preTimes = [];
+      } else if (nPre === 1) {
+        preTimes = [preAnchor];
+      } else {
+        const NATURAL_ANCHOR = { breakfast: wakeMin + 15, lunch: 780 };
+        const anchorsValid = Object.values(NATURAL_ANCHOR).every(a => a >= dayStart && a < preAnchor);
+        if (!anchorsValid) {
+          const earlyEnd = preAnchor - 150;
+          preTimes = earlyEnd > dayStart
+            ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, preSlots.slice(0, nPre - 1).map(slotDur)), preAnchor]
+            : spaceTimes(dayStart, preAnchor, nPre, preSlots.map(slotDur));
+        } else {
+          const raw = preSlots.map((s, i) => {
+            if (i === nPre - 1) return preAnchor;
+            const a = NATURAL_ANCHOR[s.slot];
+            return (s.type === 'solid' && a !== undefined) ? a : null;
+          });
+          for (let i = 0; i < raw.length - 1; i++) {
+            if (raw[i] !== null) continue;
+            const prev = raw.slice(0, i).reverse().find(v => v !== null) ?? dayStart;
+            let ni = i + 1; while (ni < raw.length && raw[ni] === null) ni++;
+            const next = raw[ni] ?? preAnchor;
+            const gap = ni - i;
+            for (let k = 0; k < gap; k++) raw[i + k] = prev + (next - prev) * (k + 1) / (gap + 1);
+            i = ni - 1;
+          }
+          preTimes = raw.map(t => roundQ(t ?? preAnchor));
+        }
+      }
+      const allSlots = [...preSlots, postSlot];
+      const times = [...preTimes, shakeTime];
+      if (spacingChecks.length === 0) {
+        for (let i = 1; i < times.length; i++) {
+          spacingChecks.push({ gapUsed: times[i] - times[i - 1] - slotDur(allSlots[i - 1]) });
+        }
+      }
+      return {
+        slots: allSlots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
+        spacingFeedback: buildSpacingFeedback([[dayStart, preAnchor]]),
+      };
+    }
+  }
 
   // Treino à tarde/noite (≥ 16:00, ciclo normalizado): distribuição ancorada para horários humanos
   // — pino pré-treino 90 min antes + slots pós-treino adaptativos (2 se janela ≥ 60 min, 1 caso contrário)
