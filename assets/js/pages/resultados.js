@@ -36,9 +36,10 @@ const SLOT_LABEL = {
 };
 
 const getDisplayMealLabel = (slot, time) => {
-  if (slot === 'dinner' && time) {
+  if (time) {
     const h = parseInt(time.split(':')[0], 10);
-    if (h < 17) return 'Refeição da Tarde';
+    if (slot === 'dinner' && h < 17) return 'Refeição da Tarde';
+    if (slot === 'lunch'  && h >= 16) return 'Refeição da Tarde';
   }
   return SLOT_LABEL[slot] || slot;
 };
