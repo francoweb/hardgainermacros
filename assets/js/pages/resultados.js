@@ -35,6 +35,14 @@ const SLOT_LABEL = {
   post_workout_night: 'Shake Pós-Treino Leve Antes de Dormir',
 };
 
+const getDisplayMealLabel = (slot, time) => {
+  if (slot === 'dinner' && time) {
+    const h = parseInt(time.split(':')[0], 10);
+    if (h < 17) return 'Refeição da Tarde';
+  }
+  return SLOT_LABEL[slot] || slot;
+};
+
 const DIFFICULTY_LABEL = {
   classico: 'Hardgainer Clássico',
   apetite_baixo: 'Apetite Baixo',
@@ -322,7 +330,7 @@ export function renderResultadosPage(mount) {
             ` : `
               <div class="meal-row">
                 <div class="meal-time">${s.time || ''}</div>
-                <div class="meal-name">${SLOT_LABEL[s.slot] || s.slot}</div>
+                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time)}</div>
                 <span class="meal-tag ${s.type}">${s.type === 'solid' ? 'Sólida' : 'Shake'}</span>
                 <div class="meal-macros">
                   <span class="meal-macro-label">kcal</span>
@@ -345,7 +353,7 @@ export function renderResultadosPage(mount) {
                 </tr>
               ` : `
                 <tr>
-                  <td>${SLOT_LABEL[s.slot] || s.slot}</td>
+                  <td>${getDisplayMealLabel(s.slot, s.time)}</td>
                   <td>${s.type === 'solid' ? 'Sólida' : 'Shake'}</td>
                   <td>${s.time || ''}</td>
                   <td style="text-align:right">${formatKcal(s.kcal)}</td>
