@@ -35,7 +35,13 @@ const SLOT_LABEL = {
   post_workout_night: 'Shake Pós-Treino Leve Antes de Dormir',
 };
 
-const getDisplayMealLabel = (slot, time) => {
+const getDisplayMealLabel = (slot, time, wakeMin = 420) => {
+  if (wakeMin >= 1200) {
+    if (slot === 'breakfast')   return 'Primeira Refeição';
+    if (slot === 'lunch')       return 'Refeição Intercalar';
+    if (slot === 'dinner')      return 'Refeição Principal';
+    if (slot === 'shake_night') return 'Shake Pré-Sono';
+  }
   if (time) {
     const h = parseInt(time.split(':')[0], 10);
     if (slot === 'dinner'    && h < 17)  return 'Refeição da Tarde';
@@ -118,6 +124,8 @@ export function renderResultadosPage(mount) {
     for (let i = 0; i < corrected.length; i++) { if (normM(_toMins(corrected[i].time)) > tm) { idx = i; break; } }
     return [...corrected.slice(0, idx), entry, ...corrected.slice(idx)];
   })();
+
+  const wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
 
   mount.innerHTML = `
     <div class="container">
@@ -332,7 +340,7 @@ export function renderResultadosPage(mount) {
             ` : `
               <div class="meal-row">
                 <div class="meal-time">${s.time || ''}</div>
-                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time)}</div>
+                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time, wakeMin)}</div>
                 <span class="meal-tag ${s.type}">${s.type === 'solid' ? 'Sólida' : 'Shake'}</span>
                 <div class="meal-macros">
                   <span class="meal-macro-label">kcal</span>
@@ -355,7 +363,7 @@ export function renderResultadosPage(mount) {
                 </tr>
               ` : `
                 <tr>
-                  <td>${getDisplayMealLabel(s.slot, s.time)}</td>
+                  <td>${getDisplayMealLabel(s.slot, s.time, wakeMin)}</td>
                   <td>${s.type === 'solid' ? 'Sólida' : 'Shake'}</td>
                   <td>${s.time || ''}</td>
                   <td style="text-align:right">${formatKcal(s.kcal)}</td>
