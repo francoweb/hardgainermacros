@@ -36,7 +36,7 @@ const SLOT_LABEL = {
 };
 
 const getDisplayMealLabel = (slot, time, wakeMin = 420) => {
-  if (wakeMin >= 1200) {
+  if (wakeMin >= 1140) {
     if (slot === 'breakfast')   return 'Primeira Refeição';
     if (slot === 'lunch')       return 'Refeição Intercalar';
     if (slot === 'dinner')      return 'Refeição Principal';
