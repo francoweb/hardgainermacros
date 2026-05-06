@@ -128,7 +128,8 @@ export function renderResultadosPage(mount) {
   const wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
   const sleepStartMin = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
   const nocturnal = wakeMin >= 1140
-    || (sleepStartMin >= 600 && sleepStartMin < 1140 && wakeMin <= 360);
+    || (sleepStartMin >= 600 && sleepStartMin <= 1140 && wakeMin <= 360)
+    || (sleepStartMin > 1140 && wakeMin <= 180);
 
   mount.innerHTML = `
     <div class="container">
