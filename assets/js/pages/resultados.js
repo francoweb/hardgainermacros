@@ -35,8 +35,8 @@ const SLOT_LABEL = {
   post_workout_night: 'Shake Pós-Treino Leve Antes de Dormir',
 };
 
-const getDisplayMealLabel = (slot, time, wakeMin = 420) => {
-  if (wakeMin >= 1140) {
+const getDisplayMealLabel = (slot, time, nocturnal = false) => {
+  if (nocturnal) {
     if (slot === 'breakfast')   return 'Primeira Refeição';
     if (slot === 'lunch')       return 'Refeição Intercalar';
     if (slot === 'dinner')      return 'Refeição Principal';
@@ -126,6 +126,9 @@ export function renderResultadosPage(mount) {
   })();
 
   const wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
+  const sleepStartMin = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
+  const nocturnal = wakeMin >= 1140
+    || (sleepStartMin >= 600 && sleepStartMin < 1140 && wakeMin <= 360);
 
   mount.innerHTML = `
     <div class="container">
@@ -340,7 +343,7 @@ export function renderResultadosPage(mount) {
             ` : `
               <div class="meal-row">
                 <div class="meal-time">${s.time || ''}</div>
-                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time, wakeMin)}</div>
+                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time, nocturnal)}</div>
                 <span class="meal-tag ${s.type}">${s.type === 'solid' ? 'Sólida' : 'Shake'}</span>
                 <div class="meal-macros">
                   <span class="meal-macro-label">kcal</span>
@@ -363,7 +366,7 @@ export function renderResultadosPage(mount) {
                 </tr>
               ` : `
                 <tr>
-                  <td>${getDisplayMealLabel(s.slot, s.time, wakeMin)}</td>
+                  <td>${getDisplayMealLabel(s.slot, s.time, nocturnal)}</td>
                   <td>${s.type === 'solid' ? 'Sólida' : 'Shake'}</td>
                   <td>${s.time || ''}</td>
                   <td style="text-align:right">${formatKcal(s.kcal)}</td>
