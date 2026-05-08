@@ -734,51 +734,70 @@ ul, ol { margin: 0; padding: 0; }
 .macro-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 .macro-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 18px;
+  border-radius: 16px;
+  padding: 22px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
 }
 .macro-head {
   display: flex;
   align-items: center;
   gap: 8px;
   color: var(--ink-soft);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
 }
 .macro-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
-  color: #fff;
+  flex-shrink: 0;
 }
-.macro-dot.cal { background: var(--cal); }
-.macro-dot.protein { background: var(--protein); }
-.macro-dot.carb { background: var(--carb); }
-.macro-dot.fat { background: var(--fat); }
+.macro-dot.cal     { background: rgba(226,138, 90,.14); color: var(--cal); }
+.macro-dot.protein { background: rgba(194, 86, 86,.12); color: var(--protein); }
+.macro-dot.carb    { background: rgba(217,162, 76,.14); color: var(--carb); }
+.macro-dot.fat     { background: rgba( 94,143,179,.14); color: var(--fat); }
+.macro-dot svg     { width: 18px; height: 18px; }
+.macro-dot img     { width: 20px; height: 20px; object-fit: contain; display: block; }
 
 .macro-val {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 800;
   color: var(--ink);
   line-height: 1;
   font-family: var(--font-display);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
 }
-.macro-unit { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+.macro-unit {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-weight: 500;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
 .macro-bar {
-  height: 4px;
+  height: 6px;
   background: var(--bg-soft);
   border-radius: var(--r-pill);
-  margin-top: 10px;
+  margin-top: auto;
   overflow: hidden;
 }
 .macro-bar-fill { height: 100%; border-radius: var(--r-pill); }

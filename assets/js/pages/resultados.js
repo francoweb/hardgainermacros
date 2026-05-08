@@ -142,7 +142,7 @@ export function renderResultadosPage(mount) {
       <div class="macro-grid">
         <div class="macro-card cal">
           <div class="macro-head">
-            <span class="macro-dot">${icons.flame(16)}</span>
+            <span class="macro-dot"><img src="/assets/img/macro-icons/calorias.webp" alt="Calorias"></span>
             <span>Calorias</span>
           </div>
           <div class="macro-val">${formatKcal(results.calories)}<span class="macro-unit">kcal/dia</span></div>
@@ -150,7 +150,7 @@ export function renderResultadosPage(mount) {
         </div>
         <div class="macro-card protein">
           <div class="macro-head">
-            <span class="macro-dot">${icons.meat(16)}</span>
+            <span class="macro-dot"><img src="/assets/img/macro-icons/proteina.webp" alt="Proteína"></span>
             <span>Proteína</span>
           </div>
           <div class="macro-val">${results.protein.grams}g<span class="macro-unit">${results.protein.pct}% • ${formatKcal(results.protein.kcal)} kcal</span></div>
@@ -158,7 +158,7 @@ export function renderResultadosPage(mount) {
         </div>
         <div class="macro-card carb">
           <div class="macro-head">
-            <span class="macro-dot">${icons.wheat(16)}</span>
+            <span class="macro-dot"><img src="/assets/img/macro-icons/carboidratos.webp" alt="Carboidratos"></span>
             <span>Carboidratos</span>
           </div>
           <div class="macro-val">${results.carb.grams}g<span class="macro-unit">${results.carb.pct}% • ${formatKcal(results.carb.kcal)} kcal</span></div>
@@ -166,7 +166,7 @@ export function renderResultadosPage(mount) {
         </div>
         <div class="macro-card fat">
           <div class="macro-head">
-            <span class="macro-dot">${icons.droplet(16)}</span>
+            <span class="macro-dot"><img src="/assets/img/macro-icons/gorduras.webp" alt="Gorduras"></span>
             <span>Gorduras</span>
           </div>
           <div class="macro-val">${results.fat.grams}g<span class="macro-unit">${results.fat.pct}% • ${formatKcal(results.fat.kcal)} kcal</span></div>
