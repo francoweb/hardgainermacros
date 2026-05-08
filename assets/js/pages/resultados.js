@@ -138,6 +138,10 @@ export function renderResultadosPage(mount) {
         <p class="hero-sub">Baseado no Sistema de Alimentação Híbrida para Hardgainers</p>
       </div>
 
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" id="btn-back-top">← Voltar e ajustar rotina</button>
+      </div>
+
       <!-- Macro cards -->
       <div class="macro-grid">
         <div class="macro-card cal">
@@ -410,6 +414,10 @@ export function renderResultadosPage(mount) {
           Ver Plano Alimentar de 14 Dias ${icons.arrowRight(16)}
         </button>
       </div>
+
+      <div class="btn-row btn-row-center">
+        <button type="button" class="btn btn-ghost" id="btn-back-bottom">← Voltar e ajustar rotina</button>
+      </div>
     </div>
   `;
 
@@ -422,6 +430,10 @@ export function renderResultadosPage(mount) {
       document.getElementById('tab-content-tabela').style.display = tab === 'tabela' ? 'block' : 'none';
     });
   });
+
+  // Back buttons
+  document.getElementById('btn-back-top').addEventListener('click', () => navigate('/rotina'));
+  document.getElementById('btn-back-bottom').addEventListener('click', () => navigate('/rotina'));
 
   // Generate plan and go
   document.getElementById('btn-plan').addEventListener('click', () => {

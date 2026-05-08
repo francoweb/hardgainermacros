@@ -1532,5 +1532,18 @@ ul, ol { margin: 0; padding: 0; }
   .meal-card { page-break-inside: avoid; }
 }
 
+/* ---------- Botões Voltar — página /resultados (fundo bege) ---------- */
+#btn-back-top,
+#btn-back-bottom {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+#btn-back-top:hover,
+#btn-back-bottom:hover {
+  background: var(--bg-soft);
+  border-color: var(--border-strong);
+}
+
 /* ---------- Tag chips (Interpretação do Perfil) ---------- */
 .tag { display: inline-block; background: var(--accent-softer); color: var(--accent-dark); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: var(--r-pill); border: 1px solid var(--accent-soft); }
