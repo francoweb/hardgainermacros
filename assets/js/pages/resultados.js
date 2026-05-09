@@ -86,11 +86,7 @@ export function renderResultadosPage(mount) {
   const shakeCount = (results.slotDistribution || []).filter(s => s.type === 'shake').length;
 
   // Tags de interpretação
-  const tags = [];
-  if (profile.falsoMagro) tags.push('Falso Magro');
-  if (profile.difficulty) tags.push(DIFFICULTY_LABEL[profile.difficulty] || profile.difficulty);
-  tags.push(ACTIVITY_LABEL[profile.activity] || 'Ativo');
-  tags.push(STRATEGY_LABEL[routine.strategy] || 'Híbrido');
+  const tags = buildTags(profile, routine, results);
 
   // Interpretação textual
   const interpretation = buildInterpretation(profile, routine, results, formData);
@@ -454,25 +450,121 @@ export function renderResultadosPage(mount) {
 /* Helpers                                                                      */
 /* ============================================================================ */
 
+function getTrainingTimeTag(routine) {
+  if (!routine || !(routine.trainDays > 0) || !routine.trainStartTime) return null;
+  const parts = routine.trainStartTime.split(':');
+  if (parts.length < 2) return null;
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  const mins = h * 60 + m;
+  if (mins <  300) return 'Treino de Madrugada';       // 00:00–04:59
+  if (mins <  480) return 'Treino no Início da Manhã'; // 05:00–07:59
+  if (mins <  660) return 'Treino de Manhã';           // 08:00–10:59
+  if (mins <  720) return 'Treino no Fim da Manhã';    // 11:00–11:59
+  if (mins <  840) return 'Treino no Início da Tarde'; // 12:00–13:59
+  if (mins < 1020) return 'Treino à Tarde';            // 14:00–16:59
+  if (mins < 1080) return 'Treino no Fim da Tarde';    // 17:00–17:59
+  if (mins < 1200) return 'Treino no Início da Noite'; // 18:00–19:59
+  if (mins < 1320) return 'Treino à Noite';            // 20:00–21:59
+  return 'Treino no Fim da Noite';                     // 22:00–23:59
+}
+
+function getTrainingPeriodText(startTime) {
+  if (!startTime) return null;
+  const parts = startTime.split(':');
+  if (parts.length < 2) return null;
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  const mins = h * 60 + m;
+  if (mins <  300) return 'de madrugada';
+  if (mins <  480) return 'no início da manhã';
+  if (mins <  660) return 'de manhã';
+  if (mins <  720) return 'no fim da manhã';
+  if (mins <  840) return 'no início da tarde';
+  if (mins < 1020) return 'à tarde';
+  if (mins < 1080) return 'no fim da tarde';
+  if (mins < 1200) return 'no início da noite';
+  if (mins < 1320) return 'à noite';
+  return 'no fim da noite';
+}
+
+function buildTags(profile, routine, results) {
+  const tags = [];
+
+  // TAG 1 — Perfil hardgainer (sempre presente)
+  if (profile.falsoMagro) {
+    tags.push('Falso Magro');
+  } else {
+    tags.push({
+      classico:            'Hardgainer Clássico',
+      ultra_acelerado:     'Metabolismo Acelerado',
+      apetite_baixo:       'Apetite Reduzido',
+      volume_baixo:        'Baixo Volume Gástrico',
+      rotina_corrida:      'Rotina Corrida',
+      falta_consistencia:  'Consistência em Foco',
+    }[profile.difficulty] || 'Hardgainer');
+  }
+
+  // TAG 2 — Nível de atividade
+  const activityTag = {
+    sedentary:   'Sedentário',
+    light:       'Levemente Ativo',
+    moderate:    'Moderadamente Ativo',
+    active:      'Muito Ativo',
+    very_active: 'Extremamente Ativo',
+  }[profile.activity];
+  if (activityTag) tags.push(activityTag);
+
+  // TAG 3 — Estratégia alimentar
+  const strategyTag = {
+    solid:     'Alimentação Sólida',
+    hybrid:    'Sistema Híbrido',
+    practical: 'Estratégia Prática',
+  }[routine.strategy];
+  if (strategyTag) tags.push(strategyTag);
+
+  // TAG 4 — Janela de treino
+  const trainTag = getTrainingTimeTag(routine);
+  if (trainTag) tags.push(trainTag);
+
+  // TAG 5 — Refeições por dia
+  if (routine.mealsPerDay) {
+    tags.push(`${routine.mealsPerDay} Refeições/dia`);
+  }
+
+  // TAG 6 — Meta de ganho semanal
+  const gainLow  = results.weeklyGainLowKg;
+  const gainHigh = results.weeklyGainHighKg;
+  if (gainLow && gainHigh) {
+    const lo = String(gainLow).replace('.', ',');
+    const hi = String(gainHigh).replace('.', ',');
+    tags.push(`Meta ${lo}–${hi} kg/sem`);
+  } else if (results.surplus) {
+    if (results.surplus <= 300)      tags.push('Superávit Conservador');
+    else if (results.surplus <= 500) tags.push('Superávit Moderado');
+    else                             tags.push('Superávit Agressivo');
+  }
+
+  // Máximo 6, sem duplicatas e sem valores vazios
+  return [...new Set(tags.filter(Boolean))].slice(0, 6);
+}
+
 function buildInterpretation(profile, routine, results, formData) {
   const parts = [];
 
   const wKg = results.weightKg ? Math.round(results.weightKg) : null;
   const weightStr = wKg ? `Com ${wKg} kg` : 'Com o seu perfil';
 
-  const hasTrain = routine.trainDays > 0 && routine.trainStartTime;
+  const hasTrain = routine.trainDays > 0;
   const trainCtx = hasTrain
     ? `${routine.trainDays} treino${routine.trainDays > 1 ? 's' : ''}/semana${routine.trainDurationMinutes ? ' de ' + routine.trainDurationMinutes + ' min' : ''}`
     : null;
 
-  const trainPeriod = (() => {
-    if (!routine.trainStartTime) return null;
-    const h = parseInt(routine.trainStartTime.split(':')[0], 10);
-    if (h < 6)  return 'de madrugada';
-    if (h < 14) return 'de manhã';
-    if (h < 18) return 'à tarde';
-    return 'à noite';
-  })();
+  const trainPeriod = hasTrain
+    ? (getTrainingPeriodText(routine.trainStartTime) || 'em horário personalizado')
+    : null;
 
   const contextLine = trainCtx
     ? `${weightStr} e ${trainCtx}${trainPeriod ? ' ' + trainPeriod : ''}`
