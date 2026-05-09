@@ -84,6 +84,16 @@ export function renderResultadosPage(mount) {
 
   const solidCount = (results.slotDistribution || []).filter(s => s.type === 'solid').length;
   const shakeCount = (results.slotDistribution || []).filter(s => s.type === 'shake').length;
+  const totalMeals = routine.mealsPerDay || (solidCount + shakeCount) || 6;
+  const solidLabel = solidCount === 1 ? 'refeição sólida' : 'refeições sólidas';
+  const shakeLabel = shakeCount === 1 ? 'shake anabólico' : 'shakes anabólicos';
+  const sequenceHtml = (results.slotDistribution || []).map((s, i, arr) => {
+    const chip = s.type === 'solid'
+      ? `<span class="hybrid-seq-chip solid">${icons.utensils(13)} Sólida</span>`
+      : `<span class="hybrid-seq-chip shake">${icons.droplet(13)} Shake</span>`;
+    const arrow = i < arr.length - 1 ? '<span class="hybrid-seq-arrow">›</span>' : '';
+    return chip + arrow;
+  }).join('');
 
   // Tags de interpretação
   const tags = buildTags(profile, routine, results);
@@ -218,7 +228,7 @@ export function renderResultadosPage(mount) {
       <!-- Hybrid system -->
       <div class="card">
         <h3 class="card-title">Sistema Híbrido Recomendado</h3>
-        <p class="card-sub">${routine.mealsPerDay || 6} refeições distribuídas ao longo do dia</p>
+        <p class="card-sub">${totalMeals} refeições distribuídas ao longo do dia — ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}</p>
         <div class="macro-grid macro-grid-2" style="margin-top: 14px;">
           <div class="macro-card">
             <div class="macro-head"><span class="macro-dot">${icons.utensils(16)}</span><span>Refeições Sólidas</span></div>
@@ -228,6 +238,11 @@ export function renderResultadosPage(mount) {
             <div class="macro-head"><span class="macro-dot">${icons.droplet(16)}</span><span>Shakes Anabólicos</span></div>
             <div class="macro-val">${shakeCount}<span class="macro-unit">por dia</span></div>
           </div>
+        </div>
+        ${sequenceHtml ? `<div class="hybrid-sequence">${sequenceHtml}</div>` : ''}
+        <div class="hybrid-explain">
+          <div class="hybrid-explain-label">Por que esse formato?</div>
+          <p>Shakes anabólicos garantem calorias e proteína sem sensação de peso — essencial para quem tem apetite reduzido ou rotina corrida. Alternar com refeições sólidas mantém a saciedade e a ingestão de micronutrientes ao longo do dia.</p>
         </div>
         <div class="hint" style="margin-top: 14px;">
           <span class="hint-icon">${icons.clock(18)}</span>

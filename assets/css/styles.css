@@ -325,6 +325,7 @@ ul, ol { margin: 0; padding: 0; }
   border-radius: var(--r-xl);
   padding: 32px;
   box-shadow: var(--sh-md);
+  margin-bottom: 20px;
 }
 .card-sm {
   padding: 20px;
@@ -1479,6 +1480,22 @@ ul, ol { margin: 0; padding: 0; }
 .macro-card.protein .macro-dot { color: var(--protein); }
 .macro-card.carb    .macro-dot { color: var(--carb); }
 .macro-card.fat     .macro-dot { color: var(--fat); }
+
+/* Hybrid section 2-col cards — centrados */
+.macro-grid-2 .macro-card { text-align: center; align-items: center; }
+.macro-grid-2 .macro-card .macro-head { justify-content: center; }
+
+/* Hybrid explain block */
+.hybrid-explain { margin-top: 14px; padding: 14px 16px; background: var(--accent-softer); border: 1px solid var(--accent-soft); border-radius: var(--r-lg); }
+.hybrid-explain-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-dark); margin-bottom: 6px; }
+.hybrid-explain p { margin: 0; font-size: 14px; color: var(--ink); line-height: 1.55; }
+
+/* Hybrid sequence chips */
+.hybrid-sequence { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.hybrid-seq-chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; border: 1px solid; }
+.hybrid-seq-chip.solid { background: #fff8f2; color: #b45309; border-color: #fcd9a5; }
+.hybrid-seq-chip.shake { background: #eef6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.hybrid-seq-arrow { color: var(--ink-muted); font-size: 16px; line-height: 1; }
 
 /* ---------- Stat row ---------- */
 .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
