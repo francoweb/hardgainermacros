@@ -851,6 +851,37 @@ ul, ol { margin: 0; padding: 0; }
 }
 .tag.success { background: var(--success-soft); color: var(--success-dark); }
 
+/* Profile summary ficha */
+.profile-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 20px;
+  background: var(--bg-soft);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.profile-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.profile-summary-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.profile-summary-value {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+@media (max-width: 480px) {
+  .profile-summary { grid-template-columns: repeat(2, 1fr); gap: 6px 10px; padding: 10px 12px; }
+}
+
 /* Meal breakdown */
 .meal-list { display: flex; flex-direction: column; gap: 10px; }
 .meal-row {
@@ -1338,7 +1369,14 @@ ul, ol { margin: 0; padding: 0; }
   .option-grid-2 { grid-template-columns: 1fr; }
 
   .macro-grid { grid-template-columns: 1fr 1fr; }
+  .macro-card { padding: 16px 14px 12px; }
+  .macro-val { font-size: 26px; }
+  .macro-head { font-size: 10.5px; margin-bottom: 8px; }
   .stat-row { grid-template-columns: 1fr; }
+  .stat-val { font-size: 22px; }
+  .results-hero { padding: 20px 16px; }
+  .profile-summary { padding: 10px 12px; gap: 6px 14px; }
+  .profile-summary-value { font-size: 13px; }
   .meal-macros { font-size: 12px; }
 
   .day-head { padding: 16px; gap: 12px; }
@@ -1364,6 +1402,11 @@ ul, ol { margin: 0; padding: 0; }
 @media (max-width: 420px) {
   .step-label { display: none; }
   .plan-hero-meta { flex-direction: column; gap: 8px; }
+  .hero-title { font-size: 24px; }
+  .macro-val { font-size: 22px; }
+  .macro-card { padding: 12px 10px 10px; }
+  .macro-head { font-size: 9.5px; }
+  .profile-summary { grid-template-columns: 1fr; gap: 6px; }
 }
 
 /* Print styles for the 14-day plan */
@@ -1452,9 +1495,10 @@ ul, ol { margin: 0; padding: 0; }
 .tab-content { margin-top: 8px; }
 
 /* ---------- Data table ---------- */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.data-table th { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--ink-muted); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; }
-.data-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-soft); color: var(--ink); font-variant-numeric: tabular-nums; }
+.data-table th { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--ink-muted); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.data-table td { padding: 10px 8px; border-bottom: 1px solid var(--border-soft); color: var(--ink); font-variant-numeric: tabular-nums; word-break: break-word; }
 .data-table tr.tfoot td { border-top: 2px solid var(--border-strong); border-bottom: none; padding-top: 14px; }
 
 /* ---------- Meal tag / badge colors ---------- */

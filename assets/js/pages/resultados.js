@@ -93,7 +93,9 @@ export function renderResultadosPage(mount) {
   tags.push(STRATEGY_LABEL[routine.strategy] || 'Híbrido');
 
   // Interpretação textual
-  const interpretation = buildInterpretation(profile, routine, results);
+  const interpretation = buildInterpretation(profile, routine, results, formData);
+  // Ficha resumo de perfil
+  const profileSummary = buildProfileSummary(formData, profile, routine, results);
 
   // Recomendações personalizadas
   const recommendations = buildRecommendations(profile, routine, results);
@@ -188,7 +190,7 @@ export function renderResultadosPage(mount) {
         <div class="stat">
           <div class="stat-label">Gasto Total (TDEE)</div>
           <div class="stat-val">${formatKcal(results.tdee)}</div>
-          <div class="stat-desc">com a sua atividade</div>
+          <div class="stat-desc">com a sua atividade diária</div>
         </div>
         <div class="stat accent">
           <div class="stat-label">Superávit</div>
@@ -199,7 +201,9 @@ export function renderResultadosPage(mount) {
 
       <!-- Perfil interpretation -->
       <div class="card">
-        <h3 class="card-title">Interpretação do Seu Perfil</h3>
+        <h3 class="card-title">Análise do Seu Perfil Hardgainer</h3>
+        <p class="card-sub" style="margin-bottom: 16px;">Ficha personalizada com base nos dados que você preencheu</p>
+        ${profileSummary}
         <div class="tag-row">
           ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
         </div>
@@ -359,6 +363,7 @@ export function renderResultadosPage(mount) {
           </div>
         </div>
         <div id="tab-content-tabela" class="tab-content" style="display:none;">
+          <div class="table-wrap">
           <table class="data-table">
             <thead><tr><th>Refeição</th><th>Tipo</th><th>Horário</th><th style="text-align:right">kcal</th></tr></thead>
             <tbody>
@@ -383,6 +388,7 @@ export function renderResultadosPage(mount) {
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -448,32 +454,89 @@ export function renderResultadosPage(mount) {
 /* Helpers                                                                      */
 /* ============================================================================ */
 
-function buildInterpretation(profile, routine, results) {
+function buildInterpretation(profile, routine, results, formData) {
   const parts = [];
 
+  const wKg = results.weightKg ? Math.round(results.weightKg) : null;
+  const weightStr = wKg ? `Com ${wKg} kg` : 'Com o seu perfil';
+
+  const hasTrain = routine.trainDays > 0 && routine.trainStartTime;
+  const trainCtx = hasTrain
+    ? `${routine.trainDays} treino${routine.trainDays > 1 ? 's' : ''}/semana${routine.trainDurationMinutes ? ' de ' + routine.trainDurationMinutes + ' min' : ''}`
+    : null;
+
+  const trainPeriod = (() => {
+    if (!routine.trainStartTime) return null;
+    const h = parseInt(routine.trainStartTime.split(':')[0], 10);
+    if (h < 6)  return 'de madrugada';
+    if (h < 14) return 'de manhã';
+    if (h < 18) return 'à tarde';
+    return 'à noite';
+  })();
+
+  const contextLine = trainCtx
+    ? `${weightStr} e ${trainCtx}${trainPeriod ? ' ' + trainPeriod : ''}`
+    : weightStr;
+
   if (profile.falsoMagro) {
-    parts.push(`Você é magro na aparência geral mas carrega gordura na região abdominal. Isso pede um superávit mais controlado (${results.surplus} kcal em vez dos ${results.surplus + 250} kcal típicos) e proteína mais alta para recomposição corporal.`);
+    parts.push(`${contextLine}, seu perfil combina baixo peso aparente com acúmulo de gordura abdominal. Isso exige um superávit mais controlado (${results.surplus} kcal) e proteína mais elevada para favorecer recomposição corporal sem exagerar no ganho de gordura.`);
   } else if (profile.difficulty === 'ultra_acelerado') {
-    parts.push(`Seu metabolismo queima muito rápido. Aplicamos um superávit maior (${results.surplus} kcal) para compensar o gasto energético elevado e garantir progresso semana a semana.`);
+    parts.push(`${contextLine}, seu metabolismo queima energia muito rápido. Aplicamos um superávit maior (${results.surplus} kcal) para compensar esse gasto elevado e garantir que seu corpo tenha material suficiente para crescer semana a semana.`);
   } else if (profile.difficulty === 'apetite_baixo') {
-    parts.push(`Com apetite baixo, começamos com um superávit mais realista (${results.surplus} kcal). É melhor comer pouco a mais todos os dias do que tentar grandes volumes e falhar.`);
+    parts.push(`${contextLine}, seu principal desafio é o apetite reduzido. Começamos com um superávit realista de ${results.surplus} kcal — é melhor ser consistente com volumes menores do que tentar grandes quantidades e falhar.`);
   } else if (profile.difficulty === 'volume_baixo') {
-    parts.push(`Você estufa rápido. Por isso priorizamos alimentos mais calóricos por grama (pasta de amendoim, azeite, shakes) e mais gordura — para concentrar energia em pouco volume.`);
+    parts.push(`${contextLine}, você enche rápido com refeições grandes. Por isso priorizamos alimentos mais calóricos por grama — pasta de amendoim, azeite, shakes densos — para concentrar energia em pouco volume e bater as ${formatKcal(results.calories)} kcal diárias.`);
   } else if (profile.difficulty === 'rotina_corrida') {
-    parts.push(`Com rotina apertada, a praticidade é crucial. O Sistema Híbrido com shakes resolve isso: líquidos prontos em 2 minutos nos intervalos entre sólidos.`);
+    parts.push(`${contextLine}, o tempo é o seu maior obstáculo calórico. O Sistema Híbrido resolve isso: shakes prontos em 2 minutos preenchem os espaços entre as refeições sólidas sem precisar cozinhar ou parar a rotina.`);
   } else if (profile.difficulty === 'falta_consistencia') {
-    parts.push(`A consistência é o que faltou. Este plano define exatamente o que comer todos os dias — sem decisão no momento, sem desculpa.`);
+    parts.push(`${contextLine}, o que faltou até agora foi consistência. Este plano define exatamente o que comer todos os dias — sem decisões de última hora, sem lacunas calóricas, sem desculpas.`);
   } else {
-    parts.push(`Você é um hardgainer clássico — metabolismo que queima fácil e dificuldade para ganhar peso. A estratégia é simples: superávit de ${results.surplus} kcal consistente com proteína adequada e carboidratos de digestão leve.`);
+    parts.push(`${contextLine}, você tem o perfil clássico de hardgainer — metabolismo rápido e dificuldade em ganhar peso. A estratégia é direta: superávit de ${results.surplus} kcal consistente, proteína adequada e carboidratos de digestão leve para dar energia sem encher o estômago.`);
   }
 
-  if (routine.strategy === 'practical') {
-    parts.push(`Como escolheu máxima praticidade, mais da metade das calorias virão de shakes — isso poupa tempo e estômago.`);
-  } else if (routine.strategy === 'solid') {
-    parts.push(`Você preferiu mais refeições sólidas — melhor para saciedade e nutrientes, mas exige tempo e espaço no estômago.`);
+  if (routine.mealsPerDay) {
+    if (routine.strategy === 'practical') {
+      parts.push(`As ${routine.mealsPerDay} refeições diárias incluem mais shakes do que sólidos — isso poupa tempo, alivia o aparelho digestivo e facilita bater as calorias sem depender de refeições volumosas.`);
+    } else if (routine.strategy === 'solid') {
+      parts.push(`As ${routine.mealsPerDay} refeições diárias são principalmente sólidas — melhor para saciedade duradoura e absorção de nutrientes, mas exigem mais planejamento e capacidade gástrica.`);
+    } else {
+      parts.push(`As ${routine.mealsPerDay} refeições combinam sólidos e shakes, distribuindo as ${formatKcal(results.calories)} kcal ao longo do dia sem sobrecarregar a digestão em nenhum momento.`);
+    }
   }
 
   return parts.join(' ');
+}
+
+function buildProfileSummary(formData, profile, routine, results) {
+  const SEX_LABEL = { male: 'Masculino', female: 'Feminino' };
+  const GOAL_LABEL = { gain: 'Ganho de massa', maintain: 'Manutenção', lose: 'Perda de gordura' };
+  const items = [];
+
+  const wKg = results.weightKg ? Math.round(results.weightKg) : null;
+  const hCm = results.heightCm ? Math.round(results.heightCm) : null;
+
+  if (wKg)                           items.push({ label: 'Peso', value: `${wKg} kg` });
+  if (hCm)                           items.push({ label: 'Altura', value: `${hCm} cm` });
+  if (formData.age)                  items.push({ label: 'Idade', value: `${formData.age} anos` });
+  if (formData.sex && SEX_LABEL[formData.sex]) items.push({ label: 'Sexo', value: SEX_LABEL[formData.sex] });
+  if (profile.goal && GOAL_LABEL[profile.goal]) items.push({ label: 'Objetivo', value: GOAL_LABEL[profile.goal] });
+  if (profile.activity)              items.push({ label: 'Nível de atividade', value: ACTIVITY_LABEL[profile.activity] || profile.activity });
+  if (profile.difficulty)            items.push({ label: 'Perfil hardgainer', value: DIFFICULTY_LABEL[profile.difficulty] || profile.difficulty });
+  if (routine.trainDays > 0)         items.push({ label: 'Dias de treino', value: `${routine.trainDays}×/semana` });
+  if (routine.trainStartTime && routine.trainEndTime) items.push({ label: 'Horário de treino', value: `${routine.trainStartTime} – ${routine.trainEndTime}` });
+  if (routine.trainDurationMinutes)  items.push({ label: 'Duração do treino', value: `${routine.trainDurationMinutes} min` });
+  if (routine.sleepStartTime && routine.sleepEndTime) items.push({ label: 'Sono', value: `${routine.sleepStartTime} – ${routine.sleepEndTime}` });
+  if (routine.mealsPerDay)           items.push({ label: 'Refeições/dia', value: `${routine.mealsPerDay}` });
+  if (routine.strategy)              items.push({ label: 'Estratégia', value: STRATEGY_LABEL[routine.strategy] || routine.strategy });
+  if (results.weeklyGainLowKg && results.weeklyGainHighKg) items.push({ label: 'Meta de ganho', value: `${results.weeklyGainLowKg}–${results.weeklyGainHighKg} kg/sem` });
+
+  if (!items.length) return '';
+
+  return `<div class="profile-summary">${
+    items.map(it =>
+      `<div class="profile-summary-item"><span class="profile-summary-label">${it.label}</span><span class="profile-summary-value">${it.value}</span></div>`
+    ).join('')
+  }</div>`;
 }
 
 function buildRecommendations(profile, routine, results) {
