@@ -175,6 +175,12 @@ export function renderResultadosPage(mount) {
     ? 'Os shakes podem ser consumidos com menos intervalo que as refeições sólidas. Use 2h a 2h30 entre shakes e pelo menos 3h antes de uma refeição sólida.'
     : '2h30 a 3h entre refeições. O líquido digere mais rápido e evita que o próximo prato chegue com o estômago ainda cheio.';
 
+  const planDistributionText = strategy === 'solid'
+    ? `Você escolheu ${totalMeals} refeições por dia com foco em mais refeições sólidas. A app organizou o plano como ${solidCount} ${solidLabel}${shakeCount > 0 ? ` + ${shakeCount} ${shakeLabel}` : ''}, priorizando saciedade, mastigação e uma estrutura mais tradicional ao longo do dia.`
+    : strategy === 'practical'
+    ? `Você escolheu ${totalMeals} refeições por dia com foco em máxima praticidade. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, usando mais shakes de apoio para facilitar bater calorias sem transformar o dia numa maratona de cozinha.`
+    : `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, equilibrando refeições sólidas e shakes anabólicos para facilitar o superávit calórico sem pesar tanto na digestão.`;
+
   mount.innerHTML = `
     <div class="container">
       <div class="results-hero">
@@ -263,8 +269,8 @@ export function renderResultadosPage(mount) {
 
       <!-- Strategy system -->
       <div class="card">
-        <h3 class="card-title">${sectionTitle}</h3>
-        <p class="card-sub">${totalMeals} refeições distribuídas ao longo do dia — ${solidCount} ${solidLabel}${shakeCount > 0 ? ` + ${shakeCount} ${shakeLabel}` : ''}</p>
+        <h3 class="card-title">Resumo do Seu Plano Calculado</h3>
+        <p class="card-sub">${planDistributionText}</p>
         ${shakeCount > 0 ? `
         <div class="macro-grid macro-grid-2" style="margin-top: 14px;">
           <div class="macro-card">
@@ -1108,6 +1114,38 @@ function rebuildTimesAroundTraining(slots, routine) {
 
   // Treino antes das 10:00 (ciclo normalizado) sem jejum → primeiro slot vira pré-treino leve
   if (tStart < 600) {
+
+    // Gap longo (>90 min) + 4/5 refeições: slot original preservado e reposicionado para perto do acordar.
+    // Não converte para pre_workout_light nem capa kcal — usa a distribuição original de buildSlotDistribution.
+    if (n <= 5 && (tStart - wakeMin) > 90) {
+      const firstSlot = { ...slots[0], time: toTime(wakeMin + 15) };
+      const restSlots = slots.slice(1);
+      const postWindowStart = tEndAdj + POST_BUFFER;
+      const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
+      const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, restSlots.map(slotDur));
+      const postSlots = restSlots.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
+      return {
+        slots: [firstSlot, ...postSlots],
+        spacingFeedback: buildSpacingFeedback([[postWindowStart, effectiveDayEnd]], 1),
+      };
+    }
+
+    // Gap longo (>90 min) + 6+ refeições: slot[0] preservado perto de acordar, slot[1] como pré-treino leve.
+    if (n >= 6 && (tStart - wakeMin) > 90) {
+      const firstSlot = { ...slots[0], time: toTime(wakeMin + 15) };
+      const preSlot   = { ...slots[1], slot: 'pre_workout_light', time: toTime(tStart - 30) };
+      const restSlots = slots.slice(2);
+      const postWindowStart = tEndAdj + POST_BUFFER;
+      const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
+      const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, restSlots.map(slotDur));
+      const postSlots = restSlots.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
+      return {
+        slots: [firstSlot, preSlot, ...postSlots],
+        spacingFeedback: buildSpacingFeedback([[postWindowStart, effectiveDayEnd]], 2),
+      };
+    }
+
+    // Gap curto (≤90 min): comportamento original — primeiro slot vira pré-treino leve (shake, 250 kcal)
     const originalKcal = slots[0].kcal || 0;
     const preKcal = originalKcal < 180 ? originalKcal : Math.min(originalKcal, 250);
     const excedente = originalKcal - preKcal;
@@ -1120,7 +1158,7 @@ function rebuildTimesAroundTraining(slots, routine) {
       : restSlots;
     const postWindowStart = tEndAdj + POST_BUFFER;
     const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
-    const postTimes = spaceTimes(postWindowStart, effectiveDayEnd, adjustedRest.length, adjustedRest.map(slotDur));
+    const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, adjustedRest.map(slotDur));
     const postSlots = adjustedRest.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
     return {
       slots: [preSlot, ...postSlots],
