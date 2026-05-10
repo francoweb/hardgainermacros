@@ -35,15 +35,32 @@ const SLOT_LABEL = {
   post_workout_night: 'Shake Pós-Treino Leve Antes de Dormir',
 };
 
-const getDisplayMealLabel = (slot, time, nocturnal = false) => {
+const getDisplayMealLabel = (slot, time, nocturnal = false, strategy = 'hybrid', trainEndTime = null) => {
+  // Refeição sólida logo após o treino (até 60 min depois do fim)
+  if (trainEndTime && time && !slot.startsWith('shake')) {
+    const toM = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    const diff = ((toM(time) - toM(trainEndTime)) + 1440) % 1440;
+    if (diff <= 60) return 'Refeição Pós-Treino';
+  }
   if (nocturnal) {
     if (slot === 'breakfast')   return 'Primeira Refeição';
     if (slot === 'lunch')       return 'Refeição Intercalar';
     if (slot === 'dinner')      return 'Refeição Principal';
     if (slot === 'shake_night') return 'Shake Pré-Sono';
   }
+  // Shakes de apoio (strategy solid): label por horário
+  if (strategy === 'solid' && slot.startsWith('shake')) {
+    if (time) {
+      const h = parseInt(time.split(':')[0], 10);
+      if (h >= 5  && h < 12) return 'Shake de Apoio da Manhã';
+      if (h >= 12 && h < 18) return 'Shake de Apoio da Tarde';
+      if (h >= 18 && h < 22) return 'Shake de Apoio do Fim do Dia';
+    }
+    return 'Shake de Apoio Noturno';
+  }
   if (time) {
     const h = parseInt(time.split(':')[0], 10);
+    if (slot === 'lunch'     && h < 11)  return 'Refeição da Manhã';
     if (slot === 'dinner'    && h < 17)  return 'Refeição da Tarde';
     if (slot === 'lunch'     && h >= 16) return 'Refeição da Tarde';
     if (slot === 'breakfast' && h >= 12) return 'Primeira Refeição';
@@ -85,8 +102,11 @@ export function renderResultadosPage(mount) {
   const solidCount = (results.slotDistribution || []).filter(s => s.type === 'solid').length;
   const shakeCount = (results.slotDistribution || []).filter(s => s.type === 'shake').length;
   const totalMeals = routine.mealsPerDay || (solidCount + shakeCount) || 6;
+  const strategy = routine.strategy || 'hybrid';
   const solidLabel = solidCount === 1 ? 'refeição sólida' : 'refeições sólidas';
-  const shakeLabel = shakeCount === 1 ? 'shake anabólico' : 'shakes anabólicos';
+  const shakeLabel = shakeCount === 1
+    ? (strategy === 'solid' ? 'shake de apoio' : 'shake anabólico')
+    : (strategy === 'solid' || strategy === 'practical' ? 'shakes de apoio' : 'shakes anabólicos');
   const sequenceHtml = (results.slotDistribution || []).map((s, i, arr) => {
     const chip = s.type === 'solid'
       ? `<span class="hybrid-seq-chip solid">${icons.utensils(13)} Sólida</span>`
@@ -138,6 +158,22 @@ export function renderResultadosPage(mount) {
   const nocturnal = wakeMin >= 1140
     || (sleepStartMin >= 600 && sleepStartMin <= 1140 && wakeMin <= 360)
     || (sleepStartMin > 1140 && wakeMin <= 180);
+
+  const sectionTitle = strategy === 'solid' ? 'Plano Mais Sólido Recomendado'
+    : strategy === 'practical' ? 'Plano de Máxima Praticidade'
+    : 'Sistema Híbrido Recomendado';
+  const sectionExplain = strategy === 'solid'
+    ? (shakeCount === 0
+      ? 'Refeições sólidas são a base deste plano. Elas dão mais saciedade, ajudam na qualidade da alimentação e combinam melhor com quem prefere comer de forma tradicional. Como este cenário usa apenas refeições sólidas, organize bem os horários para não deixar comida demais para o final do dia.'
+      : 'Refeições sólidas são a base do plano. Fornecem mais saciedade, nutrição completa e são ideais para quem prefere comer de forma tradicional. Os shakes entram apenas como apoio quando necessário, sem dominar o dia.')
+    : strategy === 'practical'
+    ? 'Shakes frequentes reduzem o tempo de preparo e facilitam bater as calorias do dia. As refeições sólidas garantem a nutrição base nos momentos principais.'
+    : 'Shakes anabólicos garantem calorias e proteína sem sensação de peso — essencial para quem tem apetite reduzido ou rotina corrida. Alternar com refeições sólidas mantém a saciedade e a ingestão de micronutrientes ao longo do dia.';
+  const hintInterval = strategy === 'solid'
+    ? 'Intervalo sugerido: 3 a 4h entre refeições sólidas. Com pratos mais volumosos, o estômago precisa de mais tempo antes do próximo prato.'
+    : strategy === 'practical'
+    ? 'Os shakes podem ser consumidos com menos intervalo que as refeições sólidas. Use 2h a 2h30 entre shakes e pelo menos 3h antes de uma refeição sólida.'
+    : '2h30 a 3h entre refeições. O líquido digere mais rápido e evita que o próximo prato chegue com o estômago ainda cheio.';
 
   mount.innerHTML = `
     <div class="container">
@@ -225,28 +261,37 @@ export function renderResultadosPage(mount) {
         ` : ''}
       </div>
 
-      <!-- Hybrid system -->
+      <!-- Strategy system -->
       <div class="card">
-        <h3 class="card-title">Sistema Híbrido Recomendado</h3>
-        <p class="card-sub">${totalMeals} refeições distribuídas ao longo do dia — ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}</p>
+        <h3 class="card-title">${sectionTitle}</h3>
+        <p class="card-sub">${totalMeals} refeições distribuídas ao longo do dia — ${solidCount} ${solidLabel}${shakeCount > 0 ? ` + ${shakeCount} ${shakeLabel}` : ''}</p>
+        ${shakeCount > 0 ? `
         <div class="macro-grid macro-grid-2" style="margin-top: 14px;">
           <div class="macro-card">
             <div class="macro-head"><span class="macro-dot">${icons.utensils(16)}</span><span>Refeições Sólidas</span></div>
             <div class="macro-val">${solidCount}<span class="macro-unit">por dia</span></div>
           </div>
           <div class="macro-card">
-            <div class="macro-head"><span class="macro-dot">${icons.droplet(16)}</span><span>Shakes Anabólicos</span></div>
+            <div class="macro-head"><span class="macro-dot">${icons.droplet(16)}</span><span>${strategy === 'solid' || strategy === 'practical' ? 'Shakes de Apoio' : 'Shakes Anabólicos'}</span></div>
             <div class="macro-val">${shakeCount}<span class="macro-unit">por dia</span></div>
           </div>
         </div>
+        ` : `
+        <div style="margin-top: 14px; display: flex; justify-content: center;">
+          <div class="macro-card" style="text-align: center; align-items: center; min-width: 180px; max-width: 260px;">
+            <div class="macro-head" style="justify-content: center;"><span class="macro-dot">${icons.utensils(16)}</span><span>Refeições Sólidas</span></div>
+            <div class="macro-val">${solidCount}<span class="macro-unit">por dia</span></div>
+          </div>
+        </div>
+        `}
         ${sequenceHtml ? `<div class="hybrid-sequence">${sequenceHtml}</div>` : ''}
         <div class="hybrid-explain">
           <div class="hybrid-explain-label">Por que esse formato?</div>
-          <p>Shakes anabólicos garantem calorias e proteína sem sensação de peso — essencial para quem tem apetite reduzido ou rotina corrida. Alternar com refeições sólidas mantém a saciedade e a ingestão de micronutrientes ao longo do dia.</p>
+          <p>${sectionExplain}</p>
         </div>
         <div class="hint" style="margin-top: 14px;">
           <span class="hint-icon">${icons.clock(18)}</span>
-          <div><strong>Intervalo ideal:</strong> 2h30 a 3h entre refeições. O líquido digere mais rápido e evita que o próximo prato chegue com o estômago ainda cheio.</div>
+          <div><strong>Intervalo ideal:</strong> ${hintInterval}</div>
         </div>
       </div>
 
@@ -363,7 +408,7 @@ export function renderResultadosPage(mount) {
             ` : `
               <div class="meal-row">
                 <div class="meal-time">${s.time || ''}</div>
-                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time, nocturnal)}</div>
+                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)}</div>
                 <span class="meal-tag ${s.type}">${s.type === 'solid' ? 'Sólida' : 'Shake'}</span>
                 <div class="meal-macros">
                   <span class="meal-macro-label">kcal</span>
@@ -387,7 +432,7 @@ export function renderResultadosPage(mount) {
                 </tr>
               ` : `
                 <tr>
-                  <td>${getDisplayMealLabel(s.slot, s.time, nocturnal)}</td>
+                  <td>${getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)}</td>
                   <td>${s.type === 'solid' ? 'Sólida' : 'Shake'}</td>
                   <td>${s.time || ''}</td>
                   <td style="text-align:right">${formatKcal(s.kcal)}</td>
@@ -594,7 +639,9 @@ function buildInterpretation(profile, routine, results, formData) {
   } else if (profile.difficulty === 'volume_baixo') {
     parts.push(`${contextLine}, você enche rápido com refeições grandes. Por isso priorizamos alimentos mais calóricos por grama — pasta de amendoim, azeite, shakes densos — para concentrar energia em pouco volume e bater as ${formatKcal(results.calories)} kcal diárias.`);
   } else if (profile.difficulty === 'rotina_corrida') {
-    parts.push(`${contextLine}, o tempo é o seu maior obstáculo calórico. O Sistema Híbrido resolve isso: shakes prontos em 2 minutos preenchem os espaços entre as refeições sólidas sem precisar cozinhar ou parar a rotina.`);
+    parts.push(routine.strategy === 'hybrid'
+      ? `${contextLine}, o tempo é o seu maior obstáculo calórico. O Sistema Híbrido resolve isso: shakes prontos em 2 minutos preenchem os espaços entre as refeições sólidas sem precisar cozinhar ou parar a rotina.`
+      : `${contextLine}, o tempo é o seu maior obstáculo calórico. Prepare refeições com antecedência e escolha opções rápidas para conseguir manter a consistência mesmo nos dias mais corridos.`);
   } else if (profile.difficulty === 'falta_consistencia') {
     parts.push(`${contextLine}, o que faltou até agora foi consistência. Este plano define exatamente o que comer todos os dias — sem decisões de última hora, sem lacunas calóricas, sem desculpas.`);
   } else {
@@ -649,47 +696,176 @@ function buildProfileSummary(formData, profile, routine, results) {
 function buildRecommendations(profile, routine, results) {
   const recs = [];
 
-  // Priorize carbos leves
+  const strategy   = routine.strategy || 'hybrid';
+  const meals      = routine.mealsPerDay || 6;
+  const trainDays  = routine.trainDays || 0;
+  const difficulty = profile.difficulty || '';
+  const hasLowAppetite = difficulty === 'apetite_baixo' || difficulty === 'volume_baixo';
+  const shakeCount = (results.slotDistribution || []).filter(s => s.type === 'shake').length;
+
+  const toMins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const trainMins = routine.trainStartTime ? toMins(routine.trainStartTime) : null;
+  const isLateOrDawnTraining = trainMins !== null && (trainMins >= 1200 || trainMins < 300);
+
+  // REC 1 — Sempre: meta diária + proteína por refeição
+  const proteinPerMeal = results.protein?.grams
+    ? ` Meta: ~${Math.round(results.protein.grams / meals)}g de proteína por refeição.`
+    : '';
   recs.push({
-    title: 'Priorize carboidratos de digestão leve',
-    body: 'Arroz branco, arroz basmati, pão francês, batata cozida, macarrão. Evite excesso de fibras (arroz integral, pão integral) — enchem rápido e dificultam atingir o volume calórico.',
+    title: 'Prioridade: bater a meta diária',
+    body: `O que define o resultado é cumprir calorias, proteína, carboidratos e gorduras todos os dias.${proteinPerMeal} Os horários ajudam na organização, mas a consistência ao longo do dia é o fator principal.`,
   });
 
-  // Proteína em cada refeição
-  recs.push({
-    title: 'Proteína em todas as refeições',
-    body: `Distribua ~${Math.round(results.protein.grams / (routine.mealsPerDay || 6))}g de proteína por refeição. Fonte ideal: ovos, frango, carne vermelha magra, whey nos shakes.`,
-  });
-
-  // Falso magro específico
-  if (profile.falsoMagro) {
+  // REC 2 — Estratégia escolhida
+  if (strategy === 'hybrid') {
     recs.push({
-      title: 'Atenção à gordura abdominal',
-      body: 'Evite bebidas açucaradas, doces refinados e excessos noturnos. Priorize sólidos nas refeições principais e meça a cintura a cada 2 semanas junto com o peso.',
+      title: 'Use sólidos e shakes de forma estratégica',
+      body: 'O Sistema Híbrido usa comida sólida como base e shakes como apoio nos intervalos. Os horários ajudam, mas o mais importante é bater a meta do dia com consistência.',
     });
+  } else if (strategy === 'solid') {
+    if (shakeCount === 0) {
+      recs.push({
+        title: 'Monte pratos simples e fáceis de repetir',
+        body: 'Como escolheu apenas refeições sólidas, o mais importante é ter opções simples que você consiga fazer sem esforço todos os dias. Pratos complicados atrapalham a consistência — prefira o básico bem feito.',
+      });
+    } else {
+      recs.push({
+        title: 'Refeições sólidas como base, shake de apoio quando necessário',
+        body: 'Como escolheu mais refeições sólidas, monte pratos simples e fáceis de repetir. O shake de apoio serve apenas para fechar calorias quando a sólida não for suficiente — não precisa forçar ele se estiver com apetite bom.',
+      });
+    }
   } else {
     recs.push({
-      title: 'Não pule a ceia pré-sono',
-      body: 'O shake da ceia (antes de dormir) é crucial — durante o sono o corpo entra em estado anabólico. Caseína, iogurte grego ou um shake denso são ideais.',
+      title: 'Use os shakes para facilitar a rotina',
+      body: 'Como escolheu máxima praticidade, use os shakes para reduzir tempo na cozinha nos horários mais corridos. Mantenha as refeições sólidas bem montadas nos momentos principais. Deixe os ingredientes dos shakes já separados para não depender de improviso.',
     });
   }
 
-  // Intervalos
-  recs.push({
-    title: 'Respeite intervalos de 2h30 a 3h',
-    body: 'Este é o ponto nevrálgico do Sistema Híbrido: tempo suficiente para digerir o sólido anterior mas curto o bastante para chegar à próxima refeição com "fome funcional".',
-  });
-
-  // Treino
-  if (profile.activity === 'sedentary' || routine.trainDays <= 1) {
+  // REC 3 — Número de refeições, com variação por estratégia
+  if (meals <= 4) {
+    if (strategy === 'solid') {
+      recs.push({
+        title: 'Cada prato precisa ser mais completo',
+        body: 'Com poucas refeições, distribua bem as calorias desde o café da manhã. Com pratos mais volumosos, 3 a 4h de intervalo é mais confortável do que tentar comer de 2 em 2 horas.',
+      });
+    } else if (strategy === 'practical') {
+      recs.push({
+        title: 'Cada refeição conta mais com poucas no dia',
+        body: 'Com 4 refeições, os shakes ajudam a bater calorias sem precisar de pratos muito grandes. Distribua desde cedo para não acumular tudo na última refeição.',
+      });
+    } else {
+      recs.push({
+        title: 'Cada refeição precisa contar mais',
+        body: 'Com poucas refeições no dia, cada prato precisa ser mais calórico. Prefira alimentos fáceis de comer, porções bem montadas e distribua desde cedo para não acumular calorias na última refeição.',
+      });
+    }
+  } else if (meals === 5) {
+    if (strategy === 'solid') {
+      recs.push({
+        title: 'Use os horários como referência',
+        body: `Com ${shakeCount > 0 ? '4 sólidas e 1 shake de apoio' : '5 refeições sólidas'}, distribua nos horários mais importantes do dia. ${shakeCount > 0 ? 'O shake fecha calorias sem precisar de outro prato completo.' : 'Prepare com antecedência o que puder para manter o ritmo.'}`,
+      });
+    } else if (strategy === 'practical') {
+      recs.push({
+        title: 'Use os horários como âncoras',
+        body: 'Com 5 refeições e 3 shakes, os shakes facilitam os horários entre uma sólida e outra. Mantenha as 2 refeições sólidas bem montadas — elas são a base nutricional do dia.',
+      });
+    } else {
+      recs.push({
+        title: 'Use os horários como âncoras',
+        body: 'Com 5 refeições no dia, não precisa perseguir intervalos perfeitos. Use os horários como referência e evite ficar muitas horas sem comer, para não acumular calorias demais no final do dia.',
+      });
+    }
+  } else if (meals >= 7) {
     recs.push({
-      title: 'Considere adicionar treino de força',
-      body: 'Sem estímulo muscular, grande parte do superávit vira gordura. Mesmo 2-3 treinos curtos por semana já fazem enorme diferença no ganho de massa magra.',
+      title: 'Muitas refeições funcionam, mas pedem organização',
+      body: `Com ${meals} refeições, cada prato pode ser menor e a distribuição fica mais fácil. Mas exige mais organização para não pular horários. ${strategy === 'solid' ? 'Prepare o que puder com antecedência.' : 'Deixe shakes e ingredientes já prontos para os horários mais corridos.'}`,
+    });
+  } else {
+    if (strategy === 'solid') {
+      recs.push({
+        title: 'Distribua bem ao longo do dia',
+        body: 'Com várias refeições sólidas, os intervalos podem ser um pouco maiores — comida sólida demora mais para digerir. Prepare com antecedência o que puder para manter o plano funcionando.',
+      });
+    } else if (strategy === 'practical') {
+      recs.push({
+        title: 'Deixe tudo separado e pronto',
+        body: 'Com 6 refeições e vários shakes, quanto menos você precisar decidir na hora, mais fácil de manter a consistência. Separe os ingredientes dos shakes no início do dia.',
+      });
+    } else {
+      recs.push({
+        title: 'Distribua bem as calorias ao longo do dia',
+        body: 'Com 6 refeições, usar 2h30 a 3h como referência entre elas ajuda a distribuir as calorias. Isso evita chegar no final do dia com muito ainda por comer — especialmente útil para quem tem pouco apetite.',
+      });
+    }
+  }
+
+  // REC 4 — Perfil / dificuldade (hierarquia por relevância)
+  if (profile.falsoMagro) {
+    recs.push({
+      title: 'Atenção à gordura abdominal',
+      body: 'Evite bebidas açucaradas, doces refinados e excessos noturnos. Priorize sólidos nas refeições principais e acompanhe a circunferência da cintura junto com o peso a cada 2 semanas.',
+    });
+  } else if (hasLowAppetite) {
+    recs.push({
+      title: 'Não deixe calorias para o final do dia',
+      body: 'Com apetite reduzido, é comum chegar no jantar ainda com metade da meta por cumprir. Distribua melhor desde o café da manhã — isso torna o plano muito mais fácil de seguir.',
+    });
+  } else if (difficulty === 'ultra_acelerado') {
+    recs.push({
+      title: 'Seu metabolismo queima rápido',
+      body: 'Com metabolismo acelerado, é fácil perder calorias ao longo do dia sem perceber. Não dependa da fome para lembrar de comer — use horários fixos como referência e acompanhe o peso toda semana.',
+    });
+  } else if (routine.trainFasted) {
+    recs.push({
+      title: 'Coma logo depois do treino em jejum',
+      body: 'Treinar sem comer antes exige atenção especial à refeição depois do treino. Não deixe o corpo muito tempo sem se alimentar após o esforço.',
+    });
+  } else if (isLateOrDawnTraining) {
+    recs.push({
+      title: 'Cuide das refeições ao redor do treino',
+      body: 'Como seu treino acontece em um horário fora do padrão, planeje com antecedência a refeição antes e a refeição depois do treino. Não deixe essa parte para o improviso.',
+    });
+  } else if (difficulty === 'rotina_corrida' && strategy !== 'practical') {
+    recs.push({
+      title: 'Prepare com antecedência',
+      body: 'Com rotina corrida, improvisar na hora das refeições é o que mais atrapalha. Reserve um momento fixo para separar ingredientes, montar marmitas ou deixar opções prontas para os horários mais corridos.',
     });
   } else {
     recs.push({
-      title: 'Coma mais nos dias de treino',
-      body: 'Se puder flexibilizar, distribua +200 a +300 kcal nos dias em que treina (principalmente no almoço pós-treino ou shake da tarde).',
+      title: 'Prefira carboidratos de digestão leve',
+      body: 'Arroz branco, batata cozida, macarrão e pão francês facilitam bater calorias sem estufar. Evite excesso de fibras nas refeições principais — enchem rápido e reduzem o apetite.',
+    });
+  }
+
+  // REC 5 — Horário de treino
+  if (profile.activity === 'sedentary' || trainDays <= 1) {
+    recs.push({
+      title: 'Considere adicionar treino de força',
+      body: 'Sem estímulo muscular, grande parte do superávit calórico vira gordura em vez de massa magra. Mesmo 2 a 3 treinos curtos por semana já fazem diferença.',
+    });
+  } else if (trainMins !== null) {
+    let trainRecBody;
+    if (trainMins < 300) {
+      trainRecBody = 'Como seu treino é de madrugada, a refeição logo depois do treino é especialmente importante. Planeje ela com antecedência para não depender de improviso.';
+    } else if (trainMins < 480) {
+      trainRecBody = 'Como seu treino é cedo de manhã, garanta uma boa refeição logo depois. Isso ajuda na recuperação e facilita organizar o restante do dia.';
+    } else if (trainMins < 720) {
+      trainRecBody = 'Como seu treino é de manhã, a refeição que vem depois é importante. Ela ajuda a recuperar energia e facilita cumprir a meta calórica ao longo do dia.';
+    } else if (trainMins < 840) {
+      trainRecBody = 'Como seu treino acontece no início da tarde, a refeição depois do treino é importante. Ela ajuda a recuperar energia e evita deixar calorias demais para o fim do dia.';
+    } else if (trainMins < 1080) {
+      trainRecBody = 'Como seu treino é de tarde, garanta uma boa refeição depois. Ela ajuda na recuperação e evita que você chegue na última refeição com calorias acumuladas demais.';
+    } else if (trainMins < 1200) {
+      trainRecBody = 'Como seu treino é no início da noite, planeje a refeição depois do treino com antecedência. Ela é importante para fechar a meta calórica do dia.';
+    } else {
+      trainRecBody = 'Como seu treino é à noite, não deixe a refeição depois do treino para o improviso. Ela é importante para fechar a meta do dia e ajudar o corpo a se recuperar durante o sono.';
+    }
+    recs.push({ title: 'Cuide da refeição depois do treino', body: trainRecBody });
+  } else {
+    recs.push({
+      title: 'Cuide das refeições nos dias de treino',
+      body: 'Nos dias em que você treina, preste atenção às refeições antes e depois do esforço. Elas ajudam na recuperação e garantem que o dia de treino não fique com calorias faltando.',
     });
   }
 
@@ -744,6 +920,16 @@ function rebuildTimesAroundTraining(slots, routine) {
   const buildSpacingFeedback = (windows, fixedMeals = 0) => {
     const tightestGap = spacingChecks.reduce((min, item) => Math.min(min, item.gapUsed), Infinity);
 
+    if (tightestGap < 90 && n <= 5) {
+      const stratTight = routine.strategy || 'hybrid';
+      return {
+        level: 'warning',
+        headline: 'Analisámos a sua rotina: os intervalos ficaram mais curtos do que o ideal.',
+        message: 'Duas refeições ficaram próximas por causa do tempo disponível no seu dia. Isso costuma acontecer quando o sono começa cedo ou o treino ocupa uma parte maior do dia.',
+        detail: `Como o seu sono começa cedo, a última parte do dia fica mais apertada. ${stratTight !== 'solid' ? 'Use o shake como apoio rápido nessa situação, sem tentar transformá-lo numa refeição pesada.' : 'Se perceber desconforto na última refeição, prefira uma porção menor e mais fácil de digerir.'} Se quiser mais margem, reduzir o número de refeições ou ajustar o horário de sono são as opções mais simples.`,
+      };
+    }
+
     if (tightestGap < 90 && n >= 8) {
       return {
         level: 'danger',
@@ -781,20 +967,22 @@ function rebuildTimesAroundTraining(slots, routine) {
     }
 
     if (n === 6 && tightestGap < 150) {
+      const strat6 = routine.strategy || 'hybrid';
       return {
         level: 'info',
-        headline: 'Analisámos a sua rotina: o Sistema Híbrido encaixa na sua janela diária.',
-        message: 'Com 6 refeições, a estrutura clássica do Sistema Híbrido fica bem distribuída, desde que mantenha consistência nos horários.',
-        detail: 'A sua "janela acordado" é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app tenta encaixar café da manhã, almoço, jantar, shakes e treino.\n\nQuanto mais refeições entram dentro da mesma janela, menor fica o intervalo entre uma refeição e outra. Por isso, 6 refeições continuam a fazer sentido no Sistema Híbrido, mas exigem mais organização.\n\nOs shakes ajudam exatamente aqui: são mais rápidos de consumir, mais leves que refeições sólidas e facilitam atingir calorias sem obrigar você a comer pratos grandes o tempo todo.\n\nO ideal é manter 2h30 a 3h entre refeições. Mas se a rotina permitir pelo menos 2h reais entre elas, o plano continua funcional.',
+        headline: 'Analisámos a sua rotina: as 6 refeições encaixam na sua janela diária.',
+        message: 'Com 6 refeições, a estrutura do plano fica bem distribuída, desde que mantenha consistência nos horários.',
+        detail: `A sua "janela acordado" é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app tenta encaixar café da manhã, almoço, jantar, ${strat6 === 'solid' ? 'refeições extras' : 'shakes'} e treino.\n\nQuanto mais refeições entram dentro da mesma janela, menor fica o intervalo entre uma refeição e outra. Por isso, 6 refeições continuam a fazer sentido, mas exigem mais organização.\n\n${strat6 === 'solid' ? 'Com refeições sólidas mais frequentes, o planejamento e preparo antecipado fazem diferença. Ter as refeições prontas evita improvisos e mantém o plano funcionando.' : 'Os shakes ajudam exatamente aqui: são mais rápidos de consumir, mais leves que refeições sólidas e facilitam atingir calorias sem obrigar você a comer pratos grandes o tempo todo.'}\n\nO ideal é manter 2h30 a 3h entre refeições. Mas se a rotina permitir pelo menos 2h reais entre elas, o plano continua funcional.`,
       };
     }
 
     if (n === 6) {
+      const strat6 = routine.strategy || 'hybrid';
       return {
         level: 'success',
-        headline: 'Analisámos a sua rotina: o Sistema Híbrido encaixa confortavelmente na sua janela diária.',
-        message: 'Com 6 refeições e uma boa margem entre elas, a estrutura clássica do Sistema Híbrido funciona bem na sua rotina.',
-        detail: 'A sua "janela acordado" é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app distribui café da manhã, almoço, jantar, shakes e treino.\n\n6 refeições é a estrutura clássica do Sistema Híbrido: normalmente 3 refeições sólidas e 3 shakes anabólicos. Essa combinação existe por um motivo concreto — os shakes são consumidos mais rapidamente, pesam menos no estômago e facilitam atingir o superávit calórico sem precisar comer grandes volumes a cada refeição.\n\nCom a sua janela acordado atual, há espaço confortável entre cada refeição. Isso significa menos pressão para seguir horários exatos e mais margem para quando o dia não corre perfeito — o que torna o plano mais sustentável a longo prazo.',
+        headline: 'Analisámos a sua rotina: as 6 refeições encaixam confortavelmente na sua janela diária.',
+        message: 'Com 6 refeições e uma boa margem entre elas, a estrutura do plano funciona bem na sua rotina.',
+        detail: `A sua "janela acordado" é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app distribui café da manhã, almoço, jantar, ${strat6 === 'solid' ? 'refeições extras' : 'shakes'} e treino.\n\n${strat6 === 'solid' ? '6 refeições com foco em sólidos exige mais planejamento, mas oferece mais saciedade e variedade ao longo do dia. Prepare com antecedência o que puder para não depender de improviso.' : '6 refeições é a estrutura clássica do Sistema Híbrido: normalmente 3 refeições sólidas e 3 shakes anabólicos. Essa combinação existe por um motivo concreto — os shakes são consumidos mais rapidamente, pesam menos no estômago e facilitam atingir o superávit calórico sem precisar comer grandes volumes a cada refeição.'}\n\nCom a sua janela acordado atual, há espaço confortável entre cada refeição. Isso significa menos pressão para seguir horários exatos e mais margem para quando o dia não corre perfeito — o que torna o plano mais sustentável a longo prazo.`,
       };
     }
 

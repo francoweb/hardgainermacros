@@ -207,9 +207,49 @@ export function buildSlotDistribution(totalKcal, routine) {
     { slot: 'shake_night', type: 'shake', weight: 0.80 },
   ];
 
-  // adapta número de refeições
+  // Slots extras para estratégia "Mais Sólida" — reutilizam templates existentes
+  const breakfastExtra = { slot: 'breakfast', type: 'solid', weight: 0.80 };
+  const lunchExtra     = { slot: 'lunch',     type: 'solid', weight: 0.90 };
+  const dinnerExtra    = { slot: 'dinner',    type: 'solid', weight: 0.80 };
+
+  // adapta número de refeições conforme estratégia
   let slots;
-  if (meals <= 4) {
+  if (strategy === 'solid') {
+    // Mais Refeições Sólidas — shakes entram apenas como apoio calórico
+    if (meals <= 4) {
+      slots = [template[0], template[2], dinnerExtra, template[4]];
+      // breakfast, lunch, dinnerExtra, dinner — 4 sólidas + 0 shakes
+    } else if (meals === 5) {
+      slots = [template[0], template[2], dinnerExtra, template[4], template[5]];
+      // breakfast, lunch, dinnerExtra, dinner, shake_night — 4 sólidas + 1 shake
+    } else if (meals === 6) {
+      slots = [template[0], template[1], template[2], dinnerExtra, template[4], template[5]];
+      // breakfast, shake_morning, lunch, dinnerExtra, dinner, shake_night — 4 sólidas + 2 shakes
+    } else if (meals === 7) {
+      slots = [template[0], template[1], template[2], lunchExtra, template[4], dinnerExtra, template[5]];
+      // breakfast, shake_morning, lunch, lunchExtra, dinner, dinnerExtra, shake_night — 5 sólidas + 2 shakes
+    } else {
+      slots = [template[0], breakfastExtra, template[1], template[2], lunchExtra, template[4], dinnerExtra, template[5]];
+      // breakfast, breakfastExtra, shake_morning, lunch, lunchExtra, dinner, dinnerExtra, shake_night — 6 sólidas + 2 shakes
+    }
+  } else if (strategy === 'practical') {
+    // Máxima Praticidade — mais shakes, menos sólidas (apenas 4 e 5 refeições precisam de branch explícito)
+    if (meals <= 4) {
+      slots = [template[0], template[1], template[4], template[5]];
+      // breakfast(solid), shake_morning, dinner(solid), shake_night — 2 sólidas + 2 shakes
+      const times4 = buildMealTimes(meals, routine.trainTime);
+      const pcts4 = [0.25, 0.20, 0.35, 0.20];
+      return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts4[i]), time: times4[i] || '' }));
+    } else if (meals === 5) {
+      slots = [template[0], template[1], template[4], template[3], template[5]];
+      // breakfast(solid), shake_morning, dinner(solid), shake_afternoon, shake_night — 2 sólidas + 3 shakes
+      // dinner antes dos shakes finais: evita compressão de 30 min entre sólida e shake perto do sono
+      const times5 = buildMealTimes(meals, routine.trainTime);
+      const pcts5 = [0.22, 0.18, 0.28, 0.18, 0.14];
+      return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts5[i]), time: times5[i] || '' }));
+    }
+    // meals >= 6: cai no genérico abaixo — template padrão (3S+3Sh) com solidShare=0.45
+  } else if (meals <= 4) {
     slots = [template[0], template[2], template[4], template[5]];
     // Distribuição fixa para 4 refeições — evita que o único shake receba toda a quota de shakes
     const times4 = buildMealTimes(meals, routine.trainTime);
