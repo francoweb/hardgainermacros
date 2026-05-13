@@ -661,7 +661,7 @@ function buildInterpretation(profile, routine, results, formData) {
   } else if (profile.difficulty === 'apetite_baixo') {
     parts.push(`${contextLine}, seu principal desafio é o apetite reduzido. Começamos com um superávit realista de ${results.surplus} kcal — é melhor ser consistente com volumes menores do que tentar grandes quantidades e falhar.`);
   } else if (profile.difficulty === 'volume_baixo') {
-    parts.push(`${contextLine}, você enche rápido com refeições grandes. Por isso priorizamos alimentos mais calóricos por grama — pasta de amendoim, azeite, shakes densos — para concentrar energia em pouco volume e bater as ${formatKcal(results.calories)} kcal diárias.`);
+    parts.push(`${contextLine}, como você tem dificuldade com volume, a app manteve você em superávit calórico — apenas reduziu o excesso para um ritmo mais sustentável (${results.surplus} kcal acima do gasto). A ideia não é comer pouco: é ganhar peso com menos volume físico no prato. O plano prioriza alimentos mais densos em calorias — azeite, pasta de amendoim, shakes bem posicionados — para bater as ${formatKcal(results.calories)} kcal diárias sem precisar de pratos gigantes. Se o peso não subir após 2 semanas, aumente 150–200 kcal. Se subir rápido demais com barriga, reduza 100–150 kcal.`);
   } else if (profile.difficulty === 'rotina_corrida') {
     parts.push(routine.strategy === 'hybrid'
       ? `${contextLine}, o tempo é o seu maior obstáculo calórico. O Sistema Híbrido resolve isso: shakes prontos em 2 minutos preenchem os espaços entre as refeições sólidas sem precisar cozinhar ou parar a rotina.`
@@ -724,75 +724,111 @@ function buildRecommendations(profile, routine, results) {
   const meals      = routine.mealsPerDay || 6;
   const trainDays  = routine.trainDays || 0;
   const difficulty = profile.difficulty || '';
-  const hasLowAppetite = difficulty === 'apetite_baixo' || difficulty === 'volume_baixo';
-  const shakeCount = (results.slotDistribution || []).filter(s => s.type === 'shake').length;
+  const goal       = profile.goal || 'moderate';
+
+  const slots      = results.slotDistribution || [];
+  const shakeCount = slots.filter(s => s.type === 'shake').length;
+  const solidCount = slots.filter(s => s.type === 'solid').length;
 
   const toMins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const trainMins = routine.trainStartTime ? toMins(routine.trainStartTime) : null;
   const isLateOrDawnTraining = trainMins !== null && (trainMins >= 1200 || trainMins < 300);
 
-  // REC 1 — Sempre: meta diária + proteína por refeição
+  // REC 1 — Meta diária: personalizada por dificuldade
   const proteinPerMeal = results.protein?.grams
-    ? ` Meta: ~${Math.round(results.protein.grams / meals)}g de proteína por refeição.`
-    : '';
-  recs.push({
-    title: 'Prioridade: bater a meta diária',
-    body: `O que define o resultado é cumprir calorias, proteína, carboidratos e gorduras todos os dias.${proteinPerMeal} Os horários ajudam na organização, mas a consistência ao longo do dia é o fator principal.`,
-  });
+    ? `~${Math.round(results.protein.grams / meals)}g de proteína por refeição`
+    : null;
+
+  if (profile.falsoMagro) {
+    recs.push({
+      title: 'Meta calórica sem exceder o superávit',
+      body: `Você está em superávit de ${results.surplus} kcal — o suficiente para crescer sem acumular gordura abdominal. Bater as ${formatKcal(results.calories)} kcal com consistência é o fator principal.${proteinPerMeal ? ` Tente manter ${proteinPerMeal} para favorecer massa sobre gordura.` : ''}`,
+    });
+  } else if (difficulty === 'volume_baixo') {
+    recs.push({
+      title: 'Bata a meta em menos volume no prato',
+      body: `Você tem ${formatKcal(results.calories)} kcal para bater — não precisa de pratos grandes para isso. Priorize alimentos calóricos (azeite, pasta de amendoim, aveia) e shakes bem montados.${proteinPerMeal ? ` Tente chegar a ${proteinPerMeal}.` : ''}`,
+    });
+  } else if (difficulty === 'apetite_baixo') {
+    recs.push({
+      title: 'Bata a meta sem depender da fome',
+      body: `Com apetite baixo, comer por horário é mais eficaz do que esperar ter fome. Meta: ${formatKcal(results.calories)} kcal ao longo do dia, distribuídas em ${meals} refeições.${proteinPerMeal ? ` Tente manter ${proteinPerMeal}.` : ''} Não pule refeições mesmo sem fome.`,
+    });
+  } else if (difficulty === 'ultra_acelerado') {
+    recs.push({
+      title: 'Consistência acima de tudo',
+      body: `Seu metabolismo queima rápido — calorias perdidas num dia não recuperam no dia seguinte. Meta diária: ${formatKcal(results.calories)} kcal, todos os dias.${proteinPerMeal ? ` Tente manter ${proteinPerMeal} por refeição.` : ''} Pequenas quebras acumulam e travam o progresso.`,
+    });
+  } else if (difficulty === 'falta_consistencia') {
+    recs.push({
+      title: 'Um bom dia não compensa uma semana irregular',
+      body: `A consistência semanal é o que move a balança. Meta: ${formatKcal(results.calories)} kcal todos os dias — não só quando estiver motivado.${proteinPerMeal ? ` Tente manter ${proteinPerMeal} por refeição.` : ''} Simplifique ao máximo para conseguir repetir.`,
+    });
+  } else if (difficulty === 'rotina_corrida') {
+    recs.push({
+      title: 'Bata a meta mesmo com a rotina corrida',
+      body: `Rotina corrida não é desculpa para falhar — é uma restrição que o plano já considerou. Meta: ${formatKcal(results.calories)} kcal em ${meals} refeições.${proteinPerMeal ? ` Tente chegar a ${proteinPerMeal}.` : ''} Prepare o que puder com antecedência para não depender de improviso.`,
+    });
+  } else {
+    recs.push({
+      title: 'Prioridade: bater a meta diária',
+      body: `O que define o resultado é cumprir calorias, proteína, carboidratos e gorduras todos os dias.${proteinPerMeal ? ` Meta: ${proteinPerMeal} por refeição.` : ''} Os horários ajudam na organização, mas a consistência ao longo do dia é o fator principal.`,
+    });
+  }
 
   // REC 2 — Estratégia escolhida
   if (strategy === 'hybrid') {
     recs.push({
       title: 'Use sólidos e shakes de forma estratégica',
-      body: 'O Sistema Híbrido usa comida sólida como base e shakes como apoio nos intervalos. Os horários ajudam, mas o mais importante é bater a meta do dia com consistência.',
+      body: `O plano usa ${solidCount} ${solidCount !== 1 ? 'refeições sólidas' : 'refeição sólida'} como base e ${shakeCount} shake${shakeCount !== 1 ? 's' : ''} como apoio. Os horários ajudam, mas o mais importante é bater a meta do dia com consistência.`,
     });
   } else if (strategy === 'solid') {
     if (shakeCount === 0) {
       recs.push({
         title: 'Monte pratos simples e fáceis de repetir',
-        body: 'Como escolheu apenas refeições sólidas, o mais importante é ter opções simples que você consiga fazer sem esforço todos os dias. Pratos complicados atrapalham a consistência — prefira o básico bem feito.',
+        body: `Com ${solidCount} refeições sólidas, o mais importante é ter opções simples que você consiga fazer sem esforço todos os dias. Pratos complicados atrapalham a consistência — prefira o básico bem feito.`,
       });
     } else {
       recs.push({
         title: 'Refeições sólidas como base, shake de apoio quando necessário',
-        body: 'Como escolheu mais refeições sólidas, monte pratos simples e fáceis de repetir. O shake de apoio serve apenas para fechar calorias quando a sólida não for suficiente — não precisa forçar ele se estiver com apetite bom.',
+        body: `Com ${solidCount} ${solidCount !== 1 ? 'refeições sólidas' : 'refeição sólida'} e ${shakeCount} shake de apoio, monte pratos simples e fáceis de repetir. O shake serve apenas para fechar calorias quando a sólida não for suficiente.`,
       });
     }
   } else {
     recs.push({
       title: 'Use os shakes para facilitar a rotina',
-      body: 'Como escolheu máxima praticidade, use os shakes para reduzir tempo na cozinha nos horários mais corridos. Mantenha as refeições sólidas bem montadas nos momentos principais. Deixe os ingredientes dos shakes já separados para não depender de improviso.',
+      body: `Com ${shakeCount} shake${shakeCount !== 1 ? 's' : ''} no plano, use-os para reduzir tempo na cozinha nos horários mais corridos. Mantenha as ${solidCount} ${solidCount !== 1 ? 'refeições sólidas' : 'refeição sólida'} bem montadas. Deixe os ingredientes dos shakes já separados.`,
     });
   }
 
-  // REC 3 — Número de refeições, com variação por estratégia
+  // REC 3 — Número de refeições
   if (meals <= 4) {
     if (strategy === 'solid') {
       recs.push({
         title: 'Cada prato precisa ser mais completo',
-        body: 'Com poucas refeições, distribua bem as calorias desde o café da manhã. Com pratos mais volumosos, 3 a 4h de intervalo é mais confortável do que tentar comer de 2 em 2 horas.',
+        body: `Com ${meals} refeições, distribua bem as calorias desde o café da manhã. Com pratos mais volumosos, 3 a 4h de intervalo é mais confortável do que tentar comer de 2 em 2 horas.`,
       });
     } else if (strategy === 'practical') {
       recs.push({
         title: 'Cada refeição conta mais com poucas no dia',
-        body: 'Com 4 refeições, os shakes ajudam a bater calorias sem precisar de pratos muito grandes. Distribua desde cedo para não acumular tudo na última refeição.',
+        body: `Com ${meals} refeições, os ${shakeCount} shake${shakeCount !== 1 ? 's' : ''} ajudam a bater calorias sem precisar de pratos muito grandes. Distribua desde cedo para não acumular tudo na última refeição.`,
       });
     } else {
       recs.push({
         title: 'Cada refeição precisa contar mais',
-        body: 'Com poucas refeições no dia, cada prato precisa ser mais calórico. Prefira alimentos fáceis de comer, porções bem montadas e distribua desde cedo para não acumular calorias na última refeição.',
+        body: `Com ${meals} refeições no dia, cada prato precisa ser mais calórico. Prefira alimentos fáceis de comer, porções bem montadas e distribua desde cedo para não acumular calorias na última refeição.`,
       });
     }
   } else if (meals === 5) {
     if (strategy === 'solid') {
       recs.push({
         title: 'Use os horários como referência',
-        body: `Com ${shakeCount > 0 ? '4 sólidas e 1 shake de apoio' : '5 refeições sólidas'}, distribua nos horários mais importantes do dia. ${shakeCount > 0 ? 'O shake fecha calorias sem precisar de outro prato completo.' : 'Prepare com antecedência o que puder para manter o ritmo.'}`,
+        body: `Com ${solidCount} sólida${solidCount !== 1 ? 's' : ''}${shakeCount > 0 ? ` e ${shakeCount} shake de apoio` : ''}, distribua nos horários mais importantes do dia. ${shakeCount > 0 ? 'O shake fecha calorias sem precisar de outro prato completo.' : 'Prepare com antecedência o que puder para manter o ritmo.'}`,
       });
     } else if (strategy === 'practical') {
       recs.push({
         title: 'Use os horários como âncoras',
-        body: 'Com 5 refeições e 3 shakes, os shakes facilitam os horários entre uma sólida e outra. Mantenha as 2 refeições sólidas bem montadas — elas são a base nutricional do dia.',
+        body: `Com 5 refeições e ${shakeCount} shake${shakeCount !== 1 ? 's' : ''}, os shakes facilitam os horários entre uma sólida e outra. Mantenha as ${solidCount} ${solidCount !== 1 ? 'refeições sólidas' : 'refeição sólida'} bem montadas — elas são a base nutricional do dia.`,
       });
     } else {
       recs.push({
@@ -803,52 +839,65 @@ function buildRecommendations(profile, routine, results) {
   } else if (meals >= 7) {
     recs.push({
       title: 'Muitas refeições funcionam, mas pedem organização',
-      body: `Com ${meals} refeições, cada prato pode ser menor e a distribuição fica mais fácil. Mas exige mais organização para não pular horários. ${strategy === 'solid' ? 'Prepare o que puder com antecedência.' : 'Deixe shakes e ingredientes já prontos para os horários mais corridos.'}`,
+      body: `Com ${meals} refeições, cada prato pode ser menor e a distribuição fica mais fácil. Mas exige mais organização para não pular horários. ${strategy === 'solid' ? 'Prepare o que puder com antecedência.' : `Deixe os ${shakeCount} shake${shakeCount !== 1 ? 's' : ''} e ingredientes já prontos para os horários mais corridos.`}`,
     });
   } else {
     if (strategy === 'solid') {
       recs.push({
         title: 'Distribua bem ao longo do dia',
-        body: 'Com várias refeições sólidas, os intervalos podem ser um pouco maiores — comida sólida demora mais para digerir. Prepare com antecedência o que puder para manter o plano funcionando.',
+        body: `Com ${solidCount} refeições sólidas, os intervalos podem ser um pouco maiores — comida sólida demora mais para digerir. Prepare com antecedência o que puder para manter o plano funcionando.`,
       });
     } else if (strategy === 'practical') {
       recs.push({
         title: 'Deixe tudo separado e pronto',
-        body: 'Com 6 refeições e vários shakes, quanto menos você precisar decidir na hora, mais fácil de manter a consistência. Separe os ingredientes dos shakes no início do dia.',
+        body: `Com 6 refeições e ${shakeCount} shake${shakeCount !== 1 ? 's' : ''}, quanto menos você precisar decidir na hora, mais fácil de manter a consistência. Separe os ingredientes dos shakes no início do dia.`,
       });
     } else {
       recs.push({
         title: 'Distribua bem as calorias ao longo do dia',
-        body: 'Com 6 refeições, usar 2h30 a 3h como referência entre elas ajuda a distribuir as calorias. Isso evita chegar no final do dia com muito ainda por comer — especialmente útil para quem tem pouco apetite.',
+        body: 'Com 6 refeições, a app distribuiu sólidos e shakes em blocos previsíveis ao longo do dia. Alguns intervalos podem ficar mais curtos para encaixar treino, recuperação e sono, mas a lógica continua sendo evitar grandes pratos de uma só vez.',
       });
     }
   }
 
-  // REC 4 — Perfil / dificuldade (hierarquia por relevância)
+  // REC 4 — Perfil / dificuldade
   if (profile.falsoMagro) {
+    const goalNote = goal === 'aggressive'
+      ? ' Como escolheu ganho agressivo, monitore ainda mais de perto — o superávit mais alto pode acumular gordura com mais facilidade.'
+      : '';
     recs.push({
       title: 'Atenção à gordura abdominal',
-      body: 'Evite bebidas açucaradas, doces refinados e excessos noturnos. Priorize sólidos nas refeições principais e acompanhe a circunferência da cintura junto com o peso a cada 2 semanas.',
+      body: `Evite bebidas açucaradas, doces refinados e excessos noturnos. Priorize sólidos nas refeições principais e acompanhe a circunferência da cintura junto com o peso a cada 2 semanas.${goalNote}`,
     });
-  } else if (hasLowAppetite) {
+  } else if (difficulty === 'volume_baixo') {
+    recs.push({
+      title: 'Você está em superávit — não em restrição',
+      body: `Você está ${results.surplus} kcal acima do seu gasto diário. Se após 2 semanas o peso não subiu, adicione 150–200 kcal (mais azeite, amendoim ou um shake maior). Se subiu rápido com barriga, reduza 100–150 kcal. O objetivo é ganhar sem desconforto.`,
+    });
+  } else if (difficulty === 'apetite_baixo') {
     recs.push({
       title: 'Não deixe calorias para o final do dia',
       body: 'Com apetite reduzido, é comum chegar no jantar ainda com metade da meta por cumprir. Distribua melhor desde o café da manhã — isso torna o plano muito mais fácil de seguir.',
     });
+  } else if (difficulty === 'falta_consistencia') {
+    recs.push({
+      title: 'Simplifique para conseguir repetir todos os dias',
+      body: 'Quanto mais simples a rotina, mais fácil de manter. Escolha 2 ou 3 refeições que você consegue repetir sem pensar e monte o plano em torno delas. Consistência básica supera variação perfeita.',
+    });
   } else if (difficulty === 'ultra_acelerado') {
     recs.push({
-      title: 'Seu metabolismo queima rápido',
-      body: 'Com metabolismo acelerado, é fácil perder calorias ao longo do dia sem perceber. Não dependa da fome para lembrar de comer — use horários fixos como referência e acompanhe o peso toda semana.',
+      title: 'Não dependa da fome para lembrar de comer',
+      body: 'Com metabolismo acelerado, a fome pode não aparecer mesmo com calorias faltando. Use alarmes ou horários fixos como referência e acompanhe o peso toda semana para ajustar se necessário.',
     });
   } else if (routine.trainFasted) {
     recs.push({
       title: 'Coma logo depois do treino em jejum',
-      body: 'Treinar sem comer antes exige atenção especial à refeição depois do treino. Não deixe o corpo muito tempo sem se alimentar após o esforço.',
+      body: 'Treinar sem comer antes funciona para alguns — mas exige atenção especial à refeição depois do treino. Não deixe mais de 45–60 minutos passar sem se alimentar após o esforço.',
     });
   } else if (isLateOrDawnTraining) {
     recs.push({
-      title: 'Cuide das refeições ao redor do treino',
-      body: 'Como seu treino acontece em um horário fora do padrão, planeje com antecedência a refeição antes e a refeição depois do treino. Não deixe essa parte para o improviso.',
+      title: 'Planeje as refeições ao redor do treino fora do padrão',
+      body: 'Como seu treino é em horário atípico, a refeição antes e a depois do treino precisam ser planejadas com antecedência. Não deixe essa parte para o improviso — é a parte mais fácil de falhar.',
     });
   } else if (difficulty === 'rotina_corrida' && strategy !== 'practical') {
     recs.push({
@@ -862,28 +911,33 @@ function buildRecommendations(profile, routine, results) {
     });
   }
 
-  // REC 5 — Horário de treino
+  // REC 5 — Treino
   if (profile.activity === 'sedentary' || trainDays <= 1) {
     recs.push({
       title: 'Considere adicionar treino de força',
       body: 'Sem estímulo muscular, grande parte do superávit calórico vira gordura em vez de massa magra. Mesmo 2 a 3 treinos curtos por semana já fazem diferença.',
     });
+  } else if (routine.trainFasted) {
+    recs.push({
+      title: 'Treino em jejum: recuperação é prioridade',
+      body: 'Com treino em jejum, a janela pós-treino é ainda mais importante. Tenha a refeição pós-treino pronta antes de sair para treinar — não improvise depois do esforço.',
+    });
   } else if (trainMins !== null) {
     let trainRecBody;
     if (trainMins < 300) {
-      trainRecBody = 'Como seu treino é de madrugada, a refeição logo depois do treino é especialmente importante. Planeje ela com antecedência para não depender de improviso.';
+      trainRecBody = 'Treino de madrugada é incomum — isso significa que sua rotina pede ainda mais planejamento. Tenha a refeição pós-treino já pronta antes de dormir para não pular essa janela importante.';
     } else if (trainMins < 480) {
-      trainRecBody = 'Como seu treino é cedo de manhã, garanta uma boa refeição logo depois. Isso ajuda na recuperação e facilita organizar o restante do dia.';
+      trainRecBody = 'Com treino cedo de manhã, garanta uma boa refeição logo depois. Ela ajuda na recuperação e facilita distribuir o restante das calorias ao longo do dia sem acumular tudo no fim.';
     } else if (trainMins < 720) {
-      trainRecBody = 'Como seu treino é de manhã, a refeição que vem depois é importante. Ela ajuda a recuperar energia e facilita cumprir a meta calórica ao longo do dia.';
+      trainRecBody = 'Com treino de manhã, a refeição depois é um momento-chave. Ela ajuda a recuperar energia e facilita cumprir a meta calórica ao longo do dia sem acumular no jantar.';
     } else if (trainMins < 840) {
-      trainRecBody = 'Como seu treino acontece no início da tarde, a refeição depois do treino é importante. Ela ajuda a recuperar energia e evita deixar calorias demais para o fim do dia.';
+      trainRecBody = 'Com treino no início da tarde, cuide especialmente da refeição depois. Ela ajuda na recuperação e evita chegar no fim do dia com muitas calorias ainda por bater.';
     } else if (trainMins < 1080) {
-      trainRecBody = 'Como seu treino é de tarde, garanta uma boa refeição depois. Ela ajuda na recuperação e evita que você chegue na última refeição com calorias acumuladas demais.';
+      trainRecBody = 'Com treino de tarde, a refeição depois é importante para recuperação. Garanta que ela esteja planejada — evita deixar calorias acumuladas para a última refeição do dia.';
     } else if (trainMins < 1200) {
-      trainRecBody = 'Como seu treino é no início da noite, planeje a refeição depois do treino com antecedência. Ela é importante para fechar a meta calórica do dia.';
+      trainRecBody = 'Com treino no início da noite, planeje a refeição depois com antecedência. Ela fecha bem a meta calórica do dia e ajuda na recuperação antes de dormir.';
     } else {
-      trainRecBody = 'Como seu treino é à noite, não deixe a refeição depois do treino para o improviso. Ela é importante para fechar a meta do dia e ajudar o corpo a se recuperar durante o sono.';
+      trainRecBody = 'Treino à noite significa que a última refeição do dia e a recuperação se sobrepõem. Não pule a refeição pós-treino — ela é crítica tanto para fechar a meta quanto para dormir bem.';
     }
     recs.push({ title: 'Cuide da refeição depois do treino', body: trainRecBody });
   } else {
