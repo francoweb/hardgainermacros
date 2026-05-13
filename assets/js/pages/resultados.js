@@ -189,6 +189,7 @@ export function renderResultadosPage(mount) {
 
   const computedLabels = slotsWithTraining.map(s =>
     s.slot === '__train__' ? null
+    : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
     : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)
   );
   const _seenLabels = {};
@@ -1253,9 +1254,15 @@ function rebuildTimesAroundTraining(slots, routine) {
       : restSlots;
     const postWindowStart = tEndAdj + POST_BUFFER;
     const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
-    const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, adjustedRest.map(slotDur));
-    nudgeLastMeal(postTimes, adjustedRest);
-    const postSlots = adjustedRest.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
+    // Se o primeiro slot pós-treino for shake e houver sólido depois, traz o sólido para frente.
+    // Garante que a primeira refeição depois de um treino de manhã sem jejum seja sólida (não shake).
+    const firstSolidIdx = adjustedRest.findIndex(s => s.type === 'solid');
+    const orderedRest = firstSolidIdx > 0
+      ? [{ ...adjustedRest[firstSolidIdx], _morningPostWorkout: true }, ...adjustedRest.slice(0, firstSolidIdx), ...adjustedRest.slice(firstSolidIdx + 1)]
+      : adjustedRest;
+    const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, orderedRest.map(slotDur));
+    nudgeLastMeal(postTimes, orderedRest);
+    const postSlots = orderedRest.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
     return {
       slots: [preSlot, ...postSlots],
       spacingFeedback: buildSpacingFeedback([[postWindowStart, effectiveDayEnd]], 1),
