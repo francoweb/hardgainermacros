@@ -143,6 +143,11 @@ export function renderDadosFisicosPage(mount) {
     local.remove(K.FORM);
   });
 
+  // Prevent number inputs from changing value on scroll — blur() lets the page scroll normally
+  ['in-age', 'in-weight', 'in-height'].forEach(id => {
+    document.getElementById(id).addEventListener('wheel', function() { this.blur(); });
+  });
+
   // Submit
   form.addEventListener('submit', (e) => {
     e.preventDefault();
