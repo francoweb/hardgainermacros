@@ -46,7 +46,6 @@ export function renderPerfilPage(mount) {
     difficulty: null,
     bodyType: 'classic',  // "classic" | "falso_magro"
     goal: null,
-    volumeDifficulty: false,
   };
 
   // falsoMagro é derivado de bodyType
@@ -139,17 +138,6 @@ export function renderPerfilPage(mount) {
           <div class="field-error" id="err-goal"></div>
         </div>
 
-        <!-- Volume checkbox -->
-        <div class="field">
-          <label class="checkbox-row ${existing.volumeDifficulty ? 'selected' : ''}" id="lbl-volume">
-            <input type="checkbox" class="checkbox" id="chk-volume" ${existing.volumeDifficulty ? 'checked' : ''} />
-            <span class="checkbox-body">
-              <span class="checkbox-title">Tenho dificuldade em comer muito volume</span>
-              <span class="checkbox-desc">Estufo rápido, meu estômago parece pequeno</span>
-            </span>
-          </label>
-        </div>
-
         <div class="btn-row">
           <button type="button" class="btn btn-secondary" id="btn-back">${icons.arrowLeft(16)} Voltar</button>
           <button type="button" class="btn btn-ghost" id="btn-clear">${icons.refresh(16)} Limpar</button>
@@ -198,26 +186,17 @@ export function renderPerfilPage(mount) {
     });
   });
 
-  // Volume checkbox
-  const chk = document.getElementById('chk-volume');
-  chk.addEventListener('change', () => {
-    state.volumeDifficulty = chk.checked;
-    document.getElementById('lbl-volume').classList.toggle('selected', chk.checked);
-  });
-
   // Back
   document.getElementById('btn-back').addEventListener('click', () => navigate('/'));
 
   // Clear
   document.getElementById('btn-clear').addEventListener('click', () => {
-    state.activity = null; state.difficulty = null; state.bodyType = 'classic'; state.goal = null; state.volumeDifficulty = false;
+    state.activity = null; state.difficulty = null; state.bodyType = 'classic'; state.goal = null;
     mount.querySelectorAll('.option, .option-plain').forEach(b => b.classList.remove('selected'));
     // Marca classic como default
     const classicBtn = mount.querySelector('[data-bodytype="classic"]');
     if (classicBtn) classicBtn.classList.add('selected');
     document.getElementById('hint-falsomagro').style.display = 'none';
-    chk.checked = false;
-    document.getElementById('lbl-volume').classList.remove('selected');
     mount.querySelectorAll('.field-error').forEach(e => e.textContent = '');
     local.remove(K.PROFILE);
   });
@@ -243,7 +222,6 @@ export function renderPerfilPage(mount) {
       bodyType: state.bodyType,
       falsoMagro: state.bodyType === 'falso_magro',
       goal: state.goal,
-      volumeDifficulty: state.volumeDifficulty,
     };
     saveProfile(payload);
     markProgress(K.STEP2_DONE);
