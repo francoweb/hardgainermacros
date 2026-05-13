@@ -90,7 +90,7 @@ export function renderRotinaPage(mount) {
     if (sleep <= wake) sleep += 1440;
     const raw = toM(existing.trainStartTime);
     const norm = (sleep > 1440 && raw < wake && (raw + 1440) <= sleep) ? raw + 1440 : raw;
-    return norm - wake <= 120;
+    return norm - wake <= 90;
   })());
 
   const initSleepHint = buildSleepHint(existing.sleepStartTime || '23:00', existing.sleepEndTime || '07:00');
@@ -236,6 +236,7 @@ export function renderRotinaPage(mount) {
     sleepStartTime: existing.sleepStartTime || '23:00',
     sleepEndTime: existing.sleepEndTime || '07:00',
   };
+  if (!initFastedVisible) state.trainFasted = false;
 
   // Training days slider
   const slDays = document.getElementById('sl-days');
@@ -303,7 +304,7 @@ export function renderRotinaPage(mount) {
     if (sleep <= wake) sleep += 1440;
     const raw = toMinsW(state.trainStartTime);
     const norm = (sleep > 1440 && raw < wake && (raw + 1440) <= sleep) ? raw + 1440 : raw;
-    return norm - wake <= 120;
+    return norm - wake <= 90;
   };
 
   const updateFastedVisibility = () => {
@@ -369,10 +370,12 @@ export function renderRotinaPage(mount) {
   document.getElementById('in-sleep-start').addEventListener('change', e => {
     state.sleepStartTime = e.target.value;
     updateSleepHint();
+    updateFastedVisibility();
   });
   document.getElementById('in-sleep-end').addEventListener('change', e => {
     state.sleepEndTime = e.target.value;
     updateSleepHint();
+    updateFastedVisibility();
   });
 
   // Back

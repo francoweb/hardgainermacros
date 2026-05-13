@@ -248,7 +248,14 @@ export function buildSlotDistribution(totalKcal, routine) {
       const pcts5 = [0.22, 0.18, 0.28, 0.18, 0.14];
       return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts5[i]), time: times5[i] || '' }));
     }
-    // meals >= 6: cai no genérico abaixo — template padrão (3S+3Sh) com solidShare=0.45
+    // meals >= 6: template padrão com solidShare=0.45 já definido acima
+    else if (meals === 7) {
+      slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, template[5]];
+    } else if (meals === 8) {
+      slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, { slot: 'shake_extra2', type: 'shake', weight: 0.70 }, template[5]];
+    } else {
+      slots = [...template]; // 6 refeições
+    }
   } else if (meals <= 4) {
     slots = [template[0], template[2], template[4], template[5]];
     // Distribuição fixa para 4 refeições — evita que o único shake receba toda a quota de shakes
@@ -262,9 +269,9 @@ export function buildSlotDistribution(totalKcal, routine) {
     const pcts5 = [0.23, 0.16, 0.25, 0.22, 0.14];
     return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts5[i]), time: times5[i] || '' }));
   } else if (meals === 7) {
-    slots = [...template, { slot: 'shake_extra', type: 'shake', weight: 0.75 }];
+    slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, template[5]];
   } else if (meals === 8) {
-    slots = [...template, { slot: 'shake_extra', type: 'shake', weight: 0.75 }, { slot: 'shake_extra2', type: 'shake', weight: 0.70 }];
+    slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, { slot: 'shake_extra2', type: 'shake', weight: 0.70 }, template[5]];
   } else {
     slots = [...template];
   }

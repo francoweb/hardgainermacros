@@ -44,9 +44,15 @@ const getDisplayMealLabel = (slot, time, nocturnal = false, strategy = 'hybrid',
   }
   if (nocturnal) {
     if (slot === 'breakfast')   return 'Primeira Refeição';
-    if (slot === 'lunch')       return 'Refeição Intercalar';
-    if (slot === 'dinner')      return 'Refeição Principal';
     if (slot === 'shake_night') return 'Shake Pré-Sono';
+    if ((slot === 'lunch' || slot === 'dinner') && time) {
+      const h = parseInt(time.split(':')[0], 10);
+      if (h >= 7  && h < 12) return 'Refeição da Manhã';
+      if (h >= 12 && h < 17) return 'Almoço';
+      if (h >= 17 && h < 23) return 'Jantar';
+    }
+    if (slot === 'lunch')  return 'Refeição Intercalar';
+    if (slot === 'dinner') return 'Refeição Principal';
   }
   // Shakes de apoio (strategy solid): label por horário
   if (strategy === 'solid' && slot.startsWith('shake')) {
@@ -180,6 +186,18 @@ export function renderResultadosPage(mount) {
     : strategy === 'practical'
     ? `Você escolheu ${totalMeals} refeições por dia com foco em máxima praticidade. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, usando mais shakes de apoio para facilitar bater calorias sem transformar o dia numa maratona de cozinha.`
     : `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, equilibrando refeições sólidas e shakes anabólicos para facilitar o superávit calórico sem pesar tanto na digestão.`;
+
+  const computedLabels = slotsWithTraining.map(s =>
+    s.slot === '__train__' ? null
+    : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)
+  );
+  const _seenLabels = {};
+  const dedupedLabels = computedLabels.map(label => {
+    if (!label) return null;
+    _seenLabels[label] = (_seenLabels[label] || 0) + 1;
+    if (label === 'Almoço' && _seenLabels[label] > 1) return 'Refeição da Tarde';
+    return label;
+  });
 
   mount.innerHTML = `
     <div class="container">
@@ -404,7 +422,7 @@ export function renderResultadosPage(mount) {
         </div>
         <div id="tab-content-visual" class="tab-content">
           <div class="meal-list">
-            ${slotsWithTraining.map(s => s.slot === '__train__' ? `
+            ${slotsWithTraining.map((s, idx) => s.slot === '__train__' ? `
               <div class="meal-row" style="border-left: 3px solid var(--accent); background: var(--surface);">
                 <div class="meal-time">${s.time || trainLabel}</div>
                 <div class="meal-name">Treino${routine.trainEndTime ? ' – ' + routine.trainEndTime : ''}</div>
@@ -414,7 +432,7 @@ export function renderResultadosPage(mount) {
             ` : `
               <div class="meal-row">
                 <div class="meal-time">${s.time || ''}</div>
-                <div class="meal-name">${getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)}</div>
+                <div class="meal-name">${dedupedLabels[idx]}</div>
                 <span class="meal-tag ${s.type}">${s.type === 'solid' ? 'Sólida' : 'Shake'}</span>
                 <div class="meal-macros">
                   <span class="meal-macro-label">kcal</span>
@@ -429,7 +447,7 @@ export function renderResultadosPage(mount) {
           <table class="data-table">
             <thead><tr><th>Refeição</th><th>Tipo</th><th>Horário</th><th style="text-align:right">kcal</th></tr></thead>
             <tbody>
-              ${slotsWithTraining.map(s => s.slot === '__train__' ? `
+              ${slotsWithTraining.map((s, idx) => s.slot === '__train__' ? `
                 <tr style="background:var(--surface);">
                   <td><strong>Treino</strong></td>
                   <td><span style="font-size:.8rem;background:var(--accent);color:#fff;padding:2px 7px;border-radius:4px;">Exercício</span></td>
@@ -438,7 +456,7 @@ export function renderResultadosPage(mount) {
                 </tr>
               ` : `
                 <tr>
-                  <td>${getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)}</td>
+                  <td>${dedupedLabels[idx]}</td>
                   <td>${s.type === 'solid' ? 'Sólida' : 'Shake'}</td>
                   <td>${s.time || ''}</td>
                   <td style="text-align:right">${formatKcal(s.kcal)}</td>
@@ -1077,6 +1095,20 @@ function rebuildTimesAroundTraining(slots, routine) {
     return times.map(roundQ);
   };
 
+  // Nudge: se a última refeição ficar longe demais do sono, reposiciona-a para ~90 min antes de dormir.
+  // Só aplica se o slot anterior deixar espaço suficiente (≥ 60 min de gap). Não altera kcal/macros.
+  const nudgeLastMeal = (times, restSlotsArr) => {
+    if (!times.length) return;
+    const targetLast = sleepMin - 90;
+    const lastIdx = times.length - 1;
+    if (times[lastIdx] >= targetLast) return;
+    const prevEnd = lastIdx > 0
+      ? times[lastIdx - 1] + slotDur(restSlotsArr[lastIdx - 1])
+      : 0;
+    const capped = Math.min(targetLast, sleepMin - 60);
+    if (capped > prevEnd + 60) times[lastIdx] = roundQ(capped);
+  };
+
   const POST_BUFFER = 20;
 
   // Treino em jejum: só faz sentido nas primeiras horas após acordar (< 5h do wakeMin).
@@ -1123,6 +1155,7 @@ function rebuildTimesAroundTraining(slots, routine) {
       const postWindowStart = tEndAdj + POST_BUFFER;
       const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
       const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, restSlots.map(slotDur));
+      nudgeLastMeal(postTimes, restSlots);
       const postSlots = restSlots.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
       return {
         slots: [firstSlot, ...postSlots],
@@ -1132,13 +1165,21 @@ function rebuildTimesAroundTraining(slots, routine) {
 
     // Gap longo (>90 min) + 6+ refeições: slot[0] preservado perto de acordar, slot[1] como pré-treino leve.
     if (n >= 6 && (tStart - wakeMin) > 90) {
-      const firstSlot = { ...slots[0], time: toTime(wakeMin + 15) };
-      const preSlot   = { ...slots[1], slot: 'pre_workout_light', time: toTime(tStart - 30) };
-      const restSlots = slots.slice(2);
+      const firstSlot       = { ...slots[0], time: toTime(wakeMin + 15) };
+      const originalPreKcal = slots[1].kcal || 0;
+      const preKcal         = originalPreKcal < 180 ? originalPreKcal : Math.min(originalPreKcal, 250);
+      const excedente       = originalPreKcal - preKcal;
+      const preSlot         = { ...slots[1], slot: 'pre_workout_light', kcal: preKcal, time: toTime(tStart - 30) };
+      const restSlots       = slots.slice(2);
+      const totalRestKcal   = restSlots.reduce((sum, s) => sum + (s.kcal || 0), 0);
+      const adjustedRest    = (excedente > 0 && totalRestKcal > 0)
+        ? restSlots.map(s => ({ ...s, kcal: Math.round((s.kcal || 0) + excedente * ((s.kcal || 0) / totalRestKcal)) }))
+        : restSlots;
       const postWindowStart = tEndAdj + POST_BUFFER;
       const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
-      const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, restSlots.map(slotDur));
-      const postSlots = restSlots.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
+      const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, adjustedRest.map(slotDur));
+      nudgeLastMeal(postTimes, adjustedRest);
+      const postSlots = adjustedRest.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
       return {
         slots: [firstSlot, preSlot, ...postSlots],
         spacingFeedback: buildSpacingFeedback([[postWindowStart, effectiveDayEnd]], 2),
@@ -1159,6 +1200,7 @@ function rebuildTimesAroundTraining(slots, routine) {
     const postWindowStart = tEndAdj + POST_BUFFER;
     const effectiveDayEnd = tEndAdj > dayEnd ? Math.min(tEndAdj + 90, sleepMin - 30) : dayEnd;
     const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, adjustedRest.map(slotDur));
+    nudgeLastMeal(postTimes, adjustedRest);
     const postSlots = adjustedRest.map((s, i) => ({ ...s, time: i < postTimes.length ? toTime(postTimes[i]) : s.time }));
     return {
       slots: [preSlot, ...postSlots],
