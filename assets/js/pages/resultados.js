@@ -113,14 +113,6 @@ export function renderResultadosPage(mount) {
   const shakeLabel = shakeCount === 1
     ? (strategy === 'solid' ? 'shake de apoio' : 'shake anabólico')
     : (strategy === 'solid' || strategy === 'practical' ? 'shakes de apoio' : 'shakes anabólicos');
-  const sequenceHtml = (results.slotDistribution || []).map((s, i, arr) => {
-    const chip = s.type === 'solid'
-      ? `<span class="hybrid-seq-chip solid">${icons.utensils(13)} Sólida</span>`
-      : `<span class="hybrid-seq-chip shake">${icons.droplet(13)} Shake</span>`;
-    const arrow = i < arr.length - 1 ? '<span class="hybrid-seq-arrow">›</span>' : '';
-    return chip + arrow;
-  }).join('');
-
   // Tags de interpretação
   const tags = buildTags(profile, routine, results);
 
@@ -144,6 +136,14 @@ export function renderResultadosPage(mount) {
   const _toMins = t => { if (!t) return Infinity; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const scheduleData = rebuildTimesAroundTraining(results.slotDistribution || [], routine);
   const spacingFeedback = scheduleData.spacingFeedback;
+  const _seqSource = (scheduleData.slots && scheduleData.slots.length > 0) ? scheduleData.slots : (results.slotDistribution || []);
+  const sequenceHtml = _seqSource.map((s, i, arr) => {
+    const chip = s.type === 'solid'
+      ? `<span class="hybrid-seq-chip solid">${icons.utensils(13)} Sólida</span>`
+      : `<span class="hybrid-seq-chip shake">${icons.droplet(13)} Shake</span>`;
+    const arrow = i < arr.length - 1 ? '<span class="hybrid-seq-arrow">›</span>' : '';
+    return chip + arrow;
+  }).join('');
   const slotsWithTraining = (() => {
     const corrected = scheduleData.slots;
     if (!hasTraining) return corrected;
@@ -1258,7 +1258,11 @@ function rebuildTimesAroundTraining(slots, routine) {
     // Garante que a primeira refeição depois de um treino de manhã sem jejum seja sólida (não shake).
     const firstSolidIdx = adjustedRest.findIndex(s => s.type === 'solid');
     const orderedRest = firstSolidIdx > 0
-      ? [{ ...adjustedRest[firstSolidIdx], _morningPostWorkout: true }, ...adjustedRest.slice(0, firstSolidIdx), ...adjustedRest.slice(firstSolidIdx + 1)]
+      ? [
+        { ...adjustedRest[firstSolidIdx], _morningPostWorkout: true },
+        ...adjustedRest.slice(0, firstSolidIdx).map(s => ({ ...s, type: 'solid', slot: 'lunch' })),
+        ...adjustedRest.slice(firstSolidIdx + 1),
+      ]
       : adjustedRest;
     const postTimes = spaceTimesFromStart(postWindowStart, effectiveDayEnd, orderedRest.map(slotDur));
     nudgeLastMeal(postTimes, orderedRest);
