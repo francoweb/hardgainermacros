@@ -700,7 +700,8 @@ function buildProfileSummary(formData, profile, routine, results) {
   if (formData.sex && SEX_LABEL[formData.sex]) items.push({ label: 'Sexo', value: SEX_LABEL[formData.sex] });
   if (profile.goal && GOAL_LABEL[profile.goal]) items.push({ label: 'Objetivo', value: GOAL_LABEL[profile.goal] });
   if (profile.activity)              items.push({ label: 'Nível de atividade', value: ACTIVITY_LABEL[profile.activity] || profile.activity });
-  if (profile.difficulty)            items.push({ label: 'Perfil hardgainer', value: DIFFICULTY_LABEL[profile.difficulty] || profile.difficulty });
+  if (profile.difficulty)            items.push({ label: 'Dificuldade principal', value: DIFFICULTY_LABEL[profile.difficulty] || profile.difficulty });
+  items.push({ label: 'Perfil corporal', value: profile.falsoMagro ? 'Falso Magro / Magro com Barriga' : 'Magro Clássico' });
   if (routine.trainDays > 0)         items.push({ label: 'Dias de treino', value: `${routine.trainDays}×/semana` });
   if (routine.trainStartTime && routine.trainEndTime) items.push({ label: 'Horário de treino', value: `${routine.trainStartTime} – ${routine.trainEndTime}` });
   if (routine.trainDurationMinutes)  items.push({ label: 'Duração do treino', value: `${routine.trainDurationMinutes} min` });
