@@ -1342,7 +1342,8 @@ function rebuildTimesAroundTraining(slots, routine) {
     const postWin = effectiveDayEnd - (tEndAdj + POST_BUFFER);
     const nPost = postWin >= 60 ? Math.min(n - 1, 2) : 1;
     const nPre  = n - nPost;
-    const preBuffer   = 90;
+    const lastPreIsShake = nPre >= 1 && slots[nPre - 1]?.type === 'shake';
+    const preBuffer   = lastPreIsShake ? 60 : 90;
     const preAnchor   = roundQ(tStart - preBuffer);
 
     const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost, slots.slice(nPre).map(slotDur));
@@ -1354,8 +1355,8 @@ function rebuildTimesAroundTraining(slots, routine) {
       preTimes = [preAnchor];
     } else {
       // Janelas naturais para refeições sólidas (em minutos desde meia-noite)
-      // Café da Manhã: 07:15 (435), Almoço: 13:00 (780)
-      const NATURAL_ANCHOR = { breakfast: wakeMin + 15, lunch: 780 };
+      // Café da Manhã: 07:15 (435), Almoço: 13:00 (780) ou recuado para garantir 2h30 antes do shake pré-treino
+      const NATURAL_ANCHOR = { breakfast: wakeMin + 15, lunch: lastPreIsShake ? Math.min(780, preAnchor - 150) : 780 };
       const preSlots = slots.slice(0, nPre);
       const anchorsValid = Object.values(NATURAL_ANCHOR).every(a => a >= dayStart && a < preAnchor);
       if (!anchorsValid) {
@@ -1389,8 +1390,24 @@ function rebuildTimesAroundTraining(slots, routine) {
         spacingChecks.push({ gapUsed: times[i] - times[i - 1] - slotDur(slots[i - 1]) });
       }
     }
+    // Cap kcal do shake pré-treino de tarde/noite e redistribui excedente para slots pós-treino.
+    // Só atua quando o último slot pré-treino é shake (pré-treino 45–75 min antes) e tem mais de 280 kcal.
+    const adjustedSlots = (() => {
+      if (!lastPreIsShake) return slots;
+      const preIdx = nPre - 1;
+      const originalPreKcal = slots[preIdx]?.kcal || 0;
+      const cappedKcal = Math.min(originalPreKcal, 280);
+      const excedente = originalPreKcal - cappedKcal;
+      if (excedente <= 0) return slots;
+      const postTotal = slots.slice(nPre).reduce((sum, s) => sum + (s.kcal || 0), 0);
+      return slots.map((s, i) => {
+        if (i === preIdx) return { ...s, kcal: cappedKcal };
+        if (i >= nPre && postTotal > 0) return { ...s, kcal: Math.round((s.kcal || 0) + excedente * ((s.kcal || 0) / postTotal)) };
+        return s;
+      });
+    })();
     return {
-      slots: slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
+      slots: adjustedSlots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
       spacingFeedback: buildSpacingFeedback([[dayStart, preAnchor], [tEndAdj + POST_BUFFER, effectiveDayEnd]]),
     };
   }
