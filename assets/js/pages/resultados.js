@@ -758,12 +758,12 @@ function buildRecommendations(profile, routine, results) {
   } else if (difficulty === 'ultra_acelerado') {
     recs.push({
       title: 'Consistência acima de tudo',
-      body: `Seu metabolismo queima rápido — calorias perdidas num dia não recuperam no dia seguinte. Meta diária: ${formatKcal(results.calories)} kcal, todos os dias.${proteinPerMeal ? ` Tente manter ${proteinPerMeal} por refeição.` : ''} Pequenas quebras acumulam e travam o progresso.`,
+      body: `Seu metabolismo queima rápido — calorias perdidas num dia não recuperam no dia seguinte. Meta diária: ${formatKcal(results.calories)} kcal, todos os dias.${proteinPerMeal ? ` Tente manter ${proteinPerMeal}.` : ''} Pequenas quebras acumulam e travam o progresso.`,
     });
   } else if (difficulty === 'falta_consistencia') {
     recs.push({
       title: 'Um bom dia não compensa uma semana irregular',
-      body: `A consistência semanal é o que move a balança. Meta: ${formatKcal(results.calories)} kcal todos os dias — não só quando estiver motivado.${proteinPerMeal ? ` Tente manter ${proteinPerMeal} por refeição.` : ''} Simplifique ao máximo para conseguir repetir.`,
+      body: `A consistência semanal é o que move a balança. Meta: ${formatKcal(results.calories)} kcal todos os dias — não só quando estiver motivado.${proteinPerMeal ? ` Tente manter ${proteinPerMeal}.` : ''} Simplifique ao máximo para conseguir repetir.`,
     });
   } else if (difficulty === 'rotina_corrida') {
     recs.push({
@@ -773,7 +773,7 @@ function buildRecommendations(profile, routine, results) {
   } else {
     recs.push({
       title: 'Prioridade: bater a meta diária',
-      body: `O que define o resultado é cumprir calorias, proteína, carboidratos e gorduras todos os dias.${proteinPerMeal ? ` Meta: ${proteinPerMeal} por refeição.` : ''} Os horários ajudam na organização, mas a consistência ao longo do dia é o fator principal.`,
+      body: `O que define o resultado é cumprir calorias, proteína, carboidratos e gorduras todos os dias.${proteinPerMeal ? ` Meta: ${proteinPerMeal}.` : ''} Os horários ajudam na organização, mas a consistência ao longo do dia é o fator principal.`,
     });
   }
 
