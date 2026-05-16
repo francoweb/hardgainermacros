@@ -175,7 +175,9 @@ export function renderResultadosPage(mount) {
     : strategy === 'practical'
     ? 'Shakes frequentes reduzem o tempo de preparo e facilitam bater as calorias do dia. As refeições sólidas garantem a nutrição base nos momentos principais.'
     : 'Shakes anabólicos garantem calorias e proteína sem sensação de peso — essencial para quem tem apetite reduzido ou rotina corrida. Alternar com refeições sólidas mantém a saciedade e a ingestão de micronutrientes ao longo do dia.';
-  const hintInterval = strategy === 'solid'
+  const hintInterval = totalMeals === 4
+    ? 'Com 4 refeições, os intervalos ficam naturalmente maiores. O plano prioriza café da manhã, almoço afastado do treino, pós-treino e shake noturno para manter a rotina viável.'
+    : strategy === 'solid'
     ? 'Intervalo sugerido: 3 a 4h entre refeições sólidas. Com pratos mais volumosos, o estômago precisa de mais tempo antes do próximo prato.'
     : strategy === 'practical'
     ? 'Os shakes podem ser consumidos com menos intervalo que as refeições sólidas. Use 2h a 2h30 entre shakes e pelo menos 3h antes de uma refeição sólida.'
@@ -185,6 +187,8 @@ export function renderResultadosPage(mount) {
     ? `Você escolheu ${totalMeals} refeições por dia com foco em mais refeições sólidas. A app organizou o plano como ${solidCount} ${solidLabel}${shakeCount > 0 ? ` + ${shakeCount} ${shakeLabel}` : ''}, priorizando saciedade, mastigação e uma estrutura mais tradicional ao longo do dia.`
     : strategy === 'practical'
     ? `Você escolheu ${totalMeals} refeições por dia com foco em máxima praticidade. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, usando mais shakes de apoio para facilitar bater calorias sem transformar o dia numa maratona de cozinha.`
+    : totalMeals === 4 && shakeCount === 1
+    ? `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, priorizando refeições sólidas e mantendo 1 shake anabólico como apoio para facilitar o superávit calórico.`
     : `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, equilibrando refeições sólidas e shakes anabólicos para facilitar o superávit calórico sem pesar tanto na digestão.`;
 
   const computedLabels = slotsWithTraining.map(s =>
@@ -1066,6 +1070,15 @@ function rebuildTimesAroundTraining(slots, routine) {
       };
     }
 
+    if (n === 4) {
+      return {
+        level: 'info',
+        headline: 'Analisámos a sua rotina: 4 refeições é possível, mas deixa intervalos maiores.',
+        message: '4 refeições é possível, mas exige mais consistência porque os intervalos ficam maiores. Se sentir fome, queda de energia ou dificuldade para bater calorias, 5 ou 6 refeições podem ser mais confortáveis.',
+        detail: null,
+      };
+    }
+
     return {
       level: 'success',
       headline: 'Analisámos a sua rotina: esta quantidade de refeições encaixa bem na sua janela diária.',
@@ -1367,7 +1380,12 @@ function rebuildTimesAroundTraining(slots, routine) {
           : spaceTimes(dayStart, preAnchor, nPre, slots.slice(0, nPre).map(slotDur));
       } else {
         const raw = preSlots.map((s, i) => {
-          if (i === nPre - 1) return preAnchor;
+          if (i === nPre - 1) {
+            // Solid last-pre with only 2 pre-slots: anchor 3h before training instead of 90min,
+            // preventing a heavy solid meal immediately before training and a 7h+ gap from breakfast.
+            if (nPre === 2 && s.type === 'solid') return Math.min(preAnchor, tStart - 180);
+            return preAnchor;
+          }
           const a = NATURAL_ANCHOR[s.slot];
           return (s.type === 'solid' && a !== undefined) ? a : null;
         });
