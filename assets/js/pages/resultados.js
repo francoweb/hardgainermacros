@@ -1388,9 +1388,9 @@ function rebuildTimesAroundTraining(slots, routine) {
       } else {
         const raw = preSlots.map((s, i) => {
           if (i === nPre - 1) {
-            // Solid last-pre with only 2 pre-slots: anchor 3h before training instead of 90min,
+            // Solid last-pre slot: anchor 3h before training instead of 90min,
             // preventing a heavy solid meal immediately before training and a 7h+ gap from breakfast.
-            if (nPre === 2 && s.type === 'solid') return Math.min(preAnchor, tStart - 180);
+            if (s.type === 'solid') return Math.min(preAnchor, tStart - 180);
             return preAnchor;
           }
           const a = NATURAL_ANCHOR[s.slot];
