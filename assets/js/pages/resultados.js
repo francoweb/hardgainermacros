@@ -421,6 +421,13 @@ export function renderResultadosPage(mount) {
             </div>
           </div>
         ` : ''}
+        <div style="margin:0 0 20px;padding:14px 16px;border-radius:14px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.18);display:flex;gap:12px;align-items:flex-start;">
+          <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">🕐</span>
+          <div style="font-size:.93rem;line-height:1.6;color:var(--ink,#1f2937);">
+            <strong style="display:block;margin-bottom:4px;">Os horários são uma referência, não uma regra fixa</strong>
+            Use este plano como modelo para organizar o seu dia. Se uma refeição aparece às 13:00, não precisa comer exatamente nesse minuto. Adapte à sua rotina, mantendo a lógica principal: refeições bem distribuídas, pré-treino leve quando necessário e pós-treino bem posicionado.
+          </div>
+        </div>
         <div class="tabs" role="tablist">
           <button type="button" class="tab active" data-tab="visual" role="tab">Visual</button>
           <button type="button" class="tab" data-tab="tabela" role="tab">Tabela</button>
