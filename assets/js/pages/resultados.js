@@ -535,7 +535,16 @@ export function renderResultadosPage(mount) {
 
   // Generate plan and go
   document.getElementById('btn-plan').addEventListener('click', () => {
-    const plan = generatePlan(results);
+    const rebuiltSlots = (scheduleData.slots && scheduleData.slots.length > 0)
+      ? scheduleData.slots
+      : results.slotDistribution;
+    const labeledSlots = rebuiltSlots.map(s => ({
+      ...s,
+      displayLabel: s._morningPostWorkout
+        ? 'Café da Manhã Pós-Treino'
+        : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
+    }));
+    const plan = generatePlan({ ...results, slotDistribution: labeledSlots });
     savePlan(plan);
     markProgress(K.PLAN_READY);
     navigate('/plano-14-dias');

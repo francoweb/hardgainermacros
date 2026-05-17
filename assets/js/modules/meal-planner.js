@@ -62,7 +62,7 @@ export function generatePlan(results) {
       const templates = rotations[slot.slot];
       // Rotaciona: dia % número de templates
       const template = templates[i % templates.length];
-      return scaleMeal(template, slot.kcal, slot.time, slot.slot);
+      return scaleMeal(template, slot.kcal, slot.time, slot.slot, slot.displayLabel);
     });
 
     const totals = dayMeals.reduce((acc, m) => ({
@@ -92,7 +92,7 @@ export function generatePlan(results) {
  * Escala uma receita para atingir a meta calórica do slot.
  * Mantém proporções entre ingredientes.
  */
-function scaleMeal(template, targetKcal, time, slotKey) {
+function scaleMeal(template, targetKcal, time, slotKey, displayLabel) {
   const factor = targetKcal / template.baseKcal;
 
   const ingredients = template.items.map(item => {
@@ -120,7 +120,7 @@ function scaleMeal(template, targetKcal, time, slotKey) {
   return {
     templateId: template.id,
     slot: slotKey,
-    slotLabel: SLOT_LABEL[slotKey] || template.name,
+    slotLabel: displayLabel || SLOT_LABEL[slotKey] || template.name,
     type: template.type,
     name: template.name,
     time: timeRange(time, template.type === 'solid' ? 60 : 30),
