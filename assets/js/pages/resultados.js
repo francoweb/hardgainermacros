@@ -985,7 +985,7 @@ function rebuildTimesAroundTraining(slots, routine) {
   let sleepMin = sleepStartTime ? toMins(sleepStartTime) : 1380;
   if (sleepMin <= wakeMin) sleepMin += 1440;
   const dayStart = wakeMin + 15;
-  const dayEnd   = sleepMin - 75;
+  const dayEnd   = sleepMin - 90;
 
   // Normalização na fonte: tStart/tEndAdj já em coordenadas do ciclo acordado.
   // Para turnos nocturnos (sleepMin > 1440), horas antes de wakeMin que ainda
@@ -1368,6 +1368,8 @@ function rebuildTimesAroundTraining(slots, routine) {
     const preAnchor   = roundQ(tStart - preBuffer);
 
     const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost, slots.slice(nPre).map(slotDur));
+    if (postTimes.length > 0)
+      postTimes[postTimes.length - 1] = roundQ(sleepMin - 90);
 
     let preTimes;
     if (nPre === 0) {
