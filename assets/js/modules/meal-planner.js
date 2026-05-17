@@ -93,7 +93,10 @@ export function generatePlan(results) {
  * Mantém proporções entre ingredientes.
  */
 function scaleMeal(template, targetKcal, time, slotKey, displayLabel) {
-  const factor = targetKcal / template.baseKcal;
+  const actualBase = template.items.reduce(
+    (sum, item) => sum + calcFoodMacros(item.food, item.grams).kcal, 0
+  ) || template.baseKcal;
+  const factor = targetKcal / actualBase;
 
   const ingredients = template.items.map(item => {
     const baseGrams = item.grams;
