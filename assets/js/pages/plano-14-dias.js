@@ -48,7 +48,6 @@ function render(mount, plan, results, subs) {
         <div class="plan-toolbar-right">
           <button type="button" class="btn btn-ghost" id="btn-edit-plan">${icons.edit(16)} Personalizar</button>
           <button type="button" class="btn btn-ghost" id="btn-print">${icons.print(16)} Imprimir</button>
-          <button type="button" class="btn btn-primary" id="btn-download">${icons.download(16)} Baixar PDF</button>
         </div>
       </div>
 
@@ -66,6 +65,19 @@ function render(mount, plan, results, subs) {
           <span>G: <strong>${results.fat.grams}g</strong></span>
         </div>
       </div>
+
+      <!-- Nota informativa sobre variação de valores -->
+      <details class="no-print" style="margin-bottom: 20px; background: #f0f6fa; border: 1px solid #c5dde8; border-left: 4px solid #6ba8b8; border-radius: 0 8px 8px 0; padding: 10px 16px; font-size: 13px; color: #2e4a55; line-height: 1.6; box-sizing: border-box; width: 100%;">
+        <summary style="cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <span style="font-size: 13px; font-weight: 600; color: #1e3a44;">ℹ️ Por que os valores podem variar?</span>
+          <span style="font-size: 11px; white-space: nowrap; color: #6ba8b8; flex-shrink: 0;">▸ Ver mais</span>
+        </summary>
+        <div style="margin: 10px 0 2px; padding-top: 10px; border-top: 1px solid #c5dde8; color: #3a5a66; font-size: 13px;">
+          <p style="margin: 0 0 8px;">Os valores podem variar ligeiramente porque o plano usa alimentos reais, porções práticas e arredondamentos naturais. Mesmo assim, continuam próximos do alvo calculado.</p>
+          <p style="margin: 0 0 8px;">Exemplo: se a sua meta diária é <strong>${formatKcal(results.calories)} kcal</strong>, um dia com ${formatKcal(results.calories - 30)} kcal ou ${formatKcal(results.calories + 30)} kcal continua dentro de uma margem normal. Alimentos reais não encaixam sempre em números matemáticos perfeitos. O mais importante é manter a consistência ao longo da semana, seguir a estrutura das refeições e ajustar pequenas quantidades apenas se necessário.</p>
+          <strong style="color: #1e3a44;">Pequenas diferenças não significam erro no plano.</strong>
+        </div>
+      </details>
 
       <!-- Days -->
       <div id="days-container">
@@ -130,18 +142,29 @@ function render(mount, plan, results, subs) {
   document.getElementById('btn-back-results').addEventListener('click', () => navigate('/resultados'));
   document.getElementById('btn-edit-plan').addEventListener('click', () => navigate('/'));
   document.getElementById('btn-print').addEventListener('click', () => window.print());
-  document.getElementById('btn-download').addEventListener('click', () => {
-    // Solução universal: imprimir para PDF via navegador (funciona em qualquer host)
-    window.print();
-  });
 
-  // Day collapse
+  // Day collapse — accordion exclusivo: apenas 1 dia aberto por vez
   mount.querySelectorAll('[data-day-head]').forEach(head => {
     const toggle = () => {
       const idx = head.dataset.dayHead;
       const body = document.getElementById(`day-body-${idx}`);
       const chev = head.querySelector('.day-chev');
       const open = body.style.display !== 'none';
+
+      // Se vai abrir, fecha todos os outros dias primeiro
+      if (!open) {
+        mount.querySelectorAll('[data-day-head]').forEach(otherHead => {
+          if (otherHead === head) return;
+          const otherBody = document.getElementById(`day-body-${otherHead.dataset.dayHead}`);
+          const otherChev = otherHead.querySelector('.day-chev');
+          if (otherBody && otherBody.style.display !== 'none') {
+            otherBody.style.display = 'none';
+            otherHead.setAttribute('aria-expanded', 'false');
+            if (otherChev) otherChev.style.transform = 'rotate(0deg)';
+          }
+        });
+      }
+
       body.style.display = open ? 'none' : 'block';
       head.setAttribute('aria-expanded', open ? 'false' : 'true');
       if (chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
@@ -169,6 +192,59 @@ function render(mount, plan, results, subs) {
       openSubModal(Number(dayIdx), Number(mealIdx), Number(ingIdx), mount);
     });
   });
+
+  // PDF por dia — abre popup limpa com apenas o dia selecionado
+  mount.querySelectorAll('[data-pdf-day]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dayIdx = Number(btn.dataset.pdfDay);
+      exportDayPDF(plan[dayIdx], dayIdx, results);
+    });
+  });
+
+  // Botão flutuante Voltar ao Topo — remove anterior se existir (re-render seguro)
+  const existingBackTop = document.getElementById('back-to-top-btn');
+  if (existingBackTop) existingBackTop.remove();
+
+  const backTopBtn = document.createElement('button');
+  backTopBtn.id = 'back-to-top-btn';
+  backTopBtn.className = 'no-print';
+  backTopBtn.setAttribute('aria-label', 'Voltar ao topo');
+  backTopBtn.setAttribute('title', 'Voltar ao topo');
+  backTopBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+  backTopBtn.style.cssText = [
+    'position:fixed', 'bottom:28px', 'right:28px',
+    'width:36px', 'height:36px', 'border-radius:50%',
+    'background:#c26d5a', 'color:#fff', 'border:none',
+    'cursor:pointer', 'display:none', 'align-items:center', 'justify-content:center',
+    'box-shadow:0 1px 5px rgba(194,109,90,0.25)',
+    'z-index:900', 'transition:transform 0.15s ease,box-shadow 0.15s ease,background 0.15s ease',
+    'outline:none',
+  ].join(';');
+  document.body.appendChild(backTopBtn);
+
+  backTopBtn.addEventListener('mouseenter', () => {
+    backTopBtn.style.transform = 'translateY(-1px)';
+    backTopBtn.style.background = '#b45d4a';
+    backTopBtn.style.boxShadow = '0 4px 12px rgba(194,109,90,0.32)';
+  });
+  backTopBtn.addEventListener('mouseleave', () => {
+    backTopBtn.style.transform = '';
+    backTopBtn.style.background = '#c26d5a';
+    backTopBtn.style.boxShadow = '0 2px 8px rgba(194,109,90,0.25)';
+  });
+
+  backTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  const onBackTopScroll = () => {
+    // Auto-remove listener se o botão já não existe (navegação SPA)
+    if (!document.getElementById('back-to-top-btn')) {
+      window.removeEventListener('scroll', onBackTopScroll);
+      return;
+    }
+    backTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+  };
+  window.addEventListener('scroll', onBackTopScroll, { passive: true });
 }
 
 /* ============================================================================ */
@@ -188,6 +264,15 @@ function renderDayCard(day, idx) {
             P:${Math.round(day.totals.prot)}g C:${Math.round(day.totals.carb)}g G:${Math.round(day.totals.fat)}g
           </div>
         </div>
+        <!-- Botão PDF compacto no cabeçalho — visível mesmo com o dia colapsado -->
+        <button
+          type="button"
+          class="btn btn-primary no-print"
+          data-pdf-day="${idx}"
+          aria-label="Baixar PDF do Dia ${idx + 1}"
+          title="Baixar PDF do Dia ${idx + 1}"
+          style="padding: 6px 12px; font-size: 12px; line-height: 1.4; white-space: nowrap; margin-right: 8px; flex-shrink: 0;"
+        >${icons.download(13)} Baixar PDF</button>
         <div class="day-chev" style="${isOpen ? 'transform: rotate(180deg);' : ''}">${icons.chevDown(18)}</div>
       </div>
       <div class="day-body" id="day-body-${idx}" style="display:${isOpen ? 'block' : 'none'};">
@@ -202,6 +287,7 @@ function renderMealCard(meal, dayIdx, mealIdx) {
     <div class="meal-card ${meal.type}">
       <div class="meal-card-head">
         <div>
+          <div style="font-size: 11px; font-weight: 700; color: #7a5235; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Refeição ${mealIdx + 1}</div>
           <div class="meal-card-time">${meal.time || ''}</div>
           <div class="meal-card-name">${meal.slotLabel} — ${meal.name}</div>
         </div>
@@ -484,4 +570,212 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+/* ============================================================================ */
+/* Exportação PDF por dia                                                        */
+/* ============================================================================ */
+
+/** Constrói o bloco HTML de uma refeição para o documento PDF por dia. */
+function buildMealHtml(meal, mealIdx) {
+  const badgeLabel = meal.type === 'solid' ? 'Sólida' : 'Shake';
+
+  const ingsHtml = meal.ingredients.map(ing => `
+    <li class="ing-row">
+      <div class="ing-info">
+        <div class="ing-name">${ing.label || ing.food}</div>
+        <div class="ing-macros">${ing.macros.kcal} kcal · P:${ing.macros.prot}g · C:${ing.macros.carb}g · G:${ing.macros.fat}g</div>
+      </div>
+      <div class="ing-qty">${ing.display}</div>
+    </li>
+  `).join('');
+
+  const stepsHtml = meal.steps && meal.steps.length ? `
+    <div class="meal-section">
+      <div class="section-label">Preparo</div>
+      <ol class="prep-list">
+        ${meal.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+      </ol>
+    </div>
+  ` : '';
+
+  const noteHtml = meal.note ? `
+    <div class="meal-note">${escapeHtml(meal.note)}</div>
+  ` : '';
+
+  return `
+    <div class="meal-block" data-type="${meal.type}">
+      <div class="meal-header">
+        <div class="meal-header-left">
+          <div class="meal-num">Refeição ${mealIdx + 1}</div>
+          <div class="meal-time">${meal.time || ''}</div>
+          <div class="meal-name">${meal.slotLabel}</div>
+          <div class="meal-recipe">${meal.name}</div>
+        </div>
+        <span class="meal-badge meal-badge-${meal.type}">${badgeLabel}</span>
+      </div>
+      <div class="meal-macros-row">
+        <span class="macro-chip">${meal.totals.kcal} kcal</span>
+        <span class="macro-chip">P: ${meal.totals.prot}g</span>
+        <span class="macro-chip">C: ${meal.totals.carb}g</span>
+        <span class="macro-chip">G: ${meal.totals.fat}g</span>
+      </div>
+      <div class="meal-section">
+        <div class="section-label">Ingredientes</div>
+        <ul class="ing-list">${ingsHtml}</ul>
+      </div>
+      ${stepsHtml}
+      ${noteHtml}
+    </div>
+  `;
+}
+
+/** Imprime apenas o dia especificado usando área temporária na própria página. */
+function exportDayPDF(day, dayIdx, results) {
+  const mealsHtml = day.meals.map((meal, mIdx) => buildMealHtml(meal, mIdx)).join('');
+
+  // Conteúdo limpo do dia — sem botões, navegação ou elementos da página
+  const contentHtml = `
+    <div class="pdf-header">
+      <div class="pdf-brand">Hardgainer Macros</div>
+      <div class="pdf-tagline">Plano alimentar personalizado para hardgainers</div>
+      <div class="pdf-header-divider"></div>
+      <div class="pdf-title">Plano Alimentar — Dia ${dayIdx + 1}</div>
+      <div class="pdf-dayname">${day.dayName}</div>
+    </div>
+    <div class="pdf-totals">
+      <div class="tot-item">
+        <span class="tot-val">${day.totals.kcal}</span>
+        <span class="tot-label">kcal</span>
+      </div>
+      <div class="tot-item">
+        <span class="tot-val">${Math.round(day.totals.prot)}g</span>
+        <span class="tot-label">Proteína</span>
+      </div>
+      <div class="tot-item">
+        <span class="tot-val">${Math.round(day.totals.carb)}g</span>
+        <span class="tot-label">Carboidrato</span>
+      </div>
+      <div class="tot-item">
+        <span class="tot-val">${Math.round(day.totals.fat)}g</span>
+        <span class="tot-label">Gordura</span>
+      </div>
+    </div>
+    <div class="pdf-meals">
+      ${mealsHtml}
+    </div>
+    <div class="pdf-footer">
+      <div class="pdf-footer-url">hardgainermacros.com</div>
+      <div class="pdf-footer-note">Use este plano como referência e ajuste à sua rotina.</div>
+    </div>
+  `;
+
+  // Limpa execução anterior se existir
+  const prevArea = document.getElementById('day-pdf-print-area');
+  if (prevArea) prevArea.remove();
+  const prevStyle = document.getElementById('day-pdf-print-style');
+  if (prevStyle) prevStyle.remove();
+
+  // Injeta área de impressão no body
+  const printArea = document.createElement('div');
+  printArea.id = 'day-pdf-print-area';
+  printArea.className = 'day-pdf-print-area';
+  printArea.innerHTML = contentHtml;
+  document.body.appendChild(printArea);
+
+  // Injeta CSS de impressão por dia — estilos isolados, não alteram styles.css
+  const style = document.createElement('style');
+  style.id = 'day-pdf-print-style';
+  style.textContent = `
+    .day-pdf-print-area { display: none; }
+    @media print {
+      .day-pdf-print-area, .day-pdf-print-area * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      body.printing-day-pdf > * { display: none !important; }
+      body.printing-day-pdf .day-pdf-print-area {
+        display: block !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        color: #1a1814;
+        font-size: 14px;
+        line-height: 1.6;
+        background: #fff;
+      }
+
+      /* ── HEADER ── */
+      .day-pdf-print-area .pdf-header { background: #1a1814; padding: 28px 32px 24px; }
+      .day-pdf-print-area .pdf-brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #c8a96e; margin-bottom: 4px; }
+      .day-pdf-print-area .pdf-tagline { font-size: 11px; color: #9a8e82; margin-bottom: 18px; }
+      .day-pdf-print-area .pdf-header-divider { width: 36px; height: 2px; background: #c8a96e; margin-bottom: 18px; }
+      .day-pdf-print-area .pdf-title { font-size: 26px; font-weight: 700; color: #ffffff; margin-bottom: 5px; }
+      .day-pdf-print-area .pdf-dayname { font-size: 13px; color: #9a8e82; }
+
+      /* ── TOTALS ── */
+      .day-pdf-print-area .pdf-totals { display: flex; background: #f7f4f0; border-bottom: 3px solid #c8a96e; }
+      .day-pdf-print-area .tot-item { flex: 1; text-align: center; padding: 18px 8px; border-right: 1px solid #e2dbd2; }
+      .day-pdf-print-area .tot-item:last-child { border-right: none; }
+      .day-pdf-print-area .tot-val { display: block; font-size: 22px; font-weight: 700; color: #1a1814; line-height: 1.1; }
+      .day-pdf-print-area .tot-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-top: 4px; }
+
+      /* ── MEALS CONTAINER ── */
+      .day-pdf-print-area .pdf-meals { padding: 22px 28px 8px; }
+
+      /* ── MEAL CARD ── */
+      .day-pdf-print-area .meal-block { border: 1px solid #e2dbd2; border-left: 4px solid #c8a96e; border-radius: 0 8px 8px 0; margin-bottom: 18px; background: #fff; page-break-inside: avoid; break-inside: avoid; }
+      .day-pdf-print-area .meal-block[data-type="shake"] { border-left-color: #6ba8b8; }
+
+      /* Meal card header band */
+      .day-pdf-print-area .meal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 13px 18px 11px; background: #faf7f2; border-bottom: 1px solid #ede8e0; }
+      .day-pdf-print-area .meal-block[data-type="shake"] .meal-header { background: #f2f8fb; }
+      .day-pdf-print-area .meal-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #7a5235; margin-bottom: 2px; }
+      .day-pdf-print-area .meal-time { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-bottom: 4px; }
+      .day-pdf-print-area .meal-name { font-size: 15px; font-weight: 700; color: #1a1814; margin-bottom: 2px; }
+      .day-pdf-print-area .meal-recipe { font-size: 12px; color: #5a5048; }
+
+      /* Type badge */
+      .day-pdf-print-area .meal-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 3px; }
+      .day-pdf-print-area .meal-badge-solid { background: #f5ead8; color: #7a5520; }
+      .day-pdf-print-area .meal-badge-shake { background: #daeef4; color: #1e6478; }
+
+      /* Macros chips */
+      .day-pdf-print-area .meal-macros-row { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 18px; border-bottom: 1px solid #f0ebe4; }
+      .day-pdf-print-area .macro-chip { font-size: 12px; font-weight: 600; color: #3a3330; background: #f7f4f0; padding: 3px 9px; border-radius: 4px; }
+
+      /* Sections (ingredients / prep) */
+      .day-pdf-print-area .meal-section { padding: 10px 18px 8px; }
+      .day-pdf-print-area .meal-section + .meal-section { border-top: 1px solid #f0ebe4; padding-top: 10px; }
+      .day-pdf-print-area .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8a7f75; margin-bottom: 8px; }
+      .day-pdf-print-area .ing-list { list-style: none; }
+      .day-pdf-print-area .ing-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; border-bottom: 1px solid #f5f1ec; }
+      .day-pdf-print-area .ing-row:last-child { border-bottom: none; }
+      .day-pdf-print-area .ing-info { flex: 1; }
+      .day-pdf-print-area .ing-name { font-size: 13px; font-weight: 500; color: #1a1814; }
+      .day-pdf-print-area .ing-macros { font-size: 11px; color: #8a7f75; margin-top: 1px; }
+      .day-pdf-print-area .ing-qty { font-size: 13px; font-weight: 700; color: #1a1814; white-space: nowrap; padding-left: 16px; text-align: right; }
+      .day-pdf-print-area .prep-list { padding-left: 18px; font-size: 13px; color: #3a3330; }
+      .day-pdf-print-area .prep-list li { margin-bottom: 5px; line-height: 1.5; }
+
+      /* Note block */
+      .day-pdf-print-area .meal-note { margin: 0 18px 14px; background: #faf7f2; border-left: 3px solid #c8a96e; padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 12px; color: #5a5048; line-height: 1.5; }
+
+      /* ── FOOTER ── */
+      .day-pdf-print-area .pdf-footer { padding: 18px 28px 28px; text-align: center; border-top: 1px solid #e2dbd2; }
+      .day-pdf-print-area .pdf-footer-url { font-size: 12px; font-weight: 600; color: #8a7f75; margin-bottom: 3px; }
+      .day-pdf-print-area .pdf-footer-note { font-size: 11px; color: #b8a898; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Ativa modo de impressão por dia e imprime
+  document.body.classList.add('printing-day-pdf');
+  window.print();
+
+  // Limpeza após print — afterprint + fallback timeout
+  const cleanup = () => {
+    document.body.classList.remove('printing-day-pdf');
+    printArea.remove();
+    style.remove();
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(cleanup, 10000);
 }
