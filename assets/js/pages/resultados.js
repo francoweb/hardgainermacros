@@ -135,6 +135,9 @@ export function renderResultadosPage(mount) {
   const trainDurDisplay = routine.trainDurationMinutes ? `${routine.trainDurationMinutes} min` : '';
   const _toMins = t => { if (!t) return Infinity; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
   const scheduleData = rebuildTimesAroundTraining(results.slotDistribution || [], routine);
+  if (scheduleData.slots) {
+    scheduleData.slots.sort((a, b) => _toMins(a.time || '00:00') - _toMins(b.time || '00:00'));
+  }
   const spacingFeedback = scheduleData.spacingFeedback;
   const _seqSource = (scheduleData.slots && scheduleData.slots.length > 0) ? scheduleData.slots : (results.slotDistribution || []);
   const sequenceHtml = _seqSource.map((s, i, arr) => {
@@ -157,7 +160,7 @@ export function renderResultadosPage(mount) {
     let idx = corrected.length;
     for (let i = 0; i < corrected.length; i++) { if (normM(_toMins(corrected[i].time)) > tm) { idx = i; break; } }
     return [...corrected.slice(0, idx), entry, ...corrected.slice(idx)];
-  })();
+  })().slice().sort((a, b) => _toMins(a.time) - _toMins(b.time));
 
   const wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
   const sleepStartMin = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
@@ -197,11 +200,16 @@ export function renderResultadosPage(mount) {
     : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)
   );
   const _seenLabels = {};
+  const _emittedLabels = {};
   const dedupedLabels = computedLabels.map(label => {
     if (!label) return null;
     _seenLabels[label] = (_seenLabels[label] || 0) + 1;
-    if (label === 'Almoço' && _seenLabels[label] > 1) return 'Refeição da Tarde';
-    return label;
+    let out = label;
+    if (label === 'Almoço'        && _seenLabels[label] > 1) out = 'Refeição da Tarde';
+    if (label === 'Café da Manhã' && _seenLabels[label] > 1) out = 'Lanche da Manhã';
+    _emittedLabels[out] = (_emittedLabels[out] || 0) + 1;
+    if (out === 'Refeição da Tarde' && _emittedLabels[out] > 1) out = 'Refeição Pré-Treino';
+    return out;
   });
 
   mount.innerHTML = `
@@ -536,14 +544,22 @@ export function renderResultadosPage(mount) {
   // Generate plan and go
   document.getElementById('btn-plan').addEventListener('click', () => {
     const rebuiltSlots = (scheduleData.slots && scheduleData.slots.length > 0)
-      ? scheduleData.slots
+      ? [...scheduleData.slots].sort((a, b) => _toMins(a.time) - _toMins(b.time))
       : results.slotDistribution;
-    const labeledSlots = rebuiltSlots.map(s => ({
-      ...s,
-      displayLabel: s._morningPostWorkout
+    const _seenPlanLabels = {};
+    const _emittedPlanLabels = {};
+    const labeledSlots = rebuiltSlots.map(s => {
+      const raw = s._morningPostWorkout
         ? 'Café da Manhã Pós-Treino'
-        : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
-    }));
+        : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null);
+      _seenPlanLabels[raw] = (_seenPlanLabels[raw] || 0) + 1;
+      let out = raw;
+      if (raw === 'Almoço'        && _seenPlanLabels[raw] > 1) out = 'Refeição da Tarde';
+      if (raw === 'Café da Manhã' && _seenPlanLabels[raw] > 1) out = 'Lanche da Manhã';
+      _emittedPlanLabels[out] = (_emittedPlanLabels[out] || 0) + 1;
+      if (out === 'Refeição da Tarde' && _emittedPlanLabels[out] > 1) out = 'Refeição Pré-Treino';
+      return { ...s, displayLabel: out };
+    });
     const plan = generatePlan({ ...results, slotDistribution: labeledSlots });
     savePlan(plan);
     markProgress(K.PLAN_READY);
@@ -1335,10 +1351,15 @@ function rebuildTimesAroundTraining(slots, routine) {
             ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, preSlots.slice(0, nPre - 1).map(slotDur)), preAnchor]
             : spaceTimes(dayStart, preAnchor, nPre, preSlots.map(slotDur));
         } else {
+          const _usedAnchors = new Set();
           const raw = preSlots.map((s, i) => {
             if (i === nPre - 1) return preAnchor;
             const a = NATURAL_ANCHOR[s.slot];
-            return (s.type === 'solid' && a !== undefined) ? a : null;
+            if (s.type === 'solid' && a !== undefined && !_usedAnchors.has(s.slot)) {
+              _usedAnchors.add(s.slot);
+              return a;
+            }
+            return null;
           });
           for (let i = 0; i < raw.length - 1; i++) {
             if (raw[i] !== null) continue;
@@ -1350,6 +1371,11 @@ function rebuildTimesAroundTraining(slots, routine) {
             i = ni - 1;
           }
           preTimes = raw.map(t => roundQ(t ?? preAnchor));
+          for (let i = 1; i < preTimes.length; i++) {
+            const minStart = preTimes[i - 1] + slotDur(preSlots[i - 1]) + 60;
+            const cap = i < preTimes.length - 1 ? preAnchor - 60 : preAnchor;
+            if (preTimes[i] < minStart) preTimes[i] = roundQ(Math.min(minStart, cap));
+          }
         }
       }
       const allSlots = [...preSlots, postSlot];
@@ -1397,6 +1423,7 @@ function rebuildTimesAroundTraining(slots, routine) {
           ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, slots.slice(0, nPre - 1).map(slotDur)), preAnchor]
           : spaceTimes(dayStart, preAnchor, nPre, slots.slice(0, nPre).map(slotDur));
       } else {
+        const _usedAnchors = new Set();
         const raw = preSlots.map((s, i) => {
           if (i === nPre - 1) {
             // Solid last-pre slot: anchor 3h before training instead of 90min,
@@ -1405,7 +1432,11 @@ function rebuildTimesAroundTraining(slots, routine) {
             return preAnchor;
           }
           const a = NATURAL_ANCHOR[s.slot];
-          return (s.type === 'solid' && a !== undefined) ? a : null;
+          if (s.type === 'solid' && a !== undefined && !_usedAnchors.has(s.slot)) {
+            _usedAnchors.add(s.slot);
+            return a;
+          }
+          return null;
         });
         for (let i = 0; i < raw.length - 1; i++) {
           if (raw[i] !== null) continue;
@@ -1418,6 +1449,11 @@ function rebuildTimesAroundTraining(slots, routine) {
           i = ni - 1;
         }
         preTimes = raw.map(t => roundQ(t ?? preAnchor));
+        for (let i = 1; i < preTimes.length; i++) {
+          const minStart = preTimes[i - 1] + slotDur(preSlots[i - 1]) + 60;
+          const cap = i < preTimes.length - 1 ? preAnchor - 60 : preAnchor;
+          if (preTimes[i] < minStart) preTimes[i] = roundQ(Math.min(minStart, cap));
+        }
       }
     }
 

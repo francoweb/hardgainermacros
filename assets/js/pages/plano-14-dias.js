@@ -39,7 +39,18 @@ export function renderPlanoPage(mount) {
   render(mount, effectivePlan, results, subs);
 }
 
+const PLAN_STRATEGY_LABEL = {
+  solid: 'Mais Refeições Sólidas',
+  hybrid: 'Sistema Híbrido',
+  practical: 'Máxima Praticidade',
+};
+
 function render(mount, plan, results, subs) {
+  const strategyLabel = PLAN_STRATEGY_LABEL[results.routine?.strategy] || 'Sistema Híbrido';
+  const solidCount = countSolid(plan[0]);
+  const shakeCount = countShake(plan[0]);
+  const solidText = solidCount === 1 ? '1 Refeição Sólida' : `${solidCount} Refeições Sólidas`;
+  const shakeText = shakeCount === 1 ? '1 Shake Anabólico' : `${shakeCount} Shakes Anabólicos`;
   mount.innerHTML = `
     <div class="container container-wide">
       <!-- Toolbar (escondida na impressão) -->
@@ -47,14 +58,14 @@ function render(mount, plan, results, subs) {
         <button type="button" class="btn btn-secondary" id="btn-back-results">${icons.arrowLeft(16)} Voltar aos Resultados</button>
         <div class="plan-toolbar-right">
           <button type="button" class="btn btn-ghost" id="btn-edit-plan">${icons.edit(16)} Personalizar</button>
-          <button type="button" class="btn btn-ghost" id="btn-print">${icons.print(16)} Imprimir</button>
+          <button type="button" class="btn btn-primary" id="btn-print">${icons.print(16)} Imprimir Plano Completo</button>
         </div>
       </div>
 
       <!-- Hero -->
       <div class="plan-hero">
         <h1 class="hero-title">Seu Plano Alimentar de 14 Dias</h1>
-        <p class="hero-sub">Sistema Híbrido: ${countSolid(plan[0])} Refeições Sólidas + ${countShake(plan[0])} Shakes Anabólicos</p>
+        <p class="hero-sub">${strategyLabel}: ${solidText} + ${shakeText}</p>
         <div class="plan-hero-meta">
           <span><strong>${formatKcal(results.calories)}</strong> kcal/dia</span>
           <span>•</span>
@@ -141,7 +152,7 @@ function render(mount, plan, results, subs) {
   // ---------- Handlers ----------
   document.getElementById('btn-back-results').addEventListener('click', () => navigate('/resultados'));
   document.getElementById('btn-edit-plan').addEventListener('click', () => navigate('/'));
-  document.getElementById('btn-print').addEventListener('click', () => window.print());
+  document.getElementById('btn-print').addEventListener('click', () => exportFullPlanPDF(plan, results));
 
   // Day collapse — accordion exclusivo: apenas 1 dia aberto por vez
   mount.querySelectorAll('[data-day-head]').forEach(head => {
@@ -168,6 +179,15 @@ function render(mount, plan, results, subs) {
       body.style.display = open ? 'none' : 'block';
       head.setAttribute('aria-expanded', open ? 'false' : 'true');
       if (chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+
+      // Rola suavemente para o início do dia recém-aberto
+      if (!open) {
+        requestAnimationFrame(() => {
+          const card = head.closest('.day');
+          const top = card.getBoundingClientRect().top + window.scrollY - 12;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        });
+      }
     };
     head.addEventListener('click', toggle);
     head.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
@@ -287,7 +307,7 @@ function renderMealCard(meal, dayIdx, mealIdx) {
     <div class="meal-card ${meal.type}">
       <div class="meal-card-head">
         <div>
-          <div style="font-size: 11px; font-weight: 700; color: #7a5235; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Refeição ${mealIdx + 1}</div>
+          <div style="font-size: 11px; font-weight: 700; color: #7a5235; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">Refeição ${mealIdx + 1}<span style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #8a7f75; background: #f0ede8; border-radius: 3px; padding: 1px 5px; flex-shrink: 0;">Dia ${dayIdx + 1}</span></div>
           <div class="meal-card-time">${meal.time || ''}</div>
           <div class="meal-card-name">${meal.slotLabel} — ${meal.name}</div>
         </div>
@@ -577,7 +597,7 @@ function escapeHtml(str) {
 /* ============================================================================ */
 
 /** Constrói o bloco HTML de uma refeição para o documento PDF por dia. */
-function buildMealHtml(meal, mealIdx) {
+function buildMealHtml(meal, mealIdx, dayIdx = null) {
   const badgeLabel = meal.type === 'solid' ? 'Sólida' : 'Shake';
 
   const ingsHtml = meal.ingredients.map(ing => `
@@ -607,7 +627,7 @@ function buildMealHtml(meal, mealIdx) {
     <div class="meal-block" data-type="${meal.type}">
       <div class="meal-header">
         <div class="meal-header-left">
-          <div class="meal-num">Refeição ${mealIdx + 1}</div>
+          <div class="meal-num">Refeição ${mealIdx + 1}${dayIdx !== null ? `<span class="meal-day-badge">Dia ${dayIdx + 1}</span>` : ''}</div>
           <div class="meal-time">${meal.time || ''}</div>
           <div class="meal-name">${meal.slotLabel}</div>
           <div class="meal-recipe">${meal.name}</div>
@@ -632,7 +652,7 @@ function buildMealHtml(meal, mealIdx) {
 
 /** Imprime apenas o dia especificado usando área temporária na própria página. */
 function exportDayPDF(day, dayIdx, results) {
-  const mealsHtml = day.meals.map((meal, mIdx) => buildMealHtml(meal, mIdx)).join('');
+  const mealsHtml = day.meals.map((meal, mIdx) => buildMealHtml(meal, mIdx, dayIdx)).join('');
 
   // Conteúdo limpo do dia — sem botões, navegação ou elementos da página
   const contentHtml = `
@@ -726,7 +746,8 @@ function exportDayPDF(day, dayIdx, results) {
       /* Meal card header band */
       .day-pdf-print-area .meal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 13px 18px 11px; background: #faf7f2; border-bottom: 1px solid #ede8e0; }
       .day-pdf-print-area .meal-block[data-type="shake"] .meal-header { background: #f2f8fb; }
-      .day-pdf-print-area .meal-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #7a5235; margin-bottom: 2px; }
+      .day-pdf-print-area .meal-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #7a5235; margin-bottom: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+      .day-pdf-print-area .meal-day-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #8a7f75; background: #f0ede8; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
       .day-pdf-print-area .meal-time { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-bottom: 4px; }
       .day-pdf-print-area .meal-name { font-size: 15px; font-weight: 700; color: #1a1814; margin-bottom: 2px; }
       .day-pdf-print-area .meal-recipe { font-size: 12px; color: #5a5048; }
@@ -772,6 +793,168 @@ function exportDayPDF(day, dayIdx, results) {
   // Limpeza após print — afterprint + fallback timeout
   const cleanup = () => {
     document.body.classList.remove('printing-day-pdf');
+    printArea.remove();
+    style.remove();
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(cleanup, 10000);
+}
+
+/* ============================================================================ */
+/* Exportação PDF — Plano Completo (14 dias)                                    */
+/* ============================================================================ */
+
+/** Imprime o plano completo dos 14 dias usando área temporária na própria página. */
+function exportFullPlanPDF(plan, results) {
+  const daysHtml = plan.map((day, dIdx) => {
+    const mealsHtml = day.meals.map((meal, mIdx) => buildMealHtml(meal, mIdx, dIdx)).join('');
+    return `
+      <div class="full-pdf-day${dIdx > 0 ? ' page-break' : ''}">
+        <div class="full-pdf-day-header">
+          <div class="full-pdf-day-left">
+            <div class="full-pdf-day-num">Dia ${dIdx + 1}</div>
+            <div class="full-pdf-day-name">${day.dayName}</div>
+          </div>
+          <div class="full-pdf-day-totals">
+            <div class="full-pdf-tot-item">
+              <span class="full-pdf-tot-val">${day.totals.kcal}</span>
+              <span class="full-pdf-tot-label">kcal</span>
+            </div>
+            <div class="full-pdf-tot-item">
+              <span class="full-pdf-tot-val">${Math.round(day.totals.prot)}g</span>
+              <span class="full-pdf-tot-label">Proteína</span>
+            </div>
+            <div class="full-pdf-tot-item">
+              <span class="full-pdf-tot-val">${Math.round(day.totals.carb)}g</span>
+              <span class="full-pdf-tot-label">Carboidrato</span>
+            </div>
+            <div class="full-pdf-tot-item">
+              <span class="full-pdf-tot-val">${Math.round(day.totals.fat)}g</span>
+              <span class="full-pdf-tot-label">Gordura</span>
+            </div>
+          </div>
+        </div>
+        <div class="full-pdf-meals">
+          ${mealsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const contentHtml = `
+    <div class="full-pdf-header">
+      <div class="full-pdf-brand">Hardgainer Macros</div>
+      <div class="full-pdf-tagline">Plano alimentar personalizado para hardgainers</div>
+      <div class="full-pdf-header-divider"></div>
+      <div class="full-pdf-title">Plano Alimentar Completo — 14 Dias</div>
+      <div class="full-pdf-meta">
+        <span>${formatKcal(results.calories)} kcal/dia</span>
+        <span>·</span>
+        <span>P: ${results.protein.grams}g</span>
+        <span>·</span>
+        <span>C: ${results.carb.grams}g</span>
+        <span>·</span>
+        <span>G: ${results.fat.grams}g</span>
+      </div>
+    </div>
+    <div class="full-pdf-body">
+      ${daysHtml}
+    </div>
+    <div class="full-pdf-footer">
+      <div class="full-pdf-footer-url">hardgainermacros.com</div>
+      <div class="full-pdf-footer-note">Use este plano como referência e ajuste à sua rotina.</div>
+    </div>
+  `;
+
+  const prevArea = document.getElementById('full-pdf-print-area');
+  if (prevArea) prevArea.remove();
+  const prevStyle = document.getElementById('full-pdf-print-style');
+  if (prevStyle) prevStyle.remove();
+
+  const printArea = document.createElement('div');
+  printArea.id = 'full-pdf-print-area';
+  printArea.innerHTML = contentHtml;
+  document.body.appendChild(printArea);
+
+  const style = document.createElement('style');
+  style.id = 'full-pdf-print-style';
+  style.textContent = `
+    #full-pdf-print-area { display: none; }
+    @media print {
+      #full-pdf-print-area, #full-pdf-print-area * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      body.printing-full-pdf > * { display: none !important; }
+      body.printing-full-pdf #full-pdf-print-area {
+        display: block !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        color: #1a1814;
+        font-size: 14px;
+        line-height: 1.6;
+        background: #fff;
+      }
+
+      /* ── DOCUMENT HEADER ── */
+      #full-pdf-print-area .full-pdf-header { background: #1a1814; padding: 28px 32px 24px; }
+      #full-pdf-print-area .full-pdf-brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #c8a96e; margin-bottom: 4px; }
+      #full-pdf-print-area .full-pdf-tagline { font-size: 11px; color: #9a8e82; margin-bottom: 18px; }
+      #full-pdf-print-area .full-pdf-header-divider { width: 36px; height: 2px; background: #c8a96e; margin-bottom: 18px; }
+      #full-pdf-print-area .full-pdf-title { font-size: 26px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+      #full-pdf-print-area .full-pdf-meta { font-size: 13px; color: #9a8e82; display: flex; gap: 8px; flex-wrap: wrap; }
+
+      /* ── DAY SECTION ── */
+      #full-pdf-print-area .full-pdf-day.page-break { page-break-before: always; break-before: page; }
+      #full-pdf-print-area .full-pdf-day-header { display: flex; justify-content: space-between; align-items: center; background: #f7f4f0; border-bottom: 3px solid #c8a96e; padding: 16px 28px; }
+      #full-pdf-print-area .full-pdf-day-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8a7f75; margin-bottom: 2px; }
+      #full-pdf-print-area .full-pdf-day-name { font-size: 20px; font-weight: 700; color: #1a1814; }
+      #full-pdf-print-area .full-pdf-day-totals { display: flex; }
+      #full-pdf-print-area .full-pdf-tot-item { text-align: center; padding: 8px 14px; border-left: 1px solid #e2dbd2; }
+      #full-pdf-print-area .full-pdf-tot-val { display: block; font-size: 18px; font-weight: 700; color: #1a1814; line-height: 1.1; }
+      #full-pdf-print-area .full-pdf-tot-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-top: 3px; }
+
+      /* ── MEALS ── */
+      #full-pdf-print-area .full-pdf-meals { padding: 16px 28px 8px; }
+      #full-pdf-print-area .meal-block { border: 1px solid #e2dbd2; border-left: 4px solid #c8a96e; border-radius: 0 8px 8px 0; margin-bottom: 14px; background: #fff; page-break-inside: avoid; break-inside: avoid; }
+      #full-pdf-print-area .meal-block[data-type="shake"] { border-left-color: #6ba8b8; }
+      #full-pdf-print-area .meal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 16px 9px; background: #faf7f2; border-bottom: 1px solid #ede8e0; }
+      #full-pdf-print-area .meal-block[data-type="shake"] .meal-header { background: #f2f8fb; }
+      #full-pdf-print-area .meal-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #7a5235; margin-bottom: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+      #full-pdf-print-area .meal-day-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #8a7f75; background: #f0ede8; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
+      #full-pdf-print-area .meal-time { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-bottom: 4px; }
+      #full-pdf-print-area .meal-name { font-size: 14px; font-weight: 700; color: #1a1814; margin-bottom: 2px; }
+      #full-pdf-print-area .meal-recipe { font-size: 12px; color: #5a5048; }
+      #full-pdf-print-area .meal-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 3px; }
+      #full-pdf-print-area .meal-badge-solid { background: #f5ead8; color: #7a5520; }
+      #full-pdf-print-area .meal-badge-shake { background: #daeef4; color: #1e6478; }
+      #full-pdf-print-area .meal-macros-row { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 16px; border-bottom: 1px solid #f0ebe4; }
+      #full-pdf-print-area .macro-chip { font-size: 11px; font-weight: 600; color: #3a3330; background: #f7f4f0; padding: 2px 8px; border-radius: 4px; }
+      #full-pdf-print-area .meal-section { padding: 8px 16px 6px; }
+      #full-pdf-print-area .meal-section + .meal-section { border-top: 1px solid #f0ebe4; padding-top: 8px; }
+      #full-pdf-print-area .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8a7f75; margin-bottom: 6px; }
+      #full-pdf-print-area .ing-list { list-style: none; padding: 0; margin: 0; }
+      #full-pdf-print-area .ing-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 0; border-bottom: 1px solid #f5f1ec; }
+      #full-pdf-print-area .ing-row:last-child { border-bottom: none; }
+      #full-pdf-print-area .ing-info { flex: 1; }
+      #full-pdf-print-area .ing-name { font-size: 12px; font-weight: 500; color: #1a1814; }
+      #full-pdf-print-area .ing-macros { font-size: 10px; color: #8a7f75; margin-top: 1px; }
+      #full-pdf-print-area .ing-qty { font-size: 12px; font-weight: 700; color: #1a1814; white-space: nowrap; padding-left: 14px; text-align: right; }
+      #full-pdf-print-area .prep-list { padding-left: 16px; font-size: 12px; color: #3a3330; margin: 0; }
+      #full-pdf-print-area .prep-list li { margin-bottom: 4px; line-height: 1.5; }
+      #full-pdf-print-area .meal-note { margin: 0 16px 12px; background: #faf7f2; border-left: 3px solid #c8a96e; padding: 6px 10px; border-radius: 0 4px 4px 0; font-size: 11px; color: #5a5048; line-height: 1.5; }
+
+      /* ── FOOTER ── */
+      #full-pdf-print-area .full-pdf-footer { padding: 16px 28px 24px; text-align: center; border-top: 1px solid #e2dbd2; }
+      #full-pdf-print-area .full-pdf-footer-url { font-size: 12px; font-weight: 600; color: #8a7f75; margin-bottom: 3px; }
+      #full-pdf-print-area .full-pdf-footer-note { font-size: 11px; color: #b8a898; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.body.classList.add('printing-full-pdf');
+  window.print();
+
+  const cleanup = () => {
+    document.body.classList.remove('printing-full-pdf');
     printArea.remove();
     style.remove();
     window.removeEventListener('afterprint', cleanup);

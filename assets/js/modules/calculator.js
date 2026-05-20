@@ -233,47 +233,52 @@ export function buildSlotDistribution(totalKcal, routine) {
       // breakfast, breakfastExtra, shake_morning, lunch, lunchExtra, dinner, dinnerExtra, shake_night — 6 sólidas + 2 shakes
     }
   } else if (strategy === 'practical') {
-    // Máxima Praticidade — mais shakes, menos sólidas (apenas 4 e 5 refeições precisam de branch explícito)
+    // Máxima Praticidade — sempre mais shakes do que sólidas
     if (meals <= 4) {
-      slots = [template[0], template[1], template[4], template[5]];
-      // breakfast(solid), shake_morning, dinner(solid), shake_night — 2 sólidas + 2 shakes
+      slots = [template[0], template[1], template[3], template[5]];
+      // breakfast(solid), shake_morning, shake_afternoon, shake_night — 1 sólida + 3 shakes
       const times4 = buildMealTimes(meals, routine.trainTime);
-      const pcts4 = [0.25, 0.20, 0.35, 0.20];
+      const pcts4 = [0.35, 0.23, 0.22, 0.20];
       return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts4[i]), time: times4[i] || '' }));
     } else if (meals === 5) {
       slots = [template[0], template[1], template[4], template[3], template[5]];
       // breakfast(solid), shake_morning, dinner(solid), shake_afternoon, shake_night — 2 sólidas + 3 shakes
-      // dinner antes dos shakes finais: evita compressão de 30 min entre sólida e shake perto do sono
       const times5 = buildMealTimes(meals, routine.trainTime);
       const pcts5 = [0.22, 0.18, 0.28, 0.18, 0.14];
       return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts5[i]), time: times5[i] || '' }));
-    }
-    // meals >= 6: template padrão com solidShare=0.45 já definido acima
-    else if (meals === 7) {
+    } else if (meals === 6) {
+      slots = [template[0], template[1], template[3], { slot: 'shake_extra', type: 'shake', weight: 0.80 }, template[4], template[5]];
+      // breakfast(solid), shake_morning, shake_afternoon, shake_extra, dinner(solid), shake_night — 2 sólidas + 4 shakes
+    } else if (meals === 7) {
       slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, template[5]];
+      // breakfast(S), shake_morning, lunch(S), shake_afternoon, dinner(S), shake_extra, shake_night — 3 sólidas + 4 shakes
     } else if (meals === 8) {
       slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, { slot: 'shake_extra2', type: 'shake', weight: 0.70 }, template[5]];
+      // breakfast(S), shake_morning, lunch(S), shake_afternoon, dinner(S), shake_extra, shake_extra2, shake_night — 3 sólidas + 5 shakes
     } else {
-      slots = [...template]; // 6 refeições
+      slots = [...template]; // fallback improvável
     }
   } else if (meals <= 4) {
-    slots = [template[0], template[2], template[4], template[5]];
-    // Distribuição fixa para 4 refeições — evita que o único shake receba toda a quota de shakes
+    slots = [template[0], template[1], template[4], template[5]];
+    // breakfast(S), shake_morning(Sh), dinner(S), shake_night(Sh) — 2 sólidas + 2 shakes
     const times4 = buildMealTimes(meals, routine.trainTime);
-    const pcts4 = [0.25, 0.30, 0.30, 0.15];
+    const pcts4 = [0.30, 0.20, 0.35, 0.15];
     return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts4[i]), time: times4[i] || '' }));
   } else if (meals === 5) {
     slots = [template[0], template[1], template[2], template[4], template[5]];
-    // Distribuição fixa para 5 refeições — padrão profissional para hardgainer
+    // breakfast(S), shake_morning(Sh), lunch(S), dinner(S), shake_night(Sh) — 3 sólidas + 2 shakes
     const times5 = buildMealTimes(meals, routine.trainTime);
     const pcts5 = [0.23, 0.16, 0.25, 0.22, 0.14];
     return slots.map((s, i) => ({ slot: s.slot, type: s.type, kcal: Math.round(totalKcal * pcts5[i]), time: times5[i] || '' }));
   } else if (meals === 7) {
-    slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, template[5]];
+    slots = [template[0], template[1], template[2], lunchExtra, template[3], template[4], template[5]];
+    // breakfast(S), shake_morning(Sh), lunch(S), lunchExtra(S), shake_afternoon(Sh), dinner(S), shake_night(Sh) — 4 sólidas + 3 shakes
   } else if (meals === 8) {
-    slots = [...template.slice(0, 5), { slot: 'shake_extra', type: 'shake', weight: 0.75 }, { slot: 'shake_extra2', type: 'shake', weight: 0.70 }, template[5]];
+    slots = [template[0], breakfastExtra, template[1], template[2], template[4], template[3], { slot: 'shake_extra', type: 'shake', weight: 0.75 }, template[5]];
+    // breakfast(S), breakfastExtra(S), shake_morning(Sh), lunch(S), dinner(S), shake_afternoon(Sh), shake_extra(Sh), shake_night(Sh) — 4 sólidas + 4 shakes
   } else {
     slots = [...template];
+    // 6 refeições: breakfast(S), shake_morning(Sh), lunch(S), shake_afternoon(Sh), dinner(S), shake_night(Sh) — 3 sólidas + 3 shakes
   }
 
   // pesos sólido/shake — garante que share seja respeitado
