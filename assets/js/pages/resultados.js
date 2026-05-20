@@ -21,6 +21,7 @@ import {
 } from '../modules/storage.js';
 import { formatKcal } from '../modules/calculator.js';
 import { generatePlan } from '../modules/meal-planner.js';
+import { applyDedupLabels } from '../modules/day-schedule.js';
 
 const SLOT_LABEL = {
   breakfast: 'Café da Manhã',
@@ -134,9 +135,11 @@ export function renderResultadosPage(mount) {
     : trainLabel;
   const trainDurDisplay = routine.trainDurationMinutes ? `${routine.trainDurationMinutes} min` : '';
   const _toMins = t => { if (!t) return Infinity; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const _wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
+  const _toCycleMins = t => { const m = _toMins(t); return (m !== Infinity && m < _wakeMin) ? m + 1440 : m; };
   const scheduleData = rebuildTimesAroundTraining(results.slotDistribution || [], routine);
   if (scheduleData.slots) {
-    scheduleData.slots.sort((a, b) => _toMins(a.time || '00:00') - _toMins(b.time || '00:00'));
+    scheduleData.slots.sort((a, b) => _toCycleMins(a.time) - _toCycleMins(b.time));
   }
   const spacingFeedback = scheduleData.spacingFeedback;
   const _seqSource = (scheduleData.slots && scheduleData.slots.length > 0) ? scheduleData.slots : (results.slotDistribution || []);
@@ -160,7 +163,7 @@ export function renderResultadosPage(mount) {
     let idx = corrected.length;
     for (let i = 0; i < corrected.length; i++) { if (normM(_toMins(corrected[i].time)) > tm) { idx = i; break; } }
     return [...corrected.slice(0, idx), entry, ...corrected.slice(idx)];
-  })().slice().sort((a, b) => _toMins(a.time) - _toMins(b.time));
+  })().slice().sort((a, b) => _toCycleMins(a.time) - _toCycleMins(b.time));
 
   const wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
   const sleepStartMin = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
@@ -194,23 +197,12 @@ export function renderResultadosPage(mount) {
     ? `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, priorizando refeições sólidas e mantendo 1 shake anabólico como apoio para facilitar o superávit calórico.`
     : `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, equilibrando refeições sólidas e shakes anabólicos para facilitar o superávit calórico sem pesar tanto na digestão.`;
 
-  const computedLabels = slotsWithTraining.map(s =>
-    s.slot === '__train__' ? null
-    : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
-    : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null)
-  );
-  const _seenLabels = {};
-  const _emittedLabels = {};
-  const dedupedLabels = computedLabels.map(label => {
-    if (!label) return null;
-    _seenLabels[label] = (_seenLabels[label] || 0) + 1;
-    let out = label;
-    if (label === 'Almoço'        && _seenLabels[label] > 1) out = 'Refeição da Tarde';
-    if (label === 'Café da Manhã' && _seenLabels[label] > 1) out = 'Lanche da Manhã';
-    _emittedLabels[out] = (_emittedLabels[out] || 0) + 1;
-    if (out === 'Refeição da Tarde' && _emittedLabels[out] > 1) out = 'Refeição Pré-Treino';
-    return out;
-  });
+  const dedupedSlots = applyDedupLabels(slotsWithTraining.map(s => ({
+    ...s,
+    displayLabel: s.slot === '__train__' ? null
+      : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
+      : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
+  })));
 
   mount.innerHTML = `
     <div class="container">
@@ -442,7 +434,7 @@ export function renderResultadosPage(mount) {
         </div>
         <div id="tab-content-visual" class="tab-content">
           <div class="meal-list">
-            ${slotsWithTraining.map((s, idx) => s.slot === '__train__' ? `
+            ${dedupedSlots.map((s, idx) => s.slot === '__train__' ? `
               <div class="meal-row" style="border-left: 3px solid var(--accent); background: var(--surface);">
                 <div class="meal-time">${s.time || trainLabel}</div>
                 <div class="meal-name">Treino${routine.trainEndTime ? ' – ' + routine.trainEndTime : ''}</div>
@@ -452,7 +444,7 @@ export function renderResultadosPage(mount) {
             ` : `
               <div class="meal-row">
                 <div class="meal-time">${s.time || ''}</div>
-                <div class="meal-name">${dedupedLabels[idx]}</div>
+                <div class="meal-name">${s.displayLabel}</div>
                 <span class="meal-tag ${s.type}">${s.type === 'solid' ? 'Sólida' : 'Shake'}</span>
                 <div class="meal-macros">
                   <span class="meal-macro-label">kcal</span>
@@ -467,7 +459,7 @@ export function renderResultadosPage(mount) {
           <table class="data-table">
             <thead><tr><th>Refeição</th><th>Tipo</th><th>Horário</th><th style="text-align:right">kcal</th></tr></thead>
             <tbody>
-              ${slotsWithTraining.map((s, idx) => s.slot === '__train__' ? `
+              ${dedupedSlots.map((s, idx) => s.slot === '__train__' ? `
                 <tr style="background:var(--surface);">
                   <td><strong>Treino</strong></td>
                   <td><span style="font-size:.8rem;background:var(--accent);color:#fff;padding:2px 7px;border-radius:4px;">Exercício</span></td>
@@ -476,7 +468,7 @@ export function renderResultadosPage(mount) {
                 </tr>
               ` : `
                 <tr>
-                  <td>${dedupedLabels[idx]}</td>
+                  <td>${s.displayLabel}</td>
                   <td>${s.type === 'solid' ? 'Sólida' : 'Shake'}</td>
                   <td>${s.time || ''}</td>
                   <td style="text-align:right">${formatKcal(s.kcal)}</td>
@@ -544,22 +536,14 @@ export function renderResultadosPage(mount) {
   // Generate plan and go
   document.getElementById('btn-plan').addEventListener('click', () => {
     const rebuiltSlots = (scheduleData.slots && scheduleData.slots.length > 0)
-      ? [...scheduleData.slots].sort((a, b) => _toMins(a.time) - _toMins(b.time))
+      ? [...scheduleData.slots].sort((a, b) => _toCycleMins(a.time) - _toCycleMins(b.time))
       : results.slotDistribution;
-    const _seenPlanLabels = {};
-    const _emittedPlanLabels = {};
-    const labeledSlots = rebuiltSlots.map(s => {
-      const raw = s._morningPostWorkout
+    const labeledSlots = applyDedupLabels(rebuiltSlots.map(s => ({
+      ...s,
+      displayLabel: s._morningPostWorkout
         ? 'Café da Manhã Pós-Treino'
-        : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null);
-      _seenPlanLabels[raw] = (_seenPlanLabels[raw] || 0) + 1;
-      let out = raw;
-      if (raw === 'Almoço'        && _seenPlanLabels[raw] > 1) out = 'Refeição da Tarde';
-      if (raw === 'Café da Manhã' && _seenPlanLabels[raw] > 1) out = 'Lanche da Manhã';
-      _emittedPlanLabels[out] = (_emittedPlanLabels[out] || 0) + 1;
-      if (out === 'Refeição da Tarde' && _emittedPlanLabels[out] > 1) out = 'Refeição Pré-Treino';
-      return { ...s, displayLabel: out };
-    });
+        : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
+    })));
     const plan = generatePlan({ ...results, slotDistribution: labeledSlots });
     savePlan(plan);
     markProgress(K.PLAN_READY);
@@ -1347,7 +1331,7 @@ function rebuildTimesAroundTraining(slots, routine) {
         const anchorsValid = Object.values(NATURAL_ANCHOR).every(a => a >= dayStart && a < preAnchor);
         if (!anchorsValid) {
           const earlyEnd = preAnchor - 150;
-          preTimes = earlyEnd > dayStart
+          preTimes = (earlyEnd - dayStart) >= 90
             ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, preSlots.slice(0, nPre - 1).map(slotDur)), preAnchor]
             : spaceTimes(dayStart, preAnchor, nPre, preSlots.map(slotDur));
         } else {
@@ -1419,7 +1403,7 @@ function rebuildTimesAroundTraining(slots, routine) {
       const anchorsValid = Object.values(NATURAL_ANCHOR).every(a => a >= dayStart && a < preAnchor);
       if (!anchorsValid) {
         const earlyEnd = preAnchor - 150;
-        preTimes = earlyEnd > dayStart
+        preTimes = (earlyEnd - dayStart) >= 90
           ? [...spaceTimes(dayStart, earlyEnd, nPre - 1, slots.slice(0, nPre - 1).map(slotDur)), preAnchor]
           : spaceTimes(dayStart, preAnchor, nPre, slots.slice(0, nPre).map(slotDur));
       } else {
