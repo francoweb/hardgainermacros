@@ -150,26 +150,44 @@ export function renderResultadosPage(mount) {
     const arrow = i < arr.length - 1 ? '<span class="hybrid-seq-arrow">›</span>' : '';
     return chip + arrow;
   }).join('');
-  const slotsWithTraining = (() => {
-    const corrected = scheduleData.slots;
-    if (!hasTraining) return corrected;
-    const entry = { slot: '__train__', type: 'train', kcal: null, time: routine.trainStartTime || '' };
-    if (!routine.trainStartTime) return [...corrected, entry];
-    const wakeM = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
-    let sleepM = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
-    if (sleepM <= wakeM) sleepM += 1440;
-    const normM = m => (sleepM > 1440 && m < wakeM && (m + 1440) <= sleepM) ? m + 1440 : m;
-    const tm = normM(_toMins(routine.trainStartTime));
-    let idx = corrected.length;
-    for (let i = 0; i < corrected.length; i++) { if (normM(_toMins(corrected[i].time)) > tm) { idx = i; break; } }
-    return [...corrected.slice(0, idx), entry, ...corrected.slice(idx)];
-  })().slice().sort((a, b) => _toCycleMins(a.time) - _toCycleMins(b.time));
 
   const wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
   const sleepStartMin = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
   const nocturnal = wakeMin >= 1140
     || (sleepStartMin >= 600 && sleepStartMin <= 1140 && wakeMin <= 360)
     || (sleepStartMin > 1140 && wakeMin <= 180);
+
+  const _buildFinalSlots = () => {
+    const corrected = (scheduleData.slots && scheduleData.slots.length > 0)
+      ? [...scheduleData.slots].sort((a, b) => _toCycleMins(a.time) - _toCycleMins(b.time))
+      : results.slotDistribution || [];
+    let withTraining;
+    if (!hasTraining) {
+      withTraining = corrected;
+    } else {
+      const entry = { slot: '__train__', type: 'train', kcal: null, time: routine.trainStartTime || '' };
+      if (!routine.trainStartTime) {
+        withTraining = [...corrected, entry];
+      } else {
+        let sleepM = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
+        if (sleepM <= _wakeMin) sleepM += 1440;
+        const normM = m => (sleepM > 1440 && m < _wakeMin && (m + 1440) <= sleepM) ? m + 1440 : m;
+        const tm = normM(_toMins(routine.trainStartTime));
+        let idx = corrected.length;
+        for (let i = 0; i < corrected.length; i++) {
+          if (normM(_toMins(corrected[i].time)) > tm) { idx = i; break; }
+        }
+        withTraining = [...corrected.slice(0, idx), entry, ...corrected.slice(idx)];
+      }
+    }
+    const sorted = [...withTraining].sort((a, b) => _toCycleMins(a.time) - _toCycleMins(b.time));
+    return applyDedupLabels(sorted.map(s => ({
+      ...s,
+      displayLabel: s.slot === '__train__' ? null
+        : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
+        : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
+    })));
+  };
 
   const sectionTitle = strategy === 'solid' ? 'Plano Mais Sólido Recomendado'
     : strategy === 'practical' ? 'Plano de Máxima Praticidade'
@@ -197,12 +215,7 @@ export function renderResultadosPage(mount) {
     ? `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, priorizando refeições sólidas e mantendo 1 shake anabólico como apoio para facilitar o superávit calórico.`
     : `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, equilibrando refeições sólidas e shakes anabólicos para facilitar o superávit calórico sem pesar tanto na digestão.`;
 
-  const dedupedSlots = applyDedupLabels(slotsWithTraining.map(s => ({
-    ...s,
-    displayLabel: s.slot === '__train__' ? null
-      : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
-      : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
-  })));
+  const dedupedSlots = _buildFinalSlots();
 
   mount.innerHTML = `
     <div class="container">
@@ -535,16 +548,8 @@ export function renderResultadosPage(mount) {
 
   // Generate plan and go
   document.getElementById('btn-plan').addEventListener('click', () => {
-    const rebuiltSlots = (scheduleData.slots && scheduleData.slots.length > 0)
-      ? [...scheduleData.slots].sort((a, b) => _toCycleMins(a.time) - _toCycleMins(b.time))
-      : results.slotDistribution;
-    const labeledSlots = applyDedupLabels(rebuiltSlots.map(s => ({
-      ...s,
-      displayLabel: s._morningPostWorkout
-        ? 'Café da Manhã Pós-Treino'
-        : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
-    })));
-    const plan = generatePlan({ ...results, slotDistribution: labeledSlots });
+    const mealSlots = dedupedSlots.filter(s => s.slot !== '__train__');
+    const plan = generatePlan({ ...results, slotDistribution: mealSlots });
     savePlan(plan);
     markProgress(K.PLAN_READY);
     navigate('/plano-14-dias');
