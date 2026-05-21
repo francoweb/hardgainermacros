@@ -367,6 +367,7 @@ export function renderRotinaPage(mount) {
     }
 
     const routine = { ...state };
+    if (!shouldShowFasted()) routine.trainFasted = false;
     saveRoutine(routine);
 
     const formData = loadFormData();
