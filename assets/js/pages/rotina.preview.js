@@ -69,8 +69,21 @@ export function renderRotinaPage(mount) {
     return { text: `Período detectado: ${period} — preencha o fim para calcular a duração`, highlight: false };
   })();
 
-  const initFastedVisible = !!(existing.trainStartTime && existing.trainEndTime &&
-    (() => { const [h, m] = existing.trainStartTime.split(':').map(Number); return h * 60 + m < 600; })());
+  const initFastedVisible = !!(existing.trainStartTime && existing.trainEndTime && (() => {
+    const toM = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    const wake = existing.sleepEndTime ? toM(existing.sleepEndTime) : 420;
+    let sleep = existing.sleepStartTime ? toM(existing.sleepStartTime) : 1380;
+    if (sleep <= wake) sleep += 1440;
+    const sM = toM(existing.trainStartTime);
+    let eM = toM(existing.trainEndTime);
+    if (eM < sM) eM += 1440;
+    const dur = eM - sM;
+    const norm = (sleep > 1440 && sM < wake && (sM + 1440) <= sleep) ? sM + 1440 : sM;
+    if (norm < wake || norm >= sleep) return false;
+    if (dur > 120) return false;
+    if (norm + dur > sleep) return false;
+    return norm - wake <= 60;
+  })());
 
   mount.innerHTML = `
     <div class="container">
@@ -236,7 +249,16 @@ export function renderRotinaPage(mount) {
 
   const shouldShowFasted = () => {
     if (!state.trainStartTime || !state.trainEndTime) return false;
-    return toMinsW(state.trainStartTime) < 600;
+    const wake = state.sleepEndTime ? toMinsW(state.sleepEndTime) : 420;
+    let sleep = state.sleepStartTime ? toMinsW(state.sleepStartTime) : 1380;
+    if (sleep <= wake) sleep += 1440;
+    const sM = toMinsW(state.trainStartTime);
+    const norm = (sleep > 1440 && sM < wake && (sM + 1440) <= sleep) ? sM + 1440 : sM;
+    if (norm < wake || norm >= sleep) return false;
+    const dur = calcDuration(state.trainStartTime, state.trainEndTime);
+    if (!dur || dur > 120) return false;
+    if (norm + dur > sleep) return false;
+    return norm - wake <= 60;
   };
 
   const updateFastedVisibility = () => {

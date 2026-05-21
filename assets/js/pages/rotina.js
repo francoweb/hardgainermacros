@@ -88,9 +88,15 @@ export function renderRotinaPage(mount) {
     const wake = existing.sleepEndTime ? toM(existing.sleepEndTime) : 420;
     let sleep = existing.sleepStartTime ? toM(existing.sleepStartTime) : 1380;
     if (sleep <= wake) sleep += 1440;
-    const raw = toM(existing.trainStartTime);
-    const norm = (sleep > 1440 && raw < wake && (raw + 1440) <= sleep) ? raw + 1440 : raw;
-    return norm - wake <= 90;
+    const sM = toM(existing.trainStartTime);
+    let eM = toM(existing.trainEndTime);
+    if (eM < sM) eM += 1440;
+    const dur = eM - sM;
+    const norm = (sleep > 1440 && sM < wake && (sM + 1440) <= sleep) ? sM + 1440 : sM;
+    if (norm < wake || norm >= sleep) return false;
+    if (dur > 120) return false;
+    if (norm + dur > sleep) return false;
+    return norm - wake <= 60;
   })());
 
   const initSleepHint = buildSleepHint(existing.sleepStartTime || '23:00', existing.sleepEndTime || '07:00');
@@ -302,9 +308,13 @@ export function renderRotinaPage(mount) {
     const wake = state.sleepEndTime ? toMinsW(state.sleepEndTime) : 420;
     let sleep = state.sleepStartTime ? toMinsW(state.sleepStartTime) : 1380;
     if (sleep <= wake) sleep += 1440;
-    const raw = toMinsW(state.trainStartTime);
-    const norm = (sleep > 1440 && raw < wake && (raw + 1440) <= sleep) ? raw + 1440 : raw;
-    return norm - wake <= 90;
+    const sM = toMinsW(state.trainStartTime);
+    const norm = (sleep > 1440 && sM < wake && (sM + 1440) <= sleep) ? sM + 1440 : sM;
+    if (norm < wake || norm >= sleep) return false;
+    const dur = calcDuration(state.trainStartTime, state.trainEndTime);
+    if (!dur || dur > 120) return false;
+    if (norm + dur > sleep) return false;
+    return norm - wake <= 60;
   };
 
   const updateFastedVisibility = () => {
