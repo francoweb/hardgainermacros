@@ -153,7 +153,8 @@ export function renderResultadosPage(mount) {
 
   const wakeMin = routine.sleepEndTime ? _toMins(routine.sleepEndTime) : 420;
   const sleepStartMin = routine.sleepStartTime ? _toMins(routine.sleepStartTime) : 1380;
-  const nocturnal = wakeMin >= 1140
+  // Rotina fora do padrão: acorda às 18:00 ou depois, ou dorme de dia, ou horário muito atípico.
+  const nocturnal = wakeMin >= 1080
     || (sleepStartMin >= 600 && sleepStartMin <= 1140 && wakeMin <= 360)
     || (sleepStartMin > 1140 && wakeMin <= 180);
 
