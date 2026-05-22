@@ -965,6 +965,52 @@ function buildRecommendations(profile, routine, results) {
   return recs;
 }
 
+// Etapa 3C-A: protege o último slot pré-treino para evitar refeição pesada até 90 min antes do treino.
+// Mantém o total calórico movendo o excedente para o pós-treino principal.
+function applyPreWorkoutKcalGuard(slots, trainStartTime, trainFasted) {
+  if (trainFasted) return slots;
+  if (!trainStartTime) return slots;
+
+  const toM = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const tStart = toM(trainStartTime);
+
+  // Encontra o último slot alimentar antes do treino
+  let lastPreIdx = -1;
+  for (let i = 0; i < slots.length; i++) {
+    const s = slots[i];
+    if (!s.time || s.slot === '__train__') continue;
+    const m = toM(s.time);
+    const mNorm = m < tStart - 720 ? m + 1440 : m;
+    if (mNorm < tStart) lastPreIdx = i;
+  }
+  if (lastPreIdx === -1) return slots;
+
+  const lastPre = slots[lastPreIdx];
+  const mPre = toM(lastPre.time);
+  const mPreNorm = mPre < tStart - 720 ? mPre + 1440 : mPre;
+  const gapMin = tStart - mPreNorm;
+
+  if (gapMin > 90) return slots;              // mais de 90 min → não intervir
+  if ((lastPre.kcal || 0) <= 300) return slots; // já dentro do limite
+
+  // Encontra o primeiro slot pós-treino para receber o excedente
+  let firstPostIdx = -1;
+  for (let i = lastPreIdx + 1; i < slots.length; i++) {
+    if (slots[i].slot === '__train__' || !slots[i].time) continue;
+    const m2 = toM(slots[i].time);
+    const m2Norm = m2 < tStart ? m2 + 1440 : m2;
+    if (m2Norm >= tStart) { firstPostIdx = i; break; }
+  }
+  if (firstPostIdx === -1) return slots; // sem pós-treino disponível → não intervir
+
+  const excedente = lastPre.kcal - 300;
+  return slots.map((s, i) => {
+    if (i === lastPreIdx) return { ...s, kcal: 300 };
+    if (i === firstPostIdx) return { ...s, kcal: Math.round((s.kcal || 0) + excedente) };
+    return s;
+  });
+}
+
 /**
  * Redistribui os horários das refeições para que nenhuma caia dentro do bloco de treino.
  * Divide as refeições em pré-treino e pós-treino de forma proporcional ao tempo disponível.
@@ -1456,8 +1502,9 @@ function rebuildTimesAroundTraining(slots, routine) {
         return s;
       });
     })();
+    const eveningSlots = adjustedSlots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time }));
     return {
-      slots: adjustedSlots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
+      slots: applyPreWorkoutKcalGuard(eveningSlots, trainStartTime, trainFasted),
       spacingFeedback: buildSpacingFeedback([[dayStart, preAnchor], [tEndAdj + POST_BUFFER, effectiveDayEnd]]),
     };
   }
@@ -1490,8 +1537,9 @@ function rebuildTimesAroundTraining(slots, routine) {
     ...spaceTimes(postWindowStart, effectiveDayEnd, nPost, slots.slice(nPre).map(slotDur)),
   ];
 
+  const slotsWithTimes = slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time }));
   return {
-    slots: slots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
+    slots: applyPreWorkoutKcalGuard(slotsWithTimes, trainStartTime, trainFasted),
     spacingFeedback: buildSpacingFeedback([[dayStart, preWindowEnd], [postWindowStart, effectiveDayEnd]]),
   };
 }
