@@ -21,20 +21,7 @@ import {
 } from '../modules/storage.js';
 import { formatKcal } from '../modules/calculator.js';
 import { generatePlan } from '../modules/meal-planner.js';
-import { applyDedupLabels } from '../modules/day-schedule.js';
-
-const SLOT_LABEL = {
-  breakfast: 'Café da Manhã',
-  shake_morning: 'Shake Bomba Calórica',
-  lunch: 'Almoço',
-  shake_afternoon: 'Shake Energia Instantânea',
-  dinner: 'Jantar',
-  shake_night: 'Shake Crescimento Noturno',
-  shake_extra: 'Shake Extra',
-  shake_extra2: 'Shake Extra 2',
-  pre_workout_light: 'Shake Pré-Treino Leve',
-  post_workout_night: 'Shake Pós-Treino Leve Antes de Dormir',
-};
+import { applyDedupLabels, SLOT_LABEL } from '../modules/day-schedule.js';
 
 const getDisplayMealLabel = (slot, time, nocturnal = false, strategy = 'hybrid', trainEndTime = null) => {
   // Refeição sólida logo após o treino (até 60 min depois do fim)

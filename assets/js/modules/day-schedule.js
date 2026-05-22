@@ -5,6 +5,19 @@
  * Não contém lógica de horários — isso vive em rebuildTimesAroundTraining (resultados.js).
  */
 
+export const SLOT_LABEL = {
+  breakfast: 'Café da Manhã',
+  shake_morning: 'Shake Bomba Calórica',
+  lunch: 'Almoço',
+  shake_afternoon: 'Shake Energia Instantânea',
+  dinner: 'Jantar',
+  shake_night: 'Shake Crescimento Noturno',
+  shake_extra: 'Shake Extra',
+  shake_extra2: 'Shake Extra 2',
+  pre_workout_light: 'Shake Pré-Treino Leve',
+  post_workout_night: 'Shake Pós-Treino Leve Antes de Dormir',
+};
+
 /**
  * Recebe um array de slots que já têm `displayLabel` (string | null) e devolve
  * o mesmo array com `displayLabel` deduplicado:

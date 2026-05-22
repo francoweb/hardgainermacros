@@ -14,6 +14,7 @@
 
 import { MEAL_TEMPLATES, rankTemplatesByProfile } from '../data/meal-templates.js';
 import { FOODS, calcFoodMacros, formatQty } from '../data/foods.js';
+import { SLOT_LABEL } from './day-schedule.js';
 
 const DAY_NAMES = [
   'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira',
@@ -22,16 +23,6 @@ const DAY_NAMES = [
   'Sexta-feira', 'Sábado', 'Domingo',
 ];
 
-const SLOT_LABEL = {
-  breakfast: 'Café da Manhã',
-  shake_morning: 'Shake Bomba Calórica',
-  lunch: 'Almoço',
-  shake_afternoon: 'Shake Energia Instantânea',
-  dinner: 'Jantar',
-  shake_night: 'Shake Crescimento Noturno',
-  shake_extra: 'Shake Extra',
-  shake_extra2: 'Shake Extra 2',
-};
 
 /**
  * Gera plano de 14 dias.
