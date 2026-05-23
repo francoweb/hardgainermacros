@@ -173,6 +173,7 @@ export function renderResultadosPage(mount) {
       ...s,
       displayLabel: s.slot === '__train__' ? null
         : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
+        : s.preWorkoutKcalGuardApplied ? 'Refeição Leve Pré-Treino'
         : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
     })));
   };
@@ -1005,7 +1006,7 @@ function applyPreWorkoutKcalGuard(slots, trainStartTime, trainFasted) {
 
   const excedente = lastPre.kcal - 300;
   return slots.map((s, i) => {
-    if (i === lastPreIdx) return { ...s, kcal: 300 };
+    if (i === lastPreIdx) return { ...s, kcal: 300, preWorkoutKcalGuardApplied: true };
     if (i === firstPostIdx) return { ...s, kcal: Math.round((s.kcal || 0) + excedente) };
     return s;
   });
@@ -1408,8 +1409,9 @@ function rebuildTimesAroundTraining(slots, routine) {
           spacingChecks.push({ gapUsed: times[i] - times[i - 1] - slotDur(allSlots[i - 1]) });
         }
       }
+      const lateNightSlots = allSlots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time }));
       return {
-        slots: allSlots.map((s, i) => ({ ...s, time: i < times.length ? toTime(times[i]) : s.time })),
+        slots: applyPreWorkoutKcalGuard(lateNightSlots, trainStartTime, trainFasted),
         spacingFeedback: buildSpacingFeedback([[dayStart, preAnchor]]),
       };
     }
