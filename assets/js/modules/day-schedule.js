@@ -40,6 +40,7 @@ export function applyDedupLabels(slots) {
     let out = label;
     if (label === 'Almoço'        && seen[label] > 1) out = 'Refeição da Tarde';
     if (label === 'Café da Manhã' && seen[label] > 1) out = 'Lanche da Manhã';
+    if (label === 'Jantar'        && seen[label] > 1) out = 'Refeição de Fim de Dia';
     emitted[out] = (emitted[out] || 0) + 1;
     if (out === 'Refeição da Tarde' && emitted[out] > 1) out = 'Refeição Pré-Treino';
     return { ...slot, displayLabel: out };
