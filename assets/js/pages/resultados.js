@@ -175,7 +175,7 @@ export function renderResultadosPage(mount) {
         : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
         : s.preWorkoutKcalGuardApplied ? 'Refeição Leve Pré-Treino'
         : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
-    })));
+    })), { hasTraining });
   };
 
   const sectionTitle = strategy === 'solid' ? 'Plano Mais Sólido Recomendado'
@@ -1019,7 +1019,23 @@ function applyPreWorkoutKcalGuard(slots, trainStartTime, trainFasted) {
  */
 function rebuildTimesAroundTraining(slots, routine) {
   const { trainStartTime, trainEndTime, trainDays, trainFasted, mealsPerDay, sleepStartTime, sleepEndTime } = routine;
-  if (!trainDays || trainDays <= 0) return { slots, spacingFeedback: null };
+  if (!trainDays || trainDays <= 0) {
+    const _t  = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    const _tt = m => { const v = ((Math.round(m) % 1440) + 1440) % 1440; return `${String(Math.floor(v / 60)).padStart(2, '0')}:${String(v % 60).padStart(2, '0')}`; };
+    const _rq = m => Math.round(m / 15) * 15;
+    const wMin = sleepEndTime   ? _t(sleepEndTime)   : 420;
+    let   sMin = sleepStartTime ? _t(sleepStartTime) : 1380;
+    if (sMin <= wMin) sMin += 1440;
+    const dayS = wMin + 15;
+    const dayE = sMin - 90;
+    const n    = slots.length;
+    if (n === 0 || dayE <= dayS) return { slots, spacingFeedback: null };
+    const step = n > 1 ? (dayE - dayS) / (n - 1) : 0;
+    return {
+      slots: slots.map((s, i) => ({ ...s, time: _tt(_rq(dayS + step * i)) })),
+      spacingFeedback: null,
+    };
+  }
   if (!trainStartTime || !trainEndTime) return { slots, spacingFeedback: null };
 
   const toMins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };

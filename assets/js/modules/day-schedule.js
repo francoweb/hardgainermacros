@@ -30,7 +30,7 @@ export const SLOT_LABEL = {
  * @param {Array<Object>} slots  — cada slot deve ter pelo menos { displayLabel }
  * @returns {Array<Object>}      — mesmos slots com displayLabel final
  */
-export function applyDedupLabels(slots) {
+export function applyDedupLabels(slots, { hasTraining = true } = {}) {
   const seen = {};
   const emitted = {};
   return slots.map(slot => {
@@ -42,7 +42,7 @@ export function applyDedupLabels(slots) {
     if (label === 'Café da Manhã' && seen[label] > 1) out = 'Lanche da Manhã';
     if (label === 'Jantar'        && seen[label] > 1) out = 'Refeição de Fim de Dia';
     emitted[out] = (emitted[out] || 0) + 1;
-    if (out === 'Refeição da Tarde' && emitted[out] > 1) out = 'Refeição Pré-Treino';
+    if (out === 'Refeição da Tarde' && emitted[out] > 1) out = hasTraining ? 'Refeição Pré-Treino' : 'Lanche da Tarde';
     return { ...slot, displayLabel: out };
   });
 }
