@@ -8,17 +8,22 @@
  * Evita falhas de timeout em C1/C2/C6/C7 quando o Live Server demora a arrancar.
  */
 
-const http = require('http');
+const http  = require('http');
+const https = require('https');
 
 const BASE_URL    = process.env.BASE_URL || 'http://127.0.0.1:5500';
 const MAX_WAIT_MS = 30_000;
 const POLL_MS     = 500;
 
-/** Tenta uma ligação HTTP ao servidor. Resolve true se responder, false caso contrário. */
+/**
+ * Tenta uma ligação ao servidor (http ou https). Resolve true se responder, false caso contrário.
+ * @param {string} url
+ */
 function probe(url) {
+  const lib = url.startsWith('https') ? https : http;
   return new Promise((resolve) => {
-    const req = http.get(url, (res) => {
-      resolve(res.statusCode < 500);
+    const req = lib.get(url, (res) => {
+      resolve((res.statusCode ?? 500) < 500);
       res.resume();
     });
     req.setTimeout(1000, () => { req.destroy(); resolve(false); });
