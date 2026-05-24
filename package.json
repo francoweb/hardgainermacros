@@ -1,0 +1,13 @@
+{
+  "name": "hardgainer-macros",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "test:prod": "cross-env BASE_URL=https://www.hardgainermacros.com playwright test"
+  }
+}

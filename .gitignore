@@ -1,0 +1,14 @@
+node_modules/
+playwright-report/
+test-results/
+.playwright/
+
+.env
+.env.local
+.env.*.local
+
+npm-debug.log*
+npm-error.log*
+
+*.log
+.cache/
