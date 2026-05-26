@@ -22,6 +22,7 @@ const {
   CENARIO_3,
   CENARIO_4,
   CENARIO_5,
+  CENARIO_8,
 } = require('./fixtures/scenarios');
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,6 +144,54 @@ test.describe('Resultados — cenário com treino ativo', () => {
       .toBeVisible();
 
     // Total kcal preservado
+    await expect(
+      page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
+    ).toContainText('2660');
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Espaçamento entre refeições pré-treino (bug documentado)
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema: com treino às 16:00 + 7 refeições sólidas, o algoritmo produz
+//   Almoço 13:00 → Refeição da Tarde 13:30 (gap de 30 min — demasiado curto).
+// Causa: Math.min(preAnchor, tStart - 180) = Math.min(870, 780) = 780
+//   coincide com NATURAL_ANCHOR.lunch = 780, gerando colisão.
+// Este teste deve FALHAR antes do patch e PASSAR depois.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Resultados — espaçamento refeições pré-treino', () => {
+
+  test('C8 — Wake 07:00 / treino 16:00–17:30 / 7 refeições / Sólidas: gap mínimo 60 min entre refeições pré-treino', async ({ page }) => {
+    await injectState(page, CENARIO_8);
+    await gotoResultados(page);
+
+    // 1. Almoço deve estar visível
+    await expect(page.getByText('Almoço').first())
+      .toBeVisible();
+
+    // 2. Não deve existir nenhuma refeição às 13:30
+    //    (indicador direto do bug: Refeição da Tarde a 30 min do Almoço)
+    //    FALHA antes do patch — PASSA depois do patch.
+    await expect(
+      page.locator('.meal-time').filter({ hasText: '13:30' })
+    ).not.toBeVisible();
+
+    // 3. Refeição Leve Pré-Treino deve estar visível
+    await expect(page.getByText(/Pré-Treino/).first())
+      .toBeVisible();
+
+    // 4. Pré-Treino deve estar entre 14:15 e 14:45 (esperado: ~14:30)
+    await expect(
+      page.locator('.meal-time').filter({ hasText: '14:30' })
+    ).toBeVisible();
+
+    // 5. Treino às 16:00 visível
+    await expect(page.getByText('16:00', { exact: true }))
+      .toBeVisible();
+
+    // 6. Total kcal preservado
     await expect(
       page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
     ).toContainText('2660');

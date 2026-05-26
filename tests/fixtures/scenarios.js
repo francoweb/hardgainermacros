@@ -242,6 +242,16 @@ const CENARIO_5 = {
 const CENARIO_6 = CENARIO_2; // wake 08:00, 6H, híbrido, sem treino
 const CENARIO_7 = CENARIO_4; // wake 07:00, 7S, sólidas, sem treino
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Cenário 8 — Wake 07:00 / Sleep 23:00 / treino 16:00–17:30 / 7 refeições / Sólidas
+// (mesmo estado que C5 — testa especificamente o espaçamento entre refeições pré-treino)
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema documentado:
+//   Almoço 13:00 → Refeição da Tarde 13:30 (gap de 30 min — demasiado curto)
+// Esperado após fix:
+//   Gap mínimo de 60 min entre refeições consecutivas no bloco pré-treino
+const CENARIO_8 = CENARIO_5; // wake 07:00, 7S, sólidas, treino 16:00–17:30
+
 module.exports = {
   CENARIO_1,
   CENARIO_2,
@@ -250,4 +260,5 @@ module.exports = {
   CENARIO_5,
   CENARIO_6,
   CENARIO_7,
+  CENARIO_8,
 };

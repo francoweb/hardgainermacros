@@ -1454,8 +1454,16 @@ function rebuildTimesAroundTraining(slots, routine) {
       preTimes = [preAnchor];
     } else {
       // Janelas naturais para refeições sólidas (em minutos desde meia-noite)
-      // Café da Manhã: 07:15 (435), Almoço: 13:00 (780) ou recuado para garantir 2h30 antes do shake pré-treino
-      const NATURAL_ANCHOR = { breakfast: wakeMin + 15, lunch: lastPreIsShake ? Math.min(780, preAnchor - 150) : 780 };
+      // Café da Manhã: 07:15 (435), Almoço: 13:00 (780) ou recuado para evitar colisão com
+      // o último slot sólido pré-treino (ex.: treino 16:00 → tStart−180=780=lunch → gap 0 min).
+      // Fix: recua o almoço para lastSolidPreAnchor−90 quando o último pré é sólido.
+      const lastSolidPreAnchor = !lastPreIsShake ? Math.min(preAnchor, tStart - 180) : null;
+      const NATURAL_ANCHOR = {
+        breakfast: wakeMin + 15,
+        lunch: lastPreIsShake
+          ? Math.min(780, preAnchor - 150)
+          : Math.min(780, lastSolidPreAnchor - 90),
+      };
       const preSlots = slots.slice(0, nPre);
       const anchorsValid = Object.values(NATURAL_ANCHOR).every(a => a >= dayStart && a < preAnchor);
       if (!anchorsValid) {
