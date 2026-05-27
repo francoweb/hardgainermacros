@@ -1412,12 +1412,13 @@ ul, ol { margin: 0; padding: 0; }
 
 /* Print styles for the 14-day plan */
 @media print {
-  .header, .footer, .plan-toolbar, .cookie, .ingredient-sub-btn { display: none !important; }
+  .no-print, .header, .footer, .plan-toolbar, .cookie, .ingredient-sub-btn { display: none !important; }
   .main { padding: 0; }
   body { background: #fff; }
   .day { page-break-inside: avoid; break-inside: avoid; border: 1px solid #ddd; }
   .day-body { display: block !important; }
   .day-chev { display: none; }
+  .meal-card { page-break-inside: avoid; }
 }
 
 /* =========================================================================
@@ -1585,13 +1586,7 @@ ul, ol { margin: 0; padding: 0; }
 .contact-form textarea { resize: vertical; min-height: 110px; font-family: inherit; line-height: 1.5; }
 .contact-form select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23585048' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
 
-/* ---------- No-print helper (extra) ---------- */
-@media print {
-  .no-print, .plan-toolbar, .ingredient-sub-btn, .cookie, .header, .footer { display: none !important; }
-  .day { page-break-inside: avoid; }
-  .day-body { display: block !important; }
-  .meal-card { page-break-inside: avoid; }
-}
+/* ---------- No-print helper (consolidado no bloco acima) ---------- */
 
 /* ---------- Botões Voltar — página /resultados (fundo bege) ---------- */
 #btn-back-top,

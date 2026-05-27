@@ -667,7 +667,7 @@ function exportDayPDF(day, dayIdx, results) {
   const contentHtml = `
     <div class="pdf-header">
       <div class="pdf-brand">Hardgainer Macros</div>
-      <div class="pdf-tagline">Plano alimentar personalizado para hardgainers</div>
+      <div class="pdf-tagline">${PLAN_STRATEGY_LABEL[results.routine?.strategy] || 'Sistema Híbrido'} · ${results.calories} kcal/dia</div>
       <div class="pdf-header-divider"></div>
       <div class="pdf-title">Plano Alimentar — Dia ${dayIdx + 1}</div>
       <div class="pdf-dayname">${day.dayName}</div>
@@ -717,6 +717,7 @@ function exportDayPDF(day, dayIdx, results) {
   style.id = 'day-pdf-print-style';
   style.textContent = `
     .day-pdf-print-area { display: none; }
+    @page { margin: 15mm; }
     @media print {
       .day-pdf-print-area, .day-pdf-print-area * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
@@ -731,15 +732,15 @@ function exportDayPDF(day, dayIdx, results) {
       }
 
       /* ── HEADER ── */
-      .day-pdf-print-area .pdf-header { background: #1a1814; padding: 28px 32px 24px; }
-      .day-pdf-print-area .pdf-brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #c8a96e; margin-bottom: 4px; }
-      .day-pdf-print-area .pdf-tagline { font-size: 11px; color: #9a8e82; margin-bottom: 18px; }
-      .day-pdf-print-area .pdf-header-divider { width: 36px; height: 2px; background: #c8a96e; margin-bottom: 18px; }
+      .day-pdf-print-area .pdf-header { background: #c26d5a; padding: 28px 32px 24px; }
+      .day-pdf-print-area .pdf-brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.85); margin-bottom: 4px; }
+      .day-pdf-print-area .pdf-tagline { font-size: 11px; color: rgba(255,255,255,0.72); margin-bottom: 18px; }
+      .day-pdf-print-area .pdf-header-divider { width: 36px; height: 2px; background: rgba(255,255,255,0.4); margin-bottom: 18px; }
       .day-pdf-print-area .pdf-title { font-size: 26px; font-weight: 700; color: #ffffff; margin-bottom: 5px; }
-      .day-pdf-print-area .pdf-dayname { font-size: 13px; color: #9a8e82; }
+      .day-pdf-print-area .pdf-dayname { font-size: 13px; color: rgba(255,255,255,0.80); }
 
       /* ── TOTALS ── */
-      .day-pdf-print-area .pdf-totals { display: flex; background: #f7f4f0; border-bottom: 3px solid #c8a96e; }
+      .day-pdf-print-area .pdf-totals { display: flex; background: #fbeee8; border-bottom: 3px solid #c26d5a; }
       .day-pdf-print-area .tot-item { flex: 1; text-align: center; padding: 18px 8px; border-right: 1px solid #e2dbd2; }
       .day-pdf-print-area .tot-item:last-child { border-right: none; }
       .day-pdf-print-area .tot-val { display: block; font-size: 22px; font-weight: 700; color: #1a1814; line-height: 1.1; }
@@ -749,12 +750,12 @@ function exportDayPDF(day, dayIdx, results) {
       .day-pdf-print-area .pdf-meals { padding: 22px 28px 8px; }
 
       /* ── MEAL CARD ── */
-      .day-pdf-print-area .meal-block { border: 1px solid #e2dbd2; border-left: 4px solid #c8a96e; border-radius: 0 8px 8px 0; margin-bottom: 18px; background: #fff; page-break-inside: avoid; break-inside: avoid; }
-      .day-pdf-print-area .meal-block[data-type="shake"] { border-left-color: #6ba8b8; }
+      .day-pdf-print-area .meal-block { border: 1px solid #e6e0d3; border-left: 4px solid #6b8e5a; border-radius: 0 8px 8px 0; margin-bottom: 18px; background: #fff; page-break-inside: avoid; break-inside: avoid; }
+      .day-pdf-print-area .meal-block[data-type="shake"] { border-left-color: #c26d5a; }
 
       /* Meal card header band */
-      .day-pdf-print-area .meal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 13px 18px 11px; background: #faf7f2; border-bottom: 1px solid #ede8e0; }
-      .day-pdf-print-area .meal-block[data-type="shake"] .meal-header { background: #f2f8fb; }
+      .day-pdf-print-area .meal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 13px 18px 11px; background: #f3f7ef; border-bottom: 1px solid #e6e0d3; }
+      .day-pdf-print-area .meal-block[data-type="shake"] .meal-header { background: #fbeee8; }
       .day-pdf-print-area .meal-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #7a5235; margin-bottom: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
       .day-pdf-print-area .meal-day-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #8a7f75; background: #f0ede8; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
       .day-pdf-print-area .meal-time { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-bottom: 4px; }
@@ -763,8 +764,8 @@ function exportDayPDF(day, dayIdx, results) {
 
       /* Type badge */
       .day-pdf-print-area .meal-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 3px; }
-      .day-pdf-print-area .meal-badge-solid { background: #f5ead8; color: #7a5520; }
-      .day-pdf-print-area .meal-badge-shake { background: #daeef4; color: #1e6478; }
+      .day-pdf-print-area .meal-badge-solid { background: #e3ebd7; color: #4e6b42; }
+      .day-pdf-print-area .meal-badge-shake { background: #f4dcd3; color: #a35342; }
 
       /* Macros chips */
       .day-pdf-print-area .meal-macros-row { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 18px; border-bottom: 1px solid #f0ebe4; }
@@ -785,7 +786,7 @@ function exportDayPDF(day, dayIdx, results) {
       .day-pdf-print-area .prep-list li { margin-bottom: 5px; line-height: 1.5; }
 
       /* Note block */
-      .day-pdf-print-area .meal-note { margin: 0 18px 14px; background: #faf7f2; border-left: 3px solid #c8a96e; padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 12px; color: #5a5048; line-height: 1.5; }
+      .day-pdf-print-area .meal-note { margin: 0 18px 14px; background: #fbeee8; border-left: 3px solid #c26d5a; padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 12px; color: #585048; line-height: 1.5; }
 
       /* ── FOOTER ── */
       .day-pdf-print-area .pdf-footer { padding: 18px 28px 28px; text-align: center; border-top: 1px solid #e2dbd2; }
@@ -890,6 +891,7 @@ function exportFullPlanPDF(plan, results) {
   style.id = 'full-pdf-print-style';
   style.textContent = `
     #full-pdf-print-area { display: none; }
+    @page { margin: 15mm; }
     @media print {
       #full-pdf-print-area, #full-pdf-print-area * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
@@ -904,18 +906,18 @@ function exportFullPlanPDF(plan, results) {
       }
 
       /* ── DOCUMENT HEADER ── */
-      #full-pdf-print-area .full-pdf-header { background: #1a1814; padding: 28px 32px 24px; }
-      #full-pdf-print-area .full-pdf-brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #c8a96e; margin-bottom: 4px; }
-      #full-pdf-print-area .full-pdf-tagline { font-size: 11px; color: #9a8e82; margin-bottom: 18px; }
-      #full-pdf-print-area .full-pdf-header-divider { width: 36px; height: 2px; background: #c8a96e; margin-bottom: 18px; }
+      #full-pdf-print-area .full-pdf-header { background: #c26d5a; padding: 28px 32px 24px; }
+      #full-pdf-print-area .full-pdf-brand { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.85); margin-bottom: 4px; }
+      #full-pdf-print-area .full-pdf-tagline { font-size: 11px; color: rgba(255,255,255,0.72); margin-bottom: 18px; }
+      #full-pdf-print-area .full-pdf-header-divider { width: 36px; height: 2px; background: rgba(255,255,255,0.4); margin-bottom: 18px; }
       #full-pdf-print-area .full-pdf-title { font-size: 26px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
-      #full-pdf-print-area .full-pdf-meta { font-size: 13px; color: #9a8e82; display: flex; gap: 8px; flex-wrap: wrap; }
+      #full-pdf-print-area .full-pdf-meta { font-size: 13px; color: rgba(255,255,255,0.80); display: flex; gap: 8px; flex-wrap: wrap; }
 
       /* ── DAY SECTION ── */
       #full-pdf-print-area .full-pdf-day.page-break { page-break-before: always; break-before: page; }
-      #full-pdf-print-area .full-pdf-day-header { display: flex; justify-content: space-between; align-items: center; background: #f7f4f0; border-bottom: 3px solid #c8a96e; padding: 16px 28px; }
-      #full-pdf-print-area .full-pdf-day-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8a7f75; margin-bottom: 2px; }
-      #full-pdf-print-area .full-pdf-day-name { font-size: 20px; font-weight: 700; color: #1a1814; }
+      #full-pdf-print-area .full-pdf-day-header { display: flex; justify-content: space-between; align-items: center; background: #fbeee8; border-bottom: 3px solid #c26d5a; padding: 16px 28px; }
+      #full-pdf-print-area .full-pdf-day-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #8a8078; margin-bottom: 2px; }
+      #full-pdf-print-area .full-pdf-day-name { font-size: 20px; font-weight: 700; color: #2b2622; }
       #full-pdf-print-area .full-pdf-day-totals { display: flex; }
       #full-pdf-print-area .full-pdf-tot-item { text-align: center; padding: 8px 14px; border-left: 1px solid #e2dbd2; }
       #full-pdf-print-area .full-pdf-tot-val { display: block; font-size: 18px; font-weight: 700; color: #1a1814; line-height: 1.1; }
@@ -923,18 +925,18 @@ function exportFullPlanPDF(plan, results) {
 
       /* ── MEALS ── */
       #full-pdf-print-area .full-pdf-meals { padding: 16px 28px 8px; }
-      #full-pdf-print-area .meal-block { border: 1px solid #e2dbd2; border-left: 4px solid #c8a96e; border-radius: 0 8px 8px 0; margin-bottom: 14px; background: #fff; page-break-inside: avoid; break-inside: avoid; }
-      #full-pdf-print-area .meal-block[data-type="shake"] { border-left-color: #6ba8b8; }
-      #full-pdf-print-area .meal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 16px 9px; background: #faf7f2; border-bottom: 1px solid #ede8e0; }
-      #full-pdf-print-area .meal-block[data-type="shake"] .meal-header { background: #f2f8fb; }
+      #full-pdf-print-area .meal-block { border: 1px solid #e6e0d3; border-left: 4px solid #6b8e5a; border-radius: 0 8px 8px 0; margin-bottom: 14px; background: #fff; page-break-inside: avoid; break-inside: avoid; }
+      #full-pdf-print-area .meal-block[data-type="shake"] { border-left-color: #c26d5a; }
+      #full-pdf-print-area .meal-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 11px 16px 9px; background: #f3f7ef; border-bottom: 1px solid #e6e0d3; }
+      #full-pdf-print-area .meal-block[data-type="shake"] .meal-header { background: #fbeee8; }
       #full-pdf-print-area .meal-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #7a5235; margin-bottom: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
       #full-pdf-print-area .meal-day-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #8a7f75; background: #f0ede8; border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
       #full-pdf-print-area .meal-time { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-bottom: 4px; }
       #full-pdf-print-area .meal-name { font-size: 14px; font-weight: 700; color: #1a1814; margin-bottom: 2px; }
       #full-pdf-print-area .meal-recipe { font-size: 12px; color: #5a5048; }
       #full-pdf-print-area .meal-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 3px; }
-      #full-pdf-print-area .meal-badge-solid { background: #f5ead8; color: #7a5520; }
-      #full-pdf-print-area .meal-badge-shake { background: #daeef4; color: #1e6478; }
+      #full-pdf-print-area .meal-badge-solid { background: #e3ebd7; color: #4e6b42; }
+      #full-pdf-print-area .meal-badge-shake { background: #f4dcd3; color: #a35342; }
       #full-pdf-print-area .meal-macros-row { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 16px; border-bottom: 1px solid #f0ebe4; }
       #full-pdf-print-area .macro-chip { font-size: 11px; font-weight: 600; color: #3a3330; background: #f7f4f0; padding: 2px 8px; border-radius: 4px; }
       #full-pdf-print-area .meal-section { padding: 8px 16px 6px; }
@@ -949,7 +951,7 @@ function exportFullPlanPDF(plan, results) {
       #full-pdf-print-area .ing-qty { font-size: 12px; font-weight: 700; color: #1a1814; white-space: nowrap; padding-left: 14px; text-align: right; }
       #full-pdf-print-area .prep-list { padding-left: 16px; font-size: 12px; color: #3a3330; margin: 0; }
       #full-pdf-print-area .prep-list li { margin-bottom: 4px; line-height: 1.5; }
-      #full-pdf-print-area .meal-note { margin: 0 16px 12px; background: #faf7f2; border-left: 3px solid #c8a96e; padding: 6px 10px; border-radius: 0 4px 4px 0; font-size: 11px; color: #5a5048; line-height: 1.5; }
+      #full-pdf-print-area .meal-note { margin: 0 16px 12px; background: #fbeee8; border-left: 3px solid #c26d5a; padding: 6px 10px; border-radius: 0 4px 4px 0; font-size: 11px; color: #585048; line-height: 1.5; }
 
       /* ── FOOTER ── */
       #full-pdf-print-area .full-pdf-footer { padding: 16px 28px 24px; text-align: center; border-top: 1px solid #e2dbd2; }
