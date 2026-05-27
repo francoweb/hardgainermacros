@@ -84,25 +84,4 @@ test.describe('Plano Alimentar — Princípios das Receitas condicional', () => 
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Grupo: P3 — Botão "Personalizar" navega para /resultados
-// ─────────────────────────────────────────────────────────────────────────────
-
-test.describe('Plano Alimentar — Botão Personalizar', () => {
-
-  test('C-P3 — Botão "Personalizar" navega para /resultados e não para /', async ({ page }) => {
-    await injectState(page, CENARIO_6); // qualquer cenário válido
-    await gotoResultados(page);
-    await gotoPlano(page);
-
-    // Clicar em "Personalizar" deve navegar para /resultados
-    // FALHA antes do patch P3 (navegava para /) — PASSA depois.
-    await page.getByRole('button', { name: /Personalizar/ }).click();
-    await page.waitForURL('**/resultados', { timeout: 5_000 });
-
-    // Confirmar que não está em /
-    expect(page.url()).toMatch(/\/resultados/);
-    expect(page.url()).not.toMatch(/\/$|\/\?/);
-  });
-
-});
+// C-P3 removido: botão "Personalizar" foi removido da interface.

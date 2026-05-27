@@ -26,12 +26,7 @@ function onRouteChange(page, path) {
   const el = mount();
   if (!el) return;
 
-  // O header varia conforme a página (em /resultados e /plano-14-dias aparece o botão Editar)
-  const showEdit = page === 'results' || page === 'plan';
-  renderHeader({
-    showEdit,
-    onEdit: showEdit ? () => navigate('/') : undefined,
-  });
+  renderHeader();
   renderFooter();
   mountCookieBanner();
 
