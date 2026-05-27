@@ -175,7 +175,7 @@ export function renderResultadosPage(mount) {
         : s._morningPostWorkout ? 'Café da Manhã Pós-Treino'
         : s.preWorkoutKcalGuardApplied ? 'Refeição Leve Pré-Treino'
         : getDisplayMealLabel(s.slot, s.time, nocturnal, strategy, routine.trainEndTime || null),
-    })), { hasTraining });
+    })), { hasTraining, trainStartTime: routine.trainStartTime || null });
   };
 
   const sectionTitle = strategy === 'solid' ? 'Plano Mais Sólido Recomendado'
@@ -1031,9 +1031,27 @@ function rebuildTimesAroundTraining(slots, routine) {
     const n    = slots.length;
     if (n === 0 || dayE <= dayS) return { slots, spacingFeedback: null };
     const step = n > 1 ? (dayE - dayS) / (n - 1) : 0;
+    // F1: feedback de espaçamento para ≥ 8 refeições sem treino.
+    // Usa gap aproximado (step − duração média estimada ~22 min) para seleccionar o nível.
+    const _approxGap = n > 1 ? step - 22 : 9999;
+    const _noTrainFeedback = (() => {
+      if (_approxGap < 90 && n >= 8) return {
+        level: 'danger',
+        headline: 'Analisámos a sua rotina: os intervalos ficaram curtos demais.',
+        message: 'Algumas refeições ficaram próximas demais para uma rotina confortável. Este cenário pode ser difícil de manter na prática.',
+        detail: `A sua 'janela acordado' é o período entre a hora em que acorda e a hora em que vai dormir. É dentro desse espaço que a app tenta encaixar refeições, shakes e treino.\n\nQuando o intervalo real entre refeições fica abaixo de 1h30, pode ser difícil digerir bem, sentir fome novamente e repetir a rotina todos os dias sem desconforto.\n\nIsso não significa que você falhou. Significa apenas que a sua rotina atual tem pouco espaço para tantas refeições.\n\nTente uma destas soluções:\n• reduzir o número de refeições;\n• transformar uma refeição sólida em shake;\n• acordar um pouco mais cedo ou dormir um pouco mais tarde, se isso fizer sentido;\n• manter 6 refeições em vez de 7 ou 8.`,
+      };
+      if (n >= 8) return {
+        level: 'warning',
+        headline: `Analisámos a sua rotina: ${n} refeições são possíveis, mas deixam o dia mais comprimido.`,
+        message: 'A app conseguiu encaixar os horários, mas já existe menos margem entre refeições. Este formato exige mais disciplina e pode não ser confortável para todos.',
+        detail: `A sua "janela acordado" é o espaço entre acordar e dormir. Quando tenta encaixar ${n} refeições nesse período, os intervalos entre elas ficam naturalmente mais curtos.\n\nIsso acontece porque o dia continua tendo o mesmo tamanho, mas há mais refeições, shakes e possivelmente treino para distribuir.\n\nO Sistema Híbrido continua útil porque os shakes reduzem o volume de comida sólida. Mesmo assim, ${n} refeições podem ser excessivas para algumas pessoas, especialmente para quem sente desconforto digestivo ou tem pouco apetite.\n\nSe o plano parecer apertado na prática, reduza para 6 refeições ou aumente a janela acordado. O objetivo não é comer a toda hora, é criar uma rotina que você consiga repetir.`,
+      };
+      return null;
+    })();
     return {
       slots: slots.map((s, i) => ({ ...s, time: _tt(_rq(dayS + step * i)) })),
-      spacingFeedback: null,
+      spacingFeedback: _noTrainFeedback,
     };
   }
   if (!trainStartTime || !trainEndTime) return { slots, spacingFeedback: null };

@@ -252,6 +252,101 @@ const CENARIO_7 = CENARIO_4; // wake 07:00, 7S, sólidas, sem treino
 //   Gap mínimo de 60 min entre refeições consecutivas no bloco pré-treino
 const CENARIO_8 = CENARIO_5; // wake 07:00, 7S, sólidas, treino 16:00–17:30
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Cenário 9 — Wake 07:00 / Sleep 23:00 / 8 refeições / Prático / sem treino
+// ─────────────────────────────────────────────────────────────────────────────
+// Esperado após F1:
+//   Aviso de espaçamento visível ("Diagnóstico Inteligente da Rotina")
+//   Nunca aparecer "Refeição Pré-Treino" sem treino
+//   Total kcal preservado
+
+const PRACTICAL_8_SLOTS = [
+  { slot: 'breakfast',       type: 'solid', kcal: 350, time: '07:15' }, // (0)
+  { slot: 'shake_morning',   type: 'shake', kcal: 320, time: '09:15' }, // (1)
+  { slot: 'lunch',           type: 'solid', kcal: 400, time: '11:15' }, // (2)
+  { slot: 'shake_afternoon', type: 'shake', kcal: 280, time: '13:15' }, // (3)
+  { slot: 'lunch',           type: 'solid', kcal: 320, time: '15:30' }, // (4) lunchExtra
+  { slot: 'dinner',          type: 'solid', kcal: 400, time: '17:30' }, // (5)
+  { slot: 'shake_extra',     type: 'shake', kcal: 300, time: '19:30' }, // (6)
+  { slot: 'shake_night',     type: 'shake', kcal: 290, time: '21:30' }, // (7)
+  // 350+320+400+280+320+400+300+290 = 2660 ✓
+];
+
+const ROUTINE_WAKE_0700_8P_NO_TRAIN = {
+  sleepEndTime: '07:00',
+  sleepStartTime: '23:00',
+  trainDays: 0,
+  trainStartTime: null,
+  trainEndTime: null,
+  trainFasted: false,
+  trainDurationMinutes: null,
+  mealsPerDay: 8,
+  strategy: 'practical',
+};
+
+const CENARIO_9 = {
+  form: { ...BASE_FORM },
+  profile: { ...BASE_PROFILE, mealsPerDay: 8, strategy: 'practical' },
+  routine: ROUTINE_WAKE_0700_8P_NO_TRAIN,
+  results: buildResults(PRACTICAL_8_SLOTS, ROUTINE_WAKE_0700_8P_NO_TRAIN),
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cenário 10 — Wake 07:00 / Sleep 23:00 / treino 20:00–21:30 / 7 refeições / Sólidas
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema documentado:
+//   Cascata de dedup atribui "Refeição Pré-Treino" a refeição às 16:00 (4h antes do treino)
+// Esperado após F2:
+//   "Refeição Pré-Treino" NÃO aparece (refeição demasiado longe do treino)
+//   "Jantar" visível por volta das 17:30 (última sólida antes do treino)
+
+const ROUTINE_WAKE_0700_7S_TRAIN_2000 = {
+  sleepEndTime: '07:00',
+  sleepStartTime: '23:00',
+  trainDays: 3,
+  trainStartTime: '20:00',
+  trainEndTime: '21:30',
+  trainFasted: false,
+  trainDurationMinutes: 90,
+  mealsPerDay: 7,
+  strategy: 'solid',
+};
+
+const CENARIO_10 = {
+  form: { ...BASE_FORM },
+  profile: { ...BASE_PROFILE, mealsPerDay: 7, strategy: 'solid' },
+  routine: ROUTINE_WAKE_0700_7S_TRAIN_2000,
+  results: buildResults(SOLID_7_SLOTS, ROUTINE_WAKE_0700_7S_TRAIN_2000),
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cenário 11 — Wake 18:00 / Sleep 06:00 / 6 refeições / Híbrido / sem treino
+// ─────────────────────────────────────────────────────────────────────────────
+// Esperado:
+//   "Primeira Refeição" visível como primeiro slot (nocturnal=true)
+//   "Café da Manhã" não deve aparecer
+//   Primeira refeição às 18:15 (wakeMin+15)
+//   Total kcal preservado
+
+const ROUTINE_WAKE_1800_6H_NO_TRAIN = {
+  sleepEndTime: '18:00',
+  sleepStartTime: '06:00',
+  trainDays: 0,
+  trainStartTime: null,
+  trainEndTime: null,
+  trainFasted: false,
+  trainDurationMinutes: null,
+  mealsPerDay: 6,
+  strategy: 'hybrid',
+};
+
+const CENARIO_11 = {
+  form: { ...BASE_FORM },
+  profile: { ...BASE_PROFILE, mealsPerDay: 6, strategy: 'hybrid' },
+  routine: ROUTINE_WAKE_1800_6H_NO_TRAIN,
+  results: buildResults(HYBRID_6_SLOTS, ROUTINE_WAKE_1800_6H_NO_TRAIN),
+};
+
 module.exports = {
   CENARIO_1,
   CENARIO_2,
@@ -261,4 +356,7 @@ module.exports = {
   CENARIO_6,
   CENARIO_7,
   CENARIO_8,
+  CENARIO_9,
+  CENARIO_10,
+  CENARIO_11,
 };

@@ -23,6 +23,9 @@ const {
   CENARIO_4,
   CENARIO_5,
   CENARIO_8,
+  CENARIO_9,
+  CENARIO_10,
+  CENARIO_11,
 } = require('./fixtures/scenarios');
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -192,6 +195,100 @@ test.describe('Resultados — espaçamento refeições pré-treino', () => {
       .toBeVisible();
 
     // 6. Total kcal preservado
+    await expect(
+      page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
+    ).toContainText('2660');
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Aviso de espaçamento sem treino (F1)
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema: rebuildTimesAroundTraining() retorna spacingFeedback: null no path
+// sem treino, mesmo com 8 refeições (intervalos apertados ~120 min).
+// Este teste deve FALHAR antes de F1 e PASSAR depois.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Resultados — aviso de espaçamento sem treino', () => {
+
+  test('C9 — Wake 07:00 / 8 refeições / Prático / sem treino: aviso de espaçamento visível', async ({ page }) => {
+    await injectState(page, CENARIO_9);
+    await gotoResultados(page);
+
+    // App não deve quebrar: pelo menos uma refeição visível
+    await expect(page.locator('.meal-name').first()).toBeVisible();
+
+    // Total kcal preservado
+    await expect(
+      page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
+    ).toContainText('2660');
+
+    // Nunca deve aparecer "Pré-Treino" sem treino ativo
+    await expect(page.getByText('Refeição Pré-Treino')).not.toBeVisible();
+
+    // Aviso de espaçamento deve aparecer para 8 refeições sem treino
+    // FALHA antes de F1 (spacingFeedback: null) — PASSA depois
+    await expect(page.getByText('Diagnóstico Inteligente da Rotina').first())
+      .toBeVisible();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Label pré-treino longe do treino (F2)
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema: cascata de dedup atribui "Refeição Pré-Treino" a um slot às 16:00
+// quando o treino é às 20:00 (gap de 4h — não é pré-treino).
+// Este teste deve FALHAR antes de F2 e PASSAR depois.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Resultados — label pré-treino longe do treino', () => {
+
+  test('C10 — Wake 07:00 / treino 20:00–21:30 / 7 refeições / Sólidas: sem "Refeição Pré-Treino" longe do treino', async ({ page }) => {
+    await injectState(page, CENARIO_10);
+    await gotoResultados(page);
+
+    // "Refeição Pré-Treino" não deve aparecer — nenhum slot está ≤ 3h antes do treino
+    // via cascata de dedup. FALHA antes de F2 — PASSA depois.
+    await expect(page.getByText('Refeição Pré-Treino')).not.toBeVisible();
+
+    // "Jantar" deve ser visível (última refeição sólida antes do treino, ~17:30)
+    await expect(page.getByText('Jantar').first()).toBeVisible();
+
+    // Bloco de treino visível às 20:00
+    await expect(
+      page.locator('.meal-name').filter({ hasText: /^Treino/ })
+    ).toBeVisible();
+
+    // Total kcal preservado
+    await expect(
+      page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
+    ).toContainText('2660');
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Rotina noturna sem treino
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Resultados — rotina noturna sem treino', () => {
+
+  test('C11 — Wake 18:00 / Sleep 06:00 / 6 refeições / Híbrido / sem treino: "Primeira Refeição" visível, "Café da Manhã" ausente', async ({ page }) => {
+    await injectState(page, CENARIO_11);
+    await gotoResultados(page);
+
+    // "Primeira Refeição" deve aparecer no slot de arranque (nocturnal=true)
+    await expect(page.getByText('Primeira Refeição').first()).toBeVisible();
+
+    // "Café da Manhã" não deve aparecer (nocturnal remapeia o label)
+    await expect(page.getByText('Café da Manhã')).not.toBeVisible();
+
+    // Primeira refeição às 18:15 (wakeMin + 15 min)
+    await expect(page.locator('.meal-time').first()).toHaveText('18:15');
+
+    // Total kcal preservado
     await expect(
       page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
     ).toContainText('2660');

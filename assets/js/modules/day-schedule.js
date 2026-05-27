@@ -30,9 +30,12 @@ export const SLOT_LABEL = {
  * @param {Array<Object>} slots  — cada slot deve ter pelo menos { displayLabel }
  * @returns {Array<Object>}      — mesmos slots com displayLabel final
  */
-export function applyDedupLabels(slots, { hasTraining = true } = {}) {
+export function applyDedupLabels(slots, { hasTraining = true, trainStartTime = null } = {}) {
   const seen = {};
   const emitted = {};
+  // F2: converte HH:MM → minutos. Usado para verificar proximidade ao treino.
+  const _toM = t => { if (!t) return null; const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+  const tStart = trainStartTime ? _toM(trainStartTime) : null;
   return slots.map(slot => {
     const label = slot.displayLabel;
     if (!label) return slot;
@@ -42,7 +45,14 @@ export function applyDedupLabels(slots, { hasTraining = true } = {}) {
     if (label === 'Café da Manhã' && seen[label] > 1) out = 'Lanche da Manhã';
     if (label === 'Jantar'        && seen[label] > 1) out = 'Refeição de Fim de Dia';
     emitted[out] = (emitted[out] || 0) + 1;
-    if (out === 'Refeição da Tarde' && emitted[out] > 1) out = hasTraining ? 'Refeição Pré-Treino' : 'Lanche da Tarde';
+    if (out === 'Refeição da Tarde' && emitted[out] > 1) {
+      // F2: só promove a "Refeição Pré-Treino" se o slot estiver dentro de 180 min antes do treino.
+      // Fora desse intervalo usa "Lanche da Tarde" para evitar label enganoso.
+      const slotMin = slot.time ? _toM(slot.time) : null;
+      const nearTraining = hasTraining && tStart !== null && slotMin !== null
+        && (tStart - slotMin) >= 0 && (tStart - slotMin) <= 180;
+      out = nearTraining ? 'Refeição Pré-Treino' : 'Lanche da Tarde';
+    }
     return { ...slot, displayLabel: out };
   });
 }
