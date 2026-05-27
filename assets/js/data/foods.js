@@ -24,8 +24,7 @@ export const FOODS = {
     category: 'protein',
     per100: { kcal: 143, prot: 12.6, carb: 0.7, fat: 9.5 },
     units: [
-      { label: 'unidade M', grams: 50 },
-      { label: 'unidade G', grams: 60 },
+      { label: 'ovo', grams: 50 },
     ],
     digestibility: 'leve',
     substitutes: ['clara_ovo', 'peito_frango', 'iogurte_grego'],

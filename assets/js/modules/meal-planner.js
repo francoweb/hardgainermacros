@@ -95,9 +95,15 @@ function scaleMeal(template, targetKcal, time, slotKey, displayLabel) {
     // arredonda de forma prática
     scaled = practicalRound(item.food, scaled);
     const macros = calcFoodMacros(item.food, scaled);
+    // label dinâmico para ovos (sincroniza com a quantidade escalada)
+    let label = item.label;
+    if (item.food === 'ovo_inteiro') {
+      const count = Math.round(scaled / 50);
+      label = count === 1 ? '1 ovo inteiro' : `${count} ovos inteiros`;
+    }
     return {
       food: item.food,
-      label: item.label,
+      label,
       grams: scaled,
       display: formatQty(item.food, scaled),
       macros,
@@ -136,6 +142,11 @@ function scaleMeal(template, targetKcal, time, slotKey, displayLabel) {
 function practicalRound(foodId, grams) {
   const f = FOODS[foodId];
   if (!f) return Math.round(grams);
+
+  // ovos: snap para múltiplos de 50g (1 ovo = 50g), mínimo 1 ovo
+  if (foodId === 'ovo_inteiro') {
+    return Math.max(50, Math.round(grams / 50) * 50);
+  }
 
   // líquidos: arredonda para 10ml
   if (f.category === 'dairy') {

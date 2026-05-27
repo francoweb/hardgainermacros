@@ -85,3 +85,54 @@ test.describe('Plano Alimentar — Princípios das Receitas condicional', () => 
 });
 
 // C-P3 removido: botão "Personalizar" foi removido da interface.
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: F2 — Coerência de ovos no plano (label vs. display)
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema: scaleMeal usava label estático do template ("3 ovos inteiros") mesmo
+// quando a escala produzia 2 ovos. practicalRound não snappava para múltiplo de 50.
+// Este teste deve FALHAR antes do patch F2 e PASSAR depois.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Plano Alimentar — F2: coerência de ovos', () => {
+
+  test('C-F2 — Ovos: label e display mostram a mesma quantidade', async ({ page }) => {
+    await injectState(page, CENARIO_4); // 7 refeições sólidas — activa templates com ovos
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Recolhe todos os pares (label, display) de linhas de ingredientes de ovos
+    // e verifica que o número no label coincide com o número no display.
+    const inconsistencies = await page.evaluate(() => {
+      const rows = Array.from(document.querySelectorAll('.ingredient-row, .ing-row, [data-food="ovo_inteiro"]'));
+      const results = [];
+      rows.forEach(row => {
+        const labelEl = row.querySelector('.ing-label, .ingredient-label');
+        const displayEl = row.querySelector('.ing-display, .ingredient-display, .ing-qty');
+        if (!labelEl || !displayEl) return;
+        const label = labelEl.textContent || '';
+        const display = displayEl.textContent || '';
+        if (!/ovo/i.test(label) && !/ovo/i.test(display)) return;
+        // extrai número do label e do display
+        const numLabel  = (label.match(/\d+/) || [])[0];
+        const numDisplay = (display.match(/\d+/) || [])[0];
+        if (numLabel && numDisplay && numLabel !== numDisplay) {
+          results.push({ label, display });
+        }
+      });
+      return results;
+    });
+
+    // Não deve existir nenhum par inconsistente
+    expect(inconsistencies).toHaveLength(0);
+
+    // "ovos inteiros" deve aparecer no plano (texto do label dinâmico)
+    const eggText = page.getByText(/ovos inteiros/i).first();
+    // Se existir, deve ser visível (pode não haver ovos no Dia 1 — aceitável)
+    const count = await page.getByText(/ovos inteiros/i).count();
+    if (count > 0) {
+      await expect(eggText).toBeVisible();
+    }
+  });
+
+});
