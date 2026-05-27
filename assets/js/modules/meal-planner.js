@@ -97,6 +97,14 @@ function scaleMeal(template, targetKcal, time, slotKey, displayLabel) {
     const macros = calcFoodMacros(item.food, scaled);
     // label dinâmico para ovos (sincroniza com a quantidade escalada)
     let label = item.label;
+    // Para alimentos countableUnit (frutas, tubérculos): remove adjectivos de tamanho
+    // do label do template para evitar conflito com o display ("banana média" + "banana pequena")
+    if (FOODS[item.food] && FOODS[item.food].countableUnit) {
+      label = label
+        .replace(/\b(pequ[ea]n[ao]s?|m[eé]di[ao]s?|grandes?)\b/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
     if (item.food === 'ovo_inteiro') {
       const count = Math.round(scaled / 50);
       label = count === 1 ? '1 ovo inteiro' : `${count} ovos inteiros`;

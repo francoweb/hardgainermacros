@@ -216,7 +216,11 @@ export const FOODS = {
     name: 'Batata inglesa cozida',
     category: 'carb',
     per100: { kcal: 87, prot: 1.9, carb: 20, fat: 0.1 },
-    units: [{ label: 'unidade M', grams: 150 }],
+    units: [
+      { label: 'batata pequena', grams: 100 },
+      { label: 'batata média', grams: 150 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['pure_batata', 'batata_doce_cozida', 'arroz_branco_cozido', 'cuscuz'],
     source: 'USDA',
@@ -234,7 +238,11 @@ export const FOODS = {
     name: 'Batata doce cozida',
     category: 'carb',
     per100: { kcal: 86, prot: 1.6, carb: 20, fat: 0.1 },
-    units: [{ label: 'unidade M', grams: 150 }],
+    units: [
+      { label: 'batata-doce pequena', grams: 100 },
+      { label: 'batata-doce média', grams: 150 },
+    ],
+    countableUnit: true,
     digestibility: 'media',
     substitutes: ['batata_cozida', 'pure_batata', 'mandioca_cozida'],
     source: 'USDA',
@@ -326,7 +334,11 @@ export const FOODS = {
     name: 'Banana prata madura',
     category: 'fruit',
     per100: { kcal: 98, prot: 1.3, carb: 26, fat: 0.1 },
-    units: [{ label: 'unidade M', grams: 100 }],
+    units: [
+      { label: 'banana pequena', grams: 60 },
+      { label: 'banana média', grams: 100 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['maca', 'manga', 'mamao'],
     source: 'TACO',
@@ -335,7 +347,11 @@ export const FOODS = {
     name: 'Maçã sem casca',
     category: 'fruit',
     per100: { kcal: 56, prot: 0.3, carb: 15, fat: 0.2 },
-    units: [{ label: 'unidade M', grams: 130 }],
+    units: [
+      { label: 'maçã pequena', grams: 60 },
+      { label: 'maçã média', grams: 130 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['banana_prata', 'pera', 'manga'],
     source: 'TACO',
@@ -344,7 +360,11 @@ export const FOODS = {
     name: 'Pera',
     category: 'fruit',
     per100: { kcal: 53, prot: 0.3, carb: 14, fat: 0.1 },
-    units: [{ label: 'unidade M', grams: 150 }],
+    units: [
+      { label: 'pera pequena', grams: 100 },
+      { label: 'pera média', grams: 150 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['maca', 'manga'],
     source: 'USDA',
@@ -353,7 +373,11 @@ export const FOODS = {
     name: 'Manga',
     category: 'fruit',
     per100: { kcal: 60, prot: 0.8, carb: 15, fat: 0.4 },
-    units: [{ label: 'unidade M', grams: 200 }],
+    units: [
+      { label: 'manga pequena', grams: 60 },
+      { label: 'manga média', grams: 200 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['banana_prata', 'maca'],
     source: 'USDA',
@@ -593,6 +617,33 @@ export function formatQty(foodId, grams) {
     return `${Math.round(grams)} ml`;
   }
 
+  // Para alimentos contáveis (frutas, tubérculos): escolhe a unidade que
+  // minimiza fracções impráticas, preferindo contagem inteira ≥ 1.
+  if (f.countableUnit) {
+    const candidates = f.units.filter(u => {
+      if (u.label === 'ml' || u.label === 'g') return false;
+      const c = grams / u.grams;
+      return c >= 0.5 && c <= 12;
+    });
+    if (candidates.length) {
+      const best = candidates.reduce((b, u) => {
+        const cU = grams / u.grams;
+        const rU = Math.round(cU);          // inteiro — sem fracções
+        const sU = 10 + (cU >= 1 ? 5 : 0) - Math.abs(cU - rU);
+        const cB = grams / b.grams;
+        const rB = Math.round(cB);
+        const sB = 10 + (cB >= 1 ? 5 : 0) - Math.abs(cB - rB);
+        return sU > sB ? u : b;
+      });
+      const count = grams / best.grams;
+      const rounded = Math.round(count);    // sempre inteiro
+      const actualG = Math.round(grams);
+      const exactG  = rounded * best.grams;
+      const gramsStr = actualG === exactG ? `${actualG}g` : `~${actualG}g`;
+      return `${rounded} ${pluralize(best.label, rounded)} (${gramsStr})`;
+    }
+  }
+
   // Pega a unidade mais adequada (que dê quantidade inteira próxima)
   for (const u of f.units) {
     if (u.label === 'ml' || u.label === 'g') continue;
@@ -608,6 +659,17 @@ export function formatQty(foodId, grams) {
 
 function pluralize(label, count) {
   if (count <= 1) return label;
+  // Labels compostos com código de tamanho legado (ex: "unidade P", "unidade M")
+  // — mantém o código, pluraliza só a primeira parte
+  if (/\s[A-Z]$/.test(label)) {
+    const idx = label.lastIndexOf(' ');
+    return pluralize(label.slice(0, idx), count) + label.slice(idx);
+  }
+  // Labels descritivos multi-palavra (ex: "banana pequena", "batata média")
+  // — pluraliza cada palavra individualmente
+  if (label.includes(' ')) {
+    return label.split(' ').map(w => pluralize(w, count)).join(' ');
+  }
   // pluralização simples em PT
   if (label.endsWith('ão')) return label.slice(0, -2) + 'ões';
   if (label.endsWith('ia') || label.endsWith('ade') || label.endsWith('de') || label.endsWith('ade'))

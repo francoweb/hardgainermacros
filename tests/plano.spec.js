@@ -87,6 +87,34 @@ test.describe('Plano Alimentar — Princípios das Receitas condicional', () => 
 // C-P3 removido: botão "Personalizar" foi removido da interface.
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Grupo: F3 — Frutas/tubérculos sem fracções impráticas
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema: "0.5 unidade M" para banana, batata, maçã, manga quando o slot
+// tem menos kcal que a base do template. Causa: formatQty sem unidade P.
+// Este teste deve FALHAR antes do patch F3 e PASSAR depois.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Plano Alimentar — F3: frutas/tubérculos sem fracções impráticas', () => {
+
+  test('C-F3 — Plano de 14 dias: banana e batata não aparecem como "0.5 unidade"', async ({ page }) => {
+    await injectState(page, CENARIO_4); // 7 refeições sólidas — activa templates com banana/batata
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // "0.5 unidade" não deve aparecer para nenhum ingrediente de fruta/tubérculo.
+    // FALHA antes do patch F3 — PASSA depois.
+    await expect(page.getByText(/0\.5 unidade/)).not.toBeVisible();
+
+    // Plano carregou sem quebrar
+    await expect(page.getByText('Lanche da Tarde').first()).toBeVisible();
+
+    // Total kcal preservado (macros não alteradas)
+    await expect(page.getByText('2660').first()).toBeVisible();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Grupo: F2 — Coerência de ovos no plano (label vs. display)
 // ─────────────────────────────────────────────────────────────────────────────
 // Problema: scaleMeal usava label estático do template ("3 ovos inteiros") mesmo
