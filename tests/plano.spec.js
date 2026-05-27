@@ -16,7 +16,7 @@
 
 const { test, expect } = require('@playwright/test');
 const { injectState, gotoResultados, gotoPlano } = require('./helpers/inject-state');
-const { CENARIO_6, CENARIO_7 } = require('./fixtures/scenarios');
+const { CENARIO_6, CENARIO_7, CENARIO_4 } = require('./fixtures/scenarios');
 
 // ───��─────────────────────────────────────────────────────────────────────────
 // Grupo: Plano de 14 Dias
@@ -58,6 +58,51 @@ test.describe('Plano Alimentar 14 Dias', () => {
     // Total diário 2660 kcal
     await expect(page.getByText('2660').first())
       .toBeVisible();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: P1 — "Princípios das Receitas" condicional por estratégia
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Plano Alimentar — Princípios das Receitas condicional', () => {
+
+  test('C-P1 — Estratégia Sólida: "Sistema Híbrido" ausente, texto de refeições sólidas visível', async ({ page }) => {
+    await injectState(page, CENARIO_4); // strategy: 'solid'
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // "Sistema Híbrido" não deve aparecer na secção de Princípios das Receitas
+    // FALHA antes do patch P1 — PASSA depois.
+    await expect(page.getByText(/Sistema Híbrido/)).not.toBeVisible();
+
+    // Texto de refeições sólidas deve estar visível
+    await expect(page.getByText(/Todas as refeições são sólidas/).first())
+      .toBeVisible();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: P3 — Botão "Personalizar" navega para /resultados
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Plano Alimentar — Botão Personalizar', () => {
+
+  test('C-P3 — Botão "Personalizar" navega para /resultados e não para /', async ({ page }) => {
+    await injectState(page, CENARIO_6); // qualquer cenário válido
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Clicar em "Personalizar" deve navegar para /resultados
+    // FALHA antes do patch P3 (navegava para /) — PASSA depois.
+    await page.getByRole('button', { name: /Personalizar/ }).click();
+    await page.waitForURL('**/resultados', { timeout: 5_000 });
+
+    // Confirmar que não está em /
+    expect(page.url()).toMatch(/\/resultados/);
+    expect(page.url()).not.toMatch(/\/$|\/\?/);
   });
 
 });

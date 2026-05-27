@@ -46,11 +46,22 @@ const PLAN_STRATEGY_LABEL = {
 };
 
 function render(mount, plan, results, subs) {
-  const strategyLabel = PLAN_STRATEGY_LABEL[results.routine?.strategy] || 'Sistema Híbrido';
+  const strategy = results.routine?.strategy;
+  const strategyLabel = PLAN_STRATEGY_LABEL[strategy] || 'Sistema Híbrido';
   const solidCount = countSolid(plan[0]);
   const shakeCount = countShake(plan[0]);
   const solidText = solidCount === 1 ? '1 Refeição Sólida' : `${solidCount} Refeições Sólidas`;
   const shakeText = shakeCount === 1 ? '1 Shake Anabólico' : `${shakeCount} Shakes Anabólicos`;
+
+  // P1: texto de "Princípios das Receitas" condicional por estratégia
+  const principiosText = strategy === 'solid'
+    ? 'Todas as refeições são sólidas: carboidratos de digestão leve (arroz branco, pão francês, macarrão, batata) e proteínas completas (ovos, frango, carne magra, peixe) em cada bloco. A estrutura valoriza volume e variedade para atingir o superávit calórico com comida de verdade.'
+    : 'Todas as refeições seguem o Sistema Híbrido do ebook: refeições sólidas com carboidratos de digestão leve (arroz branco, pão francês, macarrão, batata) e proteínas completas (ovos, frango, carne magra, peixe). Os shakes combinam whey, leite integral, fruta e uma fonte de gordura boa (pasta de amendoim, aveia ou azeite) para concentrar calorias.';
+
+  // P2: item 2 de "Como Aplicar" condicional por estratégia
+  const item2Text = strategy === 'solid'
+    ? '<strong>Monte a proteína antes:</strong> cozinhe frango, ovo ou carne magra com antecedência. Uma fonte de proteína pronta elimina a principal barreira das refeições sólidas.'
+    : '<strong>Shakes prontos em 2 minutos:</strong> tenha whey, leite e aveia sempre à mão. Um shake não pode ser "projeto".';
   mount.innerHTML = `
     <div class="container container-wide">
       <!-- Toolbar (escondida na impressão) -->
@@ -98,9 +109,7 @@ function render(mount, plan, results, subs) {
       <!-- Receitas base (no-print friendly) -->
       <div class="card card-section">
         <h3 class="card-title">${icons.utensils(18)} Princípios das Receitas</h3>
-        <p class="card-body">
-          Todas as refeições seguem o Sistema Híbrido do ebook: refeições sólidas com carboidratos de digestão leve (arroz branco, pão francês, macarrão, batata) e proteínas completas (ovos, frango, carne magra, peixe). Os shakes combinam whey, leite integral, fruta e uma fonte de gordura boa (pasta de amendoim, aveia ou azeite) para concentrar calorias.
-        </p>
+        <p class="card-body">${principiosText}</p>
         <p class="card-body">
           Você pode substituir qualquer ingrediente por outro da mesma categoria — basta clicar no ícone <span style="display:inline-flex; vertical-align:middle;">${icons.swap(14)}</span> ao lado do ingrediente. A substituição mantém as calorias e proporção de macros.
         </p>
@@ -108,15 +117,15 @@ function render(mount, plan, results, subs) {
 
       <!-- Lista de compras -->
       <div class="card card-section">
-        <div class="day-head" id="shopping-head" role="button" aria-expanded="false" tabindex="0">
+        <div class="day-head" id="shopping-head" role="button" aria-expanded="true" tabindex="0">
           <div class="day-num">${icons.list(18)}</div>
           <div class="day-info">
             <div class="day-name">Lista de Compras (7 Primeiros Dias)</div>
             <div class="day-summary">Agregada de todas as refeições • Quantidades aproximadas</div>
           </div>
-          <div class="day-chev">${icons.chevDown(18)}</div>
+          <div class="day-chev" style="transform:rotate(180deg)">${icons.chevDown(18)}</div>
         </div>
-        <div class="day-body" id="shopping-body" style="display:none;">
+        <div class="day-body" id="shopping-body" style="display:block;">
           ${renderShoppingList(plan.slice(0, 7))}
         </div>
       </div>
@@ -126,7 +135,7 @@ function render(mount, plan, results, subs) {
         <h3 class="card-title">${icons.target(18)} Como Aplicar Sem Falhar</h3>
         <ol class="rec-list">
           <li class="rec-item"><span class="rec-num">1</span><div><strong>Prepare com antecedência:</strong> domingo à noite, cozinhe arroz, carnes e deixe frutas cortadas. Reduz fricção nos dias de semana.</div></li>
-          <li class="rec-item"><span class="rec-num">2</span><div><strong>Shakes prontos em 2 minutos:</strong> tenha whey, leite e aveia sempre à mão. Um shake não pode ser "projeto".</div></li>
+          <li class="rec-item"><span class="rec-num">2</span><div>${item2Text}</div></li>
           <li class="rec-item"><span class="rec-num">3</span><div><strong>Coma mesmo sem fome:</strong> hardgainer come por relógio, não por apetite. 3h passou — hora do próximo ataque.</div></li>
           <li class="rec-item"><span class="rec-num">4</span><div><strong>Pese-se a cada 2 semanas:</strong> mesmo horário, estômago vazio. Ajuste ±150 kcal se sair fora da meta semanal.</div></li>
           <li class="rec-item"><span class="rec-num">5</span><div><strong>Nada é sagrado:</strong> substitua ingredientes, ajuste horários, adapte à sua vida. O que importa é atingir ${formatKcal(results.calories)} kcal por dia.</div></li>
@@ -151,7 +160,7 @@ function render(mount, plan, results, subs) {
 
   // ---------- Handlers ----------
   document.getElementById('btn-back-results').addEventListener('click', () => navigate('/resultados'));
-  document.getElementById('btn-edit-plan').addEventListener('click', () => navigate('/'));
+  document.getElementById('btn-edit-plan').addEventListener('click', () => navigate('/resultados'));
   document.getElementById('btn-print').addEventListener('click', () => exportFullPlanPDF(plan, results));
 
   // Day collapse — accordion exclusivo: apenas 1 dia aberto por vez
