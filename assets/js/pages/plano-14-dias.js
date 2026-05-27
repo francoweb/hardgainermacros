@@ -69,6 +69,7 @@ function render(mount, plan, results, subs) {
         <button type="button" class="btn btn-secondary" id="btn-back-results">${icons.arrowLeft(16)} Voltar aos Resultados</button>
         <div class="plan-toolbar-right">
           <button type="button" class="btn btn-ghost" id="btn-edit-plan">${icons.edit(16)} Personalizar</button>
+          <button type="button" class="btn btn-ghost" id="btn-print-compact">${icons.print(16)} PDF Compacto</button>
           <button type="button" class="btn btn-primary" id="btn-print">${icons.print(16)} Imprimir Plano Completo</button>
         </div>
       </div>
@@ -161,6 +162,7 @@ function render(mount, plan, results, subs) {
   // ---------- Handlers ----------
   document.getElementById('btn-back-results').addEventListener('click', () => navigate('/resultados'));
   document.getElementById('btn-edit-plan').addEventListener('click', () => navigate('/resultados'));
+  document.getElementById('btn-print-compact').addEventListener('click', () => exportCompactPlanPDF(plan, results));
   document.getElementById('btn-print').addEventListener('click', () => exportFullPlanPDF(plan, results));
 
   // Day collapse — accordion exclusivo: apenas 1 dia aberto por vez
@@ -972,4 +974,114 @@ function exportFullPlanPDF(plan, results) {
   };
   window.addEventListener('afterprint', cleanup);
   setTimeout(cleanup, 10000);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PDF Compacto
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildCompactMealHtml(meal, mealIdx) {
+  const ingsHtml = meal.ingredients.map(ing => `
+    <li class="c-ing-row">
+      <span class="c-ing-name">${ing.label || ing.food}</span>
+      <span class="c-ing-qty">${ing.display}</span>
+    </li>
+  `).join('');
+  return `
+    <div class="c-meal" data-type="${meal.type}">
+      <div class="c-meal-header">
+        <div class="c-meal-left">
+          <span class="c-meal-label">${mealIdx + 1}. ${meal.slotLabel}</span>
+          <span class="c-meal-time">${meal.time || ''}</span>
+        </div>
+        <div class="c-meal-macros">
+          <span>${meal.totals.kcal} kcal</span>
+          <span>P:${meal.totals.prot}g</span>
+          <span>C:${meal.totals.carb}g</span>
+          <span>G:${meal.totals.fat}g</span>
+        </div>
+      </div>
+      <ul class="c-ing-list">${ingsHtml}</ul>
+    </div>
+  `;
+}
+
+function exportCompactPlanPDF(plan, results) {
+  const stratLabel = PLAN_STRATEGY_LABEL[results.routine?.strategy] || results.routine?.strategy || '';
+  const profileName = results.profile?.name || '';
+  const dailyKcal = results.totals?.kcal ?? '';
+
+  const daysHtml = plan.map((day, dayIdx) => {
+    const mealsHtml = day.meals.map((meal, mealIdx) => buildCompactMealHtml(meal, mealIdx)).join('');
+    return `
+      <div class="c-day">
+        <div class="c-day-header">
+          <span class="c-day-title">Dia ${dayIdx + 1}</span>
+          <span class="c-day-macros">${day.totals.kcal} kcal · P:${day.totals.prot}g · C:${day.totals.carb}g · G:${day.totals.fat}g</span>
+        </div>
+        ${mealsHtml}
+      </div>
+    `;
+  }).join('');
+
+  const bodyHtml = `
+    <div class="cp-header">
+      <div class="cp-title">Plano Alimentar de 14 Dias — Compacto</div>
+      <div class="cp-sub">${profileName}${profileName && stratLabel ? ' · ' : ''}${stratLabel}${dailyKcal ? ' · ' + dailyKcal + ' kcal/dia' : ''}</div>
+    </div>
+    ${daysHtml}
+  `;
+
+  const css = `
+    @page { margin: 12mm; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; font-size: 9pt; color: #2b2622; background: #fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; margin: 0; padding: 0; }
+    .cp-header { background: #c26d5a; color: #fff; padding: 6px 10px; margin-bottom: 8px; border-radius: 4px; }
+    .cp-title { font-size: 13pt; font-weight: 700; }
+    .cp-sub { font-size: 9pt; margin-top: 2px; opacity: 0.92; }
+    .c-day { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 6px; page-break-inside: avoid; break-inside: avoid; }
+    .c-day-header { background: #f6f3ec; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+    .c-day-title { font-weight: 700; font-size: 10pt; color: #c26d5a; }
+    .c-day-macros { font-size: 8pt; color: #555; }
+    .c-meal { border-bottom: 1px solid #eee; padding: 3px 8px; }
+    .c-meal:last-child { border-bottom: none; }
+    .c-meal[data-type="solid"] .c-meal-label { color: #6b8e5a; }
+    .c-meal[data-type="shake"] .c-meal-label { color: #c26d5a; }
+    .c-meal-header { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; margin-bottom: 2px; }
+    .c-meal-left { display: flex; gap: 6px; align-items: baseline; }
+    .c-meal-label { font-weight: 600; font-size: 9pt; }
+    .c-meal-time { font-size: 8pt; color: #888; }
+    .c-meal-macros { font-size: 8pt; color: #555; display: flex; gap: 5px; flex-shrink: 0; }
+    .c-ing-list { list-style: none; margin: 0; padding: 0; }
+    .c-ing-row { display: flex; justify-content: space-between; font-size: 8pt; padding: 1px 0; color: #444; }
+    .c-ing-name { flex: 1; }
+    .c-ing-qty { flex-shrink: 0; margin-left: 6px; color: #666; }
+  `;
+
+  // Iframe isolado — o DOM principal nunca é tocado
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;visibility:hidden;';
+  document.body.appendChild(iframe);
+
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    window.removeEventListener('afterprint', cleanup);
+    try { iframe.contentWindow.removeEventListener('afterprint', cleanup); } catch (_) {}
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  };
+
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+  iframeDoc.open();
+  iframeDoc.write(`<!DOCTYPE html><html><head><style>${css}</style></head><body>${bodyHtml}</body></html>`);
+  iframeDoc.close();
+
+  // Registar listeners ANTES de print() para garantir que o evento é apanhado
+  iframe.contentWindow.addEventListener('afterprint', cleanup);
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(cleanup, 30000);
+
+  iframe.contentWindow.focus();
+  iframe.contentWindow.print();
 }
