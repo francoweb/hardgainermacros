@@ -347,6 +347,21 @@ const CENARIO_11 = {
   results: buildResults(HYBRID_6_SLOTS, ROUTINE_WAKE_1800_6H_NO_TRAIN),
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Cenário 12 — Wake 07:00 / Sleep 23:00 / treino 20:00–21:30 / 7 refeições / Sólidas
+// (mesmo estado que C10 — investiga o pós-treino e o override sleepMin-90)
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema documentado (F3):
+//   spaceTimes calcula pós-treino natural às 22:15 (com POST_BUFFER=20 min)
+//   mas postTimes[last] = roundQ(sleepMin-90) = roundQ(1290) = 21:30
+//   recua o shake para o exato momento em que o treino termina (sem buffer).
+//   Além disso, shake_night não recebe label "Refeição Pós-Treino" porque
+//   startsWith('shake') pula a verificação de trainEndTime.
+// Esperado após F3:
+//   Shake (ou refeição) às 22:xx (com buffer real após o treino)
+//   Label adequado para o slot pós-treino
+const CENARIO_12 = CENARIO_10; // wake 07:00, 7S, sólidas, treino 20:00–21:30
+
 module.exports = {
   CENARIO_1,
   CENARIO_2,
@@ -359,4 +374,5 @@ module.exports = {
   CENARIO_9,
   CENARIO_10,
   CENARIO_11,
+  CENARIO_12,
 };

@@ -1462,8 +1462,13 @@ function rebuildTimesAroundTraining(slots, routine) {
     const preAnchor   = roundQ(tStart - preBuffer);
 
     const postTimes = spaceTimes(tEndAdj + POST_BUFFER, effectiveDayEnd, nPost, slots.slice(nPre).map(slotDur));
-    if (postTimes.length > 0)
-      postTimes[postTimes.length - 1] = roundQ(sleepMin - 90);
+    if (postTimes.length > 0) {
+      const nudged = roundQ(sleepMin - 90);
+      // Só faz nudge se não recuar o slot para antes do fim do treino + buffer pós.
+      // Evita colapso do pós-treino para o horário exacto do fim do treino (sem buffer).
+      if (nudged > tEndAdj + POST_BUFFER)
+        postTimes[postTimes.length - 1] = nudged;
+    }
 
     let preTimes;
     if (nPre === 0) {

@@ -26,6 +26,7 @@ const {
   CENARIO_9,
   CENARIO_10,
   CENARIO_11,
+  CENARIO_12,
 } = require('./fixtures/scenarios');
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -292,6 +293,53 @@ test.describe('Resultados — rotina noturna sem treino', () => {
     await expect(
       page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
     ).toContainText('2660');
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: F3 — pós-treino noturno sem buffer
+// ─────────────────────────────────────────────────────────────────────────────
+// Problema: rebuildTimesAroundTraining() faz
+//   postTimes[last] = roundQ(sleepMin - 90)
+// que para Wake 07:00 / Sleep 23:00 / Treino 20:00–21:30 produz
+//   roundQ(1380 - 90) = roundQ(1290) = 21:30
+// colapsando o shake pós-treino para o momento exato em que o treino acaba
+// (sem qualquer buffer), em vez do valor natural spaceTimes ≈ 22:15.
+// Além disso, shake_night salta a atribuição de "Refeição Pós-Treino" porque
+// getDisplayMealLabel() só aplica trainEndTime a slots que NÃO começam por 'shake'.
+// Este teste deve FALHAR antes do patch F3 e PASSAR depois.
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Resultados — F3: pós-treino noturno sem buffer', () => {
+
+  test('C12 — Wake 07:00 / treino 20:00–21:30 / 7 refeições / Sólidas: pós-treino com buffer após fim do treino', async ({ page }) => {
+    await injectState(page, CENARIO_12);
+    await gotoResultados(page);
+
+    // Bloco de treino visível às 20:00
+    await expect(
+      page.locator('.meal-name').filter({ hasText: /^Treino/ })
+    ).toBeVisible();
+    await expect(page.getByText('20:00', { exact: true })).toBeVisible();
+
+    // "Refeição Pré-Treino" não deve aparecer (treino às 20:00 — F2 já trata)
+    await expect(page.getByText('Refeição Pré-Treino')).not.toBeVisible();
+
+    // "Jantar" deve ser visível (última refeição antes do treino)
+    await expect(page.getByText('Jantar').first()).toBeVisible();
+
+    // Total kcal preservado
+    await expect(
+      page.locator('.macro-val').filter({ hasText: 'kcal/dia' })
+    ).toContainText('2660');
+
+    // FALHA antes do patch F3:
+    // O shake pós-treino deve aparecer DEPOIS das 22:00 (com buffer ≥ 20 min após 21:30).
+    // Antes do patch é forçado para 21:30 (= fim do treino, sem buffer).
+    await expect(
+      page.locator('.meal-time').filter({ hasText: /^22:/ })
+    ).toBeVisible();
   });
 
 });
