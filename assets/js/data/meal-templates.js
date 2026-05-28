@@ -30,20 +30,20 @@ export const MEAL_TEMPLATES = {
     type: 'solid',
     baseKcal: 680,
     items: [
-      { food: 'ovo_inteiro', grams: 150, label: '3 ovos inteiros (mexidos)' },
-      { food: 'pao_frances', grams: 100, label: 'Pão francês branco' },
-      { food: 'banana_prata', grams: 100, label: 'Banana prata média (madura)' },
+      { food: 'ovo_inteiro', grams: 150, label: '3 ovos inteiros' },
+      { food: 'pao_frances', grams: 100, label: 'Pão branco (pão francês)' },
+      { food: 'banana_prata', grams: 100, label: 'Banana madura' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
       { food: 'leite_integral', grams: 200, label: 'Leite integral' },
     ],
     steps: [
-      'Bata ou mexa os ovos e prepare uma omelete simples.',
+      'Mexa os ovos em frigideira antiaderente até cozinharem.',
       'Torre o pão se desejar.',
       'Passe a pasta de amendoim no pão.',
       'Corte a banana em rodelas.',
       'Sirva tudo junto com o leite (pode adicionar café).',
     ],
-    note: 'Se preferir, substitua os ovos por omelete simples. O pão branco digere mais rápido que o integral.',
+    note: 'O pão branco digere mais rápido que o integral.',
     profileTags: ['classico', 'apetite_baixo', 'rotina_corrida'],
   },
   cafe_tapioca: {
@@ -56,7 +56,7 @@ export const MEAL_TEMPLATES = {
       { food: 'tapioca', grams: 50, label: 'Tapioca (goma hidratada)' },
       { food: 'ovo_inteiro', grams: 100, label: '2 ovos inteiros' },
       { food: 'queijo_branco', grams: 30, label: 'Queijo branco' },
-      { food: 'banana_prata', grams: 100, label: 'Banana prata' },
+      { food: 'banana_prata', grams: 100, label: 'Banana madura' },
       { food: 'leite_integral', grams: 200, label: 'Leite integral' },
     ],
     steps: [
@@ -76,7 +76,7 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'aveia_flocos', grams: 60, label: 'Aveia em flocos finos' },
       { food: 'leite_integral', grams: 300, label: 'Leite integral' },
-      { food: 'banana_prata', grams: 100, label: 'Banana prata' },
+      { food: 'banana_prata', grams: 100, label: 'Banana madura' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
       { food: 'mel', grams: 20, label: 'Mel' },
     ],
@@ -96,7 +96,7 @@ export const MEAL_TEMPLATES = {
     type: 'solid',
     baseKcal: 650,
     items: [
-      { food: 'pao_frances', grams: 100, label: 'Pão francês' },
+      { food: 'pao_frances', grams: 100, label: 'Pão branco (pão francês)' },
       { food: 'ovo_inteiro', grams: 100, label: '2 ovos inteiros' },
       { food: 'queijo_branco', grams: 30, label: 'Queijo branco' },
       { food: 'maca', grams: 130, label: 'Maçã' },
@@ -119,7 +119,7 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'iogurte_grego', grams: 200, label: 'Iogurte grego natural' },
       { food: 'aveia_flocos', grams: 30, label: 'Aveia em flocos finos' },
-      { food: 'banana_prata', grams: 100, label: 'Banana prata' },
+      { food: 'banana_prata', grams: 100, label: 'Banana madura' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
       { food: 'mel', grams: 20, label: 'Mel' },
     ],
@@ -141,7 +141,7 @@ export const MEAL_TEMPLATES = {
     baseKcal: 520,
     items: [
       { food: 'leite_integral', grams: 300, label: 'Leite integral' },
-      { food: 'banana_prata', grams: 120, label: 'Banana prata madura' },
+      { food: 'banana_prata', grams: 120, label: 'Banana madura' },
       { food: 'aveia_flocos', grams: 30, label: 'Aveia em flocos finos' },
       { food: 'mel', grams: 20, label: 'Mel' },
       { food: 'whey', grams: 30, label: 'Whey protein (1 scoop)' },
@@ -162,7 +162,7 @@ export const MEAL_TEMPLATES = {
     baseKcal: 500,
     items: [
       { food: 'leite_integral', grams: 300, label: 'Leite integral' },
-      { food: 'banana_prata', grams: 120, label: 'Banana prata' },
+      { food: 'banana_prata', grams: 120, label: 'Banana madura' },
       { food: 'cacau_po', grams: 8, label: 'Cacau em pó' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
       { food: 'whey', grams: 30, label: 'Whey (1 scoop)' },
@@ -186,7 +186,7 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'peito_frango', grams: 150, label: 'Peito de frango grelhado' },
       { food: 'arroz_branco_cozido', grams: 150, label: 'Arroz branco cozido' },
-      { food: 'batata_cozida', grams: 120, label: 'Batata inglesa cozida' },
+      { food: 'batata_cozida', grams: 120, label: 'Batata inglesa cozida (batata branca simples)' },
       { food: 'feijao_carioca', grams: 80, label: 'Feijão carioca cozido' },
       { food: 'salada_mista', grams: 100, label: 'Salada (alface, tomate)' },
       { food: 'azeite', grams: 9, label: 'Azeite de oliva' },
@@ -408,7 +408,7 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'ovo_inteiro', grams: 150, label: '3 ovos inteiros' },
       { food: 'queijo_branco', grams: 40, label: 'Queijo branco' },
-      { food: 'pao_frances', grams: 100, label: 'Pão francês' },
+      { food: 'pao_frances', grams: 100, label: 'Pão branco (pão francês)' },
       { food: 'salada_mista', grams: 80, label: 'Salada mista' },
       { food: 'azeite', grams: 9, label: 'Azeite de oliva' },
     ],
@@ -474,7 +474,7 @@ export const MEAL_TEMPLATES = {
       { food: 'leite_integral', grams: 250, label: 'Leite integral' },
       { food: 'iogurte_grego', grams: 100, label: 'Iogurte grego' },
       { food: 'whey', grams: 30, label: 'Whey (1 scoop)' },
-      { food: 'banana_prata', grams: 80, label: 'Banana pequena' },
+      { food: 'banana_prata', grams: 80, label: 'Banana madura' },
       { food: 'pasta_amendoim', grams: 14, label: 'Pasta de amendoim' },
     ],
     steps: [

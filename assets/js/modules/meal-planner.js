@@ -95,7 +95,6 @@ function scaleMeal(template, targetKcal, time, slotKey, displayLabel) {
     // arredonda de forma prática
     scaled = practicalRound(item.food, scaled);
     const macros = calcFoodMacros(item.food, scaled);
-    // label dinâmico para ovos (sincroniza com a quantidade escalada)
     let label = item.label;
     // Para alimentos countableUnit (frutas, tubérculos): remove adjectivos de tamanho
     // do label do template para evitar conflito com o display ("banana média" + "banana pequena")
@@ -105,15 +104,31 @@ function scaleMeal(template, targetKcal, time, slotKey, displayLabel) {
         .replace(/\s+/g, ' ')
         .trim();
     }
+
+    let display = formatQty(item.food, scaled);
+
+    // Ovos: linha principal = preparação; linha secundária = ingrediente com tamanho
     if (item.food === 'ovo_inteiro') {
       const count = Math.round(scaled / 50);
-      label = count === 1 ? '1 ovo inteiro' : `${count} ovos inteiros`;
+      const totalG = Math.round(scaled);
+      const gPerEgg = count > 0 ? totalG / count : 50;
+      const adj = gPerEgg <= 45
+        ? (count === 1 ? 'pequeno' : 'pequenos')
+        : gPerEgg <= 55
+          ? (count === 1 ? 'médio' : 'médios')
+          : (count === 1 ? 'grande' : 'grandes');
+      const eggWord = count === 1 ? 'ovo' : 'ovos';
+      // label = preparação (linha em destaque)
+      label = count === 1 ? '1 ovo mexido' : `${count} ovos mexidos`;
+      // display = ingrediente real com tamanho (linha secundária)
+      display = `${count} ${eggWord} inteiros ${adj} sem casca (${totalG}g)`;
     }
+
     return {
       food: item.food,
       label,
       grams: scaled,
-      display: formatQty(item.food, scaled),
+      display,
       macros,
     };
   });

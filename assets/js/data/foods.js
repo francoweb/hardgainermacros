@@ -97,7 +97,7 @@ export const FOODS = {
     name: 'Whey protein',
     category: 'protein',
     per100: { kcal: 380, prot: 75, carb: 10, fat: 5 },
-    units: [{ label: 'scoop', grams: 30 }],
+    units: [{ label: 'scoop', grams: 30, halfLabel: 'meio scoop', halfSuffix: ' e meio' }],
     digestibility: 'leve',
     substitutes: ['leite_po', 'iogurte_grego'],
     source: 'rotulo',
@@ -213,7 +213,7 @@ export const FOODS = {
     source: 'USDA',
   },
   batata_cozida: {
-    name: 'Batata inglesa cozida',
+    name: 'Batata inglesa cozida (batata branca simples)',
     category: 'carb',
     per100: { kcal: 87, prot: 1.9, carb: 20, fat: 0.1 },
     units: [
@@ -284,7 +284,7 @@ export const FOODS = {
     source: 'TACO',
   },
   pao_frances: {
-    name: 'Pão francês',
+    name: 'Pão branco (pão francês)',
     category: 'carb',
     per100: { kcal: 300, prot: 8, carb: 58, fat: 3 },
     units: [{ label: 'unidade', grams: 50 }],
@@ -331,7 +331,7 @@ export const FOODS = {
 
   /* ============================== FRUTAS ============================== */
   banana_prata: {
-    name: 'Banana prata madura',
+    name: 'Banana madura',
     category: 'fruit',
     per100: { kcal: 98, prot: 1.3, carb: 26, fat: 0.1 },
     units: [
@@ -406,7 +406,11 @@ export const FOODS = {
     name: 'Azeite de oliva',
     category: 'fat',
     per100: { kcal: 884, prot: 0, carb: 0, fat: 100 },
-    units: [{ label: 'colher de sopa', grams: 9 }],
+    units: [
+      { label: 'colher de chá', grams: 5, maxCount: 1 },
+      { label: 'colher de sopa', grams: 12 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['oleo_coco'],
     source: 'USDA',
@@ -424,7 +428,11 @@ export const FOODS = {
     name: 'Pasta de amendoim',
     category: 'fat',
     per100: { kcal: 588, prot: 25, carb: 20, fat: 50 },
-    units: [{ label: 'colher de sopa', grams: 16 }],
+    units: [
+      { label: 'colher de chá', grams: 5, maxCount: 2 },
+      { label: 'colher de sopa', grams: 16 },
+    ],
+    countableUnit: true,
     digestibility: 'media',
     substitutes: ['pasta_amendoa', 'pasta_castanha_caju', 'abacate'],
     source: 'USDA',
@@ -433,7 +441,11 @@ export const FOODS = {
     name: 'Pasta de amêndoa',
     category: 'fat',
     per100: { kcal: 614, prot: 21, carb: 19, fat: 55 },
-    units: [{ label: 'colher de sopa', grams: 16 }],
+    units: [
+      { label: 'colher de chá', grams: 5, maxCount: 2 },
+      { label: 'colher de sopa', grams: 16 },
+    ],
+    countableUnit: true,
     digestibility: 'media',
     substitutes: ['pasta_amendoim', 'pasta_castanha_caju'],
     source: 'USDA',
@@ -442,7 +454,11 @@ export const FOODS = {
     name: 'Pasta de castanha de caju',
     category: 'fat',
     per100: { kcal: 590, prot: 18, carb: 27, fat: 47 },
-    units: [{ label: 'colher de sopa', grams: 16 }],
+    units: [
+      { label: 'colher de chá', grams: 5, maxCount: 2 },
+      { label: 'colher de sopa', grams: 16 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['pasta_amendoim', 'pasta_amendoa'],
     source: 'USDA',
@@ -509,7 +525,12 @@ export const FOODS = {
     name: 'Mel',
     category: 'extra',
     per100: { kcal: 304, prot: 0.3, carb: 82, fat: 0 },
-    units: [{ label: 'colher de sopa', grams: 20 }, { label: 'colher de chá', grams: 7 }],
+    units: [
+      { label: 'colher de chá',       grams: 7,  maxCount: 2 },
+      { label: 'colher de sobremesa', grams: 10, maxCount: 2 },
+      { label: 'colher de sopa',      grams: 20 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: ['acucar_mascavo'],
     source: 'USDA',
@@ -527,7 +548,11 @@ export const FOODS = {
     name: 'Cacau em pó',
     category: 'extra',
     per100: { kcal: 228, prot: 20, carb: 58, fat: 14 },
-    units: [{ label: 'colher de sopa', grams: 8 }],
+    units: [
+      { label: 'colher de chá', grams: 4, maxCount: 1 },
+      { label: 'colher de sopa', grams: 8 },
+    ],
+    countableUnit: true,
     digestibility: 'leve',
     substitutes: [],
     source: 'USDA',
@@ -623,7 +648,8 @@ export function formatQty(foodId, grams) {
     const candidates = f.units.filter(u => {
       if (u.label === 'ml' || u.label === 'g') return false;
       const c = grams / u.grams;
-      return c >= 0.5 && c <= 12;
+      const max = u.maxCount || 12;
+      return c >= 0.5 && c <= max;
     });
     if (candidates.length) {
       const best = candidates.reduce((b, u) => {
@@ -633,7 +659,9 @@ export function formatQty(foodId, grams) {
         const cB = grams / b.grams;
         const rB = Math.round(cB);
         const sB = 10 + (cB >= 1 ? 5 : 0) - Math.abs(cB - rB);
-        return sU > sB ? u : b;
+        if (sU > sB) return u;
+        if (sU === sB) return rU < rB ? u : b; // empate: menor contagem (mais simples)
+        return b;
       });
       const count = grams / best.grams;
       const rounded = Math.round(count);    // sempre inteiro
@@ -650,6 +678,14 @@ export function formatQty(foodId, grams) {
     const count = grams / u.grams;
     if (count >= 0.5 && count <= 12) {
       const rounded = Math.round(count * 2) / 2; // arredonda para 0.5
+      // Metades com linguagem humana (ex: "meio scoop", "1 scoop e meio")
+      if (rounded % 1 !== 0 && u.halfLabel) {
+        const whole = Math.floor(rounded);
+        const display = whole === 0
+          ? u.halfLabel
+          : `${whole} ${pluralize(u.label, whole)}${u.halfSuffix || ' e meio'}`;
+        return `${display} (${Math.round(grams)}g)`;
+      }
       const display = rounded % 1 === 0 ? rounded : rounded.toFixed(1);
       return `${display} ${pluralize(u.label, rounded)} (${Math.round(grams)}g)`;
     }
@@ -665,6 +701,12 @@ function pluralize(label, count) {
     const idx = label.lastIndexOf(' ');
     return pluralize(label.slice(0, idx), count) + label.slice(idx);
   }
+  // Compostos preposicionais (ex: "colher de sopa", "colher de chá")
+  // — só pluraliza a palavra antes da preposição
+  if (label.includes(' ')) {
+    const prepMatch = label.match(/^(\S+)(\s+d[eoa]\s.+)$/);
+    if (prepMatch) return pluralize(prepMatch[1], count) + prepMatch[2];
+  }
   // Labels descritivos multi-palavra (ex: "banana pequena", "batata média")
   // — pluraliza cada palavra individualmente
   if (label.includes(' ')) {
@@ -674,6 +716,7 @@ function pluralize(label, count) {
   if (label.endsWith('ão')) return label.slice(0, -2) + 'ões';
   if (label.endsWith('ia') || label.endsWith('ade') || label.endsWith('de') || label.endsWith('ade'))
     return label + 's';
+  if (label.endsWith('r')) return label + 'es';  // colher → colheres
   if (label.endsWith('a') || label.endsWith('e') || label.endsWith('o')) return label + 's';
   if (label.endsWith('l')) return label.slice(0, -1) + 'is';
   return label + 's';
