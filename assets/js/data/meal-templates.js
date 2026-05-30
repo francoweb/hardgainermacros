@@ -74,7 +74,7 @@ export const MEAL_TEMPLATES = {
     type: 'solid',
     baseKcal: 640,
     items: [
-      { food: 'aveia_flocos', grams: 60, label: 'Aveia em flocos finos' },
+      { food: 'aveia_flocos', grams: 60, label: 'Flocos de aveia finos' },
       { food: 'leite_integral', grams: 300, label: 'Leite integral' },
       { food: 'banana_prata', grams: 100, label: 'Banana madura' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
@@ -118,7 +118,7 @@ export const MEAL_TEMPLATES = {
     baseKcal: 600,
     items: [
       { food: 'iogurte_grego', grams: 200, label: 'Iogurte grego natural' },
-      { food: 'aveia_flocos', grams: 30, label: 'Aveia em flocos finos' },
+      { food: 'aveia_flocos', grams: 30, label: 'Flocos de aveia finos' },
       { food: 'banana_prata', grams: 100, label: 'Banana madura' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
       { food: 'mel', grams: 20, label: 'Mel' },
@@ -142,16 +142,16 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'leite_integral', grams: 300, label: 'Leite integral' },
       { food: 'banana_prata', grams: 120, label: 'Banana madura' },
-      { food: 'aveia_flocos', grams: 30, label: 'Aveia em flocos finos' },
+      { food: 'aveia_flocos', grams: 30, label: 'Flocos de aveia finos' },
       { food: 'mel', grams: 20, label: 'Mel' },
-      { food: 'whey', grams: 30, label: 'Whey protein (1 scoop)' },
+      { food: 'whey', grams: 30, label: 'Proteína whey' },
     ],
     steps: [
       'Coloque todos os ingredientes no liquidificador.',
       'Bata por 30 segundos até ficar cremoso.',
       'Consuma imediatamente.',
     ],
-    note: 'A aveia fina mistura melhor. Se estiver muito grosso, adicione mais leite.',
+    note: 'Os flocos de aveia finos misturam melhor. Se estiver muito grosso, adicione mais leite.',
     profileTags: ['classico', 'apetite_baixo', 'ultra_acelerado', 'volume_baixo'],
   },
   shake_choco_banana: {
@@ -165,7 +165,7 @@ export const MEAL_TEMPLATES = {
       { food: 'banana_prata', grams: 120, label: 'Banana madura' },
       { food: 'cacau_po', grams: 8, label: 'Cacau em pó' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
-      { food: 'whey', grams: 30, label: 'Whey (1 scoop)' },
+      { food: 'whey', grams: 30, label: 'Proteína whey' },
       { food: 'mel', grams: 14, label: 'Mel' },
     ],
     steps: [
@@ -208,10 +208,10 @@ export const MEAL_TEMPLATES = {
     type: 'solid',
     baseKcal: 740,
     items: [
-      { food: 'carne_moida', grams: 150, label: 'Carne moída magra (patinho)' },
+      { food: 'carne_moida', grams: 150, label: 'Carne moída (carne picada)' },
       { food: 'arroz_branco_cozido', grams: 150, label: 'Arroz branco cozido' },
       { food: 'pure_batata', grams: 120, label: 'Purê de batata' },
-      { food: 'abobrinha', grams: 100, label: 'Abobrinha refogada' },
+      { food: 'abobrinha', grams: 100, label: 'Abobrinha refogada (curgete)' },
       { food: 'azeite', grams: 9, label: 'Azeite de oliva' },
     ],
     steps: [
@@ -253,7 +253,7 @@ export const MEAL_TEMPLATES = {
     type: 'solid',
     baseKcal: 750,
     items: [
-      { food: 'macarrao_cozido', grams: 200, label: 'Macarrão cozido al dente' },
+      { food: 'macarrao_cozido', grams: 200, label: 'Macarrão al dente (massa cozida)' },
       { food: 'peito_frango', grams: 140, label: 'Peito de frango em cubos' },
       { food: 'molho_tomate', grams: 60, label: 'Molho de tomate simples' },
       { food: 'salada_mista', grams: 100, label: 'Salada (alface, tomate)' },
@@ -303,7 +303,7 @@ export const MEAL_TEMPLATES = {
       { food: 'abacate', grams: 60, label: '½ abacate pequeno' },
       { food: 'maca', grams: 130, label: 'Maçã sem casca' },
       { food: 'pasta_amendoim', grams: 16, label: 'Pasta de amendoim' },
-      { food: 'mel', grams: 7, label: 'Mel (1 colher de chá)' },
+      { food: 'mel', grams: 7, label: 'Mel' },
     ],
     steps: [
       'Corte o abacate e a maçã em pedaços.',
@@ -321,9 +321,9 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'leite_integral', grams: 250, label: 'Leite integral' },
       { food: 'manga', grams: 150, label: 'Manga madura' },
-      { food: 'aveia_flocos', grams: 25, label: 'Aveia fina' },
+      { food: 'aveia_flocos', grams: 25, label: 'Flocos de aveia finos' },
       { food: 'pasta_amendoa', grams: 16, label: 'Pasta de amêndoa' },
-      { food: 'whey', grams: 20, label: 'Whey (meio scoop)' },
+      { food: 'whey', grams: 15, label: 'Proteína whey' },
     ],
     steps: [
       'Corte a manga em pedaços.',
@@ -341,10 +341,10 @@ export const MEAL_TEMPLATES = {
     type: 'solid',
     baseKcal: 650,
     items: [
-      { food: 'carne_moida', grams: 130, label: 'Carne moída magra' },
-      { food: 'macarrao_cozido', grams: 180, label: 'Macarrão cozido' },
+      { food: 'carne_moida', grams: 130, label: 'Carne moída (carne picada)' },
+      { food: 'macarrao_cozido', grams: 180, label: 'Macarrão cozido (massa cozida)' },
       { food: 'molho_tomate', grams: 60, label: 'Molho de tomate' },
-      { food: 'brocolis', grams: 80, label: 'Legumes cozidos (brócolis, abobrinha)' },
+      { food: 'brocolis', grams: 80, label: 'Legumes cozidos (brócolis, abobrinha/curgete)' },
       { food: 'azeite', grams: 9, label: 'Azeite de oliva' },
     ],
     steps: [
@@ -366,7 +366,7 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'peito_frango', grams: 150, label: 'Peito de frango grelhado' },
       { food: 'arroz_branco_cozido', grams: 150, label: 'Arroz branco' },
-      { food: 'abobrinha', grams: 100, label: 'Abobrinha refogada' },
+      { food: 'abobrinha', grams: 100, label: 'Abobrinha refogada (curgete)' },
       { food: 'azeite', grams: 12, label: 'Azeite de oliva' },
     ],
     steps: [
@@ -451,9 +451,9 @@ export const MEAL_TEMPLATES = {
     baseKcal: 475,
     items: [
       { food: 'leite_integral', grams: 280, label: 'Leite integral morno' },
-      { food: 'aveia_flocos', grams: 40, label: 'Aveia em flocos finos' },
+      { food: 'aveia_flocos', grams: 40, label: 'Flocos de aveia finos' },
       { food: 'cacau_po', grams: 8, label: 'Cacau em pó' },
-      { food: 'mel', grams: 20, label: 'Mel (1 colher de sopa)' },
+      { food: 'mel', grams: 20, label: 'Mel' },
       { food: 'canela', grams: 2, label: 'Canela em pó' },
     ],
     steps: [
@@ -473,7 +473,7 @@ export const MEAL_TEMPLATES = {
     items: [
       { food: 'leite_integral', grams: 250, label: 'Leite integral' },
       { food: 'iogurte_grego', grams: 100, label: 'Iogurte grego' },
-      { food: 'whey', grams: 30, label: 'Whey (1 scoop)' },
+      { food: 'whey', grams: 30, label: 'Proteína whey' },
       { food: 'banana_prata', grams: 80, label: 'Banana madura' },
       { food: 'pasta_amendoim', grams: 14, label: 'Pasta de amendoim' },
     ],

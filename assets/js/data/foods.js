@@ -49,7 +49,7 @@ export const FOODS = {
     source: 'USDA',
   },
   carne_moida: {
-    name: 'Carne moída magra (patinho)',
+    name: 'Carne moída (carne picada)',
     category: 'protein',
     per100: { kcal: 170, prot: 21.5, carb: 0, fat: 9 },
     units: [{ label: 'porção média', grams: 120 }],
@@ -94,7 +94,7 @@ export const FOODS = {
     source: 'rotulo',
   },
   whey: {
-    name: 'Whey protein',
+    name: 'Proteína whey',
     category: 'protein',
     per100: { kcal: 380, prot: 75, carb: 10, fat: 5 },
     units: [{ label: 'scoop', grams: 30, halfLabel: 'meio scoop', halfSuffix: ' e meio' }],
@@ -204,7 +204,7 @@ export const FOODS = {
     source: 'USDA',
   },
   macarrao_cozido: {
-    name: 'Macarrão cozido',
+    name: 'Macarrão cozido (massa cozida)',
     category: 'carb',
     per100: { kcal: 157, prot: 5.8, carb: 30.9, fat: 0.9 },
     units: [{ label: 'xícara', grams: 140 }],
@@ -302,7 +302,7 @@ export const FOODS = {
     source: 'USDA',
   },
   aveia_flocos: {
-    name: 'Aveia em flocos finos',
+    name: 'Flocos de aveia finos',
     category: 'carb',
     per100: { kcal: 389, prot: 16.9, carb: 66.3, fat: 6.9 },
     units: [{ label: 'colher de sopa', grams: 15 }],
@@ -493,7 +493,7 @@ export const FOODS = {
     source: 'USDA',
   },
   abobrinha: {
-    name: 'Abobrinha cozida',
+    name: 'Abobrinha cozida (curgete)',
     category: 'veg',
     per100: { kcal: 17, prot: 1.2, carb: 3.1, fat: 0.3 },
     units: [{ label: 'porção', grams: 100 }],
