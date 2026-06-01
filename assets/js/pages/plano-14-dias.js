@@ -36,7 +36,7 @@ export function renderPlanoPage(mount) {
   // Aplicar substituições ao plano (cria plano efetivo)
   const effectivePlan = applySubstitutions(plan, subs);
 
-  render(mount, effectivePlan, results, subs);
+  render(mount, effectivePlan, results, subs, plan);
 }
 
 const PLAN_STRATEGY_LABEL = {
@@ -45,7 +45,7 @@ const PLAN_STRATEGY_LABEL = {
   practical: 'Máxima Praticidade',
 };
 
-function render(mount, plan, results, subs) {
+function render(mount, plan, results, subs, originalPlan) {
   const strategy = results.routine?.strategy;
   const strategyLabel = PLAN_STRATEGY_LABEL[strategy] || 'Sistema Híbrido';
   const solidCount = countSolid(plan[0]);
@@ -103,7 +103,7 @@ function render(mount, plan, results, subs) {
 
       <!-- Days -->
       <div id="days-container">
-        ${plan.map((day, idx) => renderDayCard(day, idx)).join('')}
+        ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories)).join('')}
       </div>
 
       <!-- Receitas base (no-print friendly) -->
@@ -222,6 +222,23 @@ function render(mount, plan, results, subs) {
     });
   });
 
+  // Revert buttons — inline nos ingredientes já substituídos
+  mount.querySelectorAll('[data-revert]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx, ingIdx } = btn.dataset;
+      let currentSubs = loadSubstitutions();
+      const subKey = `${dayIdx}:${mealIdx}:${ingIdx}`;
+      if (currentSubs[subKey]) {
+        delete currentSubs[subKey];
+        saveSubstitutions(currentSubs);
+      }
+      const freshPlan = loadPlan();
+      const newPlan = applySubstitutions(freshPlan, currentSubs);
+      render(mount, newPlan, loadResults(), currentSubs, freshPlan);
+    });
+  });
+
   // PDF por dia — abre popup limpa com apenas o dia selecionado
   mount.querySelectorAll('[data-pdf-day]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -280,8 +297,37 @@ function render(mount, plan, results, subs) {
 /* Day card rendering                                                           */
 /* ============================================================================ */
 
-function renderDayCard(day, idx) {
+function renderDayCard(day, idx, subs, originalDay, targetKcal) {
   const isOpen = idx === 0;
+  const dayHasSubs = Object.keys(subs || {}).some(k => k.startsWith(`${idx}:`));
+  const origT = originalDay?.totals;
+  const curT = day.totals;
+  let dayCompBlock = '';
+  if (dayHasSubs && origT) {
+    const dKcal = curT.kcal - origT.kcal;
+    const dProt = Math.round(curT.prot) - Math.round(origT.prot);
+    const dCarb = Math.round(curT.carb) - Math.round(origT.carb);
+    const dFat  = Math.round(curT.fat)  - Math.round(origT.fat);
+    const withinGoal = targetKcal ? isWithinGoalTolerance(curT.kcal, targetKcal) : true;
+    const statusCls  = withinGoal ? 'day-comp-status day-comp-ok'  : 'day-comp-status day-comp-warn';
+    const statusTxt  = withinGoal ? 'Dentro do objetivo ✅' : 'Atenção: fora da margem ⚠️';
+    dayCompBlock = `
+      <div class="day-comparison-block no-print" data-testid="day-comp-block">
+        <div class="day-comp-row day-comp-row-current">
+          <span class="day-comp-lbl">Com substituições</span>
+          <span class="day-comp-vals" data-testid="day-current-totals">${curT.kcal} kcal • P:${Math.round(curT.prot)}g • C:${Math.round(curT.carb)}g • G:${Math.round(curT.fat)}g</span>
+        </div>
+        <div class="day-comp-row day-comp-row-orig">
+          <span class="day-comp-lbl">Original</span>
+          <span class="day-comp-vals" data-testid="day-original-totals">${origT.kcal} kcal • P:${Math.round(origT.prot)}g • C:${Math.round(origT.carb)}g • G:${Math.round(origT.fat)}g</span>
+        </div>
+        <div class="day-comp-row day-comp-row-delta">
+          <span class="day-comp-lbl">Diferença</span>
+          <span class="day-comp-vals" data-testid="day-delta-totals">${signStr(dKcal)}${dKcal} kcal • ${signStr(dProt)}${dProt}g P • ${signStr(dCarb)}${dCarb}g C • ${signStr(dFat)}${dFat}g G</span>
+        </div>
+        <div class="${statusCls}">${statusTxt}</div>
+      </div>`;
+  }
   return `
     <div class="day ${isOpen ? 'open' : ''}">
       <div class="day-head" data-day-head="${idx}" role="button" aria-expanded="${isOpen}" tabindex="0">
@@ -292,6 +338,7 @@ function renderDayCard(day, idx) {
             ${day.meals.length} refeições • <strong>${formatKcal(day.totals.kcal)}</strong> kcal •
             P:${Math.round(day.totals.prot)}g C:${Math.round(day.totals.carb)}g G:${Math.round(day.totals.fat)}g
           </div>
+          ${dayCompBlock}
         </div>
         <!-- Botão PDF compacto no cabeçalho — visível mesmo com o dia colapsado -->
         <button
@@ -305,13 +352,14 @@ function renderDayCard(day, idx) {
         <div class="day-chev" style="${isOpen ? 'transform: rotate(180deg);' : ''}">${icons.chevDown(18)}</div>
       </div>
       <div class="day-body" id="day-body-${idx}" style="display:${isOpen ? 'block' : 'none'};">
-        ${day.meals.map((meal, mIdx) => renderMealCard(meal, idx, mIdx)).join('')}
+        ${day.meals.map((meal, mIdx) => renderMealCard(meal, idx, mIdx, subs)).join('')}
       </div>
     </div>
   `;
 }
 
-function renderMealCard(meal, dayIdx, mealIdx) {
+function renderMealCard(meal, dayIdx, mealIdx, subs) {
+  const safeSubs = subs || {};
   return `
     <div class="meal-card ${meal.type}">
       <div class="meal-card-head">
@@ -332,18 +380,26 @@ function renderMealCard(meal, dayIdx, mealIdx) {
 
       <div class="ingredient-label">Detalhamento Por Alimento</div>
       <ul class="ingredient-list">
-        ${meal.ingredients.map((ing, iIdx) => `
-          <li class="ingredient">
-            <div class="ingredient-main">
-              <div class="ingredient-name">${ing.label || (getFood(ing.food)?.name || ing.food)}</div>
-              <div class="ingredient-qty">${ing.display}</div>
-              <div class="ingredient-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g C:${ing.macros.carb}g G:${ing.macros.fat}g</div>
-            </div>
-            <button type="button" class="ingredient-sub-btn no-print" data-swap data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Substituir ${ing.label || ing.food}">
-              ${icons.swap(14)} Substituir
-            </button>
-          </li>
-        `).join('')}
+        ${meal.ingredients.map((ing, iIdx) => {
+          const subKey = `${dayIdx}:${mealIdx}:${iIdx}`;
+          const isSub = !!(safeSubs[subKey]);
+          return `
+            <li class="ingredient${isSub ? ' ingredient-substituted' : ''}">
+              <div class="ingredient-main">
+                <div class="ingredient-name">
+                  ${ing.label || (getFood(ing.food)?.name || ing.food)}
+                  ${isSub ? '<span class="ing-badge-subst">Substituído</span>' : ''}
+                </div>
+                <div class="ingredient-qty">${ing.display}</div>
+                <div class="ingredient-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g C:${ing.macros.carb}g G:${ing.macros.fat}g</div>
+                ${isSub ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
+              </div>
+              <button type="button" class="ingredient-sub-btn no-print" data-swap data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Substituir ${ing.label || ing.food}">
+                ${icons.swap(14)} Substituir
+              </button>
+            </li>
+          `;
+        }).join('')}
       </ul>
 
       ${meal.steps && meal.steps.length ? `
@@ -366,64 +422,264 @@ function renderMealCard(meal, dayIdx, mealIdx) {
 }
 
 /* ============================================================================ */
+/* Substitution helpers                                                         */
+/* ============================================================================ */
+
+/** Proteins that require a practical minimum/floor when suggested as substitutes. */
+const SUB_PROTEIN_PESAVEL = new Set([
+  'peito_frango', 'carne_moida', 'peixe_tilapia', 'peixe_pescada',
+  'peixe_salmao', 'atum_agua',
+]);
+/** Carbs that should be rounded to 10g multiples in substitutions. */
+const SUB_CARB_FLEX = new Set([
+  'arroz_branco_cozido', 'arroz_basmati_cozido', 'macarrao_cozido',
+  'aveia_flocos', 'feijao_carioca', 'lentilha_cozida', 'pure_batata',
+  'polenta', 'cuscuz', 'tapioca',
+]);
+
+/**
+ * Applies practical rounding to a raw substitute quantity.
+ * Mirrors the plan-generation rules so substituted quantities
+ * are never impractical (e.g. 43g of chicken, 73g of rice).
+ */
+function subPracticalGrams(foodId, rawGrams) {
+  const food = getFood(foodId);
+  if (!food) return Math.round(rawGrams);
+  if (foodId === 'ovo_inteiro') return Math.max(50, Math.round(rawGrams / 50) * 50);
+  if (foodId === 'whey') return Math.max(15, Math.round(rawGrams / 15) * 15);
+  if (SUB_PROTEIN_PESAVEL.has(foodId)) {
+    const r10 = Math.round(rawGrams / 10) * 10;
+    if (r10 < 50) return 50;
+    if (r10 < 100) return 100;
+    return r10;
+  }
+  if (SUB_CARB_FLEX.has(foodId)) return Math.max(50, Math.round(rawGrams / 10) * 10);
+  if (food.category === 'dairy') return Math.max(20, Math.round(rawGrams / 10) * 10);
+  if (food.countableUnit && food.units && food.units.length) {
+    const u = food.units[0];
+    return Math.max(u.grams, Math.round(rawGrams / u.grams) * u.grams);
+  }
+  if (rawGrams < 30) return Math.max(3, Math.round(rawGrams / 2) * 2);
+  if (rawGrams < 100) return Math.round(rawGrams / 5) * 5;
+  return Math.round(rawGrams / 10) * 10;
+}
+
+/**
+ * Returns an impact rating object based on kcal difference.
+ *   |Δkcal| ≤ 30  → safe
+ *   |Δkcal| ≤ 80  → acceptable
+ *   |Δkcal|  > 80  → attention
+ */
+function getSubImpact(deltaKcal) {
+  const abs = Math.abs(deltaKcal);
+  if (abs <= 30) return { cls: 'sub-impact-safe', label: 'Troca segura' };
+  if (abs <= 80) return { cls: 'sub-impact-ok',   label: 'Troca aceitável' };
+  return { cls: 'sub-impact-warn', label: 'Atenção: impacto alto' };
+}
+
+/**
+ * Builds the display string for a whey substitution quantity.
+ * Mirrors the scaleMeal whey handler.
+ */
+function buildWheyDisplay(grams) {
+  const ratio = grams / 30;
+  if (ratio <= 0.5) return `meio scoop/medidor (${grams}g)`;
+  if (ratio === 1) return `1 scoop/medidor (${grams}g)`;
+  if (ratio === 1.5) return `1 scoop e meio/medidor (${grams}g)`;
+  if (Number.isInteger(ratio)) return `${ratio} scoops/medidor (${grams}g)`;
+  return `${grams}g`;
+}
+
+/* ============================================================================ */
+/* Substitution totals summary (hero + day card)                               */
+/* ============================================================================ */
+
+/** Returns '+' for non-negative numbers, '' otherwise. */
+function signStr(n) { return n >= 0 ? '+' : ''; }
+
+/**
+ * Returns the sorted list of day indices that have at least one substitution.
+ */
+function getAffectedDayIndices(subs) {
+  const affected = new Set();
+  Object.keys(subs || {}).forEach(key => {
+    const idx = parseInt(key.split(':')[0], 10);
+    if (!isNaN(idx)) affected.add(idx);
+  });
+  return [...affected].sort((a, b) => a - b);
+}
+
+/**
+ * True if actualKcal is within ±4% of targetKcal.
+ */
+function isWithinGoalTolerance(actualKcal, targetKcal) {
+  return Math.abs(actualKcal - targetKcal) / targetKcal <= 0.04;
+}
+
+/**
+ * Builds the HTML banner shown in the plan hero when substitutions are active.
+ * For each affected day: compares original totals vs effective totals.
+ * If multiple days: shows the average.
+ */
+function renderSubsHeroSummary(originalPlan, effectivePlan, affectedDays, targetKcal) {
+  let origKcal = 0, origProt = 0, origCarb = 0, origFat = 0;
+  let currKcal = 0, currProt = 0, currCarb = 0, currFat = 0;
+
+  affectedDays.forEach(idx => {
+    const o = originalPlan[idx]?.totals || {};
+    const c = effectivePlan[idx]?.totals || {};
+    origKcal += o.kcal || 0; origProt += o.prot || 0;
+    origCarb += o.carb || 0; origFat  += o.fat  || 0;
+    currKcal += c.kcal || 0; currProt += c.prot || 0;
+    currCarb += c.carb || 0; currFat  += c.fat  || 0;
+  });
+
+  const n = affectedDays.length;
+  // Average when multiple days, round single day
+  origKcal = Math.round(origKcal / n); origProt = Math.round(origProt / n);
+  origCarb = Math.round(origCarb / n); origFat  = Math.round(origFat  / n);
+  currKcal = Math.round(currKcal / n); currProt = Math.round(currProt / n);
+  currCarb = Math.round(currCarb / n); currFat  = Math.round(currFat  / n);
+
+  const dKcal = currKcal - origKcal;
+  const dProt = currProt - origProt;
+  const dCarb = currCarb - origCarb;
+  const dFat  = currFat  - origFat;
+  const inGoal = isWithinGoalTolerance(currKcal, targetKcal);
+
+  const dayLabel = n === 1
+    ? `Dia ${affectedDays[0] + 1}`
+    : `${n} dias (${affectedDays.map(i => `Dia ${i + 1}`).join(', ')})`;
+
+  return `
+    <div class="plan-subs-banner no-print" data-testid="plan-subs-banner">
+      <div class="plan-subs-banner-title">🔄 Com substituições — ${dayLabel}</div>
+      <div class="plan-subs-rows">
+        <div class="plan-subs-row plan-subs-row-current">
+          <span class="plan-subs-lbl">Atual</span>
+          <span class="plan-subs-vals plan-subs-vals-current"><strong>${currKcal} kcal</strong> • P:${currProt}g • C:${currCarb}g • G:${currFat}g</span>
+        </div>
+        <div class="plan-subs-row plan-subs-row-orig">
+          <span class="plan-subs-lbl">Original</span>
+          <span class="plan-subs-vals">${origKcal} kcal • P:${origProt}g • C:${origCarb}g • G:${origFat}g</span>
+        </div>
+        <div class="plan-subs-row plan-subs-row-delta">
+          <span class="plan-subs-lbl">Diferença</span>
+          <span class="plan-subs-vals">${signStr(dKcal)}${dKcal} kcal • ${signStr(dProt)}${dProt}g P • ${signStr(dCarb)}${dCarb}g C • ${signStr(dFat)}${dFat}g G</span>
+        </div>
+      </div>
+      <div class="plan-subs-status ${inGoal ? 'plan-subs-ok' : 'plan-subs-warn'}">
+        ${inGoal ? '✅ Dentro do objetivo' : '⚠️ Atenção: fora da margem do objetivo (±4%)'}
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================================ */
 /* Substitution modal                                                           */
 /* ============================================================================ */
 
+const SUB_CAT_LABEL = {
+  protein: 'Proteínas',
+  dairy:   'Laticínios',
+  carb:    'Carboidratos',
+  fat:     'Gorduras',
+  fruit:   'Frutas',
+  veg:     'Vegetais',
+  extra:   'Extras',
+};
+const SUB_CAT_ORDER = ['protein', 'dairy', 'carb', 'fat', 'fruit', 'veg', 'extra'];
+
 function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
-  // Lê o plano ATUAL (pode já ter substituições)
   const plan = loadPlan();
   let subs = loadSubstitutions();
   const effective = applySubstitutions(plan, subs);
   const meal = effective[dayIdx].meals[mealIdx];
   const ing = meal.ingredients[ingIdx];
-  const originalFoodId = ing.food;
-  const originalFood = getFood(originalFoodId);
+  const subKey = `${dayIdx}:${mealIdx}:${ingIdx}`;
+  const isAlreadySubstituted = !!(subs[subKey]);
 
-  if (!originalFood) return;
+  // Original ingredient (from base plan — used for revert label)
+  const originalIng = plan[dayIdx].meals[mealIdx].ingredients[ingIdx];
+  const originalFoodName = originalIng.label
+    || getFood(originalIng.food)?.name
+    || originalIng.food;
 
-  const options = getSubstitutes(originalFoodId, ing.grams);
+  // Current food (may be the substituted food)
+  const currentFood = getFood(ing.food);
+  if (!currentFood) return;
 
-  const contentHtml = `
-    <div class="modal-head">
-      <div>
-        <div class="modal-title">Substituir: ${originalFood.name}</div>
-        <div class="modal-sub">
-          ${formatQty(originalFoodId, ing.grams)} •
-          ${ing.macros.kcal} kcal • P:${ing.macros.prot}g C:${ing.macros.carb}g G:${ing.macros.fat}g
-        </div>
-      </div>
-      <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
-    </div>
-    <div class="modal-body">
-      ${options.length === 0 ? `
-        <p class="card-body">Não há substituições equivalentes registadas para este alimento. Considere manter o original.</p>
-      ` : `
-        <p class="card-sub">Quantidade calculada para manter ~ as mesmas calorias da original:</p>
-        <ul class="sub-options">
-          ${options.map(opt => {
-            const deltaKcal = opt.macros.kcal - ing.macros.kcal;
-            const sign = deltaKcal >= 0 ? '+' : '';
+  // Build substitute candidates with practical rounding applied
+  const rawOpts = getSubstitutes(ing.food, ing.grams);
+  const options = rawOpts.map(opt => {
+    const practicalG = subPracticalGrams(opt.id, opt.grams);
+    const macros = calcFoodMacros(opt.id, practicalG);
+    const delta = macros.kcal - ing.macros.kcal;
+    const impact = getSubImpact(delta);
+    const display = opt.id === 'whey'
+      ? buildWheyDisplay(practicalG)
+      : formatQty(opt.id, practicalG);
+    return { id: opt.id, food: opt.food, grams: practicalG, macros, display, delta, impact };
+  });
+
+  // Group by category (current food category first, then alphabetical by order)
+  const grouped = {};
+  options.forEach(opt => {
+    const cat = opt.food.category || 'extra';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(opt);
+  });
+
+  const optionsHtml = SUB_CAT_ORDER
+    .filter(c => grouped[c])
+    .map(cat => {
+      const items = grouped[cat];
+      return `
+        <div class="sub-cat-group">
+          <div class="sub-cat-label">${SUB_CAT_LABEL[cat] || cat}</div>
+          ${items.map(opt => {
+            const sign = opt.delta >= 0 ? '+' : '';
             return `
               <li class="sub-option" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}">
                 <div class="sub-option-head">
                   <div class="sub-option-name">${opt.food.name}</div>
-                  <div class="sub-option-qty">${formatQty(opt.id, opt.grams)}</div>
+                  <div class="sub-option-qty">${opt.display}</div>
                 </div>
                 <div class="sub-option-macros">
-                  ${opt.macros.kcal} kcal (${sign}${deltaKcal}) •
+                  ${opt.macros.kcal} kcal (${sign}${opt.delta}) •
                   P:${opt.macros.prot}g • C:${opt.macros.carb}g • G:${opt.macros.fat}g
                 </div>
+                <span class="sub-impact ${opt.impact.cls}">${opt.impact.label}</span>
               </li>
             `;
           }).join('')}
-        </ul>
-        <div class="hint" style="margin-top: 12px;">
-          <span class="hint-icon">${icons.info(16)}</span>
-          <div>Clique numa opção para aplicar. A substituição afeta apenas este ingrediente neste dia, e fica guardada nas próximas visitas.</div>
         </div>
+      `;
+    }).join('');
+
+  const contentHtml = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Substituir alimento</div>
+        <div class="modal-sub">Escolha um substituto equivalente</div>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
+    </div>
+    <div class="modal-body">
+      <div class="sub-current">
+        <div class="sub-current-label">Alimento atual</div>
+        <div class="sub-current-name">${ing.label || currentFood.name}</div>
+        <div class="sub-current-qty">${ing.display}</div>
+        <div class="sub-current-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g • C:${ing.macros.carb}g • G:${ing.macros.fat}g</div>
+      </div>
+      ${options.length === 0 ? `
+        <p class="card-body" style="margin-top:14px;">Não há substituições equivalentes registadas para este alimento. Considere manter o original.</p>
+      ` : `
+        <p style="margin-top:14px; margin-bottom:0; font-size:12.5px; color:var(--ink-muted);">Clique para aplicar. Quantidade calculada para manter calorias aproximadas. Afeta apenas este ingrediente neste dia.</p>
+        <ul class="sub-options" style="margin-top:10px;">${optionsHtml}</ul>
       `}
-      <div class="btn-row" style="margin-top: 16px;">
-        <button type="button" class="btn btn-ghost" id="btn-reset-ing">${icons.refresh(14)} Reverter para original</button>
+      <div class="btn-row" style="margin-top:16px; flex-wrap:wrap;">
+        ${isAlreadySubstituted ? `<button type="button" class="btn btn-ghost" id="btn-reset-ing" style="font-size:13px;">${icons.refresh(14)} Reverter: ${escapeHtml(originalFoodName)}</button>` : ''}
         <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
       </div>
     </div>
@@ -431,8 +687,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
 
   const close = openModal(contentHtml);
 
-  // Apply substitution
-  const subKey = `${dayIdx}:${mealIdx}:${ingIdx}`;
+  // Apply substitution on option click
   document.querySelectorAll('.sub-option').forEach(li => {
     li.addEventListener('click', () => {
       const subId = li.dataset.subId;
@@ -440,23 +695,20 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
       subs[subKey] = { food: subId, grams: subGrams };
       saveSubstitutions(subs);
       close();
-      // re-render
       const newPlan = applySubstitutions(plan, subs);
-      render(mount, newPlan, loadResults(), subs);
+      render(mount, newPlan, loadResults(), subs, plan);
     });
   });
 
-  // Revert
+  // Revert — only rendered when already substituted
   const resetBtn = document.getElementById('btn-reset-ing');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      if (subs[subKey]) {
-        delete subs[subKey];
-        saveSubstitutions(subs);
-      }
+      delete subs[subKey];
+      saveSubstitutions(subs);
       close();
       const newPlan = applySubstitutions(plan, subs);
-      render(mount, newPlan, loadResults(), subs);
+      render(mount, newPlan, loadResults(), subs, plan);
     });
   }
 }
