@@ -42,10 +42,28 @@ export function renderHeader({ showEdit = false, onEdit, onReset } = {}) {
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       if (onReset) { onReset(); return; }
-      if (confirm('Reiniciar tudo? Os seus dados preenchidos serão apagados.')) {
+      openModal(`
+        <div class="modal-head">
+          <div>
+            <div class="modal-title">⚠️ Resetar a app</div>
+          </div>
+          <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
+        </div>
+        <div class="modal-body">
+          <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:var(--ink);">Tem certeza que deseja resetar a app?</p>
+          <p style="margin:0 0 20px;font-size:13px;color:var(--ink-muted);line-height:1.6;">
+            Isto vai apagar os dados guardados neste navegador, incluindo <strong>perfil, plano gerado, substituições, alimentos adicionados e alimentos personalizados</strong>.
+          </p>
+          <div class="btn-row" style="flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+            <button type="button" class="btn btn-danger" id="btn-confirm-reset" data-testid="btn-confirm-reset">Sim, apagar tudo</button>
+          </div>
+        </div>
+      `);
+      document.getElementById('btn-confirm-reset')?.addEventListener('click', () => {
         resetAll();
         location.href = '/';
-      }
+      });
     });
   }
 }
@@ -165,8 +183,7 @@ export function openModal(contentHtml, onClose) {
   };
   const bd = document.getElementById('modal-bd');
   bd.addEventListener('click', (e) => { if (e.target === bd) close(); });
-  const closeBtn = document.querySelector('[data-modal-close]');
-  if (closeBtn) closeBtn.addEventListener('click', close);
+  document.querySelectorAll('[data-modal-close]').forEach(btn => btn.addEventListener('click', close));
 
   const esc = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } };
   document.addEventListener('keydown', esc);

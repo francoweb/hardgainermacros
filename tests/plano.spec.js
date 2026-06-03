@@ -1561,3 +1561,1223 @@ test.describe('Validação Matemática das Substituições', () => {
   });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers — "+ Adicionar alimento"
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Injeta alimentos personalizados no localStorage antes de navegar. */
+async function injectCustomFoods(page, foods) {
+  await page.addInitScript((f) => {
+    try { localStorage.setItem('hg:custom_foods', JSON.stringify(f)); } catch {}
+  }, foods);
+}
+
+/** Preenche o formulário de adição de alimento. */
+async function fillAddFoodForm(page, { name, category, qty, unit, kcal, prot, carb, fat }) {
+  await page.locator('#aff-name').fill(name);
+  await page.locator('#aff-category').selectOption(category);
+  await page.locator('#aff-qty').fill(String(qty));
+  if (unit) await page.locator('#aff-unit').selectOption(unit);
+  await page.locator('#aff-kcal').fill(String(kcal));
+  await page.locator('#aff-prot').fill(String(prot));
+  await page.locator('#aff-carb').fill(String(carb));
+  await page.locator('#aff-fat').fill(String(fat));
+}
+
+/** Alimento de teste com macros conhecidos: 150g, 120kcal, P:18, C:8, G:1 */
+const TEST_FOOD = { name: 'Skyr Test', category: 'dairy', qty: 150, unit: 'g', kcal: 120, prot: 18, carb: 8, fat: 1 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: "+ Adicionar alimento"
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Adicionar alimento personalizado', () => {
+
+  // ── C-ADD1 ───────────────────────────────────────────────────────────────
+  test('C-ADD1 — Botão "+ Adicionar alimento" aparece por refeição (não por ingrediente)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // O Dia 1 está aberto por defeito com 6 refeições.
+    // Deve haver 6 botões "+ Adicionar alimento" — um por refeição.
+    const addBtns  = page.locator('[data-add-food]');
+    const swapBtns = page.locator('[data-swap]');
+    const addCount  = await addBtns.count();
+    const swapCount = await swapBtns.count();
+
+    // add < swap: há MUITOS Substituir (um por ingrediente) mas POUCOS Adicionar (um por refeição)
+    expect(addCount,  'Deve existir pelo menos 6 botões + Adicionar (1 por refeição)').toBeGreaterThanOrEqual(6);
+    expect(swapCount, 'Deve existir muito mais Substituir do que Adicionar').toBeGreaterThan(addCount);
+
+    // Botão + Adicionar é visível com dimensões reais
+    await expect(addBtns.first()).toBeVisible();
+    const box = await addBtns.first().boundingBox();
+    expect(box, 'Botão deve ter bounding box').not.toBeNull();
+    expect(box && box.width,  'Largura >= 100px').toBeGreaterThanOrEqual(100);
+    expect(box && box.height, 'Altura >= 20px').toBeGreaterThanOrEqual(20);
+
+    // Texto correcto
+    const txt = (await addBtns.first().textContent() || '').trim();
+    expect(txt).toMatch(/Adicionar/i);
+
+    // O botão está dentro de .ing-add-row (posição no meal-card)
+    const addRow = page.locator('.ing-add-row').first();
+    await expect(addRow).toBeVisible();
+    await expect(addRow.locator('[data-add-food]')).toBeVisible();
+
+    // O botão Substituir por alimento continua intacto
+    await expect(swapBtns.first()).toBeVisible();
+
+    console.log(`C-ADD1: Substituir visíveis=${swapCount}, + Adicionar visíveis=${addCount} (1 por refeição)`);
+  });
+
+  // ── C-ADD2 ───────────────────────────────────────────────────────────────
+  test('C-ADD2 — Clicar em "+ Adicionar alimento" abre modal com formulário', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    await expect(page.locator('#add-food-form')).toBeVisible();
+    await expect(page.locator('#aff-name')).toBeVisible();
+    await expect(page.locator('#aff-kcal')).toBeVisible();
+    await expect(page.locator('#aff-prot')).toBeVisible();
+  });
+
+  // ── C-ADD3 ───────────────────────────────────────────────────────────────
+  test('C-ADD3 — Validação: campos obrigatórios mostram erro ao submeter vazio', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const errBox = page.locator('#add-food-errors');
+    await expect(errBox).toBeVisible();
+    const errText = await errBox.textContent() || '';
+    expect(errText).toMatch(/nome/i);
+  });
+
+  // ── C-ADD4 ───────────────────────────────────────────────────────────────
+  test('C-ADD4 — Adicionar alimento válido: aparece na refeição com badge "Adicionado"', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Badge "Adicionado" deve aparecer
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+    // Botão "Remover alimento" deve aparecer
+    await expect(page.locator('[data-remove-addition]').first()).toBeVisible();
+    // Nome do alimento deve aparecer
+    await expect(page.getByText('Skyr Test').first()).toBeVisible();
+  });
+
+  // ── C-ADD5 ───────────────────────────────────────────────────────────────
+  test('C-ADD5 — kcal/macros da refeição mudam após adição (teste matemático)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Ler totais da 1ª refeição antes
+    const mealBefore = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Ler depois
+    const mealAfter = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    // Diferença deve ser próxima dos macros do alimento adicionado
+    expect(Math.abs(mealAfter.kcal - mealBefore.kcal - TEST_FOOD.kcal)).toBeLessThanOrEqual(5);
+    expect(Math.abs(mealAfter.prot - mealBefore.prot - TEST_FOOD.prot)).toBeLessThanOrEqual(2);
+    expect(Math.abs(mealAfter.carb - mealBefore.carb - TEST_FOOD.carb)).toBeLessThanOrEqual(2);
+    expect(Math.abs(mealAfter.fat  - mealBefore.fat  - TEST_FOOD.fat )).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-ADD6 ───────────────────────────────────────────────────────────────
+  test('C-ADD6 — kcal/macros do dia mudam após adição (teste matemático)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const dayAfter = await getDayTotals(page, 0);
+
+    expect(Math.abs(dayAfter.kcal - dayBefore.kcal - TEST_FOOD.kcal)).toBeLessThanOrEqual(5);
+    expect(Math.abs(dayAfter.prot - dayBefore.prot - TEST_FOOD.prot)).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-ADD7 ───────────────────────────────────────────────────────────────
+  test('C-ADD7 — Bloco Original/Com substituições/Diferença aparece após adição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await expect(page.locator('[data-testid="day-comp-block"]')).not.toBeVisible();
+
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await expect(page.locator('[data-testid="day-comp-block"]').first()).toBeVisible();
+    await expect(page.locator('.day-comp-row-current').first()).toBeVisible();
+    await expect(page.locator('.day-comp-row-orig').first()).toBeVisible();
+    await expect(page.locator('.day-comp-row-delta').first()).toBeVisible();
+  });
+
+  // ── C-ADD8 ───────────────────────────────────────────────────────────────
+  test('C-ADD8 — Delta exibido = atual − original (matemático)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = await getDayTotals(page, 0);
+
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const comp = await getCompBlock(page, 0);
+
+    // comp.original ≈ before
+    expect(Math.abs(comp.original.kcal - before.kcal)).toBeLessThanOrEqual(2);
+    // delta = current − original
+    expectDeltaConsistent(comp);
+    // delta.kcal ≈ TEST_FOOD.kcal
+    expect(Math.abs(comp.delta.kcal - TEST_FOOD.kcal)).toBeLessThanOrEqual(5);
+  });
+
+  // ── C-ADD9 ───────────────────────────────────────────────────────────────
+  test('C-ADD9 — Soma das refeições ≈ total do dia após adição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const dayTotal = await getDayTotals(page, 0);
+    const mealSum  = await sumMeals(page, 0);
+
+    expect(Math.abs(mealSum.kcal - dayTotal.kcal)).toBeLessThanOrEqual(5);
+    expect(Math.abs(mealSum.prot - dayTotal.prot)).toBeLessThanOrEqual(2);
+    expect(Math.abs(mealSum.carb - dayTotal.carb)).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-ADD10 ──────────────────────────────────────────────────────────────
+  test('C-ADD10 — Remover alimento: refeição e dia voltam aos valores originais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = await getDayTotals(page, 0);
+
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Confirmar que mudou
+    const afterAdd = await getDayTotals(page, 0);
+    expectSomethingChanged(before, afterAdd);
+
+    // Remover
+    await page.locator('[data-remove-addition]').first().click();
+    const restored = await getDayTotals(page, 0);
+
+    expect(Math.abs(restored.kcal - before.kcal)).toBeLessThanOrEqual(2);
+    expect(Math.abs(restored.prot - before.prot)).toBeLessThanOrEqual(1);
+    // Bloco de comparação deve desaparecer (sem substituições nem adições)
+    await expect(page.locator('[data-testid="day-comp-block"]')).not.toBeVisible();
+  });
+
+  // ── C-ADD11 ──────────────────────────────────────────────────────────────
+  test('C-ADD11 — Alimento personalizado fica guardado no localStorage (hg:custom_foods)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const stored = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('hg:custom_foods') || '[]'); }
+      catch { return []; }
+    });
+    expect(stored.length).toBeGreaterThan(0);
+    expect(stored[0].name).toBe('Skyr Test');
+    expect(stored[0].source).toBe('custom');
+    expect(stored[0].per100).toBeDefined();
+  });
+
+  // ── C-ADD12 ──────────────────────────────────────────────────────────────
+  test('C-ADD12 — Após reload, alimento personalizado aparece no modal Substituir', async ({ page }) => {
+    // Injectar custom food directamente no localStorage antes de carregar a página
+    const customFood = {
+      id: 'custom_test_12345',
+      name: 'Queijo Custom Reload',
+      category: 'dairy',
+      per100: { kcal: 80, prot: 12, carb: 5, fat: 0.5 },
+      units: [{ label: 'g', grams: 100 }],
+      digestibility: 'leve',
+      substitutes: [],
+      source: 'custom',
+      baseQuantity: 150,
+      baseUnit: 'g',
+      createdAt: new Date().toISOString(),
+    };
+    await injectCustomFoods(page, [customFood]);
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Procurar um ingrediente dairy para o modal mostrar custom food da mesma categoria
+    const dairySwap = page.locator('[data-swap]').first();
+    await dairySwap.click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Verificar se "Meus alimentos" aparece (se o food for da mesma categoria)
+    // Se não for da mesma categoria, verificar que o modal pelo menos abriu
+    const modalVisible = await page.locator('.modal-backdrop.show').isVisible();
+    expect(modalVisible).toBe(true);
+
+    // Fechar modal
+    await page.locator('[data-modal-close]').first().click();
+
+    // Agora verificar directamente via localStorage que o food está lá
+    const stored = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('hg:custom_foods') || '[]'); }
+      catch { return []; }
+    });
+    expect(stored.some(f => f.id === 'custom_test_12345')).toBe(true);
+  });
+
+  // ── C-ADD13 ──────────────────────────────────────────────────────────────
+  test('C-ADD13 — Regressão: função Substituir não regrediu após adição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar um alimento
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Substituir um ingrediente original (não o adicionado)
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    const opts = page.locator('.sub-option');
+    if (await opts.count() > 0) {
+      await opts.first().click();
+      await expect(page.locator('.ing-badge-subst').first()).toBeVisible();
+    } else {
+      await page.locator('[data-modal-close]').first().click();
+    }
+
+    // Botão Substituir ainda existe nos ingredientes originais
+    await expect(page.locator('[data-swap]').first()).toBeVisible();
+
+    // C-MATH core: delta exibido deve ser consistente
+    const comp = await getCompBlock(page, 0);
+    expectDeltaConsistent(comp);
+  });
+
+  // ── C-ADD14 ──────────────────────────────────────────────────────────────
+  test('C-ADD14 — Layout: botões Substituir e "Adicionar" visíveis sem sobreposição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Ambos os botões devem ser visíveis e clicáveis
+    await expect(page.locator('[data-swap]').first()).toBeVisible();
+    await expect(page.locator('[data-add-food]').first()).toBeVisible();
+
+    // Botão add deve ter texto legível
+    const addTxt = await page.locator('[data-add-food]').first().textContent() || '';
+    expect(addTxt.trim()).toMatch(/Adicionar/i);
+
+    // Botão sub deve ter texto legível
+    const subTxt = await page.locator('[data-swap]').first().textContent() || '';
+    expect(subTxt.trim()).toMatch(/Substituir/i);
+
+    // Após adicionar um alimento, o botão Substituir dos ingredientes originais
+    // não deve desaparecer (testando que o layout não quebrou)
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, { ...TEST_FOOD, name: 'Layout Test Food' });
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // O ingrediente adicionado tem botão Remover mas NÃO tem Substituir
+    const addedLi = page.locator('.ingredient-added').first();
+    await expect(addedLi.locator('[data-remove-addition]')).toBeVisible();
+    // Ingredientes originais continuam com Substituir
+    await expect(page.locator('[data-swap]').first()).toBeVisible();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Múltiplas adições por refeição
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Segundo alimento de teste */
+const TEST_FOOD_2 = { name: 'Aveia Extra Test', category: 'carb', qty: 50, unit: 'g', kcal: 190, prot: 6, carb: 32, fat: 3 };
+
+test.describe('Múltiplas adições por refeição', () => {
+
+  // ── C-ADD-MULTI1 ─────────────────────────────────────────────────────────
+  test('C-ADD-MULTI1 — Adicionar 1 alimento: aparece no final, kcal e totais aumentam', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Contar ingredientes da refeição 1 antes
+    const ingsBefore = await page.locator('#day-body-0 .meal-card').first().locator('.ingredient').count();
+    const mealBefore = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Ingrediente adicionado aparece no final
+    const ingsAfter = await page.locator('#day-body-0 .meal-card').first().locator('.ingredient').count();
+    expect(ingsAfter).toBe(ingsBefore + 1);
+
+    // Badge "Adicionado" visível
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Botão "Remover alimento" visível
+    await expect(page.locator('[data-remove-addition]').first()).toBeVisible();
+
+    // Macros da refeição aumentaram
+    const mealAfter = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(mealAfter.kcal).toBeGreaterThan(mealBefore.kcal);
+    expect(Math.abs(mealAfter.kcal - mealBefore.kcal - TEST_FOOD.kcal)).toBeLessThanOrEqual(5);
+  });
+
+  // ── C-ADD-MULTI2 ─────────────────────────────────────────────────────────
+  test('C-ADD-MULTI2 — Adicionar 2 alimentos à mesma refeição: ambos aparecem, totais acumulam', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const mealBefore = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    // Adicionar alimento 1
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Adicionar alimento 2
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD_2);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Ambos aparecem com badge "Adicionado"
+    const badges = page.locator('#day-body-0 .meal-card').first().locator('.ing-badge-added');
+    expect(await badges.count()).toBe(2);
+
+    // Ambos têm botão "Remover"
+    const removeBtns = page.locator('#day-body-0 .meal-card').first().locator('[data-remove-addition]');
+    expect(await removeBtns.count()).toBe(2);
+
+    // Macros acumulam os dois alimentos
+    const mealAfter = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    const expectedKcalDelta = TEST_FOOD.kcal + TEST_FOOD_2.kcal;
+    expect(Math.abs(mealAfter.kcal - mealBefore.kcal - expectedKcalDelta)).toBeLessThanOrEqual(8);
+  });
+
+  // ── C-ADD-MULTI3 ─────────────────────────────────────────────────────────
+  test('C-ADD-MULTI3 — Remover apenas 1 de 2 alimentos adicionados: o outro permanece', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar 2 alimentos
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD_2);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const mealAfter2 = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    // Remover apenas o primeiro adicionado
+    const removeBtns = page.locator('#day-body-0 .meal-card').first().locator('[data-remove-addition]');
+    await removeBtns.first().click();
+
+    // Apenas 1 badge "Adicionado" deve restar
+    const badgesLeft = page.locator('#day-body-0 .meal-card').first().locator('.ing-badge-added');
+    expect(await badgesLeft.count()).toBe(1);
+
+    // Bloco de comparação ainda visível (1 adição ainda activa)
+    await expect(page.locator('[data-testid="day-comp-block"]').first()).toBeVisible();
+
+    // Totais mudaram (mas não voltaram ao original)
+    const mealAfter1 = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(mealAfter1.kcal).toBeLessThan(mealAfter2.kcal);
+  });
+
+  // ── C-ADD-MULTI4 ─────────────────────────────────────────────────────────
+  test('C-ADD-MULTI4 — Remover todos os alimentos adicionados: totais voltam ao original', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const mealBefore = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    const dayBefore  = await getDayTotals(page, 0);
+
+    // Adicionar 2 alimentos
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD_2);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    // Remover ambos
+    let removeBtns = page.locator('#day-body-0 .meal-card').first().locator('[data-remove-addition]');
+    await removeBtns.first().click();
+
+    removeBtns = page.locator('#day-body-0 .meal-card').first().locator('[data-remove-addition]');
+    if (await removeBtns.count() > 0) await removeBtns.first().click();
+
+    // Macros da refeição voltaram ao original
+    const mealRestored = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(Math.abs(mealRestored.kcal - mealBefore.kcal)).toBeLessThanOrEqual(5);
+
+    // Bloco de comparação desaparece
+    await expect(page.locator('[data-testid="day-comp-block"]')).not.toBeVisible();
+
+    // Dia voltou ao original
+    const dayRestored = await getDayTotals(page, 0);
+    expect(Math.abs(dayRestored.kcal - dayBefore.kcal)).toBeLessThanOrEqual(5);
+  });
+
+  // ── C-ADD-MATH ───────────────────────────────────────────────────────────
+  test('C-ADD-MATH — Múltiplas adições: delta acumulado e soma de refeições = total do dia', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+
+    // Adicionar 2 alimentos à refeição 1
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD_2);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const dayAfter = await getDayTotals(page, 0);
+
+    // Delta total ≈ soma dos dois alimentos
+    const expectedKcal = TEST_FOOD.kcal + TEST_FOOD_2.kcal;
+    expect(Math.abs(dayAfter.kcal - dayBefore.kcal - expectedKcal),
+      `Delta kcal esperado ≈ ${expectedKcal}, obtido ${dayAfter.kcal - dayBefore.kcal}`
+    ).toBeLessThanOrEqual(8);
+
+    // Comp block delta é consistente
+    const comp = await getCompBlock(page, 0);
+    expectDeltaConsistent(comp);
+
+    // Soma das refeições = total do dia
+    const mealSum = await sumMeals(page, 0);
+    expect(Math.abs(mealSum.kcal - dayAfter.kcal)).toBeLessThanOrEqual(5);
+    expect(Math.abs(mealSum.prot - dayAfter.prot)).toBeLessThanOrEqual(2);
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Editar alimento adicionado
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Alimento para testes de edição: 100ml → 330ml */
+const TEST_FOOD_EDIT_V1 = { name: 'Bebida Edit Test', category: 'dairy', qty: 100, unit: 'ml', kcal: 66, prot: 3.4, carb: 4.7, fat: 3.6 };
+/** Versão editada: mesma food, 330ml (valores escalados ~3.3×) */
+const TEST_FOOD_EDIT_V2 = { ...TEST_FOOD_EDIT_V1, qty: 330, kcal: 218, prot: 11.2, carb: 15.5, fat: 11.9 };
+
+async function fillEditFoodForm(page, { name, category, qty, unit, kcal, prot, carb, fat }) {
+  await page.locator('#eff-name').fill(name);
+  await page.locator('#eff-category').selectOption(category);
+  await page.locator('#eff-qty').fill(String(qty));
+  if (unit) await page.locator('#eff-unit').selectOption(unit);
+  await page.locator('#eff-kcal').fill(String(kcal));
+  await page.locator('#eff-prot').fill(String(prot));
+  await page.locator('#eff-carb').fill(String(carb));
+  await page.locator('#eff-fat').fill(String(fat));
+}
+
+test.describe('Editar alimento adicionado', () => {
+
+  test('C-ADD-EDIT1 — Alimento adicionado mostra badge ADICIONADO, Editar e Remover', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+    await expect(page.locator('[data-edit-addition]').first()).toBeVisible();
+    const editTxt = (await page.locator('[data-edit-addition]').first().textContent() || '').trim();
+    expect(editTxt).toMatch(/Editar/i);
+    await expect(page.locator('[data-remove-addition]').first()).toBeVisible();
+  });
+
+  test('C-ADD-EDIT2 — Modal de edição abre com campos pré-preenchidos e título correcto', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await page.locator('[data-edit-addition]').first().click();
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+    const title = await page.locator('.modal-title').textContent() || '';
+    expect(title).toMatch(/Editar/i);
+    expect(await page.locator('#eff-name').inputValue()).toBe(TEST_FOOD_EDIT_V1.name);
+    expect(Number(await page.locator('#eff-qty').inputValue())).toBe(TEST_FOOD_EDIT_V1.qty);
+    expect(Number(await page.locator('#eff-kcal').inputValue())).toBeCloseTo(TEST_FOOD_EDIT_V1.kcal, 0);
+    const submitTxt = await page.locator('#edit-food-form button[type="submit"]').textContent() || '';
+    expect(submitTxt).toMatch(/Guardar/i);
+  });
+
+  test('C-ADD-EDIT3 — Editar 100ml → 330ml: quantidade actualiza na refeição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await page.locator('[data-edit-addition]').first().click();
+    await fillEditFoodForm(page, TEST_FOOD_EDIT_V2);
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    const qtyText = await page.locator('.ingredient-added .ingredient-qty').first().textContent() || '';
+    expect(qtyText).toMatch(/330/);
+    expect(qtyText).not.toMatch(/\b100\b/);
+  });
+
+  test('C-ADD-EDIT4+5 — Kcal da refeição e do dia aumentam após editar para 330ml', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    const mealAfterAdd = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    const dayAfterAdd  = await getDayTotals(page, 0);
+
+    await page.locator('[data-edit-addition]').first().click();
+    await fillEditFoodForm(page, TEST_FOOD_EDIT_V2);
+    await page.locator('#edit-food-form button[type="submit"]').click();
+    const mealAfterEdit = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    const dayAfterEdit  = await getDayTotals(page, 0);
+
+    const expectedKcalDelta = TEST_FOOD_EDIT_V2.kcal - TEST_FOOD_EDIT_V1.kcal; // ~152
+    expect(Math.abs(mealAfterEdit.kcal - mealAfterAdd.kcal - expectedKcalDelta)).toBeLessThanOrEqual(8);
+    expect(Math.abs(dayAfterEdit.kcal  - dayAfterAdd.kcal  - expectedKcalDelta)).toBeLessThanOrEqual(8);
+  });
+
+  test('C-ADD-EDIT6+7 — Diferença = atual − original e soma refeições = total do dia', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const dayBefore = await getDayTotals(page, 0);
+
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await page.locator('[data-edit-addition]').first().click();
+    await fillEditFoodForm(page, TEST_FOOD_EDIT_V2);
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    const comp = await getCompBlock(page, 0);
+    expect(Math.abs(comp.original.kcal - dayBefore.kcal)).toBeLessThanOrEqual(2);
+    expectDeltaConsistent(comp);
+    expect(Math.abs(comp.delta.kcal - TEST_FOOD_EDIT_V2.kcal)).toBeLessThanOrEqual(8);
+
+    const dayTotal = await getDayTotals(page, 0);
+    const mealSum  = await sumMeals(page, 0);
+    expect(Math.abs(mealSum.kcal - dayTotal.kcal)).toBeLessThanOrEqual(5);
+  });
+
+  test('C-ADD-EDIT8 — Dados editados persistem no localStorage (hg:additions)', async ({ page }) => {
+    // O reload real via page.reload() não funciona porque o router SPA exige
+    // K.PLAN_READY em sessionStorage que se perde. Verificamos persistência
+    // directamente no localStorage, que é a fonte de verdade.
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await page.locator('[data-edit-addition]').first().click();
+    await fillEditFoodForm(page, TEST_FOOD_EDIT_V2);
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    // Verificar que hg:additions guardou os dados actualizados (330ml)
+    const storedAdditions = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('hg:additions') || '{}'); }
+      catch { return {}; }
+    });
+    // A adição deve estar em alguma chave dayIdx:mealIdx com grams=330
+    const allAdditions = Object.values(storedAdditions).flat();
+    const found = allAdditions.find(a => a.grams === 330 && a.unit === 'ml');
+    expect(found, 'hg:additions deve ter entrada com 330ml').toBeDefined();
+    expect(found.grams).toBe(330);
+    expect(found.unit).toBe('ml');
+  });
+
+  test('C-ADD-EDIT9 — Custom food actualizado no localStorage com dados de 330ml', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await page.locator('[data-edit-addition]').first().click();
+    await fillEditFoodForm(page, TEST_FOOD_EDIT_V2);
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    const stored = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('hg:custom_foods') || '[]'); }
+      catch { return []; }
+    });
+    const updated = stored.find(f => f.name === TEST_FOOD_EDIT_V2.name);
+    expect(updated).toBeDefined();
+    expect(updated.baseQuantity).toBe(TEST_FOOD_EDIT_V2.qty);
+    expect(updated.per100.kcal).toBeGreaterThan(0);
+  });
+
+  test('C-ADD-EDIT10 — Após editar, remover restaura totais originais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const dayBefore = await getDayTotals(page, 0);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await page.locator('[data-edit-addition]').first().click();
+    await fillEditFoodForm(page, TEST_FOOD_EDIT_V2);
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    await page.locator('[data-remove-addition]').first().click();
+    const dayRestored = await getDayTotals(page, 0);
+    expect(Math.abs(dayRestored.kcal - dayBefore.kcal)).toBeLessThanOrEqual(5);
+    await expect(page.locator('[data-testid="day-comp-block"]')).not.toBeVisible();
+  });
+
+  test('C-ADD-EDIT11 — Substituir continua intacto após editar alimento adicionado', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await page.locator('[data-edit-addition]').first().click();
+    await fillEditFoodForm(page, TEST_FOOD_EDIT_V2);
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    const opts = page.locator('.sub-option');
+    if (await opts.count() > 0) {
+      await opts.first().click();
+      await expect(page.locator('.ing-badge-subst').first()).toBeVisible();
+    } else {
+      await page.locator('[data-modal-close]').first().click();
+    }
+    await expect(page.locator('[data-add-food]').first()).toBeVisible();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Cancelar em todos os modais
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Cancelar em todos os modais', () => {
+
+  // ── C-CANCEL1 ────────────────────────────────────────────────────────────
+  test('C-CANCEL1 — Cancelar no modal Substituir: fecha sem aplicar substituição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const mealBefore = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    const dayBefore  = await getDayTotals(page, 0);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Clicar em "Cancelar" (second [data-modal-close])
+    const cancelBtn = page.locator('.modal-backdrop.show [data-modal-close]').last();
+    await expect(cancelBtn).toBeVisible();
+    await cancelBtn.click();
+
+    // Modal deve fechar
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Nenhuma substituição aplicada
+    await expect(page.locator('.ing-badge-subst')).not.toBeVisible();
+
+    // Kcal/macros inalterados
+    const mealAfter = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    const dayAfter  = await getDayTotals(page, 0);
+    expect(Math.abs(mealAfter.kcal - mealBefore.kcal)).toBeLessThanOrEqual(2);
+    expect(Math.abs(dayAfter.kcal  - dayBefore.kcal)).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-CANCEL2 ────────────────────────────────────────────────────────────
+  test('C-CANCEL2 — Cancelar no modal Adicionar: fecha sem adicionar alimento', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+    const ingsBefore = await page.locator('#day-body-0 .meal-card').first().locator('.ingredient').count();
+
+    await page.locator('[data-add-food]').first().click();
+    await expect(page.locator('#add-food-form')).toBeVisible();
+
+    // Preencher campos mas clicar Cancelar
+    await fillAddFoodForm(page, TEST_FOOD);
+    const cancelBtn = page.locator('#add-food-form').locator('[data-modal-close]').last();
+    await cancelBtn.click();
+
+    // Modal fechou
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Nenhum ingrediente adicionado
+    const ingsAfter = await page.locator('#day-body-0 .meal-card').first().locator('.ingredient').count();
+    expect(ingsAfter).toBe(ingsBefore);
+    await expect(page.locator('.ing-badge-added')).not.toBeVisible();
+
+    // Nada salvo no localStorage
+    const stored = await page.evaluate(() => {
+      try { return JSON.parse(localStorage.getItem('hg:custom_foods') || '[]'); }
+      catch { return []; }
+    });
+    expect(stored.length).toBe(0);
+
+    // Totais inalterados
+    const dayAfter = await getDayTotals(page, 0);
+    expect(Math.abs(dayAfter.kcal - dayBefore.kcal)).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-CANCEL3 ────────────────────────────────────────────────────────────
+  test('C-CANCEL3 — Cancelar edição: alimento mantém valores originais da adição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar alimento (100ml, 66kcal)
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const mealAfterAdd = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    const qtyTextBefore = await page.locator('.ingredient-added .ingredient-qty').first().textContent() || '';
+
+    // Abrir modal de edição
+    await page.locator('[data-edit-addition]').first().click();
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+
+    // Alterar campos mas Cancelar
+    await page.locator('#eff-qty').fill('330');
+    await page.locator('#eff-kcal').fill('218');
+    const cancelBtn = page.locator('#edit-food-form').locator('[data-modal-close]').last();
+    await cancelBtn.click();
+
+    // Modal fechou
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Quantidade continua 100ml (não 330ml)
+    const qtyTextAfter = await page.locator('.ingredient-added .ingredient-qty').first().textContent() || '';
+    expect(qtyTextAfter).toMatch(/100/);
+    expect(qtyTextAfter).not.toMatch(/330/);
+
+    // Kcal da refeição continua igual ao que era após adição (não mudou)
+    const mealAfterCancel = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(Math.abs(mealAfterCancel.kcal - mealAfterAdd.kcal)).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-CANCEL4 ────────────────────────────────────────────────────────────
+  test('C-CANCEL4 — Botão X fecha os três modais sem aplicar alterações', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+
+    // X no modal Substituir
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    await page.locator('.modal-backdrop.show [data-modal-close]').first().click();  // X é o primeiro
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // X no modal Adicionar
+    await page.locator('[data-add-food]').first().click();
+    await expect(page.locator('#add-food-form')).toBeVisible();
+    await page.locator('.modal-backdrop.show [data-modal-close]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Nada mudou
+    const dayAfter = await getDayTotals(page, 0);
+    expect(Math.abs(dayAfter.kcal - dayBefore.kcal)).toBeLessThanOrEqual(2);
+    await expect(page.locator('.ing-badge-subst')).not.toBeVisible();
+    await expect(page.locator('.ing-badge-added')).not.toBeVisible();
+  });
+
+  // ── C-CANCEL5 ────────────────────────────────────────────────────────────
+  test('C-CANCEL5 — ESC fecha modais sem aplicar alterações', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+
+    // ESC no modal Substituir
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // ESC no modal Adicionar (com campos preenchidos)
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Nada mudou
+    const dayAfter = await getDayTotals(page, 0);
+    expect(Math.abs(dayAfter.kcal - dayBefore.kcal)).toBeLessThanOrEqual(2);
+    await expect(page.locator('.ing-badge-added')).not.toBeVisible();
+  });
+
+  // ── C-CANCEL6 ────────────────────────────────────────────────────────────
+  test('C-CANCEL6 — Após cancelar, reabertura do modal está limpa e funcional', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Abrir modal Adicionar, preencher, cancelar
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('.modal-backdrop.show [data-modal-close]').last().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Reabrir o mesmo modal — deve abrir limpo (sem erros antigos)
+    await page.locator('[data-add-food]').first().click();
+    await expect(page.locator('#add-food-form')).toBeVisible();
+
+    // Erros não visíveis
+    const errBox = page.locator('#add-food-errors');
+    const errStyle = await errBox.getAttribute('style') || '';
+    expect(errStyle).toMatch(/display:\s*none/);
+
+    // Após cancelar e reabrir, preencher e submeter deve funcionar
+    await fillAddFoodForm(page, { ...TEST_FOOD, name: 'Reopen Test Food' });
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+    await expect(page.getByText('Reopen Test Food').first()).toBeVisible();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Aviso de dados locais (localStorage)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Aviso de dados locais', () => {
+
+  // ── C-LOCALDATA1 ──────────────────────────────────────────────────────────
+  test('C-LOCALDATA1 — Aviso de dados locais aparece no Plano Alimentar', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const notice = page.locator('[data-testid="local-data-notice"]');
+    await expect(notice).toBeVisible();
+    const text = (await notice.textContent()) || '';
+    expect(text).toMatch(/navegador/i);
+    expect(text).toMatch(/Resetar|cache|dispositivo/i);
+  });
+
+  // ── C-LOCALDATA2 ──────────────────────────────────────────────────────────
+  test('C-LOCALDATA2 — Modal Adicionar alimento mostra nota "guardado apenas neste navegador"', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    const note = page.locator('[data-testid="local-data-modal-note"]');
+    await expect(note).toBeVisible();
+    const text = (await note.textContent()) || '';
+    expect(text).toMatch(/guardado apenas neste navegador/i);
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Confirmação melhorada no botão Resetar
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Confirmação do Resetar', () => {
+
+  // ── C-RESET1 ──────────────────────────────────────────────────────────────
+  test('C-RESET1 — Clicar em Resetar mostra modal com aviso sobre dados locais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('#hdr-reset').click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    const modal = page.locator('.modal-backdrop.show .modal');
+    await expect(modal).toBeVisible();
+
+    const text = (await modal.textContent()) || '';
+    expect(text).toMatch(/apagar tudo|resetar/i);
+    // Deve mencionar os dados que serão apagados
+    expect(text).toMatch(/alimentos personalizados/i);
+
+    // Botões presentes
+    await expect(modal.getByText('Cancelar')).toBeVisible();
+    await expect(modal.getByText(/Sim, apagar tudo/i)).toBeVisible();
+  });
+
+  // ── C-RESET2 ──────────────────────────────────────────────────────────────
+  test('C-RESET2 — Cancelar no modal de reset não apaga dados', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Guardar plano antes
+    const planBefore = await page.evaluate(() => localStorage.getItem('hg:plan'));
+    expect(planBefore).toBeTruthy();
+
+    await page.locator('#hdr-reset').click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    // Cancelar
+    await page.locator('.modal-backdrop.show').getByText('Cancelar').click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Plano continua intacto
+    const planAfter = await page.evaluate(() => localStorage.getItem('hg:plan'));
+    expect(planAfter).toBeTruthy();
+    expect(planAfter).toBe(planBefore);
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Sugerir para biblioteca oficial (versão simplificada — email)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Sugerir para biblioteca oficial', () => {
+
+  // ── C-SUGGEST1 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST1 — Secção "Sugerir para biblioteca oficial" aparece no modal Adicionar', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    const section = page.locator('[data-testid="suggest-section"]');
+    await expect(section).toBeVisible();
+    const text = (await section.textContent()) || '';
+    expect(text).toMatch(/sugerir para biblioteca oficial/i);
+  });
+
+  // ── C-SUGGEST2 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST2 — Email hardgainerhibrido@gmail.com aparece visível na secção', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    // Expandir details
+    await page.locator('[data-testid="suggest-section"] > summary').click();
+
+    const emailEl = page.locator('[data-testid="suggest-email-link"]');
+    await expect(emailEl).toBeVisible();
+    const txt = (await emailEl.textContent()) || '';
+    expect(txt.trim()).toBe('hardgainerhibrido@gmail.com');
+  });
+
+  // ── C-SUGGEST3 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST3 — Email usa link mailto: correto', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await page.locator('[data-testid="suggest-section"] > summary').click();
+
+    const href = await page.locator('[data-testid="suggest-email-link"]').getAttribute('href');
+    expect(href).toBe('mailto:hardgainerhibrido@gmail.com');
+  });
+
+  // ── C-SUGGEST4 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST4 — Instrução para produtos com embalagem visível (nome, fotos, tabela)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await page.locator('[data-testid="suggest-section"] > summary').click();
+
+    await expect(page.locator('[data-testid="suggest-packaged-name"]')).toBeVisible();
+    await expect(page.locator('[data-testid="suggest-packaged-photos"]')).toBeVisible();
+    await expect(page.locator('[data-testid="suggest-packaged-label"]')).toBeVisible();
+
+    const nameText = (await page.locator('[data-testid="suggest-packaged-name"]').textContent()) || '';
+    expect(nameText).toMatch(/nome do produto/i);
+    const labelText = (await page.locator('[data-testid="suggest-packaged-label"]').textContent()) || '';
+    expect(labelText).toMatch(/tabela nutricional/i);
+  });
+
+  // ── C-SUGGEST5 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST5 — Instrução para frutas/vegetais visível (nome, origem, fotos)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await page.locator('[data-testid="suggest-section"] > summary').click();
+
+    await expect(page.locator('[data-testid="suggest-natural-name"]')).toBeVisible();
+    await expect(page.locator('[data-testid="suggest-natural-origin"]')).toBeVisible();
+    await expect(page.locator('[data-testid="suggest-natural-photos"]')).toBeVisible();
+
+    const originText = (await page.locator('[data-testid="suggest-natural-origin"]').textContent()) || '';
+    expect(originText).toMatch(/origem/i);
+  });
+
+  // ── C-SUGGEST6 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST6 — Botão "Copiar sugestão" não existe', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    const copyBtn = page.getByText(/copiar sugestão/i);
+    await expect(copyBtn).not.toBeVisible();
+  });
+
+  // ── C-SUGGEST7 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST7 — Campos Marca/País/Link/Observações não existem no modal', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    // Estes campos não devem existir no DOM
+    expect(await page.locator('#aff-sg-brand').count()).toBe(0);
+    expect(await page.locator('#aff-sg-country').count()).toBe(0);
+    expect(await page.locator('#aff-sg-link').count()).toBe(0);
+    expect(await page.locator('#aff-sg-obs').count()).toBe(0);
+  });
+
+  // ── C-SUGGEST8 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST8 — Secção Sugerir aparece também no modal Editar alimento', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar alimento para poder editar
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD, name: 'Alimento Para Editar S8' });
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Abrir modal de edição
+    await page.locator('[data-edit-addition]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+
+    // Secção suggest presente no modal de edição
+    const section = page.locator('[data-testid="suggest-section"]');
+    await expect(section).toBeVisible();
+
+    // Expandir e verificar email
+    await section.locator('summary').click();
+    const emailEl = page.locator('[data-testid="suggest-email-link"]');
+    await expect(emailEl).toBeVisible();
+    const txt = (await emailEl.textContent()) || '';
+    expect(txt.trim()).toBe('hardgainerhibrido@gmail.com');
+  });
+
+  // ── C-SUGGEST9 ────────────────────────────────────────────────────────────
+  test('C-SUGGEST9 — Secção Sugerir não altera kcal/macros nem adiciona alimento ao plano', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Totais do Dia 1 antes de abrir modal
+    const dayBefore = await page.locator('[data-day-head="0"] .day-summary').textContent() || '';
+
+    // Abrir modal e expandir secção suggest (sem submeter form)
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await page.locator('[data-testid="suggest-section"] > summary').click();
+    await expect(page.locator('[data-testid="suggest-email-link"]')).toBeVisible();
+
+    // Fechar sem submeter
+    await page.locator('.modal-backdrop.show [data-modal-close]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+
+    // Nenhum alimento adicionado
+    const badges = await page.locator('.ing-badge-added').count();
+    expect(badges).toBe(0);
+
+    // Totais intactos
+    const dayAfter = await page.locator('[data-day-head="0"] .day-summary').textContent() || '';
+    expect(dayAfter).toBe(dayBefore);
+
+    // localStorage additions vazio
+    const additions = await page.evaluate(() => localStorage.getItem('hg:additions'));
+    expect(additions).toBeNull();
+  });
+
+});

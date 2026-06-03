@@ -19,6 +19,8 @@ import { openModal } from '../components/ui.js';
 import {
   loadPlan, loadResults,
   loadSubstitutions, saveSubstitutions,
+  loadCustomFoods, saveCustomFoods,
+  loadAdditions, saveAdditions,
 } from '../modules/storage.js';
 import { formatKcal } from '../modules/calculator.js';
 import {
@@ -29,14 +31,18 @@ export function renderPlanoPage(mount) {
   const plan = loadPlan();
   const results = loadResults();
   if (!plan || !results) { navigate('/'); return; }
+  rebuildAndRender(mount);
+}
 
-  // Carregar substituições aplicadas
-  let subs = loadSubstitutions();
-
-  // Aplicar substituições ao plano (cria plano efetivo)
-  const effectivePlan = applySubstitutions(plan, subs);
-
-  render(mount, effectivePlan, results, subs, plan);
+/** Recarrega estado do localStorage e re-renderiza a página completa. */
+function rebuildAndRender(mount) {
+  const originalPlan = loadPlan();
+  const results = loadResults();
+  if (!originalPlan || !results) return;
+  const subs = loadSubstitutions();
+  const additions = loadAdditions();
+  const effective = applyAdditions(applySubstitutions(originalPlan, subs), additions);
+  render(mount, effective, results, subs, originalPlan, additions);
 }
 
 const PLAN_STRATEGY_LABEL = {
@@ -45,7 +51,7 @@ const PLAN_STRATEGY_LABEL = {
   practical: 'Máxima Praticidade',
 };
 
-function render(mount, plan, results, subs, originalPlan) {
+function render(mount, plan, results, subs, originalPlan, additions) {
   const strategy = results.routine?.strategy;
   const strategyLabel = PLAN_STRATEGY_LABEL[strategy] || 'Sistema Híbrido';
   const solidCount = countSolid(plan[0]);
@@ -101,9 +107,15 @@ function render(mount, plan, results, subs, originalPlan) {
         </div>
       </details>
 
+      <!-- Aviso: dados locais -->
+      <div class="local-data-notice no-print" data-testid="local-data-notice">
+        <span class="local-data-notice-icon">🔒</span>
+        <span>Os seus alimentos personalizados ficam guardados apenas neste navegador. Se limpar a cache, trocar de dispositivo ou clicar em Resetar, estes dados podem ser apagados.</span>
+      </div>
+
       <!-- Days -->
       <div id="days-container">
-        ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories)).join('')}
+        ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories, additions)).join('')}
       </div>
 
       <!-- Receitas base (no-print friendly) -->
@@ -227,15 +239,47 @@ function render(mount, plan, results, subs, originalPlan) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const { dayIdx, mealIdx, ingIdx } = btn.dataset;
-      let currentSubs = loadSubstitutions();
+      const currentSubs = loadSubstitutions();
       const subKey = `${dayIdx}:${mealIdx}:${ingIdx}`;
       if (currentSubs[subKey]) {
         delete currentSubs[subKey];
         saveSubstitutions(currentSubs);
       }
-      const freshPlan = loadPlan();
-      const newPlan = applySubstitutions(freshPlan, currentSubs);
-      render(mount, newPlan, loadResults(), currentSubs, freshPlan);
+      rebuildAndRender(mount);
+    });
+  });
+
+  // Add food buttons
+  mount.querySelectorAll('[data-add-food]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx } = btn.dataset;
+      openAddFoodModal(Number(dayIdx), Number(mealIdx), mount);
+    });
+  });
+
+  // Edit addition buttons
+  mount.querySelectorAll('[data-edit-addition]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { additionId, dayIdx, mealIdx } = btn.dataset;
+      openEditFoodModal(additionId, Number(dayIdx), Number(mealIdx), mount);
+    });
+  });
+
+  // Remove addition buttons
+  mount.querySelectorAll('[data-remove-addition]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { additionId, dayIdx, mealIdx } = btn.dataset;
+      const currentAdditions = loadAdditions();
+      const addKey = `${dayIdx}:${mealIdx}`;
+      if (currentAdditions[addKey]) {
+        currentAdditions[addKey] = currentAdditions[addKey].filter(a => a.id !== additionId);
+        if (currentAdditions[addKey].length === 0) delete currentAdditions[addKey];
+      }
+      saveAdditions(currentAdditions);
+      rebuildAndRender(mount);
     });
   });
 
@@ -297,13 +341,15 @@ function render(mount, plan, results, subs, originalPlan) {
 /* Day card rendering                                                           */
 /* ============================================================================ */
 
-function renderDayCard(day, idx, subs, originalDay, targetKcal) {
+function renderDayCard(day, idx, subs, originalDay, targetKcal, additions) {
   const isOpen = idx === 0;
-  const dayHasSubs = Object.keys(subs || {}).some(k => k.startsWith(`${idx}:`));
+  const dayHasSubs      = Object.keys(subs      || {}).some(k => k.startsWith(`${idx}:`));
+  const dayHasAdditions = Object.keys(additions  || {}).some(k => k.startsWith(`${idx}:`));
+  const dayHasChanges   = dayHasSubs || dayHasAdditions;
   const origT = originalDay?.totals;
   const curT = day.totals;
   let dayCompBlock = '';
-  if (dayHasSubs && origT) {
+  if (dayHasChanges && origT) {
     const dKcal = curT.kcal - origT.kcal;
     const dProt = Math.round(curT.prot) - Math.round(origT.prot);
     const dCarb = Math.round(curT.carb) - Math.round(origT.carb);
@@ -371,7 +417,7 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
         <span class="meal-card-badge ${meal.type}">${meal.type === 'solid' ? 'Sólida' : 'Shake'}</span>
       </div>
 
-      <div class="meal-totals">
+      <div class="meal-totals" data-meal-totals="${dayIdx}-${mealIdx}">
         <span class="meal-total"><span class="meal-total-dot" style="background: var(--cal-color)"></span> ${formatKcal(meal.totals.kcal)} kcal</span>
         <span class="meal-total"><span class="meal-total-dot" style="background: var(--protein-color)"></span> ${meal.totals.prot}g P</span>
         <span class="meal-total"><span class="meal-total-dot" style="background: var(--carb-color)"></span> ${meal.totals.carb}g C</span>
@@ -381,26 +427,36 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
       <div class="ingredient-label">Detalhamento Por Alimento</div>
       <ul class="ingredient-list">
         ${meal.ingredients.map((ing, iIdx) => {
-          const subKey = `${dayIdx}:${mealIdx}:${iIdx}`;
-          const isSub = !!(safeSubs[subKey]);
+          const isAdded = ing.isAddition === true;
+          const subKey  = `${dayIdx}:${mealIdx}:${iIdx}`;
+          const isSub   = !isAdded && !!(safeSubs[subKey]);
+          const liClass = `ingredient${isSub ? ' ingredient-substituted' : ''}${isAdded ? ' ingredient-added' : ''}`;
           return `
-            <li class="ingredient${isSub ? ' ingredient-substituted' : ''}">
+            <li class="${liClass}">
               <div class="ingredient-main">
                 <div class="ingredient-name">
-                  ${ing.label || (getFood(ing.food)?.name || ing.food)}
-                  ${isSub ? '<span class="ing-badge-subst">Substituído</span>' : ''}
+                  ${ing.label || (getFoodWithCustom(ing.food)?.name || ing.food)}
+                  ${isSub   ? '<span class="ing-badge-subst">Substituído</span>' : ''}
+                  ${isAdded ? '<span class="ing-badge-added">Adicionado</span>' : ''}
                 </div>
                 <div class="ingredient-qty">${ing.display}</div>
                 <div class="ingredient-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g C:${ing.macros.carb}g G:${ing.macros.fat}g</div>
-                ${isSub ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
+                ${isSub   ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
+                ${isAdded ? `<button type="button" class="ing-edit-btn no-print" data-edit-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Editar alimento adicionado">✎ Editar</button>` : ''}
+                ${isAdded ? `<button type="button" class="ing-remove-btn no-print" data-remove-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Remover alimento adicionado">✕ Remover</button>` : ''}
               </div>
-              <button type="button" class="ingredient-sub-btn no-print" data-swap data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Substituir ${ing.label || ing.food}">
-                ${icons.swap(14)} Substituir
-              </button>
+              ${!isAdded ? `<button type="button" class="ingredient-sub-btn no-print" data-swap data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Substituir ${ing.label || ing.food}">${icons.swap(14)} Substituir</button>` : ''}
             </li>
           `;
         }).join('')}
       </ul>
+      <div class="ing-add-row no-print">
+        <button type="button" class="ing-add-btn" data-add-food data-testid="add-food-button"
+                data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}"
+                aria-label="Adicionar alimento extra à refeição ${mealIdx + 1}">
+          + Adicionar alimento
+        </button>
+      </div>
 
       ${meal.steps && meal.steps.length ? `
         <div class="prep-section">
@@ -605,11 +661,11 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
     || getFood(originalIng.food)?.name
     || originalIng.food;
 
-  // Current food (may be the substituted food)
-  const currentFood = getFood(ing.food);
+  // Current food (may be the substituted food) — supports custom foods
+  const currentFood = getFoodWithCustom(ing.food);
   if (!currentFood) return;
 
-  // Build substitute candidates with practical rounding applied
+  // Build substitute candidates with practical rounding applied (official foods only)
   const rawOpts = getSubstitutes(ing.food, ing.grams);
   const options = rawOpts.map(opt => {
     const practicalG = subPracticalGrams(opt.id, opt.grams);
@@ -622,13 +678,48 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
     return { id: opt.id, food: opt.food, grams: practicalG, macros, display, delta, impact };
   });
 
-  // Group by category (current food category first, then alphabetical by order)
+  // Add custom foods of the same category as substitute options
+  const customFoods = loadCustomFoods();
+  const targetKcalForSub = ing.macros.kcal;
+  const customOpts = customFoods
+    .filter(f => f.category === (currentFood.category || 'extra'))
+    .map(f => {
+      if (!f.per100 || f.per100.kcal <= 0) return null;
+      const equivG = targetKcalForSub > 0
+        ? Math.max(5, Math.round((targetKcalForSub / f.per100.kcal * 100) / 5) * 5)
+        : (f.baseQuantity || 100);
+      const macros = calcMacrosFromFood(f, equivG);
+      const delta  = macros.kcal - ing.macros.kcal;
+      const impact = getSubImpact(delta);
+      const sign   = delta >= 0 ? '+' : '';
+      return { id: f.id, food: f, grams: equivG, macros, display: `${equivG}g`, delta, impact, sign, isCustom: true };
+    })
+    .filter(Boolean);
+
+  // Group official options by category
   const grouped = {};
   options.forEach(opt => {
     const cat = opt.food.category || 'extra';
     if (!grouped[cat]) grouped[cat] = [];
     grouped[cat].push(opt);
   });
+
+  const renderSubOpt = (opt) => {
+    const sign = opt.sign !== undefined ? opt.sign : (opt.delta >= 0 ? '+' : '');
+    return `
+      <li class="sub-option${opt.isCustom ? ' sub-option-custom' : ''}" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}">
+        <div class="sub-option-head">
+          <div class="sub-option-name">${opt.food.name}</div>
+          <div class="sub-option-qty">${opt.display}</div>
+        </div>
+        <div class="sub-option-macros">
+          ${opt.macros.kcal} kcal (${sign}${opt.delta}) •
+          P:${opt.macros.prot}g • C:${opt.macros.carb}g • G:${opt.macros.fat}g
+        </div>
+        <span class="sub-impact ${opt.impact.cls}">${opt.impact.label}</span>
+      </li>
+    `;
+  };
 
   const optionsHtml = SUB_CAT_ORDER
     .filter(c => grouped[c])
@@ -637,25 +728,17 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
       return `
         <div class="sub-cat-group">
           <div class="sub-cat-label">${SUB_CAT_LABEL[cat] || cat}</div>
-          ${items.map(opt => {
-            const sign = opt.delta >= 0 ? '+' : '';
-            return `
-              <li class="sub-option" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}">
-                <div class="sub-option-head">
-                  <div class="sub-option-name">${opt.food.name}</div>
-                  <div class="sub-option-qty">${opt.display}</div>
-                </div>
-                <div class="sub-option-macros">
-                  ${opt.macros.kcal} kcal (${sign}${opt.delta}) •
-                  P:${opt.macros.prot}g • C:${opt.macros.carb}g • G:${opt.macros.fat}g
-                </div>
-                <span class="sub-impact ${opt.impact.cls}">${opt.impact.label}</span>
-              </li>
-            `;
-          }).join('')}
+          ${items.map(renderSubOpt).join('')}
         </div>
       `;
     }).join('');
+
+  const customOptsHtml = customOpts.length > 0 ? `
+    <div class="sub-cat-group">
+      <div class="sub-cat-label sub-cat-custom">⭐ Meus alimentos</div>
+      ${customOpts.map(renderSubOpt).join('')}
+    </div>
+  ` : '';
 
   const contentHtml = `
     <div class="modal-head">
@@ -672,11 +755,11 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
         <div class="sub-current-qty">${ing.display}</div>
         <div class="sub-current-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g • C:${ing.macros.carb}g • G:${ing.macros.fat}g</div>
       </div>
-      ${options.length === 0 ? `
+      ${options.length === 0 && customOpts.length === 0 ? `
         <p class="card-body" style="margin-top:14px;">Não há substituições equivalentes registadas para este alimento. Considere manter o original.</p>
       ` : `
         <p style="margin-top:14px; margin-bottom:0; font-size:12.5px; color:var(--ink-muted);">Clique para aplicar. Quantidade calculada para manter calorias aproximadas. Afeta apenas este ingrediente neste dia.</p>
-        <ul class="sub-options" style="margin-top:10px;">${optionsHtml}</ul>
+        <ul class="sub-options" style="margin-top:10px;">${optionsHtml}${customOptsHtml}</ul>
       `}
       <div class="btn-row" style="margin-top:16px; flex-wrap:wrap;">
         ${isAlreadySubstituted ? `<button type="button" class="btn btn-ghost" id="btn-reset-ing" style="font-size:13px;">${icons.refresh(14)} Reverter: ${escapeHtml(originalFoodName)}</button>` : ''}
@@ -690,13 +773,12 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
   // Apply substitution on option click
   document.querySelectorAll('.sub-option').forEach(li => {
     li.addEventListener('click', () => {
-      const subId = li.dataset.subId;
+      const subId   = li.dataset.subId;
       const subGrams = Number(li.dataset.subGrams);
       subs[subKey] = { food: subId, grams: subGrams };
       saveSubstitutions(subs);
       close();
-      const newPlan = applySubstitutions(plan, subs);
-      render(mount, newPlan, loadResults(), subs, plan);
+      rebuildAndRender(mount);
     });
   });
 
@@ -707,8 +789,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
       delete subs[subKey];
       saveSubstitutions(subs);
       close();
-      const newPlan = applySubstitutions(plan, subs);
-      render(mount, newPlan, loadResults(), subs, plan);
+      rebuildAndRender(mount);
     });
   }
 }
@@ -726,14 +807,16 @@ function applySubstitutions(plan, subs) {
         const key = `${dayIdx}:${mealIdx}:${ingIdx}`;
         const sub = subs[key];
         if (!sub) return ing;
-        const newFood = getFood(sub.food);
+        const newFood = getFoodWithCustom(sub.food);
         if (!newFood) return ing;
-        const macros = calcFoodMacros(sub.food, sub.grams);
+        const macros = calcMacrosFromFood(newFood, sub.grams);
         return {
           food: sub.food,
           label: newFood.name,
           grams: sub.grams,
-          display: formatQty(sub.food, sub.grams),
+          display: newFood.source === 'custom'
+            ? `${sub.grams}g`
+            : formatQty(sub.food, sub.grams),
           macros,
         };
       });
@@ -842,6 +925,554 @@ function formatGramsHumans(g) {
 
 function countSolid(day) { return day.meals.filter(m => m.type === 'solid').length; }
 function countShake(day) { return day.meals.filter(m => m.type === 'shake').length; }
+
+/* ============================================================================ */
+/* Custom food helpers                                                          */
+/* ============================================================================ */
+
+/** Procura alimento oficial ou personalizado pelo ID. */
+function getFoodWithCustom(id) {
+  return getFood(id) || (loadCustomFoods().find(f => f.id === id) || null);
+}
+
+/** Calcula macros a partir de um objeto food (suporta oficial + personalizado). */
+function calcMacrosFromFood(food, grams) {
+  const factor = grams / 100;
+  return {
+    kcal: Math.round(food.per100.kcal * factor),
+    prot: Math.round(food.per100.prot * factor * 10) / 10,
+    carb: Math.round(food.per100.carb * factor * 10) / 10,
+    fat:  Math.round(food.per100.fat  * factor * 10) / 10,
+  };
+}
+
+/** Aplica alimentos adicionados ao plano (após applySubstitutions). */
+function applyAdditions(plan, additions) {
+  if (!additions || Object.keys(additions).length === 0) return plan;
+
+  return plan.map((day, dayIdx) => {
+    const newMeals = day.meals.map((meal, mealIdx) => {
+      const key = `${dayIdx}:${mealIdx}`;
+      const mealAdds = additions[key];
+      if (!mealAdds || mealAdds.length === 0) return meal;
+
+      const addedIngredients = mealAdds.map(add => {
+        const food = getFoodWithCustom(add.food) || add.snapshot;
+        if (!food || !food.per100) return null;
+        const macros = calcMacrosFromFood(food, add.grams);
+        return {
+          food: add.food,
+          label: food.name,
+          grams: add.grams,
+          display: `${add.grams} ${add.unit || 'g'}`,
+          macros,
+          isAddition: true,
+          additionId: add.id,
+        };
+      }).filter(Boolean);
+
+      if (addedIngredients.length === 0) return meal;
+
+      const newIngredients = [...meal.ingredients, ...addedIngredients];
+      const totals = newIngredients.reduce((acc, i) => ({
+        kcal: acc.kcal + i.macros.kcal,
+        prot: acc.prot + i.macros.prot,
+        carb: acc.carb + i.macros.carb,
+        fat:  acc.fat  + i.macros.fat,
+      }), { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+      return {
+        ...meal,
+        ingredients: newIngredients,
+        totals: {
+          kcal: Math.round(totals.kcal),
+          prot: Math.round(totals.prot * 10) / 10,
+          carb: Math.round(totals.carb * 10) / 10,
+          fat:  Math.round(totals.fat  * 10) / 10,
+        },
+      };
+    });
+
+    const dayTotals = newMeals.reduce((acc, m) => ({
+      kcal: acc.kcal + m.totals.kcal,
+      prot: acc.prot + m.totals.prot,
+      carb: acc.carb + m.totals.carb,
+      fat:  acc.fat  + m.totals.fat,
+    }), { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+    return {
+      ...day,
+      meals: newMeals,
+      totals: {
+        kcal: Math.round(dayTotals.kcal),
+        prot: Math.round(dayTotals.prot),
+        carb: Math.round(dayTotals.carb),
+        fat:  Math.round(dayTotals.fat),
+      },
+    };
+  });
+}
+
+/**
+ * Valida os campos do formulário "Adicionar/Editar alimento".
+ * @param {object} data
+ * @param {string|null} excludeFoodId — em modo edição, excluir este ID do check de duplicado
+ */
+function validateAddFoodForm(data, excludeFoodId = null) {
+  const errors = [];
+  if (!data.name || !data.name.trim())
+    errors.push('Preenche o nome do alimento.');
+  if (!data.category)
+    errors.push('Seleciona uma categoria.');
+  if (!(data.baseQuantity > 0))
+    errors.push('Quantidade base deve ser maior que zero.');
+  if (data.kcal < 0 || data.prot < 0 || data.carb < 0 || data.fat < 0)
+    errors.push('Os valores nutricionais não podem ser negativos.');
+  if (data.kcal === 0 && data.prot === 0 && data.carb === 0 && data.fat === 0)
+    errors.push('O alimento deve ter pelo menos algum valor nutricional.');
+  const customs = loadCustomFoods();
+  const lower = data.name.trim().toLowerCase();
+  if (customs.some(f =>
+    f.name.toLowerCase() === lower &&
+    f.category === data.category &&
+    f.baseQuantity === data.baseQuantity &&
+    f.id !== excludeFoodId
+  )) {
+    errors.push('Já tens um alimento com este nome, categoria e quantidade.');
+  }
+  return errors;
+}
+
+/** Abre o modal de adição de alimento personalizado. */
+function openAddFoodModal(dayIdx, mealIdx, mount) {
+  const cats = [
+    { v: 'protein', l: 'Proteínas' },
+    { v: 'carb',    l: 'Carboidratos' },
+    { v: 'fat',     l: 'Gorduras' },
+    { v: 'dairy',   l: 'Laticínios' },
+    { v: 'fruit',   l: 'Frutas' },
+    { v: 'veg',     l: 'Vegetais / Legumes' },
+    { v: 'extra',   l: 'Suplementos / Outro' },
+  ];
+
+  const contentHtml = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Adicionar alimento</div>
+        <div class="modal-sub">Cria um alimento personalizado e adiciona-o à refeição</div>
+        <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará guardado apenas neste navegador.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
+    </div>
+    <div class="modal-body">
+      <form id="add-food-form" novalidate autocomplete="off">
+        <div id="add-food-errors" class="add-food-error-box" style="display:none;"></div>
+
+        <div class="add-food-grid">
+          <div class="add-food-field add-food-field-full">
+            <label class="add-food-label" for="aff-name">Nome do alimento *</label>
+            <input type="text" id="aff-name" class="add-food-input"
+                   placeholder="Ex: Skyr proteico Lidl" maxlength="80">
+          </div>
+          <div class="add-food-field">
+            <label class="add-food-label" for="aff-category">Categoria *</label>
+            <select id="aff-category" class="add-food-input">
+              <option value="">Escolher…</option>
+              ${cats.map(c => `<option value="${c.v}">${c.l}</option>`).join('')}
+            </select>
+          </div>
+          <div class="add-food-field">
+            <label class="add-food-label">Porção base *</label>
+            <div class="add-food-qty-row">
+              <input type="number" id="aff-qty" class="add-food-input add-food-qty"
+                     placeholder="150" min="1" max="2000" step="1">
+              <select id="aff-unit" class="add-food-input add-food-unit">
+                <option value="g">g</option>
+                <option value="ml">ml</option>
+                <option value="unidade">unidade</option>
+                <option value="colher de chá">colher de chá</option>
+                <option value="colher de sobremesa">colher de sobremesa</option>
+                <option value="colher de sopa">colher de sopa</option>
+                <option value="scoop/medidor">scoop/medidor</option>
+                <option value="porção">porção</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="add-food-macros-title">Macros desta porção *</div>
+        <div class="add-food-macros-grid">
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="aff-kcal">Kcal</label>
+            <input type="number" id="aff-kcal" class="add-food-input"
+                   placeholder="0" min="0" step="1">
+          </div>
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="aff-prot">Proteína (g)</label>
+            <input type="number" id="aff-prot" class="add-food-input"
+                   placeholder="0" min="0" step="0.1">
+          </div>
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="aff-carb">Carbs (g)</label>
+            <input type="number" id="aff-carb" class="add-food-input"
+                   placeholder="0" min="0" step="0.1">
+          </div>
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="aff-fat">Gorduras (g)</label>
+            <input type="number" id="aff-fat" class="add-food-input"
+                   placeholder="0" min="0" step="0.1">
+          </div>
+        </div>
+
+        <details style="margin-top:14px;">
+          <summary style="font-size:12px;color:var(--ink-muted);cursor:pointer;user-select:none;">▸ Campos opcionais (fibras, sódio, notas…)</summary>
+          <div class="add-food-optional-grid">
+            <div class="add-food-macro-field">
+              <label class="add-food-label" for="aff-fiber">Fibras (g)</label>
+              <input type="number" id="aff-fiber" class="add-food-input" placeholder="—" min="0" step="0.1">
+            </div>
+            <div class="add-food-macro-field">
+              <label class="add-food-label" for="aff-sugar">Açúcar (g)</label>
+              <input type="number" id="aff-sugar" class="add-food-input" placeholder="—" min="0" step="0.1">
+            </div>
+            <div class="add-food-macro-field">
+              <label class="add-food-label" for="aff-sodium">Sódio (mg)</label>
+              <input type="number" id="aff-sodium" class="add-food-input" placeholder="—" min="0" step="1">
+            </div>
+            <div class="add-food-field add-food-field-full" style="margin-top:6px;">
+              <label class="add-food-label" for="aff-notes">Notas</label>
+              <input type="text" id="aff-notes" class="add-food-input"
+                     placeholder="Ex: Rótulo do produto" maxlength="200">
+            </div>
+          </div>
+        </details>
+
+        ${buildSuggestSection()}
+
+        <div class="btn-row" style="margin-top:20px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+          <button type="submit" class="btn btn-primary">+ Adicionar à refeição</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  const close = openModal(contentHtml);
+
+  document.getElementById('add-food-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name     = (document.getElementById('aff-name').value || '').trim();
+    const category = document.getElementById('aff-category').value;
+    const qty      = parseFloat(document.getElementById('aff-qty').value) || 0;
+    const unit     = document.getElementById('aff-unit').value;
+    const kcal     = parseFloat(document.getElementById('aff-kcal').value)  || 0;
+    const prot     = parseFloat(document.getElementById('aff-prot').value)  || 0;
+    const carb     = parseFloat(document.getElementById('aff-carb').value)  || 0;
+    const fat      = parseFloat(document.getElementById('aff-fat').value)   || 0;
+    const fiber    = parseFloat(document.getElementById('aff-fiber').value) || null;
+    const sugar    = parseFloat(document.getElementById('aff-sugar').value) || null;
+    const sodium   = parseFloat(document.getElementById('aff-sodium').value) || null;
+    const notes    = (document.getElementById('aff-notes').value || '').trim();
+
+    const data = { name, category, baseQuantity: qty, unit, kcal, prot, carb, fat };
+    const errors = validateAddFoodForm(data);
+
+    if (errors.length > 0) {
+      const errBox = document.getElementById('add-food-errors');
+      errBox.innerHTML = errors.map(err => `<div>• ${escapeHtml(err)}</div>`).join('');
+      errBox.style.display = 'block';
+      return;
+    }
+
+    // Convert per-portion macros to per100g for storage
+    const f100 = 100 / qty;
+    const customFood = {
+      id: `custom_${Date.now()}`,
+      name,
+      category,
+      per100: {
+        kcal: Math.round(kcal * f100 * 10) / 10,
+        prot: Math.round(prot * f100 * 10) / 10,
+        carb: Math.round(carb * f100 * 10) / 10,
+        fat:  Math.round(fat  * f100 * 10) / 10,
+      },
+      units: [{ label: unit, grams: qty }],
+      digestibility: 'leve',
+      substitutes: [],
+      source: 'custom',
+      baseQuantity: qty,
+      baseUnit: unit,
+      micronutrients: { fiber, sugar, sodium, calcium: null, iron: null },
+      notes: notes || null,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Save to personal foods library
+    const customs = loadCustomFoods();
+    customs.push(customFood);
+    saveCustomFoods(customs);
+
+    // Add to plan additions for this meal
+    const additions = loadAdditions();
+    const addKey = `${dayIdx}:${mealIdx}`;
+    if (!additions[addKey]) additions[addKey] = [];
+    additions[addKey].push({
+      id: `addition_${Date.now()}`,
+      food: customFood.id,
+      grams: qty,
+      unit,
+      snapshot: {
+        name: customFood.name,
+        per100: customFood.per100,
+        category: customFood.category,
+        source: 'custom',
+      },
+    });
+    saveAdditions(additions);
+
+    close();
+    rebuildAndRender(mount);
+  });
+}
+
+/** Abre o modal em modo edição para um alimento já adicionado. */
+function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
+  // 1. Encontrar a adição
+  const additions = loadAdditions();
+  const addKey = `${dayIdx}:${mealIdx}`;
+  const addList = additions[addKey] || [];
+  const addition = addList.find(a => a.id === additionId);
+  if (!addition) return;
+
+  // 2. Obter food (custom food ou snapshot)
+  const customs = loadCustomFoods();
+  const storedFood = customs.find(f => f.id === addition.food);
+  const foodData = storedFood || addition.snapshot;
+  if (!foodData || !foodData.per100) return;
+
+  // 3. Recalcular macros por porção actual para pré-preencher o formulário
+  const qty = addition.grams;
+  const f100to = (v) => Math.round(v * qty / 100 * 10) / 10;
+  const kcalP = f100to(foodData.per100.kcal);
+  const protP = f100to(foodData.per100.prot);
+  const carbP = f100to(foodData.per100.carb);
+  const fatP  = f100to(foodData.per100.fat);
+  const fiberP  = foodData.micronutrients?.fiber  != null ? f100to(foodData.micronutrients.fiber)  : '';
+  const sugarP  = foodData.micronutrients?.sugar  != null ? f100to(foodData.micronutrients.sugar)  : '';
+  const sodiumP = foodData.micronutrients?.sodium != null ? f100to(foodData.micronutrients.sodium) : '';
+  const notesV  = foodData.notes || '';
+  const currentUnit = addition.unit || foodData.baseUnit || 'g';
+
+  const cats = [
+    { v: 'protein', l: 'Proteínas' }, { v: 'carb', l: 'Carboidratos' },
+    { v: 'fat', l: 'Gorduras' },      { v: 'dairy', l: 'Laticínios' },
+    { v: 'fruit', l: 'Frutas' },      { v: 'veg', l: 'Vegetais / Legumes' },
+    { v: 'extra', l: 'Suplementos / Outro' },
+  ];
+  const unitOpts = ['g','ml','unidade','colher de chá','colher de sobremesa','colher de sopa','scoop/medidor','porção'];
+
+  const contentHtml = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Editar alimento adicionado</div>
+        <div class="modal-sub">Os dados desta refeição serão actualizados</div>
+        <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará guardado apenas neste navegador.</p>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
+    </div>
+    <div class="modal-body">
+      <form id="edit-food-form" novalidate autocomplete="off">
+        <div id="edit-food-errors" class="add-food-error-box" style="display:none;"></div>
+        <div class="add-food-grid">
+          <div class="add-food-field add-food-field-full">
+            <label class="add-food-label" for="eff-name">Nome do alimento *</label>
+            <input type="text" id="eff-name" class="add-food-input" value="${escapeHtml(foodData.name)}" maxlength="80">
+          </div>
+          <div class="add-food-field">
+            <label class="add-food-label" for="eff-category">Categoria *</label>
+            <select id="eff-category" class="add-food-input">
+              ${cats.map(c => `<option value="${c.v}"${foodData.category === c.v ? ' selected' : ''}>${c.l}</option>`).join('')}
+            </select>
+          </div>
+          <div class="add-food-field">
+            <label class="add-food-label">Porção base *</label>
+            <div class="add-food-qty-row">
+              <input type="number" id="eff-qty" class="add-food-input add-food-qty" value="${qty}" min="1" max="2000" step="1">
+              <select id="eff-unit" class="add-food-input add-food-unit">
+                ${unitOpts.map(u => `<option value="${u}"${u === currentUnit ? ' selected' : ''}>${u}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="add-food-macros-title">Macros desta porção *</div>
+        <div class="add-food-macros-grid">
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="eff-kcal">Kcal</label>
+            <input type="number" id="eff-kcal" class="add-food-input" value="${kcalP}" min="0" step="1">
+          </div>
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="eff-prot">Proteína (g)</label>
+            <input type="number" id="eff-prot" class="add-food-input" value="${protP}" min="0" step="0.1">
+          </div>
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="eff-carb">Carbs (g)</label>
+            <input type="number" id="eff-carb" class="add-food-input" value="${carbP}" min="0" step="0.1">
+          </div>
+          <div class="add-food-macro-field">
+            <label class="add-food-label" for="eff-fat">Gorduras (g)</label>
+            <input type="number" id="eff-fat" class="add-food-input" value="${fatP}" min="0" step="0.1">
+          </div>
+        </div>
+        <details style="margin-top:14px;">
+          <summary style="font-size:12px;color:var(--ink-muted);cursor:pointer;user-select:none;">▸ Campos opcionais</summary>
+          <div class="add-food-optional-grid">
+            <div class="add-food-macro-field">
+              <label class="add-food-label" for="eff-fiber">Fibras (g)</label>
+              <input type="number" id="eff-fiber" class="add-food-input" value="${fiberP}" min="0" step="0.1">
+            </div>
+            <div class="add-food-macro-field">
+              <label class="add-food-label" for="eff-sugar">Açúcar (g)</label>
+              <input type="number" id="eff-sugar" class="add-food-input" value="${sugarP}" min="0" step="0.1">
+            </div>
+            <div class="add-food-macro-field">
+              <label class="add-food-label" for="eff-sodium">Sódio (mg)</label>
+              <input type="number" id="eff-sodium" class="add-food-input" value="${sodiumP}" min="0" step="1">
+            </div>
+            <div class="add-food-field add-food-field-full" style="margin-top:6px;">
+              <label class="add-food-label" for="eff-notes">Notas</label>
+              <input type="text" id="eff-notes" class="add-food-input" value="${escapeHtml(notesV)}" maxlength="200">
+            </div>
+          </div>
+        </details>
+        ${buildSuggestSection()}
+
+        <div class="btn-row" style="margin-top:20px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar alterações</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  const close = openModal(contentHtml);
+
+  document.getElementById('edit-food-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name     = (document.getElementById('eff-name').value || '').trim();
+    const category = document.getElementById('eff-category').value;
+    const newQty   = parseFloat(document.getElementById('eff-qty').value)  || 0;
+    const unit     = document.getElementById('eff-unit').value;
+    const kcal     = parseFloat(document.getElementById('eff-kcal').value) || 0;
+    const prot     = parseFloat(document.getElementById('eff-prot').value) || 0;
+    const carb     = parseFloat(document.getElementById('eff-carb').value) || 0;
+    const fat      = parseFloat(document.getElementById('eff-fat').value)  || 0;
+    const fiber    = parseFloat(document.getElementById('eff-fiber').value)  || null;
+    const sugar    = parseFloat(document.getElementById('eff-sugar').value)  || null;
+    const sodium   = parseFloat(document.getElementById('eff-sodium').value) || null;
+    const notes    = (document.getElementById('eff-notes').value || '').trim();
+
+    const data = { name, category, baseQuantity: newQty, unit, kcal, prot, carb, fat };
+    // Pass excludeFoodId so the current food is not flagged as duplicate of itself
+    const errors = validateAddFoodForm(data, addition.food);
+
+    if (errors.length > 0) {
+      const errBox = document.getElementById('edit-food-errors');
+      errBox.innerHTML = errors.map(err => `<div>• ${escapeHtml(err)}</div>`).join('');
+      errBox.style.display = 'block';
+      return;
+    }
+
+    // Convert per-portion macros to per100g
+    const f100 = 100 / newQty;
+    const newPer100 = {
+      kcal: Math.round(kcal * f100 * 10) / 10,
+      prot: Math.round(prot * f100 * 10) / 10,
+      carb: Math.round(carb * f100 * 10) / 10,
+      fat:  Math.round(fat  * f100 * 10) / 10,
+    };
+    const newMicro = { fiber, sugar, sodium, calcium: null, iron: null };
+
+    // Update custom food in library (if it exists there)
+    const updatedCustoms = loadCustomFoods().map(f => {
+      if (f.id !== addition.food) return f;
+      return {
+        ...f,
+        name,
+        category,
+        per100: newPer100,
+        units: [{ label: unit, grams: newQty }],
+        baseQuantity: newQty,
+        baseUnit: unit,
+        micronutrients: newMicro,
+        notes: notes || null,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+    saveCustomFoods(updatedCustoms);
+
+    // Update the addition: new grams, unit, snapshot
+    const updatedAdditions = loadAdditions();
+    const key2 = `${dayIdx}:${mealIdx}`;
+    if (updatedAdditions[key2]) {
+      updatedAdditions[key2] = updatedAdditions[key2].map(a => {
+        if (a.id !== additionId) return a;
+        return {
+          ...a,
+          grams: newQty,
+          unit,
+          snapshot: { name, per100: newPer100, category, source: 'custom' },
+        };
+      });
+    }
+    saveAdditions(updatedAdditions);
+
+    close();
+    rebuildAndRender(mount);
+  });
+}
+
+/* ============================================================================ */
+/* Suggest section helper                                                       */
+/* ============================================================================ */
+
+/** HTML estático da secção "Sugerir para biblioteca oficial" (igual nos dois modais). */
+function buildSuggestSection() {
+  return `
+    <details class="suggest-section" data-testid="suggest-section">
+      <summary>💡 Sugerir para biblioteca oficial</summary>
+      <div style="margin-top:12px;">
+        <p style="font-size:13px;font-weight:600;color:var(--ink);margin:0 0 8px;line-height:1.5;">
+          Quer sugerir este alimento para entrar na biblioteca oficial da app?
+        </p>
+        <p style="font-size:13px;color:var(--ink-muted);margin:0 0 6px;">Envie a sugestão para:</p>
+        <p style="margin:0 0 14px;">
+          <a href="mailto:hardgainerhibrido@gmail.com"
+             data-testid="suggest-email-link"
+             style="font-size:14px;font-weight:700;color:var(--accent);text-decoration:none;word-break:break-all;">
+            hardgainerhibrido@gmail.com
+          </a>
+        </p>
+        <p style="font-size:12.5px;font-weight:600;color:var(--ink);margin:0 0 4px;">Para produtos com embalagem, envie:</p>
+        <ul style="font-size:12.5px;color:var(--ink-muted);margin:0 0 12px;padding-left:18px;line-height:1.7;">
+          <li data-testid="suggest-packaged-name">Nome do produto</li>
+          <li data-testid="suggest-packaged-photos">Fotos do produto</li>
+          <li data-testid="suggest-packaged-label">Foto da tabela nutricional bem legível</li>
+        </ul>
+        <p style="font-size:12.5px;font-weight:600;color:var(--ink);margin:0 0 4px;">Para frutas, vegetais ou alimentos sem tabela nutricional, envie:</p>
+        <ul style="font-size:12.5px;color:var(--ink-muted);margin:0 0 12px;padding-left:18px;line-height:1.7;">
+          <li data-testid="suggest-natural-name">Nome do alimento</li>
+          <li data-testid="suggest-natural-origin">Origem ou tipo do alimento, se souber</li>
+          <li data-testid="suggest-natural-photos">Fotos do alimento</li>
+        </ul>
+        <p style="font-size:11.5px;color:var(--ink-muted);margin:0;font-style:italic;line-height:1.5;">
+          A sugestão será analisada antes de entrar na biblioteca oficial. Nada é adicionado automaticamente para todos os usuários.
+        </p>
+      </div>
+    </details>
+  `;
+}
 
 function escapeHtml(str) {
   if (typeof str !== 'string') return '';
