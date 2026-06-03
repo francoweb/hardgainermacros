@@ -441,6 +441,7 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
                 </div>
                 <div class="ingredient-qty">${ing.display}</div>
                 <div class="ingredient-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g C:${ing.macros.carb}g G:${ing.macros.fat}g</div>
+                ${isAdded && ing.micronutrients ? buildNutriDetailsHtml(ing.micronutrients, ing.grams) : ''}
                 ${isSub   ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
                 ${isAdded ? `<button type="button" class="ing-edit-btn no-print" data-edit-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Editar alimento adicionado">✎ Editar</button>` : ''}
                 ${isAdded ? `<button type="button" class="ing-remove-btn no-print" data-remove-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Remover alimento adicionado">✕ Remover</button>` : ''}
@@ -968,6 +969,7 @@ function applyAdditions(plan, additions) {
           macros,
           isAddition: true,
           additionId: add.id,
+          micronutrients: food.micronutrients || null,
         };
       }).filter(Boolean);
 
@@ -1124,28 +1126,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
           </div>
         </div>
 
-        <details style="margin-top:14px;">
-          <summary style="font-size:12px;color:var(--ink-muted);cursor:pointer;user-select:none;">▸ Campos opcionais (fibras, sódio, notas…)</summary>
-          <div class="add-food-optional-grid">
-            <div class="add-food-macro-field">
-              <label class="add-food-label" for="aff-fiber">Fibras (g)</label>
-              <input type="number" id="aff-fiber" class="add-food-input" placeholder="—" min="0" step="0.1">
-            </div>
-            <div class="add-food-macro-field">
-              <label class="add-food-label" for="aff-sugar">Açúcar (g)</label>
-              <input type="number" id="aff-sugar" class="add-food-input" placeholder="—" min="0" step="0.1">
-            </div>
-            <div class="add-food-macro-field">
-              <label class="add-food-label" for="aff-sodium">Sódio (mg)</label>
-              <input type="number" id="aff-sodium" class="add-food-input" placeholder="—" min="0" step="1">
-            </div>
-            <div class="add-food-field add-food-field-full" style="margin-top:6px;">
-              <label class="add-food-label" for="aff-notes">Notas</label>
-              <input type="text" id="aff-notes" class="add-food-input"
-                     placeholder="Ex: Rótulo do produto" maxlength="200">
-            </div>
-          </div>
-        </details>
+        ${buildOptionalNutriSections('aff')}
 
         ${buildSuggestSection()}
 
@@ -1170,9 +1151,6 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
     const prot     = parseFloat(document.getElementById('aff-prot').value)  || 0;
     const carb     = parseFloat(document.getElementById('aff-carb').value)  || 0;
     const fat      = parseFloat(document.getElementById('aff-fat').value)   || 0;
-    const fiber    = parseFloat(document.getElementById('aff-fiber').value) || null;
-    const sugar    = parseFloat(document.getElementById('aff-sugar').value) || null;
-    const sodium   = parseFloat(document.getElementById('aff-sodium').value) || null;
     const notes    = (document.getElementById('aff-notes').value || '').trim();
 
     const data = { name, category, baseQuantity: qty, unit, kcal, prot, carb, fat };
@@ -1185,7 +1163,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
       return;
     }
 
-    // Convert per-portion macros to per100g for storage
+    // Convert per-portion macros + micronutrients to per100g for storage
     const f100 = 100 / qty;
     const customFood = {
       id: `custom_${Date.now()}`,
@@ -1203,7 +1181,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
       source: 'custom',
       baseQuantity: qty,
       baseUnit: unit,
-      micronutrients: { fiber, sugar, sodium, calcium: null, iron: null },
+      micronutrients: microToP100(readNutriVals('aff'), qty),
       notes: notes || null,
       createdAt: new Date().toISOString(),
     };
@@ -1227,6 +1205,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
         per100: customFood.per100,
         category: customFood.category,
         source: 'custom',
+        micronutrients: customFood.micronutrients,
       },
     });
     saveAdditions(additions);
@@ -1251,18 +1230,17 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
   const foodData = storedFood || addition.snapshot;
   if (!foodData || !foodData.per100) return;
 
-  // 3. Recalcular macros por porção actual para pré-preencher o formulário
+  // 3. Recalcular macros + micronutrients por porção actual para pré-preencher o formulário
   const qty = addition.grams;
-  const f100to = (v) => Math.round(v * qty / 100 * 10) / 10;
-  const kcalP = f100to(foodData.per100.kcal);
-  const protP = f100to(foodData.per100.prot);
-  const carbP = f100to(foodData.per100.carb);
-  const fatP  = f100to(foodData.per100.fat);
-  const fiberP  = foodData.micronutrients?.fiber  != null ? f100to(foodData.micronutrients.fiber)  : '';
-  const sugarP  = foodData.micronutrients?.sugar  != null ? f100to(foodData.micronutrients.sugar)  : '';
-  const sodiumP = foodData.micronutrients?.sodium != null ? f100to(foodData.micronutrients.sodium) : '';
+  const f100to = (v) => v != null ? Math.round(v * qty / 100 * 100) / 100 : null;
+  const kcalP = Math.round(f100to(foodData.per100.kcal) * 10) / 10;
+  const protP = Math.round(f100to(foodData.per100.prot) * 10) / 10;
+  const carbP = Math.round(f100to(foodData.per100.carb) * 10) / 10;
+  const fatP  = Math.round(f100to(foodData.per100.fat)  * 10) / 10;
   const notesV  = foodData.notes || '';
   const currentUnit = addition.unit || foodData.baseUnit || 'g';
+  // Pre-fill micronutrient values (per-portion from per100g)
+  const mPre = scaleMicroToPortionVals(foodData.micronutrients, qty);
 
   const cats = [
     { v: 'protein', l: 'Proteínas' }, { v: 'carb', l: 'Carboidratos' },
@@ -1324,27 +1302,8 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
             <input type="number" id="eff-fat" class="add-food-input" value="${fatP}" min="0" step="0.1">
           </div>
         </div>
-        <details style="margin-top:14px;">
-          <summary style="font-size:12px;color:var(--ink-muted);cursor:pointer;user-select:none;">▸ Campos opcionais</summary>
-          <div class="add-food-optional-grid">
-            <div class="add-food-macro-field">
-              <label class="add-food-label" for="eff-fiber">Fibras (g)</label>
-              <input type="number" id="eff-fiber" class="add-food-input" value="${fiberP}" min="0" step="0.1">
-            </div>
-            <div class="add-food-macro-field">
-              <label class="add-food-label" for="eff-sugar">Açúcar (g)</label>
-              <input type="number" id="eff-sugar" class="add-food-input" value="${sugarP}" min="0" step="0.1">
-            </div>
-            <div class="add-food-macro-field">
-              <label class="add-food-label" for="eff-sodium">Sódio (mg)</label>
-              <input type="number" id="eff-sodium" class="add-food-input" value="${sodiumP}" min="0" step="1">
-            </div>
-            <div class="add-food-field add-food-field-full" style="margin-top:6px;">
-              <label class="add-food-label" for="eff-notes">Notas</label>
-              <input type="text" id="eff-notes" class="add-food-input" value="${escapeHtml(notesV)}" maxlength="200">
-            </div>
-          </div>
-        </details>
+        ${buildOptionalNutriSections('eff', { ...mPre, notes: notesV })}
+
         ${buildSuggestSection()}
 
         <div class="btn-row" style="margin-top:20px;flex-wrap:wrap;">
@@ -1368,9 +1327,6 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
     const prot     = parseFloat(document.getElementById('eff-prot').value) || 0;
     const carb     = parseFloat(document.getElementById('eff-carb').value) || 0;
     const fat      = parseFloat(document.getElementById('eff-fat').value)  || 0;
-    const fiber    = parseFloat(document.getElementById('eff-fiber').value)  || null;
-    const sugar    = parseFloat(document.getElementById('eff-sugar').value)  || null;
-    const sodium   = parseFloat(document.getElementById('eff-sodium').value) || null;
     const notes    = (document.getElementById('eff-notes').value || '').trim();
 
     const data = { name, category, baseQuantity: newQty, unit, kcal, prot, carb, fat };
@@ -1384,7 +1340,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
       return;
     }
 
-    // Convert per-portion macros to per100g
+    // Convert per-portion macros + micronutrients to per100g
     const f100 = 100 / newQty;
     const newPer100 = {
       kcal: Math.round(kcal * f100 * 10) / 10,
@@ -1392,7 +1348,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
       carb: Math.round(carb * f100 * 10) / 10,
       fat:  Math.round(fat  * f100 * 10) / 10,
     };
-    const newMicro = { fiber, sugar, sodium, calcium: null, iron: null };
+    const newMicroP100 = microToP100(readNutriVals('eff'), newQty);
 
     // Update custom food in library (if it exists there)
     const updatedCustoms = loadCustomFoods().map(f => {
@@ -1405,14 +1361,14 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
         units: [{ label: unit, grams: newQty }],
         baseQuantity: newQty,
         baseUnit: unit,
-        micronutrients: newMicro,
+        micronutrients: newMicroP100,
         notes: notes || null,
         updatedAt: new Date().toISOString(),
       };
     });
     saveCustomFoods(updatedCustoms);
 
-    // Update the addition: new grams, unit, snapshot
+    // Update the addition: new grams, unit, snapshot (with micronutrients)
     const updatedAdditions = loadAdditions();
     const key2 = `${dayIdx}:${mealIdx}`;
     if (updatedAdditions[key2]) {
@@ -1422,7 +1378,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
           ...a,
           grams: newQty,
           unit,
-          snapshot: { name, per100: newPer100, category, source: 'custom' },
+          snapshot: { name, per100: newPer100, category, source: 'custom', micronutrients: newMicroP100 },
         };
       });
     }
@@ -1434,15 +1390,212 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
 }
 
 /* ============================================================================ */
+/* Optional nutrition fields helpers                                            */
+/* ============================================================================ */
+
+/** Etiquetas e unidades de todos os micronutrientes (para display no plano). */
+const NUTRI_LABELS = [
+  { key: 'saturated',     label: 'G. saturada',      unit: 'g'  },
+  { key: 'mono',          label: 'G. monoinsaturada', unit: 'g'  },
+  { key: 'poly',          label: 'G. poli-insaturada',unit: 'g'  },
+  { key: 'trans',         label: 'G. trans',          unit: 'g'  },
+  { key: 'sugar',         label: 'Açúcares',          unit: 'g'  },
+  { key: 'fiber',         label: 'Fibra',             unit: 'g'  },
+  { key: 'salt',          label: 'Sal',               unit: 'g'  },
+  { key: 'sodium',        label: 'Sódio',             unit: 'mg' },
+  { key: 'cholesterol',   label: 'Colesterol',        unit: 'mg' },
+  { key: 'vitA',          label: 'Vit. A',            unit: 'µg' },
+  { key: 'vitC',          label: 'Vit. C',            unit: 'mg' },
+  { key: 'vitD',          label: 'Vit. D',            unit: 'µg' },
+  { key: 'vitE',          label: 'Vit. E',            unit: 'mg' },
+  { key: 'vitK',          label: 'Vit. K',            unit: 'µg' },
+  { key: 'vitB1',         label: 'Vit. B1',           unit: 'mg' },
+  { key: 'vitB2',         label: 'Vit. B2',           unit: 'mg' },
+  { key: 'vitB3',         label: 'Vit. B3',           unit: 'mg' },
+  { key: 'vitB6',         label: 'Vit. B6',           unit: 'mg' },
+  { key: 'vitB12',        label: 'Vit. B12',          unit: 'µg' },
+  { key: 'folate',        label: 'Ác. fólico',        unit: 'µg' },
+  { key: 'calcium',       label: 'Cálcio',            unit: 'mg' },
+  { key: 'iron',          label: 'Ferro',             unit: 'mg' },
+  { key: 'magnesium',     label: 'Magnésio',          unit: 'mg' },
+  { key: 'potassium',     label: 'Potássio',          unit: 'mg' },
+  { key: 'zinc',          label: 'Zinco',             unit: 'mg' },
+  { key: 'phosphorus',    label: 'Fósforo',           unit: 'mg' },
+  { key: 'selenium',      label: 'Selénio',           unit: 'µg' },
+  { key: 'iodine',        label: 'Iodo',              unit: 'µg' },
+];
+
+/**
+ * Lê todos os valores opcionais do formulário, em per-porção.
+ * @param {string} prefix — 'aff' ou 'eff'
+ */
+function readNutriVals(prefix) {
+  const n = (id) => {
+    const v = parseFloat(document.getElementById(`${prefix}-${id}`)?.value);
+    return isNaN(v) ? null : v;
+  };
+  return {
+    saturated: n('saturated'), mono: n('mono'), poly: n('poly'), trans: n('trans'),
+    sugar: n('sugar'), fiber: n('fiber'),
+    salt: n('salt'), sodium: n('sodium'), cholesterol: n('cholesterol'),
+    vitA: n('vitA'), vitC: n('vitC'), vitD: n('vitD'), vitE: n('vitE'),
+    vitK: n('vitK'), vitB1: n('vitB1'), vitB2: n('vitB2'), vitB3: n('vitB3'),
+    vitB6: n('vitB6'), vitB12: n('vitB12'), folate: n('folate'),
+    calcium: n('calcium'), iron: n('iron'), magnesium: n('magnesium'),
+    potassium: n('potassium'), zinc: n('zinc'), phosphorus: n('phosphorus'),
+    selenium: n('selenium'), iodine: n('iodine'),
+  };
+}
+
+/** Converte micronutrients de per-porção para per100g para armazenamento. */
+function microToP100(vals, baseQty) {
+  const f = 100 / baseQty;
+  const c = (v) => v != null ? Math.round(v * f * 1000) / 1000 : null;
+  return {
+    saturated: c(vals.saturated), mono: c(vals.mono),
+    poly: c(vals.poly),           trans: c(vals.trans),
+    sugar: c(vals.sugar),         fiber: c(vals.fiber),
+    salt: c(vals.salt),           sodium: c(vals.sodium),
+    cholesterol: c(vals.cholesterol),
+    vitA: c(vals.vitA),   vitC: c(vals.vitC),   vitD: c(vals.vitD),
+    vitE: c(vals.vitE),   vitK: c(vals.vitK),   vitB1: c(vals.vitB1),
+    vitB2: c(vals.vitB2), vitB3: c(vals.vitB3), vitB6: c(vals.vitB6),
+    vitB12: c(vals.vitB12), folate: c(vals.folate),
+    calcium: c(vals.calcium),     iron: c(vals.iron),
+    magnesium: c(vals.magnesium), potassium: c(vals.potassium),
+    zinc: c(vals.zinc),           phosphorus: c(vals.phosphorus),
+    selenium: c(vals.selenium),   iodine: c(vals.iodine),
+  };
+}
+
+/** Converte micronutrients de per100g para per-porção (para pré-preencher edição). */
+function scaleMicroToPortionVals(micro, grams) {
+  if (!micro) return {};
+  const s = grams / 100;
+  const c = (v) => v != null ? Math.round(v * s * 1000) / 1000 : null;
+  const r = {};
+  NUTRI_LABELS.forEach(({ key }) => { r[key] = c(micro[key]); });
+  return r;
+}
+
+/**
+ * Gera o HTML compact dos micronutrientes para display no ingrediente do plano.
+ * Mostra apenas os valores != null, escalados de per100g para per-grams.
+ */
+function buildNutriDetailsHtml(micronutrients, grams) {
+  if (!micronutrients) return '';
+  const scale = grams / 100;
+  const items = NUTRI_LABELS
+    .filter(({ key }) => micronutrients[key] != null)
+    .map(({ key, label, unit }) => {
+      const raw = micronutrients[key] * scale;
+      const val = raw < 1 ? Math.round(raw * 100) / 100 : Math.round(raw * 10) / 10;
+      return `<span class="ing-nutri-item">${label}: ${val}${unit}</span>`;
+    });
+  if (items.length === 0) return '';
+  return `<div class="ing-nutri-details" data-testid="ing-nutri-details">
+    <span class="ing-nutri-title">Fatos nutricionais adicionais:</span>${items.join('')}
+  </div>`;
+}
+
+/**
+ * Gera as secções HTML de campos opcionais (para openAddFoodModal e openEditFoodModal).
+ * @param {string} prefix — 'aff' | 'eff'
+ * @param {object} vals   — valores pré-preenchidos (per-porção), keyed por field id
+ */
+function buildOptionalNutriSections(prefix, vals = {}) {
+  const inp = (id, label, unit, step = '0.1') => {
+    const v = vals[id];
+    const attr = (v != null && v !== '') ? `value="${v}"` : 'placeholder="—"';
+    return `<div class="add-food-optional-field">
+      <label class="add-food-label" for="${prefix}-${id}">${label} (${unit})</label>
+      <input type="number" id="${prefix}-${id}" class="add-food-input" ${attr} min="0" step="${step}">
+    </div>`;
+  };
+  const notesVal = vals.notes ? escapeHtml(String(vals.notes)) : '';
+  // Auto-abrir se já existem valores pré-preenchidos (modo edição)
+  const hasValues = NUTRI_LABELS.some(({ key }) => vals[key] != null && vals[key] !== '');
+
+  return `
+    <details ${hasValues ? 'open' : ''} class="add-food-accordion" data-testid="${prefix}-optional-block">
+      <summary>
+        <span>Campos opcionais (fibras, açúcares…)</span>
+        <span class="add-food-accordion-chevron">${icons.chevDown(14)}</span>
+      </summary>
+      <div class="add-food-accordion-body">
+
+        <div class="add-food-optional-group-label">Gorduras detalhadas</div>
+        <div class="add-food-optional-fields-grid">
+          ${inp('saturated', 'Gordura saturada',         'g')}
+          ${inp('mono',      'Gordura monoinsaturada',    'g')}
+          ${inp('poly',      'Gordura poli-insaturada',   'g')}
+          ${inp('trans',     'Gordura trans',             'g')}
+        </div>
+
+        <div class="add-food-optional-group-label">Carboidratos detalhados</div>
+        <div class="add-food-optional-fields-grid">
+          ${inp('sugar', 'Açúcares',        'g')}
+          ${inp('fiber', 'Fibra alimentar', 'g')}
+        </div>
+
+        <div class="add-food-optional-group-label">Outros dados</div>
+        <div class="add-food-optional-fields-grid">
+          ${inp('salt',        'Sal',        'g')}
+          ${inp('sodium',      'Sódio',      'mg', '1')}
+          ${inp('cholesterol', 'Colesterol', 'mg', '1')}
+        </div>
+
+        <div class="add-food-optional-group-label">Vitaminas</div>
+        <div class="add-food-optional-fields-grid">
+          ${inp('vitA',   'Vitamina A',   'µg')}
+          ${inp('vitC',   'Vitamina C',   'mg')}
+          ${inp('vitD',   'Vitamina D',   'µg')}
+          ${inp('vitE',   'Vitamina E',   'mg')}
+          ${inp('vitK',   'Vitamina K',   'µg')}
+          ${inp('vitB1',  'Vitamina B1',  'mg')}
+          ${inp('vitB2',  'Vitamina B2',  'mg')}
+          ${inp('vitB3',  'Vitamina B3',  'mg')}
+          ${inp('vitB6',  'Vitamina B6',  'mg')}
+          ${inp('vitB12', 'Vitamina B12', 'µg')}
+          ${inp('folate', 'Ácido fólico', 'µg')}
+        </div>
+
+        <div class="add-food-optional-group-label">Minerais</div>
+        <div class="add-food-optional-fields-grid">
+          ${inp('calcium',    'Cálcio',    'mg', '1')}
+          ${inp('iron',       'Ferro',     'mg')}
+          ${inp('magnesium',  'Magnésio',  'mg', '1')}
+          ${inp('potassium',  'Potássio',  'mg', '1')}
+          ${inp('zinc',       'Zinco',     'mg')}
+          ${inp('phosphorus', 'Fósforo',   'mg', '1')}
+          ${inp('selenium',   'Selénio',   'µg')}
+          ${inp('iodine',     'Iodo',      'µg')}
+        </div>
+
+        <div class="add-food-optional-group-label">Notas</div>
+        <div class="add-food-field add-food-field-full">
+          <input type="text" id="${prefix}-notes" class="add-food-input"
+                 ${notesVal ? `value="${notesVal}"` : 'placeholder="Ex: Rótulo do produto"'}
+                 maxlength="200">
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+/* ============================================================================ */
 /* Suggest section helper                                                       */
 /* ============================================================================ */
 
 /** HTML estático da secção "Sugerir para biblioteca oficial" (igual nos dois modais). */
 function buildSuggestSection() {
   return `
-    <details class="suggest-section" data-testid="suggest-section">
-      <summary>💡 Sugerir para biblioteca oficial</summary>
-      <div style="margin-top:12px;">
+    <details class="add-food-accordion suggest-section" data-testid="suggest-section">
+      <summary>
+        <span>💡 Sugerir alimento…</span>
+        <span class="add-food-accordion-chevron">${icons.chevDown(14)}</span>
+      </summary>
+      <div class="add-food-accordion-body">
         <p style="font-size:13px;font-weight:600;color:var(--ink);margin:0 0 8px;line-height:1.5;">
           Quer sugerir este alimento para entrar na biblioteca oficial da app?
         </p>

@@ -2616,7 +2616,10 @@ test.describe('Sugerir para biblioteca oficial', () => {
     const section = page.locator('[data-testid="suggest-section"]');
     await expect(section).toBeVisible();
     const text = (await section.textContent()) || '';
-    expect(text).toMatch(/sugerir para biblioteca oficial/i);
+    // Verifica que a secção contém "sugerir" e "biblioteca oficial"
+    // (summary foi encurtada para "💡 Sugerir alimento…" mas o corpo mantém o texto completo)
+    expect(text).toMatch(/sugerir/i);
+    expect(text).toMatch(/biblioteca oficial/i);
   });
 
   // ── C-SUGGEST2 ────────────────────────────────────────────────────────────
@@ -2778,6 +2781,483 @@ test.describe('Sugerir para biblioteca oficial', () => {
     // localStorage additions vazio
     const additions = await page.evaluate(() => localStorage.getItem('hg:additions'));
     expect(additions).toBeNull();
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Campos opcionais de fatos nutricionais
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Preenche campos opcionais após abrir o details com a summary. */
+async function openNutriSection(page, testid) {
+  await page.locator(`[data-testid="${testid}"]`).click();
+}
+
+/** Alimento de teste com micronutrientes: 150g base */
+const TEST_FOOD_MICRO = {
+  name: 'Iogurte Nutri Test', category: 'dairy',
+  qty: 150, unit: 'g', kcal: 120, prot: 10, carb: 15, fat: 2,
+};
+
+test.describe('Campos opcionais de fatos nutricionais', () => {
+
+  // ── C-NUTRI1 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI1 — Campos obrigatórios continuam existindo no modal Adicionar', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    await expect(page.locator('#aff-name')).toBeVisible();
+    await expect(page.locator('#aff-category')).toBeVisible();
+    await expect(page.locator('#aff-qty')).toBeVisible();
+    await expect(page.locator('#aff-unit')).toBeVisible();
+    await expect(page.locator('#aff-kcal')).toBeVisible();
+    await expect(page.locator('#aff-prot')).toBeVisible();
+    await expect(page.locator('#aff-carb')).toBeVisible();
+    await expect(page.locator('#aff-fat')).toBeVisible();
+  });
+
+  // ── C-NUTRI2 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI2 — Bloco único "Campos opcionais" aparece no modal Adicionar', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    // Um único bloco expandível
+    const block = page.locator('[data-testid="aff-optional-block"]');
+    await expect(block).toBeVisible();
+    const summaryTxt = (await block.locator('summary').textContent()) || '';
+    expect(summaryTxt).toMatch(/campos opcionais/i);
+
+    // Expandir e confirmar que inputs de várias categorias existem
+    await openNutriSection(page, 'aff-optional-block');
+    await expect(page.locator('#aff-vitC')).toBeVisible();
+    await expect(page.locator('#aff-calcium')).toBeVisible();
+    await expect(page.locator('#aff-saturated')).toBeVisible();
+    await expect(page.locator('#aff-sugar')).toBeVisible();
+    await expect(page.locator('#aff-iron')).toBeVisible();
+  });
+
+  // ── C-NUTRI3 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI3 — Adicionar alimento só com obrigatórios funciona normalmente', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, TEST_FOOD_MICRO);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+    await expect(page.getByText('Iogurte Nutri Test').first()).toBeVisible();
+    // Sem nutri details (campos opcionais não preenchidos)
+    const details = await page.locator('[data-testid="ing-nutri-details"]').count();
+    expect(details).toBe(0);
+  });
+
+  // ── C-NUTRI4 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI4 — Campos opcionais preenchidos são guardados no localStorage', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri4' });
+
+    // Abrir o bloco único e preencher campos de várias categorias
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-saturated').fill('1.5');
+    await page.locator('#aff-mono').fill('0.8');
+    await page.locator('#aff-sugar').fill('8');
+    await page.locator('#aff-fiber').fill('3');
+    await page.locator('#aff-calcium').fill('120');
+    await page.locator('#aff-iron').fill('1.2');
+
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Verificar localStorage
+    const customs = await page.evaluate(() => {
+      const d = localStorage.getItem('hg:custom_foods');
+      return d ? JSON.parse(d) : [];
+    });
+    const food = customs.find(f => f.name === 'Food Nutri4');
+    expect(food).toBeTruthy();
+    expect(food.micronutrients).toBeTruthy();
+    // Valores guardados per100g = valor / (150/100)
+    expect(food.micronutrients.saturated).not.toBeNull();
+    expect(food.micronutrients.sugar).not.toBeNull();
+    expect(food.micronutrients.calcium).not.toBeNull();
+    expect(food.micronutrients.iron).not.toBeNull();
+  });
+
+  // ── C-NUTRI5 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI5 — Plano mostra campos opcionais preenchidos', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri5' });
+
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-saturated').fill('2');
+    await page.locator('#aff-calcium').fill('100');
+
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    const details = page.locator('[data-testid="ing-nutri-details"]').first();
+    await expect(details).toBeVisible();
+    const txt = (await details.textContent()) || '';
+    expect(txt).toMatch(/G\. saturada/i);
+    expect(txt).toMatch(/Cálcio/i);
+  });
+
+  // ── C-NUTRI6 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI6 — Campos opcionais vazios não aparecem no plano', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri6 Empty' });
+    // Não preencher nenhum campo opcional
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    const count = await page.locator('[data-testid="ing-nutri-details"]').count();
+    expect(count).toBe(0);
+  });
+
+  // ── C-NUTRI7 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI7 — Editar alimento pré-preenche campos opcionais guardados', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar com cálcio = 120mg
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri7' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-calcium').fill('120');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Abrir modal de edição — bloco abre automaticamente pois tem valores
+    await page.locator('[data-edit-addition]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+
+    // O bloco deve estar aberto (auto-open) e o cálcio preenchido
+    const calcVal = await page.locator('#eff-calcium').inputValue();
+    // Valor deve ser ~120 (150g → per100g → de volta a 150g)
+    expect(parseFloat(calcVal)).toBeCloseTo(120, 0);
+  });
+
+  // ── C-NUTRI8 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI8 — Alterar campo opcional e guardar actualiza o plano', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar com cálcio = 100mg
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri8' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-calcium').fill('100');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Confirmar cálcio aparece como ~100mg
+    const detailsBefore = (await page.locator('[data-testid="ing-nutri-details"]').first().textContent()) || '';
+    expect(detailsBefore).toMatch(/Cálcio/i);
+
+    // Editar: bloco abre automaticamente (auto-open), mudar cálcio para 200mg
+    await page.locator('[data-edit-addition]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await page.locator('#eff-calcium').fill('200');
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    // Confirmar que o plano mostra o novo valor
+    const detailsAfter = (await page.locator('[data-testid="ing-nutri-details"]').first().textContent()) || '';
+    expect(detailsAfter).toMatch(/Cálcio/i);
+    // O valor exibido deve ser diferente do anterior
+    expect(detailsAfter).not.toBe(detailsBefore);
+  });
+
+  // ── C-NUTRI9 ──────────────────────────────────────────────────────────────
+  test('C-NUTRI9 — Editar só micronutriente não altera kcal/macros principais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri9' });
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Guardar macros antes
+    const mealBefore = await page.locator('[data-meal-totals="0-0"]').textContent() || '';
+
+    // Editar — abrir bloco e só mudar cálcio
+    await page.locator('[data-edit-addition]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await openNutriSection(page, 'eff-optional-block');
+    await page.locator('#eff-calcium').fill('999');
+    await page.locator('#edit-food-form button[type="submit"]').click();
+
+    // Macros da refeição não mudam
+    const mealAfter = await page.locator('[data-meal-totals="0-0"]').textContent() || '';
+    expect(mealAfter).toBe(mealBefore);
+  });
+
+  // ── C-NUTRI10 ─────────────────────────────────────────────────────────────
+  test('C-NUTRI10 — Remover alimento remove dados opcionais do plano', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri10' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-calcium').fill('100');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('[data-testid="ing-nutri-details"]').first()).toBeVisible();
+
+    // Remover alimento
+    await page.locator('[data-remove-addition]').first().click();
+    await expect(page.locator('.ing-badge-added')).not.toBeVisible();
+
+    const count = await page.locator('[data-testid="ing-nutri-details"]').count();
+    expect(count).toBe(0);
+  });
+
+  // ── C-NUTRI11 ─────────────────────────────────────────────────────────────
+  test('C-NUTRI11 — Após reload, alimento e fatos opcionais persistem', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Food Nutri11' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-saturated').fill('2.5');
+    await page.locator('#aff-calcium').fill('150');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('[data-testid="ing-nutri-details"]').first()).toBeVisible();
+
+    // Reload e renavigar ao plano
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+    const details = page.locator('[data-testid="ing-nutri-details"]').first();
+    await expect(details).toBeVisible();
+    const txt = (await details.textContent()) || '';
+    expect(txt).toMatch(/G\. saturada/i);
+    expect(txt).toMatch(/Cálcio/i);
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: UX — bloco único de campos opcionais
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('UX — bloco único de campos opcionais', () => {
+
+  // ── C-NUTRI-UX1 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX1 — Existe apenas um bloco "Campos opcionais" no modal Adicionar', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    // Um único bloco
+    const blocks = await page.locator('[data-testid="aff-optional-block"]').count();
+    expect(blocks).toBe(1);
+
+    const summaryTxt = (await page.locator('[data-testid="aff-optional-block"] summary').textContent()) || '';
+    expect(summaryTxt).toMatch(/campos opcionais/i);
+  });
+
+  // ── C-NUTRI-UX2 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX2 — Secções separadas antigas não existem mais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    // Antigos data-testid não devem existir
+    expect(await page.locator('[data-testid="aff-section-fats"]').count()).toBe(0);
+    expect(await page.locator('[data-testid="aff-section-carbs"]').count()).toBe(0);
+    expect(await page.locator('[data-testid="aff-section-vitamins"]').count()).toBe(0);
+    expect(await page.locator('[data-testid="aff-section-minerals"]').count()).toBe(0);
+  });
+
+  // ── C-NUTRI-UX3 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX3 — Bloco "Campos opcionais" fechado por padrão (modal novo)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    const block = page.locator('[data-testid="aff-optional-block"]');
+    // <details> sem atributo open = fechado
+    const isOpen = await block.evaluate(el => el.open);
+    expect(isOpen).toBe(false);
+  });
+
+  // ── C-NUTRI-UX4 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX4 — Abrir bloco mostra todos os campos opcionais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    await openNutriSection(page, 'aff-optional-block');
+
+    // Gorduras
+    await expect(page.locator('#aff-saturated')).toBeVisible();
+    // Carbs
+    await expect(page.locator('#aff-sugar')).toBeVisible();
+    await expect(page.locator('#aff-fiber')).toBeVisible();
+    // Outros
+    await expect(page.locator('#aff-sodium')).toBeVisible();
+    // Minerais
+    await expect(page.locator('#aff-calcium')).toBeVisible();
+    await expect(page.locator('#aff-iron')).toBeVisible();
+  });
+
+  // ── C-NUTRI-UX5 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX5 — Adicionar apenas com obrigatórios funciona (bloco fechado)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    // Não abrir o bloco de opcionais
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'UX5 Food' });
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+    await expect(page.getByText('UX5 Food').first()).toBeVisible();
+    const nutriCount = await page.locator('[data-testid="ing-nutri-details"]').count();
+    expect(nutriCount).toBe(0);
+  });
+
+  // ── C-NUTRI-UX6 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX6 — Preencher opcionais no bloco único guarda e exibe no plano', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'UX6 Food' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-sugar').fill('5');
+    await page.locator('#aff-fiber').fill('2');
+    await page.locator('#aff-calcium').fill('80');
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+    const details = page.locator('[data-testid="ing-nutri-details"]').first();
+    await expect(details).toBeVisible();
+    const txt = (await details.textContent()) || '';
+    expect(txt).toMatch(/Açúcares/i);
+    expect(txt).toMatch(/Fibra/i);
+    expect(txt).toMatch(/Cálcio/i);
+  });
+
+  // ── C-NUTRI-UX7 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX7 — Editar: bloco abre com dados preenchidos (auto-open)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar com fibra = 4g
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'UX7 Food' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-fiber').fill('4');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Abrir modal de edição — bloco deve abrir automaticamente
+    await page.locator('[data-edit-addition]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+
+    const editBlock = page.locator('[data-testid="eff-optional-block"]');
+    await expect(editBlock).toBeVisible();
+    const isOpen = await editBlock.evaluate(el => el.open);
+    expect(isOpen).toBe(true); // auto-open porque há valores
+
+    const fiberVal = await page.locator('#eff-fiber').inputValue();
+    expect(parseFloat(fiberVal)).toBeCloseTo(4, 0);
+  });
+
+  // ── C-NUTRI-UX8 ───────────────────────────────────────────────────────────
+  test('C-NUTRI-UX8 — Opcionais não alteram kcal/macros do plano', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Kcal da refeição ANTES de adicionar
+    const mealTxtBefore = await page.locator('[data-meal-totals="0-0"]').textContent() || '';
+    const kcalBefore = parseInt(mealTxtBefore.match(/(\d+)\s*kcal/)?.[1] || '0');
+
+    // Abrir modal e preencher obrigatórios + todos os opcionais
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    const food = { ...TEST_FOOD_MICRO, name: 'UX8 Food' };
+    await fillAddFoodForm(page, food);
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-saturated').fill('1');
+    await page.locator('#aff-sugar').fill('5');
+    await page.locator('#aff-fiber').fill('3');
+    await page.locator('#aff-sodium').fill('200');
+    await page.locator('#aff-calcium').fill('100');
+    await page.locator('#aff-vitC').fill('15');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Kcal DEPOIS: diferença deve ser ~120 (apenas macros obrigatórios)
+    const mealTxtAfter = await page.locator('[data-meal-totals="0-0"]').textContent() || '';
+    const kcalAfter = parseInt(mealTxtAfter.match(/(\d+)\s*kcal/)?.[1] || '0');
+    expect(Math.abs(kcalAfter - kcalBefore - food.kcal)).toBeLessThanOrEqual(5);
+
+    // Campos opcionais visíveis no plano mas sem afetar kcal
+    const nutriTxt = (await page.locator('[data-testid="ing-nutri-details"]').first().textContent()) || '';
+    expect(nutriTxt).toMatch(/Açúcares/i);
+    expect(nutriTxt).toMatch(/Cálcio/i);
   });
 
 });
