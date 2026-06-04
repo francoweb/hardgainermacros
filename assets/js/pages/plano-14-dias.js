@@ -1087,7 +1087,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
             <label class="add-food-label">Porção base *</label>
             <div class="add-food-qty-row">
               <input type="number" id="aff-qty" class="add-food-input add-food-qty"
-                     placeholder="150" min="1" max="2000" step="1">
+                     placeholder="—" min="1" max="2000" step="1">
               <select id="aff-unit" class="add-food-input add-food-unit">
                 <option value="g">g</option>
                 <option value="ml">ml</option>
