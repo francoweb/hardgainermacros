@@ -102,12 +102,25 @@ export function renderResultadosPage(mount) {
     ? (strategy === 'solid' ? 'shake de apoio' : 'shake anabólico')
     : (strategy === 'solid' || strategy === 'practical' ? 'shakes de apoio' : 'shakes anabólicos');
   // Tags de interpretação
-  const tags = buildTags(profile, routine, results);
+  const tags = buildTags(profile, routine, results, formData);
 
   // Interpretação textual
   const interpretation = buildInterpretation(profile, routine, results, formData);
   // Ficha resumo de perfil
   const profileSummary = buildProfileSummary(formData, profile, routine, results);
+
+  // Meta de ganho semanal — string pré-calculada para o template HTML
+  const isImperialUI = formData.unit === 'imperial';
+  const gainStatStr = (() => {
+    const lo = results.weeklyGainLowKg, hi = results.weeklyGainHighKg;
+    if (!lo || !hi) return '';
+    if (isImperialUI) {
+      const loLb = Math.round(lo * 2.205 * 10) / 10;
+      const hiLb = Math.round(hi * 2.205 * 10) / 10;
+      return `${loLb}–${hiLb}lb/semana`;
+    }
+    return `${lo}–${hi}kg/semana`;
+  })();
 
   // Recomendações personalizadas
   const recommendations = buildRecommendations(profile, routine, results);
@@ -268,7 +281,7 @@ export function renderResultadosPage(mount) {
         <div class="stat accent">
           <div class="stat-label">Superávit</div>
           <div class="stat-val">+${formatKcal(results.surplus)}</div>
-          <div class="stat-desc">Meta: ${results.weeklyGainLowKg}–${results.weeklyGainHighKg}kg/semana</div>
+          <div class="stat-desc">Meta: ${gainStatStr}</div>
         </div>
       </div>
 
@@ -589,7 +602,7 @@ function getTrainingPeriodText(startTime) {
   return 'no fim da noite';
 }
 
-function buildTags(profile, routine, results) {
+function buildTags(profile, routine, results, formData = {}) {
   const tags = [];
 
   // TAG 1 — Perfil hardgainer (sempre presente)
@@ -637,9 +650,15 @@ function buildTags(profile, routine, results) {
   const gainLow  = results.weeklyGainLowKg;
   const gainHigh = results.weeklyGainHighKg;
   if (gainLow && gainHigh) {
-    const lo = String(gainLow).replace('.', ',');
-    const hi = String(gainHigh).replace('.', ',');
-    tags.push(`Meta ${lo}–${hi} kg/sem`);
+    if (formData.unit === 'imperial') {
+      const loLb = String(Math.round(gainLow * 2.205 * 10) / 10).replace('.', ',');
+      const hiLb = String(Math.round(gainHigh * 2.205 * 10) / 10).replace('.', ',');
+      tags.push(`Meta ${loLb}–${hiLb} lb/sem`);
+    } else {
+      const lo = String(gainLow).replace('.', ',');
+      const hi = String(gainHigh).replace('.', ',');
+      tags.push(`Meta ${lo}–${hi} kg/sem`);
+    }
   } else if (results.surplus) {
     if (results.surplus <= 300)      tags.push('Superávit Conservador');
     else if (results.surplus <= 500) tags.push('Superávit Moderado');
@@ -654,7 +673,10 @@ function buildInterpretation(profile, routine, results, formData) {
   const parts = [];
 
   const wKg = results.weightKg ? Math.round(results.weightKg) : null;
-  const weightStr = wKg ? `Com ${wKg} kg` : 'Com o seu perfil';
+  const isImpInterp = formData.unit === 'imperial';
+  const weightStr = wKg
+    ? (isImpInterp ? `Com ${Math.round(wKg * 2.205)} lb` : `Com ${wKg} kg`)
+    : 'Com o seu perfil';
 
   const hasTrain = routine.trainDays > 0;
   const trainCtx = hasTrain
@@ -705,11 +727,22 @@ function buildProfileSummary(formData, profile, routine, results) {
   const GOAL_LABEL = { gain: 'Ganho de massa', maintain: 'Manutenção', lose: 'Perda de gordura' };
   const items = [];
 
+  const isImperial = formData.unit === 'imperial';
   const wKg = results.weightKg ? Math.round(results.weightKg) : null;
   const hCm = results.heightCm ? Math.round(results.heightCm) : null;
 
-  if (wKg)                           items.push({ label: 'Peso', value: `${wKg} kg` });
-  if (hCm)                           items.push({ label: 'Altura', value: `${hCm} cm` });
+  if (isImperial) {
+    if (wKg) items.push({ label: 'Peso', value: `${Math.round(wKg * 2.205)} lb` });
+    if (hCm) {
+      const totalIn = hCm / 2.54;
+      const ft = Math.floor(totalIn / 12);
+      const inRem = Math.round(totalIn % 12);
+      items.push({ label: 'Altura', value: `${ft}'${inRem}"` });
+    }
+  } else {
+    if (wKg) items.push({ label: 'Peso', value: `${wKg} kg` });
+    if (hCm) items.push({ label: 'Altura', value: `${hCm} cm` });
+  }
   if (formData.age)                  items.push({ label: 'Idade', value: `${formData.age} anos` });
   if (formData.sex && SEX_LABEL[formData.sex]) items.push({ label: 'Sexo', value: SEX_LABEL[formData.sex] });
   if (profile.goal && GOAL_LABEL[profile.goal]) items.push({ label: 'Objetivo', value: GOAL_LABEL[profile.goal] });
@@ -722,7 +755,15 @@ function buildProfileSummary(formData, profile, routine, results) {
   if (routine.sleepStartTime && routine.sleepEndTime) items.push({ label: 'Sono', value: `${routine.sleepStartTime} – ${routine.sleepEndTime}` });
   if (routine.mealsPerDay)           items.push({ label: 'Refeições/dia', value: `${routine.mealsPerDay}` });
   if (routine.strategy)              items.push({ label: 'Estratégia', value: STRATEGY_LABEL[routine.strategy] || routine.strategy });
-  if (results.weeklyGainLowKg && results.weeklyGainHighKg) items.push({ label: 'Meta de ganho', value: `${results.weeklyGainLowKg}–${results.weeklyGainHighKg} kg/sem` });
+  if (results.weeklyGainLowKg && results.weeklyGainHighKg) {
+    if (isImperial) {
+      const loLb = Math.round(results.weeklyGainLowKg * 2.205 * 10) / 10;
+      const hiLb = Math.round(results.weeklyGainHighKg * 2.205 * 10) / 10;
+      items.push({ label: 'Meta de ganho', value: `${loLb}–${hiLb} lb/sem` });
+    } else {
+      items.push({ label: 'Meta de ganho', value: `${results.weeklyGainLowKg}–${results.weeklyGainHighKg} kg/sem` });
+    }
+  }
 
   if (!items.length) return '';
 

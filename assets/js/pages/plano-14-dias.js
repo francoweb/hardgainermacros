@@ -21,6 +21,7 @@ import {
   loadSubstitutions, saveSubstitutions,
   loadCustomFoods, saveCustomFoods,
   loadAdditions, saveAdditions,
+  loadFormData,
 } from '../modules/storage.js';
 import { formatKcal } from '../modules/calculator.js';
 import {
@@ -406,6 +407,7 @@ function renderDayCard(day, idx, subs, originalDay, targetKcal, additions) {
 
 function renderMealCard(meal, dayIdx, mealIdx, subs) {
   const safeSubs = subs || {};
+  const isImperial = loadFormData()?.unit === 'imperial';
   return `
     <div class="meal-card ${meal.type}">
       <div class="meal-card-head">
@@ -439,7 +441,7 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
                   ${isSub   ? '<span class="ing-badge-subst">Substituído</span>' : ''}
                   ${isAdded ? '<span class="ing-badge-added">Adicionado</span>' : ''}
                 </div>
-                <div class="ingredient-qty">${ing.display}</div>
+                <div class="ingredient-qty">${isImperial && !ing.isAddition ? toImperialDisplay(ing.display) : ing.display}</div>
                 <div class="ingredient-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g C:${ing.macros.carb}g G:${ing.macros.fat}g</div>
                 ${isAdded && ing.micronutrients ? buildNutriDetailsHtml(ing.micronutrients, ing.grams) : ''}
                 ${isSub   ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
@@ -1045,6 +1047,39 @@ function validateAddFoodForm(data, excludeFoodId = null) {
   return errors;
 }
 
+/**
+ * Converte um display métrico para imperial (só para exibição visual).
+ * "150 g" → "5.3 oz"  |  "250 ml" → "8.5 fl oz"  |  outros → inalterado
+ */
+function toImperialDisplay(displayStr) {
+  const gMatch = displayStr.match(/^([\d.]+)\s*g$/);
+  if (gMatch) {
+    const oz = Math.round(parseFloat(gMatch[1]) / 28.35 * 10) / 10;
+    return `${oz} oz`;
+  }
+  const mlMatch = displayStr.match(/^([\d.]+)\s*ml$/);
+  if (mlMatch) {
+    const floz = Math.round(parseFloat(mlMatch[1]) / 29.574 * 10) / 10;
+    return `${floz} fl oz`;
+  }
+  return displayStr;
+}
+
+/**
+ * Devolve as <option> do select de unidade alimentar ordenadas pela preferência
+ * do utilizador (métrico → g primeiro; imperial → oz primeiro).
+ * @param {string|null} selected  Valor pré-selecionado (para modal de edição).
+ */
+function buildUnitOpts(selected = null) {
+  const isImperial = loadFormData()?.unit === 'imperial';
+  const units = isImperial
+    ? ['oz','fl oz','lb','cup','tbsp','tsp','unidade','porção','g','ml','colher de chá','colher de sobremesa','colher de sopa','scoop/medidor']
+    : ['g','ml','unidade','colher de chá','colher de sobremesa','colher de sopa','scoop/medidor','porção'];
+  // Se o valor pré-selecionado não estiver na lista (ex: unidade guardada antes desta feature), adiciona no fim
+  if (selected && !units.includes(selected)) units.push(selected);
+  return units.map(u => `<option value="${u}"${u === selected ? ' selected' : ''}>${u}</option>`).join('');
+}
+
 /** Abre o modal de adição de alimento personalizado. */
 function openAddFoodModal(dayIdx, mealIdx, mount) {
   const cats = [
@@ -1089,14 +1124,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
               <input type="number" id="aff-qty" class="add-food-input add-food-qty"
                      placeholder="—" min="1" max="2000" step="1">
               <select id="aff-unit" class="add-food-input add-food-unit">
-                <option value="g">g</option>
-                <option value="ml">ml</option>
-                <option value="unidade">unidade</option>
-                <option value="colher de chá">colher de chá</option>
-                <option value="colher de sobremesa">colher de sobremesa</option>
-                <option value="colher de sopa">colher de sopa</option>
-                <option value="scoop/medidor">scoop/medidor</option>
-                <option value="porção">porção</option>
+                ${buildUnitOpts()}
               </select>
             </div>
           </div>
@@ -1248,8 +1276,6 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
     { v: 'fruit', l: 'Frutas' },      { v: 'veg', l: 'Vegetais / Legumes' },
     { v: 'extra', l: 'Suplementos / Outro' },
   ];
-  const unitOpts = ['g','ml','unidade','colher de chá','colher de sobremesa','colher de sopa','scoop/medidor','porção'];
-
   const contentHtml = `
     <div class="modal-head">
       <div>
@@ -1278,7 +1304,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
             <div class="add-food-qty-row">
               <input type="number" id="eff-qty" class="add-food-input add-food-qty" value="${qty}" min="1" max="2000" step="1">
               <select id="eff-unit" class="add-food-input add-food-unit">
-                ${unitOpts.map(u => `<option value="${u}"${u === currentUnit ? ' selected' : ''}>${u}</option>`).join('')}
+                ${buildUnitOpts(currentUnit)}
               </select>
             </div>
           </div>
