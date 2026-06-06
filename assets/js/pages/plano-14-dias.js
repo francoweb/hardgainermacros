@@ -1049,20 +1049,33 @@ function validateAddFoodForm(data, excludeFoodId = null) {
 
 /**
  * Converte um display métrico para imperial (só para exibição visual).
- * "150 g" → "5.3 oz"  |  "250 ml" → "8.5 fl oz"  |  outros → inalterado
+ *   "150 g"                → "5.3 oz"
+ *   "250 ml"               → "8.5 fl oz"
+ *   "2 ovos (100g)"        → "2 ovos (3.5 oz)"
+ *   "1 banana (~80g)"      → "1 banana (~2.8 oz)"
+ *   "1 colher de sopa (~12g)" → "1 colher de sopa (~0.4 oz)"
+ *   outros formatos        → inalterado
  */
 function toImperialDisplay(displayStr) {
+  // 1. Bare "Xg" or "X g" → "Y oz"
   const gMatch = displayStr.match(/^([\d.]+)\s*g$/);
   if (gMatch) {
     const oz = Math.round(parseFloat(gMatch[1]) / 28.35 * 10) / 10;
     return `${oz} oz`;
   }
+  // 2. Bare "X ml" → "Y fl oz"
   const mlMatch = displayStr.match(/^([\d.]+)\s*ml$/);
   if (mlMatch) {
     const floz = Math.round(parseFloat(mlMatch[1]) / 29.574 * 10) / 10;
     return `${floz} fl oz`;
   }
-  return displayStr;
+  // 3. "(~?Xg)" embutido no display → "(~?Y oz)"
+  //    ex: "2 ovos (100g)" → "2 ovos (3.5 oz)"
+  //    ex: "1 banana pequena (~80g)" → "1 banana pequena (~2.8 oz)"
+  return displayStr.replace(/\((~?)(\d+(?:\.\d+)?)g\)/g, (_, tilde, n) => {
+    const oz = Math.round(parseFloat(n) / 28.35 * 10) / 10;
+    return `(${tilde}${oz} oz)`;
+  });
 }
 
 /**
@@ -1669,6 +1682,7 @@ function escapeHtml(str) {
 
 /** Constrói o bloco HTML de uma refeição para o documento PDF por dia. */
 function buildMealHtml(meal, mealIdx, dayIdx = null) {
+  const isImperial = loadFormData()?.unit === 'imperial';
   const badgeLabel = meal.type === 'solid' ? 'Sólida' : 'Shake';
 
   const ingsHtml = meal.ingredients.map(ing => `
@@ -1677,7 +1691,7 @@ function buildMealHtml(meal, mealIdx, dayIdx = null) {
         <div class="ing-name">${ing.label || ing.food}</div>
         <div class="ing-macros">${ing.macros.kcal} kcal · P:${ing.macros.prot}g · C:${ing.macros.carb}g · G:${ing.macros.fat}g</div>
       </div>
-      <div class="ing-qty">${ing.display}</div>
+      <div class="ing-qty">${isImperial && !ing.isAddition ? toImperialDisplay(ing.display) : ing.display}</div>
     </li>
   `).join('');
 
@@ -2041,10 +2055,11 @@ function exportFullPlanPDF(plan, results) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function buildCompactMealHtml(meal, mealIdx) {
+  const isImperial = loadFormData()?.unit === 'imperial';
   const ingsHtml = meal.ingredients.map(ing => `
     <li class="c-ing-row">
       <span class="c-ing-name">${ing.label || ing.food}</span>
-      <span class="c-ing-qty">${ing.display}</span>
+      <span class="c-ing-qty">${isImperial && !ing.isAddition ? toImperialDisplay(ing.display) : ing.display}</span>
     </li>
   `).join('');
   return `

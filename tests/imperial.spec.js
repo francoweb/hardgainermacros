@@ -301,4 +301,125 @@ test.describe('Validação imperial — Plano 14 Dias', () => {
     expect(Math.abs(impKcal - metKcal), `kcal imperial (${impKcal}) ≠ métrico (${metKcal})`).toBeLessThanOrEqual(5);
   });
 
+  // ── C-UNIT-PLAN1-PAREN ────────────────────────────────────────────────────
+  test('C-UNIT-PLAN1-PAREN — Modo imperial: "(Xg)" embutido em display é convertido para "(Y oz)"', async ({ page }) => {
+    await injectState(page, CENARIO_IMPERIAL);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const qtys = await page.locator('#day-body-0 li:not(.ingredient-added) .ingredient-qty').evaluateAll(
+      els => els.map(e => (e.textContent || '').trim())
+    );
+
+    // Nenhum "(Xg)" ou "(~Xg)" deve aparecer em modo imperial
+    const parenG = qtys.filter(t => /\(\d+g\)/.test(t) || /\(~\d+g\)/.test(t));
+    expect(parenG, `"(Xg)" ainda presente em modo imperial: ${JSON.stringify(parenG)}`).toHaveLength(0);
+  });
+
+  // ── C-UNIT-PDF-DAY1 ──────────────────────────────────────────────────────
+  test('C-UNIT-PDF-DAY1 — Modo imperial: PDF por dia usa oz/fl oz, sem "(Xg)"/"X ml" puros', async ({ page }) => {
+    await injectState(page, CENARIO_IMPERIAL);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Suprimir o diálogo de impressão para poder inspecionar o DOM injectado
+    await page.evaluate(() => { window.print = () => {}; });
+
+    // Clicar no botão "Baixar PDF" do Dia 1
+    await page.locator('[data-pdf-day="0"]').first().click();
+
+    // Aguardar área de impressão no DOM (está hidden por CSS — só visível em @media print)
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const qtys = await page.locator('#day-pdf-print-area .ing-qty').evaluateAll(
+      els => els.map(e => (e.textContent || '').trim())
+    );
+
+    // Deve existir pelo menos um oz/fl oz
+    const hasOz = qtys.some(t => /\d+(\.\d+)?\s*(fl\s+)?oz/.test(t));
+    expect(hasOz, `PDF dia deve conter oz/fl oz. Qtys: ${JSON.stringify(qtys.slice(0, 8))}`).toBe(true);
+
+    // Nenhum "(Xg)" ou "(~Xg)"
+    const parenG = qtys.filter(t => /\(\d+g\)/.test(t) || /\(~\d+g\)/.test(t));
+    expect(parenG, `PDF dia contém "(Xg)": ${JSON.stringify(parenG)}`).toHaveLength(0);
+
+    // Nenhum "X ml" puro
+    const pureMl = qtys.filter(t => METRIC_ML_RE.test(t));
+    expect(pureMl, `PDF dia contém "X ml" puro: ${JSON.stringify(pureMl)}`).toHaveLength(0);
+
+    // Nenhum "X g" puro
+    const pureG = qtys.filter(t => METRIC_G_RE.test(t));
+    expect(pureG, `PDF dia contém "X g" puro: ${JSON.stringify(pureG)}`).toHaveLength(0);
+  });
+
+  // ── C-UNIT-PDF-FULL1 ─────────────────────────────────────────────────────
+  test('C-UNIT-PDF-FULL1 — Modo imperial: PDF completo usa oz/fl oz, sem métricas puras', async ({ page }) => {
+    await injectState(page, CENARIO_IMPERIAL);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+
+    // Abrir todos os dias (o botão imprimir imprime o plano completo)
+    await page.locator('#btn-print').click();
+
+    await page.waitForSelector('#full-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const qtys = await page.locator('#full-pdf-print-area .ing-qty').evaluateAll(
+      els => els.map(e => (e.textContent || '').trim())
+    );
+
+    const hasOz = qtys.some(t => /\d+(\.\d+)?\s*(fl\s+)?oz/.test(t));
+    expect(hasOz, `PDF completo deve conter oz/fl oz. Qtys (amostra): ${JSON.stringify(qtys.slice(0, 8))}`).toBe(true);
+
+    const parenG = qtys.filter(t => /\(\d+g\)/.test(t) || /\(~\d+g\)/.test(t));
+    expect(parenG, `PDF completo contém "(Xg)": ${JSON.stringify(parenG.slice(0, 5))}`).toHaveLength(0);
+
+    const pureMl = qtys.filter(t => METRIC_ML_RE.test(t));
+    expect(pureMl, `PDF completo contém "X ml" puro: ${JSON.stringify(pureMl.slice(0, 5))}`).toHaveLength(0);
+  });
+
+  // ── C-UNIT-PDF-ADD1 ──────────────────────────────────────────────────────
+  test('C-UNIT-PDF-ADD1 — Modo imperial: alimento manual 1 oz aparece como "1 oz" no PDF por dia', async ({ page }) => {
+    await injectState(page, CENARIO_IMPERIAL);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar alimento com unidade oz
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, { name: 'Teste imperial', category: 'protein', qty: 1, unit: 'oz', kcal: 100, prot: 20, carb: 5, fat: 2 });
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Abrir PDF do dia 1
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const qtys = await page.locator('#day-pdf-print-area .ing-qty').evaluateAll(
+      els => els.map(e => (e.textContent || '').trim())
+    );
+
+    // "Teste imperial" adicionado com oz deve aparecer como "1 oz" (não convertido)
+    expect(qtys.some(t => t === '1 oz'), `PDF deve conter "1 oz". Qtys: ${JSON.stringify(qtys)}`).toBe(true);
+  });
+
+  // ── C-UNIT-MATH-PDF1 ─────────────────────────────────────────────────────
+  test('C-UNIT-MATH-PDF1 — PDF imperial: kcal/macros nos chips permanecem em g (não convertidos)', async ({ page }) => {
+    await injectState(page, CENARIO_IMPERIAL);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    // macro-chips: P:Xg, C:Xg, G:Xg — devem manter-se em gramas
+    const macroTexts = await page.locator('#day-pdf-print-area .macro-chip').evaluateAll(
+      els => els.map(e => (e.textContent || '').trim())
+    );
+    const hasGrams = macroTexts.some(t => /P:\s*\d+g/.test(t) || /C:\s*\d+g/.test(t));
+    expect(hasGrams, `Macro chips devem conter g. Encontrado: ${JSON.stringify(macroTexts.slice(0, 6))}`).toBe(true);
+  });
+
 });
