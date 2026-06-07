@@ -1134,8 +1134,8 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
           <div class="add-food-field">
             <label class="add-food-label">Porção base *</label>
             <div class="add-food-qty-row">
-              <input type="number" id="aff-qty" class="add-food-input add-food-qty"
-                     placeholder="—" min="1" max="2000" step="1">
+              <input type="text" inputmode="decimal" autocomplete="off" id="aff-qty" class="add-food-input add-food-qty"
+                     placeholder="—">
               <select id="aff-unit" class="add-food-input add-food-unit">
                 ${buildUnitOpts()}
               </select>
@@ -1147,23 +1147,23 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
         <div class="add-food-macros-grid">
           <div class="add-food-macro-field">
             <label class="add-food-label" for="aff-kcal">Kcal</label>
-            <input type="number" id="aff-kcal" class="add-food-input"
-                   placeholder="0" min="0" step="1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="aff-kcal" class="add-food-input"
+                   placeholder="0">
           </div>
           <div class="add-food-macro-field">
             <label class="add-food-label" for="aff-prot">Proteína (g)</label>
-            <input type="number" id="aff-prot" class="add-food-input"
-                   placeholder="0" min="0" step="0.1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="aff-prot" class="add-food-input"
+                   placeholder="0">
           </div>
           <div class="add-food-macro-field">
             <label class="add-food-label" for="aff-carb">Carbs (g)</label>
-            <input type="number" id="aff-carb" class="add-food-input"
-                   placeholder="0" min="0" step="0.1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="aff-carb" class="add-food-input"
+                   placeholder="0">
           </div>
           <div class="add-food-macro-field">
             <label class="add-food-label" for="aff-fat">Gorduras (g)</label>
-            <input type="number" id="aff-fat" class="add-food-input"
-                   placeholder="0" min="0" step="0.1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="aff-fat" class="add-food-input"
+                   placeholder="0">
           </div>
         </div>
 
@@ -1315,7 +1315,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
           <div class="add-food-field">
             <label class="add-food-label">Porção base *</label>
             <div class="add-food-qty-row">
-              <input type="number" id="eff-qty" class="add-food-input add-food-qty" value="${qty}" min="1" max="2000" step="1">
+              <input type="text" inputmode="decimal" autocomplete="off" id="eff-qty" class="add-food-input add-food-qty" value="${qty}">
               <select id="eff-unit" class="add-food-input add-food-unit">
                 ${buildUnitOpts(currentUnit)}
               </select>
@@ -1326,19 +1326,19 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
         <div class="add-food-macros-grid">
           <div class="add-food-macro-field">
             <label class="add-food-label" for="eff-kcal">Kcal</label>
-            <input type="number" id="eff-kcal" class="add-food-input" value="${kcalP}" min="0" step="1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="eff-kcal" class="add-food-input" value="${kcalP}">
           </div>
           <div class="add-food-macro-field">
             <label class="add-food-label" for="eff-prot">Proteína (g)</label>
-            <input type="number" id="eff-prot" class="add-food-input" value="${protP}" min="0" step="0.1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="eff-prot" class="add-food-input" value="${protP}">
           </div>
           <div class="add-food-macro-field">
             <label class="add-food-label" for="eff-carb">Carbs (g)</label>
-            <input type="number" id="eff-carb" class="add-food-input" value="${carbP}" min="0" step="0.1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="eff-carb" class="add-food-input" value="${carbP}">
           </div>
           <div class="add-food-macro-field">
             <label class="add-food-label" for="eff-fat">Gorduras (g)</label>
-            <input type="number" id="eff-fat" class="add-food-input" value="${fatP}" min="0" step="0.1">
+            <input type="text" inputmode="decimal" autocomplete="off" id="eff-fat" class="add-food-input" value="${fatP}">
           </div>
         </div>
         ${buildOptionalNutriSections('eff', { ...mPre, notes: notesV })}
@@ -1518,8 +1518,9 @@ function scaleMicroToPortionVals(micro, grams) {
 }
 
 /**
- * Gera o HTML compact dos micronutrientes para display no ingrediente do plano.
- * Mostra apenas os valores != null, escalados de per100g para per-grams.
+ * Gera o HTML dos micronutrientes como accordion recolhível.
+ * Fechado por padrão; abre ao clicar. Oculto no PDF via .no-print.
+ * Mostra apenas valores != null, escalados de per100g para per-grams.
  */
 function buildNutriDetailsHtml(micronutrients, grams) {
   if (!micronutrients) return '';
@@ -1532,9 +1533,14 @@ function buildNutriDetailsHtml(micronutrients, grams) {
       return `<span class="ing-nutri-item">${label}: ${val}${unit}</span>`;
     });
   if (items.length === 0) return '';
-  return `<div class="ing-nutri-details" data-testid="ing-nutri-details">
-    <span class="ing-nutri-title">Fatos nutricionais adicionais:</span>${items.join('')}
-  </div>`;
+  return `<details class="ing-nutri-accordion no-print" data-testid="ing-nutri-details">
+    <summary class="ing-nutri-toggle">
+      <span class="ing-nutri-show-text">Ver fatos nutricionais adicionais</span>
+      <span class="ing-nutri-hide-text">Ocultar fatos nutricionais adicionais</span>
+      ${icons.chevDown(12)}
+    </summary>
+    <div class="ing-nutri-body">${items.join('')}</div>
+  </details>`;
 }
 
 /**
@@ -1548,7 +1554,7 @@ function buildOptionalNutriSections(prefix, vals = {}) {
     const attr = (v != null && v !== '') ? `value="${v}"` : 'placeholder="—"';
     return `<div class="add-food-optional-field">
       <label class="add-food-label" for="${prefix}-${id}">${label} (${unit})</label>
-      <input type="number" id="${prefix}-${id}" class="add-food-input" ${attr} min="0" step="${step}">
+      <input type="text" inputmode="decimal" autocomplete="off" id="${prefix}-${id}" class="add-food-input" ${attr}>
     </div>`;
   };
   const notesVal = vals.notes ? escapeHtml(String(vals.notes)) : '';

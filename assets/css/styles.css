@@ -1644,17 +1644,33 @@ ul, ol { margin: 0; padding: 0; }
 .add-food-accordion[open] .add-food-accordion-chevron { transform: rotate(180deg); }
 .add-food-accordion-body { padding: 14px; }
 
-/* --- Ingredient optional nutrient details (plano) --- */
-.ing-nutri-details {
+/* --- Ingredient optional nutrient accordion (plano) --- */
+.ing-nutri-accordion {
+  margin-top: 6px;
+  border: none;
+}
+.ing-nutri-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--ink-muted);
+  list-style: none;
+  user-select: none;
+  padding: 0;
+}
+.ing-nutri-toggle::-webkit-details-marker { display: none; }
+.ing-nutri-toggle svg { flex-shrink: 0; transition: transform 0.2s ease; }
+.ing-nutri-accordion[open] .ing-nutri-toggle svg { transform: rotate(180deg); }
+.ing-nutri-hide-text { display: none; }
+.ing-nutri-accordion[open] .ing-nutri-show-text { display: none; }
+.ing-nutri-accordion[open] .ing-nutri-hide-text { display: inline; }
+.ing-nutri-body {
   margin-top: 4px;
   font-size: 11px;
   color: var(--ink-muted);
   line-height: 1.7;
-}
-.ing-nutri-title {
-  font-weight: 600;
-  margin-right: 4px;
-  color: var(--ink-muted);
 }
 .ing-nutri-item {
   display: inline-block;

@@ -3261,3 +3261,334 @@ test.describe('UX — bloco único de campos opcionais', () => {
   });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Accordion de fatos nutricionais adicionais (plano)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Accordion de fatos nutricionais adicionais', () => {
+
+  /** Helper: adiciona alimento com saturada=2, cálcio=100 */
+  async function addFoodWithNutri(page, name = 'Nutri Acc Test') {
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-saturated').fill('2');
+    await page.locator('#aff-calcium').fill('100');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+  }
+
+  // ── C-ADD-NUTRI-UX1 ──────────────────────────────────────────────────────
+  test('C-ADD-NUTRI-UX1 — Accordion fechado por padrão após adicionar com opcionais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await addFoodWithNutri(page);
+
+    const accordion = page.locator('[data-testid="ing-nutri-details"]').first();
+    await expect(accordion).toBeVisible(); // <details> visível (summary mostra)
+
+    // Deve estar FECHADO: propriedade open = false
+    const isOpen = await accordion.evaluate(el => el.open);
+    expect(isOpen, 'Accordion deve estar fechado por padrão').toBe(false);
+  });
+
+  // ── C-ADD-NUTRI-UX2 ──────────────────────────────────────────────────────
+  test('C-ADD-NUTRI-UX2 — Texto "Ver fatos nutricionais adicionais" visível no toggle', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await addFoodWithNutri(page);
+
+    const showText = page.locator('.ing-nutri-show-text').first();
+    await expect(showText).toBeVisible();
+    const txt = (await showText.textContent()) || '';
+    expect(txt).toMatch(/Ver fatos nutricionais adicionais/i);
+  });
+
+  // ── C-ADD-NUTRI-UX3 ──────────────────────────────────────────────────────
+  test('C-ADD-NUTRI-UX3 — Clicar no toggle abre o accordion e mostra os fatos', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await addFoodWithNutri(page);
+
+    const accordion = page.locator('[data-testid="ing-nutri-details"]').first();
+    await accordion.locator('summary').click();
+
+    const isOpen = await accordion.evaluate(el => el.open);
+    expect(isOpen, 'Accordion deve estar aberto após click').toBe(true);
+
+    // Corpo com os fatos deve estar visível
+    const body = accordion.locator('.ing-nutri-body');
+    await expect(body).toBeVisible();
+    const bodyTxt = (await body.textContent()) || '';
+    expect(bodyTxt).toMatch(/G\. saturada/i);
+    expect(bodyTxt).toMatch(/Cálcio/i);
+  });
+
+  // ── C-ADD-NUTRI-UX4 ──────────────────────────────────────────────────────
+  test('C-ADD-NUTRI-UX4 — Clicar novamente fecha o accordion', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await addFoodWithNutri(page);
+
+    const accordion = page.locator('[data-testid="ing-nutri-details"]').first();
+    await accordion.locator('summary').click(); // abre
+    await accordion.locator('summary').click(); // fecha
+
+    const isOpen = await accordion.evaluate(el => el.open);
+    expect(isOpen, 'Accordion deve estar fechado após segundo click').toBe(false);
+
+    // Corpo deve estar oculto
+    const body = accordion.locator('.ing-nutri-body');
+    await expect(body).not.toBeVisible();
+  });
+
+  // ── C-ADD-NUTRI-UX5 ──────────────────────────────────────────────────────
+  test('C-ADD-NUTRI-UX5 — Alimento sem opcionais não mostra accordion', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Sem Opcionais' });
+    // Não preencher opcionais
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    const count = await page.locator('[data-testid="ing-nutri-details"]').count();
+    expect(count, 'Não deve aparecer accordion sem dados opcionais').toBe(0);
+  });
+
+  // ── C-ADD-NUTRI-UX6 ──────────────────────────────────────────────────────
+  test('C-ADD-NUTRI-UX6 — Editar alimento mantém valores opcionais no modal', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await addFoodWithNutri(page, 'UX6 Edit Test');
+
+    await page.locator('[data-edit-addition]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+
+    // Bloco abre automaticamente (tem valores)
+    const calcVal = await page.locator('#eff-calcium').inputValue();
+    expect(parseFloat(calcVal)).toBeCloseTo(100, 0);
+    const saturatedVal = await page.locator('#eff-saturated').inputValue();
+    expect(parseFloat(saturatedVal)).toBeCloseTo(2, 0);
+  });
+
+  // ── C-ADD-NUTRI-UX7 ──────────────────────────────────────────────────────
+  test('C-ADD-NUTRI-UX7 — PDF por dia NÃO inclui accordion de fatos nutricionais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await addFoodWithNutri(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    // O PDF não usa buildNutriDetailsHtml — não deve ter o accordion
+    const count = await page.locator('#day-pdf-print-area [data-testid="ing-nutri-details"]').count();
+    expect(count, 'PDF não deve conter accordion de fatos nutricionais').toBe(0);
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Campos numéricos não mudam com scroll (type=text inputmode=decimal)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Dispatcha um evento wheel sobre um elemento para simular scroll */
+async function dispatchWheel(page, selector, deltaY = 100) {
+  await page.locator(selector).dispatchEvent('wheel', { deltaY, bubbles: true });
+}
+
+test.describe('Campos numéricos resistentes ao scroll (wheel)', () => {
+
+  // ── C-NUM-WHEEL1 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL1 — Campo opcional "saturada=3" não muda com wheel', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-saturated').fill('3');
+
+    await dispatchWheel(page, '#aff-saturated', 100);
+    await dispatchWheel(page, '#aff-saturated', -100);
+
+    const val = await page.locator('#aff-saturated').inputValue();
+    expect(val, `Esperado "3", obtido "${val}"`).toBe('3');
+  });
+
+  // ── C-NUM-WHEEL2 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL2 — Campo opcional "saturada=3.5" não muda com wheel', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-fiber').fill('3.5');
+
+    await dispatchWheel(page, '#aff-fiber', 100);
+    await dispatchWheel(page, '#aff-fiber', -100);
+
+    const val = await page.locator('#aff-fiber').inputValue();
+    expect(val, `Esperado "3.5", obtido "${val}"`).toBe('3.5');
+  });
+
+  // ── C-NUM-WHEEL3 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL3 — Modal Editar: campos opcionais não mudam com wheel', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Adicionar com calcium=5
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Wheel Edit Test' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-calcium').fill('5');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Abrir modal de edição
+    await page.locator('[data-edit-addition]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+
+    // Wheel sobre #eff-calcium
+    await dispatchWheel(page, '#eff-calcium', 100);
+    await dispatchWheel(page, '#eff-calcium', -100);
+
+    const val = await page.locator('#eff-calcium').inputValue();
+    // Valor deve ser aprox 5 (pode diferir levemente por per100g round-trip)
+    expect(parseFloat(val)).toBeCloseTo(5, 0);
+  });
+
+  // ── C-NUM-WHEEL4 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL4 — Porção base vazia continua dando erro "Quantidade base deve ser maior que zero"', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await page.locator('#aff-name').fill('Teste Qty Vazia');
+    await page.locator('#aff-category').selectOption('protein');
+    // Não preencher #aff-qty
+    await page.locator('#aff-kcal').fill('100');
+    await page.locator('#aff-prot').fill('20');
+    await page.locator('#aff-carb').fill('0');
+    await page.locator('#aff-fat').fill('5');
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const errBox = page.locator('#add-food-errors');
+    await expect(errBox).toBeVisible();
+    const errTxt = (await errBox.textContent()) || '';
+    expect(errTxt).toMatch(/Quantidade base deve ser maior que zero/i);
+  });
+
+  // ── C-NUM-WHEEL5 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL5 — Porção base 1 oz adiciona alimento como "1 oz" (modo imperial)', async ({ page }) => {
+    // oz só existe no select em modo imperial — sobrepor o form unit
+    const cenarioImp = { ...CENARIO_4, form: { ...CENARIO_4.form, unit: 'imperial' } };
+    await injectState(page, cenarioImp);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { name: 'Oz Wheel Test', category: 'protein', qty: 1, unit: 'oz', kcal: 30, prot: 5, carb: 0, fat: 1 });
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    const qtys = await page.locator('.ingredient-added .ingredient-qty').evaluateAll(
+      els => els.map(e => (e.textContent || '').trim())
+    );
+    expect(qtys.some(t => t === '1 oz'), `Esperado "1 oz", encontrado: ${JSON.stringify(qtys)}`).toBe(true);
+  });
+
+  // ── C-NUM-WHEEL6 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL6 — kcal/proteína/carbs/gorduras são lidos corretamente após submit', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const mealBefore = await page.locator('[data-meal-totals="0-0"]').textContent() || '';
+    const kcalBefore = parseInt((mealBefore.match(/(\d+)\s*kcal/) || [])[1] || '0');
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Parse Test', qty: 100, unit: 'g', kcal: 200, prot: 20, carb: 25, fat: 5 });
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    const mealAfter = await page.locator('[data-meal-totals="0-0"]').textContent() || '';
+    const kcalAfter = parseInt((mealAfter.match(/(\d+)\s*kcal/) || [])[1] || '0');
+    expect(Math.abs(kcalAfter - kcalBefore - 200)).toBeLessThanOrEqual(5);
+  });
+
+  // ── C-NUM-WHEEL7 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL7 — Campos opcionais guardados e aparecem no accordion', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'Accordion Storage Test' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-saturated').fill('4');
+    await page.locator('#aff-fiber').fill('2');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    // Accordion existe e fechado
+    const acc = page.locator('[data-testid="ing-nutri-details"]').first();
+    await expect(acc).toBeVisible();
+    const isOpen = await acc.evaluate(el => el.open);
+    expect(isOpen).toBe(false);
+
+    // Abrir e verificar conteúdo
+    await acc.locator('summary').click();
+    const body = acc.locator('.ing-nutri-body');
+    await expect(body).toBeVisible();
+    const txt = (await body.textContent()) || '';
+    expect(txt).toMatch(/G\. saturada/i);
+    expect(txt).toMatch(/Fibra/i);
+  });
+
+  // ── C-NUM-WHEEL8 ─────────────────────────────────────────────────────────
+  test('C-NUM-WHEEL8 — PDF não mostra accordion de fatos nutricionais adicionais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await page.waitForSelector('.modal-backdrop.show');
+    await fillAddFoodForm(page, { ...TEST_FOOD_MICRO, name: 'PDF Nutri Test' });
+    await openNutriSection(page, 'aff-optional-block');
+    await page.locator('#aff-calcium').fill('50');
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await expect(page.locator('.ing-badge-added').first()).toBeVisible();
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const count = await page.locator('#day-pdf-print-area [data-testid="ing-nutri-details"]').count();
+    expect(count).toBe(0);
+  });
+
+});
