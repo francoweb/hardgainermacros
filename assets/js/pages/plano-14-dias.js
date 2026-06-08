@@ -382,8 +382,15 @@ function renderDayCard(day, idx, subs, originalDay, targetKcal, additions) {
         <div class="day-info">
           <div class="day-name">Dia ${idx + 1} • ${day.dayName}</div>
           <div class="day-summary">
-            ${day.meals.length} refeições • <strong>${formatKcal(day.totals.kcal)}</strong> kcal •
-            P:${Math.round(day.totals.prot)}g C:${Math.round(day.totals.carb)}g G:${Math.round(day.totals.fat)}g
+            <span class="day-sum-item">${day.meals.length} refeições</span>
+            <span class="day-sum-sep">•</span>
+            <span class="day-sum-item"><strong>${formatKcal(day.totals.kcal)}</strong> kcal</span>
+            <span class="day-sum-sep">•</span>
+            <span class="day-sum-item">P:${Math.round(day.totals.prot)}g</span>
+            <span class="day-sum-sep">•</span>
+            <span class="day-sum-item">C:${Math.round(day.totals.carb)}g</span>
+            <span class="day-sum-sep">•</span>
+            <span class="day-sum-item">G:${Math.round(day.totals.fat)}g</span>
           </div>
           ${dayCompBlock}
         </div>
@@ -461,20 +468,28 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
         </button>
       </div>
 
-      ${meal.steps && meal.steps.length ? `
-        <div class="prep-section">
-          <div class="prep-title">${icons.utensils(14)} Preparo</div>
-          <ol class="prep-steps">
-            ${meal.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
-          </ol>
-        </div>
-      ` : ''}
-
-      ${meal.note ? `
-        <div class="meal-note">
-          <span class="meal-note-icon">${icons.info(16)}</span>
-          <div>${escapeHtml(meal.note)}</div>
-        </div>
+      ${(meal.steps && meal.steps.length) || meal.note ? `
+        <details class="prep-details">
+          <summary class="prep-summary">
+            ${icons.utensils(14)}
+            <span class="prep-show-text">Ver preparação</span>
+            <span class="prep-hide-text">Ocultar preparação</span>
+            ${icons.chevDown(12)}
+          </summary>
+          ${meal.steps && meal.steps.length ? `
+            <div class="prep-section">
+              <ol class="prep-steps">
+                ${meal.steps.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+              </ol>
+            </div>
+          ` : ''}
+          ${meal.note ? `
+            <div class="meal-note">
+              <span class="meal-note-icon">${icons.info(16)}</span>
+              <div>${escapeHtml(meal.note)}</div>
+            </div>
+          ` : ''}
+        </details>
       ` : ''}
     </div>
   `;
