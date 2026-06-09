@@ -503,12 +503,14 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
 const SUB_PROTEIN_PESAVEL = new Set([
   'peito_frango', 'carne_moida', 'peixe_tilapia', 'peixe_pescada',
   'peixe_salmao', 'atum_agua',
+  'coxa_frango', 'peito_peru', 'alcatra_grelhada', 'camarao', 'bacalhau_fresco',
 ]);
 /** Carbs that should be rounded to 10g multiples in substitutions. */
 const SUB_CARB_FLEX = new Set([
   'arroz_branco_cozido', 'arroz_basmati_cozido', 'macarrao_cozido',
   'aveia_flocos', 'feijao_carioca', 'lentilha_cozida', 'pure_batata',
   'polenta', 'cuscuz', 'tapioca',
+  'arroz_integral_cozido', 'arroz_jasmine_cozido', 'quinoa_cozida', 'creme_arroz',
 ]);
 
 /**
