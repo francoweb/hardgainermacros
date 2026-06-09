@@ -1335,9 +1335,20 @@ ul, ol { margin: 0; padding: 0; }
   border-radius: 4px;
   margin-top: 5px;
 }
-.sub-impact-safe { background: #e3ebd7; color: #4e6b42; }
-.sub-impact-ok   { background: #fff3cd; color: #7a5f00; }
-.sub-impact-warn { background: #fde8e4; color: #a33020; }
+.sub-impact-safe  { background: #e3ebd7; color: #4e6b42; }
+.sub-impact-ok    { background: #fff3cd; color: #7a5f00; }
+.sub-impact-warn  { background: #fde8e4; color: #a33020; } /* mantido por compatibilidade */
+.sub-impact-low   { background: #fde8e4; color: #a33020; } /* Fora da margem: muito baixo */
+.sub-impact-high  { background: #fde8e4; color: #a33020; } /* Fora da margem: muito alto */
+.sub-impact-macro { background: #fff0d6; color: #7a5200; } /* Atenção: gordura / macros */
+
+/* Linha de projecção do dia — "Dia projetado: X kcal (+Y vs alvo Z)" */
+.sub-option-proj {
+  font-size: 11px;
+  color: var(--ink-muted, #888);
+  margin-top: 4px;
+  line-height: 1.4;
+}
 
 /* --- Ingredient: substituted state --- */
 .ingredient-substituted { background: #fafdf7; }

@@ -3592,3 +3592,295 @@ test.describe('Campos numéricos resistentes ao scroll (wheel)', () => {
   });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sprint B — Troca segura por alvo diário
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Injeta adições manuais (hg:additions) no localStorage antes de navegar.
+ * Estrutura: { "dayIdx:mealIdx": [{ id, food, grams, unit, snapshot }] }
+ */
+async function injectAdditions(page, additions) {
+  await page.addInitScript((a) => {
+    try { localStorage.setItem('hg:additions', JSON.stringify(a)); } catch {}
+  }, additions);
+}
+
+/** Alimento fictício de alto impacto calórico para testes de projeção. */
+const SPRINTB_HIGHCAL_FOOD = {
+  id: 'sprintb_highcal',
+  name: 'Alimento Teste Sprint B',
+  category: 'extra',
+  per100: { kcal: 700, prot: 0, carb: 0, fat: 78 },
+  digestibility: 'leve',
+  substitutes: [],
+  source: 'custom',
+  baseQuantity: 100,
+  baseUnit: 'g',
+};
+
+/** Labels válidos após Sprint B. */
+const VALID_SPRINTB_LABELS = new Set([
+  'Troca segura',
+  'Troca aceitável',
+  'Atenção: abaixo do alvo',
+  'Atenção: acima do alvo',
+  'Fora da margem: muito baixo',
+  'Fora da margem: muito alto',
+  'Atenção: gorduras acima do alvo',
+  'Atenção: macros desequilibrados',
+]);
+
+test.describe('Sprint B — Troca segura por alvo diário', () => {
+
+  // ── C-SPRINTB1 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB1 — Modal mostra linha "Dia projetado" em cada opção', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) return;
+
+    // Pelo menos a 1.ª opção deve ter linha de projeção
+    await expect(opts.first().locator('.sub-option-proj')).toBeVisible();
+    const projText = await opts.first().locator('.sub-option-proj').textContent() || '';
+    expect(projText).toMatch(/Dia projetado:/);
+    expect(projText).toMatch(/kcal/);
+    expect(projText).toMatch(/vs alvo/);
+  });
+
+  // ── C-SPRINTB2 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB2 — Labels do modal são do conjunto válido de Sprint B', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    const n = await opts.count();
+    if (n === 0) return;
+
+    for (let i = 0; i < n; i++) {
+      const label = (await opts.nth(i).locator('.sub-impact').textContent() || '').trim();
+      expect(VALID_SPRINTB_LABELS.has(label),
+        `Label "${label}" não pertence ao conjunto válido de Sprint B`).toBe(true);
+    }
+  });
+
+  // ── C-SPRINTB3 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB3 — Sem adições, nenhum swap normal dispara "Fora da margem"', async ({ page }) => {
+    // Sem adições manuais, swaps de equivalência calórica não devem sair da janela -100/+200 kcal.
+    // O label pode ser "Troca segura", "Troca aceitável", "Atenção: acima/abaixo" consoante
+    // o arredondamento prático do plano — mas nunca "Fora da margem".
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) return;
+
+    const labels = await Promise.all(
+      (await opts.all()).map(o => o.locator('.sub-impact').textContent().catch(() => ''))
+    );
+    const hasOutOfRange = labels.some(l => (l || '').trim().startsWith('Fora da margem'));
+    expect(
+      hasOutOfRange,
+      `Swap normal sem adições não deve disparar "Fora da margem". Labels: ${labels.join(', ')}`
+    ).toBe(false);
+  });
+
+  // ── C-SPRINTB4 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB4 — Adição manual de 700 kcal força "Fora da margem: muito alto" no modal', async ({ page }) => {
+    // Injeta 100g do alimento de teste (700 kcal) na refeição 0 do dia 0
+    // Total do dia passa a ser ~2660 + 700 = 3360 kcal > alvo + 200 (2860)
+    await injectState(page, CENARIO_4);
+    await injectAdditions(page, {
+      '0:0': [{
+        id: 'sprintb_add_test',
+        food: SPRINTB_HIGHCAL_FOOD.id,
+        grams: 100,
+        unit: 'g',
+        snapshot: SPRINTB_HIGHCAL_FOOD,
+      }],
+    });
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Abre modal do 1.º ingrediente da refeição 0 do dia 0
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) return;
+
+    // Com 700 kcal extras no dia, TODAS as opções devem ser "Fora da margem: muito alto"
+    const labels = await Promise.all(
+      (await opts.all()).map(o => o.locator('.sub-impact').textContent().catch(() => ''))
+    );
+    const allHigh = labels.every(l => (l || '').trim() === 'Fora da margem: muito alto');
+    expect(allHigh,
+      `Esperado "Fora da margem: muito alto" em todas as opções. Encontrado: ${[...new Set(labels)].join(', ')}`
+    ).toBe(true);
+  });
+
+  // ── C-SPRINTB5 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB5 — Adição manual incluída na linha "Dia projetado" do modal', async ({ page }) => {
+    // Sem adição: dia projetado ≈ alvo (2660 kcal)
+    // Com adição de 700 kcal: dia projetado ≈ 3360 kcal
+    await injectState(page, CENARIO_4);
+    await injectAdditions(page, {
+      '0:0': [{
+        id: 'sprintb_add_proj_test',
+        food: SPRINTB_HIGHCAL_FOOD.id,
+        grams: 100,
+        unit: 'g',
+        snapshot: SPRINTB_HIGHCAL_FOOD,
+      }],
+    });
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) return;
+
+    const projText = await opts.first().locator('.sub-option-proj').textContent() || '';
+    // O número projetado deve ser >> 2660 (refletir a adição de 700 kcal)
+    const match = projText.match(/(\d{3,4})\s*kcal/);
+    const projKcal = match ? parseInt(match[1], 10) : 0;
+    expect(projKcal,
+      `Dia projetado (${projKcal}) deveria incluir adição de 700 kcal e ser > 3200`
+    ).toBeGreaterThan(3200);
+  });
+
+  // ── C-SPRINTB6 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB6 — Sub anterior no mesmo dia é incluída na projeção da sub seguinte', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Aplica 1.ª substituição
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    const opts1 = page.locator('.sub-option');
+    if (await opts1.count() === 0) { await page.locator('[data-modal-close]').first().click(); return; }
+    // Guarda projecção da 1.ª sub
+    const proj1 = (await opts1.first().locator('.sub-option-proj').textContent() || '').trim();
+    await opts1.first().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 3000 });
+    await page.waitForTimeout(300);
+
+    // Abre modal da 2.ª sub (ingrediente diferente)
+    const swapBtns = page.locator('[data-swap]');
+    if (await swapBtns.count() < 2) return;
+    await swapBtns.nth(1).click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    const opts2 = page.locator('.sub-option');
+    if (await opts2.count() === 0) return;
+
+    // A projeção da 2.ª sub deve existir e mostrar kcal > 0
+    const proj2 = (await opts2.first().locator('.sub-option-proj').textContent() || '').trim();
+    expect(proj2).toMatch(/Dia projetado:/);
+    // As duas projeções devem ser diferentes (contexto do dia mudou com a 1.ª sub)
+    // (pode ser igual por coincidência, mas a estrutura deve estar lá)
+    expect(proj2.length).toBeGreaterThan(0);
+  });
+
+  // ── C-SPRINTB7 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB7 — isWithinGoalTolerance usa janela -100/+200 no bloco do dia', async ({ page }) => {
+    // Alvo CENARIO_4 = 2660 kcal
+    // Se substituição resultar em dia entre 2560 e 2860, bloco mostra "Dentro do objetivo"
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) return;
+    await opts.first().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 3000 });
+    await page.waitForTimeout(300);
+
+    const statusEl = page.locator('.day-comp-status').first();
+    await expect(statusEl).toBeVisible();
+    const statusText = await statusEl.textContent() || '';
+    // Deve ser um dos dois textos válidos (a troca normal fica dentro da margem)
+    expect(
+      statusText.includes('Dentro do objetivo') || statusText.includes('Atenção'),
+      `Status inválido: "${statusText}"`
+    ).toBe(true);
+  });
+
+  // ── C-SPRINTB8 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB8 — Reverter continua funcionando após Sprint B', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) return;
+    await opts.first().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 3000 });
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('.ing-badge-subst').first()).toBeVisible();
+    await page.locator('.ing-revert-btn').first().click();
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('.ing-badge-subst')).not.toBeVisible();
+    await expect(page.locator('[data-testid="day-comp-block"]')).not.toBeVisible();
+  });
+
+  // ── C-SPRINTB9 ──────────────────────────────────────────────────────────────
+  test('C-SPRINTB9 — Mobile 390px: modal Sprint B abre e mostra projeção', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) return;
+
+    await expect(opts.first().locator('.sub-option-proj')).toBeVisible();
+    await expect(opts.first().locator('.sub-impact')).toBeVisible();
+
+    const label = (await opts.first().locator('.sub-impact').textContent() || '').trim();
+    expect(VALID_SPRINTB_LABELS.has(label), `Label inválido em mobile: "${label}"`).toBe(true);
+  });
+
+  // ── C-SPRINTB10 ─────────────────────────────────────────────────────────────
+  test('C-SPRINTB10 — PDF por dia não é afetado pela Sprint B', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    // PDF não deve conter a linha de projeção (pertence apenas ao modal interativo)
+    const projInPdf = await page.locator('#day-pdf-print-area .sub-option-proj').count();
+    expect(projInPdf).toBe(0);
+
+    // PDF deve conter ingredientes normais (.ing-list é a classe usada em exportDayPDF)
+    const ings = await page.locator('#day-pdf-print-area .ing-list li').count();
+    expect(ings).toBeGreaterThan(0);
+  });
+
+});

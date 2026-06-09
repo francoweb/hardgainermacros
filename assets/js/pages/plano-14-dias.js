@@ -231,7 +231,7 @@ function render(mount, plan, results, subs, originalPlan, additions) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const { dayIdx, mealIdx, ingIdx } = btn.dataset;
-      openSubModal(Number(dayIdx), Number(mealIdx), Number(ingIdx), mount);
+      openSubModal(Number(dayIdx), Number(mealIdx), Number(ingIdx), mount, results);
     });
   });
 
@@ -541,16 +541,52 @@ function subPracticalGrams(foodId, rawGrams) {
 }
 
 /**
- * Returns an impact rating object based on kcal difference.
- *   |Δkcal| ≤ 30  → safe
- *   |Δkcal| ≤ 80  → acceptable
- *   |Δkcal|  > 80  → attention
+ * Classifies a substitution option based on the PROJECTED DAY TOTAL after the swap,
+ * compared against the user's actual daily targets (kcal + macros).
+ * The projected totals already include: plano original + subs anteriores + adições manuais
+ * + a nova substituição simulada.
+ *
+ * Todas as comparações são projected vs alvo diário:
+ *   Calorie window  :  target − 100 ≤ projected.kcal ≤ target + 200
+ *   Fat alert       :  projected.fat > results.fat.grams + 15g
+ *   Protein floor   :  projected.prot < results.protein.grams − 25g
+ *   Carb range      :  |projected.carb − results.carb.grams| > 60g
+ *
+ * @param {{ kcal:number, prot:number, carb:number, fat:number }} projected  Totais do dia após swap
+ * @param {{ calories:number, protein:{grams:number}, carb:{grams:number}, fat:{grams:number} }} results
  */
-function getSubImpact(deltaKcal) {
-  const abs = Math.abs(deltaKcal);
-  if (abs <= 30) return { cls: 'sub-impact-safe', label: 'Troca segura' };
-  if (abs <= 80) return { cls: 'sub-impact-ok',   label: 'Troca aceitável' };
-  return { cls: 'sub-impact-warn', label: 'Atenção: impacto alto' };
+function getDailyImpact(projected, results) {
+  const dKcal = projected.kcal - results.calories;
+  const dFat  = projected.fat  - results.fat.grams;       // gordura projetada vs alvo diário
+  const dProt = projected.prot - results.protein.grams;
+  const dCarb = projected.carb - results.carb.grams;
+
+  // Calorias muito abaixo do alvo diário
+  if (dKcal < -100)
+    return { cls: 'sub-impact-low',   label: 'Fora da margem: muito baixo' };
+
+  // Calorias muito acima do alvo diário
+  if (dKcal >  200)
+    return { cls: 'sub-impact-high',  label: 'Fora da margem: muito alto' };
+
+  // Gordura projetada > alvo + 15g (1g gordura = 9 kcal — sobe rápido)
+  if (dFat  >   15)
+    return { cls: 'sub-impact-macro', label: 'Atenção: gorduras acima do alvo' };
+
+  // Macros desequilibrados — proteína muito baixa ou carboidratos muito fora do alvo
+  if (dProt <  -25 || Math.abs(dCarb) > 60)
+    return { cls: 'sub-impact-macro', label: 'Atenção: macros desequilibrados' };
+
+  // Kcal ligeiramente abaixo do alvo (aceitável mas não ideal)
+  if (dKcal < -50)
+    return { cls: 'sub-impact-ok',   label: 'Atenção: abaixo do alvo' };
+
+  // Kcal ligeiramente acima do alvo (aceitável mas não ideal)
+  if (dKcal > 100)
+    return { cls: 'sub-impact-ok',   label: 'Atenção: acima do alvo' };
+
+  // Dentro da janela ideal
+  return { cls: 'sub-impact-safe', label: 'Troca segura' };
 }
 
 /**
@@ -586,10 +622,13 @@ function getAffectedDayIndices(subs) {
 }
 
 /**
- * True if actualKcal is within ±4% of targetKcal.
+ * True if actualKcal is within the asymmetric safe window:
+ *   targetKcal − 100  ≤  actualKcal  ≤  targetKcal + 200
+ * Consistent with the getDailyImpact() calorie window.
  */
 function isWithinGoalTolerance(actualKcal, targetKcal) {
-  return Math.abs(actualKcal - targetKcal) / targetKcal <= 0.04;
+  const diff = actualKcal - targetKcal;
+  return diff >= -100 && diff <= 200;
 }
 
 /**
@@ -666,10 +705,18 @@ const SUB_CAT_LABEL = {
 };
 const SUB_CAT_ORDER = ['protein', 'dairy', 'carb', 'fat', 'fruit', 'veg', 'extra'];
 
-function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
-  const plan = loadPlan();
-  let subs = loadSubstitutions();
-  const effective = applySubstitutions(plan, subs);
+function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
+  const plan      = loadPlan();
+  let subs        = loadSubstitutions();
+  const additions = loadAdditions();
+
+  // effective: subs aplicadas, mas SEM adições — preserva os índices originais dos ingredientes
+  const effective     = applySubstitutions(plan, subs);
+  // effectiveFull: subs + adições — total real que o utilizador vê no dia
+  const effectiveFull = applyAdditions(effective, additions);
+  // Total actual do dia (inclui subs já feitas + alimentos adicionados manualmente)
+  const currentDayTotal = effectiveFull[dayIdx].totals;
+
   const meal = effective[dayIdx].meals[mealIdx];
   const ing = meal.ingredients[ingIdx];
   const subKey = `${dayIdx}:${mealIdx}:${ingIdx}`;
@@ -691,11 +738,18 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
     const practicalG = subPracticalGrams(opt.id, opt.grams);
     const macros = calcFoodMacros(opt.id, practicalG);
     const delta = macros.kcal - ing.macros.kcal;
-    const impact = getSubImpact(delta);
+    // Projecção do total do dia se esta opção for escolhida
+    const projected = {
+      kcal: currentDayTotal.kcal - ing.macros.kcal + macros.kcal,
+      prot: currentDayTotal.prot - ing.macros.prot + macros.prot,
+      carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
+      fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
+    };
+    const impact = getDailyImpact(projected, results);
     const display = opt.id === 'whey'
       ? buildWheyDisplay(practicalG)
       : formatQty(opt.id, practicalG);
-    return { id: opt.id, food: opt.food, grams: practicalG, macros, display, delta, impact };
+    return { id: opt.id, food: opt.food, grams: practicalG, macros, display, delta, impact, projected };
   });
 
   // Add custom foods of the same category as substitute options
@@ -710,9 +764,15 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
         : (f.baseQuantity || 100);
       const macros = calcMacrosFromFood(f, equivG);
       const delta  = macros.kcal - ing.macros.kcal;
-      const impact = getSubImpact(delta);
+      const projected = {
+        kcal: currentDayTotal.kcal - ing.macros.kcal + macros.kcal,
+        prot: currentDayTotal.prot - ing.macros.prot + macros.prot,
+        carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
+        fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
+      };
+      const impact = getDailyImpact(projected, results);
       const sign   = delta >= 0 ? '+' : '';
-      return { id: f.id, food: f, grams: equivG, macros, display: `${equivG}g`, delta, impact, sign, isCustom: true };
+      return { id: f.id, food: f, grams: equivG, macros, display: `${equivG}g`, delta, impact, sign, projected, isCustom: true };
     })
     .filter(Boolean);
 
@@ -726,6 +786,14 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
 
   const renderSubOpt = (opt) => {
     const sign = opt.sign !== undefined ? opt.sign : (opt.delta >= 0 ? '+' : '');
+    // Linha de projecção do total diário (apenas quando results disponível)
+    let projLine = '';
+    if (opt.projected && results) {
+      const projKcal = Math.round(opt.projected.kcal);
+      const projDiff = projKcal - results.calories;
+      const projSign = projDiff >= 0 ? '+' : '';
+      projLine = `<div class="sub-option-proj">Dia projetado: <strong>${projKcal} kcal</strong> (${projSign}${projDiff} vs alvo ${results.calories})</div>`;
+    }
     return `
       <li class="sub-option${opt.isCustom ? ' sub-option-custom' : ''}" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}">
         <div class="sub-option-head">
@@ -736,6 +804,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount) {
           ${opt.macros.kcal} kcal (${sign}${opt.delta}) •
           P:${opt.macros.prot}g • C:${opt.macros.carb}g • G:${opt.macros.fat}g
         </div>
+        ${projLine}
         <span class="sub-impact ${opt.impact.cls}">${opt.impact.label}</span>
       </li>
     `;
