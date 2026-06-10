@@ -837,23 +837,30 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
     `;
   };
 
+  // Primary category: the category of the original food, open by default.
+  // Fallback to the first populated category if the food's category has no options.
+  const primaryCat = (currentFood.category && grouped[currentFood.category])
+    ? currentFood.category
+    : (SUB_CAT_ORDER.find(c => grouped[c]) || 'protein');
+
   const optionsHtml = SUB_CAT_ORDER
     .filter(c => grouped[c])
     .map(cat => {
       const items = grouped[cat];
+      const isOpen = cat === primaryCat;
       return `
-        <div class="sub-cat-group">
-          <div class="sub-cat-label">${SUB_CAT_LABEL[cat] || cat}</div>
-          ${items.map(renderSubOpt).join('')}
-        </div>
+        <details class="sub-cat-group"${isOpen ? ' open' : ''}>
+          <summary class="sub-cat-label">${SUB_CAT_LABEL[cat] || cat}<span class="sub-cat-count"> (${items.length})</span></summary>
+          <ul class="sub-cat-items">${items.map(renderSubOpt).join('')}</ul>
+        </details>
       `;
     }).join('');
 
   const customOptsHtml = customOpts.length > 0 ? `
-    <div class="sub-cat-group">
-      <div class="sub-cat-label sub-cat-custom">⭐ Meus alimentos</div>
-      ${customOpts.map(renderSubOpt).join('')}
-    </div>
+    <details class="sub-cat-group" open>
+      <summary class="sub-cat-label sub-cat-custom">⭐ Meus alimentos<span class="sub-cat-count"> (${customOpts.length})</span></summary>
+      <ul class="sub-cat-items">${customOpts.map(renderSubOpt).join('')}</ul>
+    </details>
   ` : '';
 
   const contentHtml = `
@@ -875,7 +882,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
         <p class="card-body" style="margin-top:14px;">Não há substituições equivalentes registadas para este alimento. Considere manter o original.</p>
       ` : `
         <p style="margin-top:14px; margin-bottom:0; font-size:12.5px; color:var(--ink-muted);">Clique para aplicar. Quantidade calculada para manter calorias aproximadas. Afeta apenas este ingrediente neste dia.</p>
-        <ul class="sub-options" style="margin-top:10px;">${optionsHtml}${customOptsHtml}</ul>
+        <div class="sub-options">${optionsHtml}${customOptsHtml}</div>
       `}
       <div class="btn-row" style="margin-top:16px; flex-wrap:wrap;">
         ${isAlreadySubstituted ? `<button type="button" class="btn btn-ghost" id="btn-reset-ing" style="font-size:13px;">${icons.refresh(14)} Reverter: ${escapeHtml(originalFoodName)}</button>` : ''}
@@ -885,6 +892,17 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
   `;
 
   const close = openModal(contentHtml);
+
+  // Accordion: close all other categories when one is opened (exclusive accordion).
+  document.querySelectorAll('.sub-cat-group').forEach(det => {
+    det.addEventListener('toggle', () => {
+      if (det.open) {
+        document.querySelectorAll('.sub-cat-group').forEach(other => {
+          if (other !== det) other.removeAttribute('open');
+        });
+      }
+    });
+  });
 
   // Apply substitution on option click
   document.querySelectorAll('.sub-option').forEach(li => {

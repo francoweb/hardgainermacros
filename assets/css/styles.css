@@ -1313,16 +1313,53 @@ ul, ol { margin: 0; padding: 0; }
 .sub-current-macros { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
 
 /* --- Substitution: category group header --- */
-.sub-cat-group { margin-bottom: 4px; }
+.sub-cat-group { margin-bottom: 0; width: 100%; min-width: 0; overflow: hidden; }
+/* Suppress native <details>/<summary> triangle in all browsers */
+.sub-cat-group > summary { list-style: none; }
+.sub-cat-group > summary::-webkit-details-marker { display: none; }
 .sub-cat-label {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--ink-muted);
-  padding: 6px 0 4px;
+  padding: 6px 0;
   border-bottom: 1px solid var(--border-soft);
-  margin-bottom: 6px;
+  margin-bottom: 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.sub-cat-label::after {
+  content: '›';
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform var(--t-fast, 0.15s);
+}
+details[open] > .sub-cat-label::after {
+  transform: rotate(90deg);
+}
+.sub-cat-count {
+  font-weight: 400;
+  font-size: 9px;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.65;
+  margin-left: 2px;
+}
+.sub-cat-items {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 /* --- Substitution: impact badges --- */
@@ -2107,7 +2144,7 @@ ul, ol { margin: 0; padding: 0; }
 .ingredient-main { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 
 /* ---------- Substitution modal options ---------- */
-.sub-options { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.sub-options { padding: 0; margin: 10px 0 0; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
 .sub-option { cursor: pointer; background: var(--surface-soft); border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px 14px; transition: background var(--t-fast), border-color var(--t-fast); }
 .sub-option:hover { border-color: var(--accent); background: var(--accent-softer); }
 .sub-option-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }

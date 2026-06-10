@@ -1008,8 +1008,8 @@ test.describe('Sistema de Substituições', () => {
     const optCount = await opts.count();
     expect(optCount).toBeGreaterThan(0);
 
-    // Aplicar e verificar
-    await opts.first().click();
+    // Aplicar: clicar na primeira opção visível (accordion pode ter grupos fechados)
+    await opts.filter({ visible: true }).first().click();
     await expect(page.locator('.ing-badge-subst').first()).toBeVisible();
   });
 
@@ -1174,12 +1174,12 @@ test.describe('Totais com substituições — hero e dia', () => {
     if (await swapBtns.count() < 2) return;
 
     await swapBtns.nth(0).click();
-    let opts = page.locator('.sub-option');
+    let opts = page.locator('.sub-option').filter({ visible: true });
     if (await opts.count() === 0) { await page.locator('[data-modal-close]').first().click(); return; }
     await opts.first().click();
 
     await page.locator('[data-swap]').nth(1).click();
-    opts = page.locator('.sub-option');
+    opts = page.locator('.sub-option').filter({ visible: true });
     if (await opts.count() === 0) { await page.locator('[data-modal-close]').first().click(); return; }
     await opts.first().click();
 
@@ -1273,7 +1273,8 @@ async function sumMeals(page, dayIdx = 0) {
 async function applySubThatChanges(page, swapLocator) {
   await swapLocator.click();
   await page.waitForSelector('.modal-backdrop.show');
-  const opts = page.locator('.sub-option');
+  // Accordion: only check visible options (closed groups are in DOM but hidden)
+  const opts = page.locator('.sub-option').filter({ visible: true });
   const count = await opts.count();
   if (count === 0) {
     await page.locator('[data-modal-close]').first().click();
@@ -4025,10 +4026,12 @@ test.describe('C-SUB-FULL — Modal com todos os alimentos FOODS', () => {
     const total = await opts.count();
     if (total === 0) { await page.locator('[data-modal-close]').first().click(); return; }
 
-    // Verifica as primeiras 20 opções (cobre prioritários + extras)
-    const toCheck = Math.min(total, 20);
+    // Verifica as primeiras 20 opções visíveis (accordion: grupos fechados estão no DOM mas ocultos)
+    const visibleOpts = opts.filter({ visible: true });
+    const visibleTotal = await visibleOpts.count();
+    const toCheck = Math.min(visibleTotal, 20);
     for (let i = 0; i < toCheck; i++) {
-      await expect(opts.nth(i).locator('.sub-impact'),
+      await expect(visibleOpts.nth(i).locator('.sub-impact'),
         `Opção ${i + 1} deve ter label Sprint B`).toBeVisible();
     }
 
@@ -4083,7 +4086,131 @@ test.describe('C-SUB-FULL — Modal com todos os alimentos FOODS', () => {
     await page.locator('[data-modal-close]').first().click();
   });
 
-  // ── C-SUB-FULL9 ─────────────────────────────────────────────────────────────
+  // ── C-SUB-ACC1 ──────────────────────────────────────────────────────────────
+  test('C-SUB-ACC1 — Categoria do alimento original vem aberta por padrão', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Ovo inteiro → categoria protein → "Proteínas" deve vir aberta
+    const ovoSwap = page.locator('.ingredient-name', { hasText: /ovo/i }).first()
+      .locator('xpath=ancestor::li[contains(@class,"ingredient")]')
+      .locator('[data-swap]');
+    if (await ovoSwap.count() === 0) return;
+    await ovoSwap.click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Grupo aberto: <details open> com summary "Proteínas"
+    const openGroup = page.locator('details.sub-cat-group[open] > summary.sub-cat-label');
+    await expect(openGroup).toBeVisible();
+    const openLabel = (await openGroup.textContent() || '').trim();
+    expect(openLabel).toMatch(/Proteínas/i);
+
+    // As opções dentro do grupo aberto são visíveis
+    const visibleOpts = page.locator('details.sub-cat-group[open] .sub-option');
+    expect(await visibleOpts.count()).toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-ACC2 ──────────────────────────────────────────────────────────────
+  test('C-SUB-ACC2 — Outras categorias ficam fechadas por padrão', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Deve haver mais que 1 grupo total (accordion)
+    const allGroups = page.locator('details.sub-cat-group');
+    const total = await allGroups.count();
+    expect(total).toBeGreaterThan(1);
+
+    // Apenas 1 grupo deve estar aberto
+    const openGroups = page.locator('details.sub-cat-group[open]');
+    expect(await openGroups.count()).toBe(1);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-ACC3 ──────────────────────────────────────────────────────────────
+  test('C-SUB-ACC3 — Clicar num grupo fechado abre-o e mostra opções', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Encontra o primeiro grupo FECHADO e guarda o texto do label
+    const closedSummary = page.locator('details.sub-cat-group:not([open]) > summary.sub-cat-label').first();
+    if (await closedSummary.count() === 0) { await page.locator('[data-modal-close]').first().click(); return; }
+    const labelText = (await closedSummary.textContent() || '').trim();
+
+    // Clica no summary para abrir
+    await closedSummary.click();
+    await page.waitForTimeout(100);
+
+    // Verifica que um grupo com esse label está agora aberto
+    const openedGroup = page.locator('details.sub-cat-group[open]');
+    const openLabel = (await openedGroup.first().locator('summary').textContent() || '').trim();
+    expect(openLabel).toContain(labelText.split('(')[0].trim()); // ignora o count "(N)"
+
+    // Deve ter opções visíveis dentro do grupo aberto
+    const optsInOpen = openedGroup.first().locator('.sub-option');
+    expect(await optsInOpen.count()).toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-ACC4 ──────────────────────────────────────────────────────────────
+  test('C-SUB-ACC4 — Abrir uma categoria fecha as restantes (accordion exclusivo)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Garante que há pelo menos 2 grupos
+    const allGroups = page.locator('details.sub-cat-group');
+    if (await allGroups.count() < 2) { await page.locator('[data-modal-close]').first().click(); return; }
+
+    // Clica no primeiro grupo FECHADO para abrir
+    const closedGroup = page.locator('details.sub-cat-group:not([open])').first();
+    if (await closedGroup.count() === 0) { await page.locator('[data-modal-close]').first().click(); return; }
+    await closedGroup.locator('summary.sub-cat-label').click();
+
+    // Aguarda toggle event propagar
+    await page.waitForTimeout(100);
+
+    // Apenas 1 grupo deve estar aberto (accordion exclusivo)
+    const openGroups = page.locator('details.sub-cat-group[open]');
+    expect(await openGroups.count()).toBe(1);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-ACC5 ──────────────────────────────────────────────────────────────
+  test('C-SUB-ACC5 — Aplicar substituição funciona dentro de grupo aberto', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Clica na primeira opção visível (dentro do grupo aberto)
+    const visibleOpt = page.locator('details.sub-cat-group[open] .sub-option').first();
+    if (await visibleOpt.count() === 0) { await page.locator('[data-modal-close]').first().click(); return; }
+    await visibleOpt.click();
+
+    // Substituição aplicada: badge "Substituído" visível
+    await expect(page.locator('.ing-badge-subst').first()).toBeVisible();
+  });
+
+  // ── C-SUB-FULL9 ──────────────────────────────────────────────────────────────
   test('C-SUB-FULL9 — Modal mostra queijo cottage e/ou skyr (alimentos dairy não ligados manualmente)', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
