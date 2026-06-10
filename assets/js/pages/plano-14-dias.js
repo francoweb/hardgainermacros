@@ -893,12 +893,24 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
 
   const close = openModal(contentHtml);
 
-  // Accordion: close all other categories when one is opened (exclusive accordion).
+  // Accordion: close other categories when one opens, then scroll its summary
+  // to the top of the modal (not the page) so the user sees the start of the list.
   document.querySelectorAll('.sub-cat-group').forEach(det => {
     det.addEventListener('toggle', () => {
       if (det.open) {
+        // 1. Close all other groups (exclusive accordion)
         document.querySelectorAll('.sub-cat-group').forEach(other => {
           if (other !== det) other.removeAttribute('open');
+        });
+        // 2. After the DOM has painted the expanded content, scroll the modal
+        //    so the opened summary appears near the top — without touching page scroll.
+        requestAnimationFrame(() => {
+          const summary = det.querySelector('summary.sub-cat-label');
+          const modal   = det.closest('.modal');
+          if (!summary || !modal) return;
+          const delta = summary.getBoundingClientRect().top
+                      - modal.getBoundingClientRect().top;
+          modal.scrollTop += delta - 8; // 8 px breathing room above the label
         });
       }
     });

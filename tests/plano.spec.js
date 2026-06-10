@@ -4150,7 +4150,7 @@ test.describe('C-SUB-FULL — Modal com todos os alimentos FOODS', () => {
 
     // Clica no summary para abrir
     await closedSummary.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200); // aguarda rAF + scroll animation
 
     // Verifica que um grupo com esse label está agora aberto
     const openedGroup = page.locator('details.sub-cat-group[open]');
@@ -4160,6 +4160,18 @@ test.describe('C-SUB-FULL — Modal com todos os alimentos FOODS', () => {
     // Deve ter opções visíveis dentro do grupo aberto
     const optsInOpen = openedGroup.first().locator('.sub-option');
     expect(await optsInOpen.count()).toBeGreaterThan(0);
+
+    // Verifica que o summary aberto está visível dentro do modal (scroll correctamente posicionado)
+    const summaryVisible = await page.evaluate(() => {
+      const modal   = document.querySelector('.modal');
+      const summary = document.querySelector('details.sub-cat-group[open] > summary.sub-cat-label');
+      if (!modal || !summary) return false;
+      const mRect = modal.getBoundingClientRect();
+      const sRect = summary.getBoundingClientRect();
+      // Summary deve estar dentro da área visível do modal
+      return sRect.top >= mRect.top - 2 && sRect.top <= mRect.bottom;
+    });
+    expect(summaryVisible, 'Summary da categoria aberta deve estar visível no modal').toBe(true);
 
     await page.locator('[data-modal-close]').first().click();
   });
