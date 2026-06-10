@@ -752,6 +752,33 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
     return { id: opt.id, food: opt.food, grams: practicalG, macros, display, delta, impact, projected };
   });
 
+  // Extend with ALL remaining FOODS not yet included, grouped by their own category.
+  // Priority substitutes (options) stay first within each category group because they
+  // are inserted before the extras in the combined array used for grouping below.
+  const priorityIds = new Set([ing.food, ...options.map(o => o.id)]);
+  const extraOpts = Object.entries(FOODS)
+    .filter(([id, food]) => !priorityIds.has(id) && food.per100 && food.per100.kcal > 0)
+    .map(([id, food]) => {
+      const targetKcal = ing.macros.kcal;
+      const equivG = targetKcal > 0
+        ? Math.max(5, Math.round((targetKcal / food.per100.kcal * 100) / 5) * 5)
+        : 100;
+      const practicalG = subPracticalGrams(id, equivG);
+      const macros = calcFoodMacros(id, practicalG);
+      const delta = macros.kcal - ing.macros.kcal;
+      const projected = {
+        kcal: currentDayTotal.kcal - ing.macros.kcal + macros.kcal,
+        prot: currentDayTotal.prot - ing.macros.prot + macros.prot,
+        carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
+        fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
+      };
+      const impact = getDailyImpact(projected, results);
+      const display = id === 'whey'
+        ? buildWheyDisplay(practicalG)
+        : formatQty(id, practicalG);
+      return { id, food, grams: practicalG, macros, display, delta, impact, projected };
+    });
+
   // Add custom foods of the same category as substitute options
   const customFoods = loadCustomFoods();
   const targetKcalForSub = ing.macros.kcal;
@@ -776,9 +803,9 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
     })
     .filter(Boolean);
 
-  // Group official options by category
+  // Group all official options (priority first, then extras) by category
   const grouped = {};
-  options.forEach(opt => {
+  [...options, ...extraOpts].forEach(opt => {
     const cat = opt.food.category || 'extra';
     if (!grouped[cat]) grouped[cat] = [];
     grouped[cat].push(opt);

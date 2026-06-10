@@ -918,8 +918,10 @@ test.describe('Sistema de Substituições', () => {
           // Se é uma proteína pesável (frango, carne, peixe, atum) não deve ser < 80g
           // Detectar por macros de proteína alta
           const protMatch = macrosText.match(/P:([\d.]+)g/);
-          if (protMatch && parseFloat(protMatch[1]) > 15) {
-            // Alta proteína — verificar que a quantidade não é ridícula (< 80g)
+          // Excluir suplementos em pó (whey, caseína) — medidos em scoops, não em gramas de alimento
+          const isScoop = qtyText.toLowerCase().includes('scoop') || qtyText.toLowerCase().includes('medidor');
+          if (protMatch && parseFloat(protMatch[1]) > 15 && !isScoop) {
+            // Alta proteína pesável — verificar que a quantidade não é ridícula (< 80g)
             const gramsMatch = qtyText.match(/(\d+)g/);
             if (gramsMatch) {
               const g = parseInt(gramsMatch[1], 10);
@@ -966,11 +968,15 @@ test.describe('Sistema de Substituições', () => {
     const optCount = await opts.count();
     expect(optCount).toBeGreaterThan(0);
 
-    // Nenhuma opção de proteína com < 80g
+    // Para opções de proteína pesável (P > 15g, não suplementos em pó): mínimo 80g.
+    // Extras de outras categorias (condimentos, gorduras, extras) têm porções menores — ok.
     for (let i = 0; i < optCount; i++) {
-      const qtyText = await opts.nth(i).locator('.sub-option-qty').textContent() || '';
+      const qtyText   = await opts.nth(i).locator('.sub-option-qty').textContent() || '';
+      const macroText = await opts.nth(i).locator('.sub-option-macros').textContent() || '';
+      const isScoop   = qtyText.toLowerCase().includes('scoop') || qtyText.toLowerCase().includes('medidor');
+      const protMatch = macroText.match(/P:([\d.]+)g/);
       const gramsMatch = qtyText.match(/(\d+)g/);
-      if (gramsMatch) {
+      if (gramsMatch && !isScoop && protMatch && parseFloat(protMatch[1]) > 15) {
         const g = parseInt(gramsMatch[1], 10);
         expect(g).toBeGreaterThanOrEqual(80);
       }
@@ -3675,10 +3681,13 @@ test.describe('Sprint B — Troca segura por alvo diário', () => {
   });
 
   // ── C-SPRINTB3 ──────────────────────────────────────────────────────────────
-  test('C-SPRINTB3 — Sem adições, nenhum swap normal dispara "Fora da margem"', async ({ page }) => {
-    // Sem adições manuais, swaps de equivalência calórica não devem sair da janela -100/+200 kcal.
-    // O label pode ser "Troca segura", "Troca aceitável", "Atenção: acima/abaixo" consoante
-    // o arredondamento prático do plano — mas nunca "Fora da margem".
+  test('C-SPRINTB3 — Substitutes prioritários não disparam "Fora da margem" sem adições', async ({ page }) => {
+    // Os substitutes curados (primeiros da lista, ligados manualmente) são equivalentes
+    // calóricos e nunca devem sair da janela -100/+200 kcal.
+    // Nota: com a lista expandida a todos os FOODS, alimentos de categorias muito
+    // diferentes (ex: substituir vegetal por pão) podem legitimamente mostrar "Fora da
+    // margem" — esse comportamento é correcto. Verificamos apenas os primeiros 8 (máximo
+    // de substitutes prioritários em qualquer alimento de FOODS).
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
@@ -3687,15 +3696,17 @@ test.describe('Sprint B — Troca segura por alvo diário', () => {
     await expect(page.locator('.modal-backdrop.show')).toBeVisible();
 
     const opts = page.locator('.sub-option');
-    if (await opts.count() === 0) return;
+    const total = await opts.count();
+    if (total === 0) return;
 
+    const maxPriority = Math.min(total, 8);
     const labels = await Promise.all(
-      (await opts.all()).map(o => o.locator('.sub-impact').textContent().catch(() => ''))
+      (await opts.all()).slice(0, maxPriority).map(o => o.locator('.sub-impact').textContent().catch(() => ''))
     );
     const hasOutOfRange = labels.some(l => (l || '').trim().startsWith('Fora da margem'));
     expect(
       hasOutOfRange,
-      `Swap normal sem adições não deve disparar "Fora da margem". Labels: ${labels.join(', ')}`
+      `Substitutes prioritários não devem disparar "Fora da margem". Labels: ${labels.join(', ')}`
     ).toBe(false);
   });
 
@@ -3881,6 +3892,222 @@ test.describe('Sprint B — Troca segura por alvo diário', () => {
     // PDF deve conter ingredientes normais (.ing-list é a classe usada em exportDayPDF)
     const ings = await page.locator('#day-pdf-print-area .ing-list li').count();
     expect(ings).toBeGreaterThan(0);
+  });
+
+});
+
+// =============================================================================
+// C-SUB-FULL — Modal com todos os alimentos FOODS (Sprint C)
+// =============================================================================
+// Valida que o modal de substituição mostra todos os alimentos de FOODS,
+// distribuídos por categoria, e não apenas os substitutes manuais.
+
+test.describe('C-SUB-FULL — Modal com todos os alimentos FOODS', () => {
+
+  // ── C-SUB-FULL1 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL1 — Modal mostra "Proteína whey" para ingrediente que não é whey', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Tenta até 10 botões de swap para encontrar um ingrediente que não seja whey
+    const swapBtns = page.locator('[data-swap]');
+    const total = await swapBtns.count();
+    let found = false;
+
+    for (let i = 0; i < Math.min(total, 10); i++) {
+      await swapBtns.nth(i).click();
+      await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+      const currentName = (await page.locator('.sub-current-name').textContent() || '').toLowerCase();
+
+      // Se o ingrediente atual é whey, fecha e tenta o seguinte
+      if (currentName.includes('whey')) {
+        await page.locator('[data-modal-close]').first().click();
+        await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 3000 });
+        continue;
+      }
+
+      const optNames = await page.locator('.sub-option-name').allTextContents();
+      if (optNames.some(n => n.includes('whey') || n.toLowerCase().includes('proteína whey'))) {
+        found = true;
+      }
+      await page.locator('[data-modal-close]').first().click();
+      await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 3000 });
+      break;
+    }
+
+    expect(found, '"Proteína whey" deve aparecer no modal de um ingrediente não-whey').toBe(true);
+  });
+
+  // ── C-SUB-FULL2 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL2 — Modal mostra secção Laticínios com alimentos dairy', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const catLabels = await page.locator('.sub-cat-label').allTextContents();
+    expect(
+      catLabels.some(l => l.includes('Laticínios')),
+      'Modal deve ter secção "Laticínios"'
+    ).toBe(true);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-FULL3 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL3 — Modal mostra várias secções de categoria (≥ 3)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const groups = page.locator('.sub-cat-group');
+    const count = await groups.count();
+    expect(count, 'Modal deve ter pelo menos 3 grupos de categoria').toBeGreaterThanOrEqual(3);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-FULL4 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL4 — Modal não mostra o alimento original como opção de substituição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const currentName = (await page.locator('.sub-current-name').textContent() || '').trim();
+    const optNames = (await page.locator('.sub-option-name').allTextContents()).map(n => n.trim());
+
+    expect(
+      optNames.includes(currentName),
+      `"${currentName}" não deve aparecer como opção de substituição`
+    ).toBe(false);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-FULL5 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL5 — Modal não tem opções duplicadas (data-sub-id únicos)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const ids = await page.locator('.sub-option[data-sub-id]').evaluateAll(
+      els => els.map(el => el.getAttribute('data-sub-id'))
+    );
+    const unique = new Set(ids);
+    expect(unique.size, 'Todos os data-sub-id devem ser únicos').toBe(ids.length);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-FULL6 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL6 — Todas as opções têm label Sprint B (.sub-impact)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    const total = await opts.count();
+    if (total === 0) { await page.locator('[data-modal-close]').first().click(); return; }
+
+    // Verifica as primeiras 20 opções (cobre prioritários + extras)
+    const toCheck = Math.min(total, 20);
+    for (let i = 0; i < toCheck; i++) {
+      await expect(opts.nth(i).locator('.sub-impact'),
+        `Opção ${i + 1} deve ter label Sprint B`).toBeVisible();
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-FULL7 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL7 — Todas as opções têm linha "Dia projetado" (.sub-option-proj)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    const total = await opts.count();
+    if (total === 0) { await page.locator('[data-modal-close]').first().click(); return; }
+
+    const toCheck = Math.min(total, 20);
+    for (let i = 0; i < toCheck; i++) {
+      const projText = (await opts.nth(i).locator('.sub-option-proj').textContent() || '').trim();
+      expect(projText, `Opção ${i + 1} deve ter linha "Dia projetado"`).toMatch(/Dia projetado/);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-FULL8 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL8 — Mobile 390px: modal com lista completa sem overflow horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const opts = page.locator('.sub-option');
+    if (await opts.count() === 0) { await page.locator('[data-modal-close]').first().click(); return; }
+
+    // Lista não deve ter overflow horizontal em mobile
+    const overflow = await page.locator('.sub-options').evaluate(
+      el => el.scrollWidth > el.clientWidth
+    );
+    expect(overflow, '.sub-options não deve ter overflow horizontal em 390px').toBe(false);
+
+    // Com todos os FOODS, deve haver bem mais opções que os ~5 substitutes manuais
+    const count = await opts.count();
+    expect(count, 'Lista completa deve ter ≥ 10 opções').toBeGreaterThanOrEqual(10);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-FULL9 ─────────────────────────────────────────────────────────────
+  test('C-SUB-FULL9 — Modal mostra queijo cottage e/ou skyr (alimentos dairy não ligados manualmente)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Tenta até 8 modais para encontrar um que mostre queijo cottage ou skyr
+    const swapBtns = page.locator('[data-swap]');
+    const total = await swapBtns.count();
+    let found = false;
+
+    for (let i = 0; i < Math.min(total, 8); i++) {
+      await swapBtns.nth(i).click();
+      await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+      const optNames = await page.locator('.sub-option-name').allTextContents();
+      if (optNames.some(n => n.includes('cottage') || n.toLowerCase().includes('skyr'))) {
+        found = true;
+      }
+      await page.locator('[data-modal-close]').first().click();
+      await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 3000 });
+      if (found) break;
+    }
+
+    expect(found, '"Queijo cottage" ou "Skyr" devem aparecer no modal').toBe(true);
   });
 
 });
