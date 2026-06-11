@@ -590,6 +590,75 @@ function getDailyImpact(projected, results) {
 }
 
 /**
+ * Returns how compatible two food categories are for substitution purposes.
+ *   'close'      — same category or nutritionally equivalent role
+ *   'compatible' — adjacent categories (similar caloric role, different macros)
+ *   'different'  — very different macro profile
+ */
+function getSwapCompatibility(origCat, subCat) {
+  if (origCat === subCat) return 'close';
+  // Adjacent pairs that share a nutritional role without being the same category
+  const compatPairs = new Set([
+    'protein-dairy', 'dairy-protein',   // iogurte/skyr/queijo como fonte proteica
+    'carb-fruit',    'fruit-carb',       // fruta é carboidrato natural
+    'carb-extra',    'extra-carb',       // mel/açúcar como carboidrato calórico
+    'carb-veg',      'veg-carb',         // vegetais têm algum carb
+    'fruit-extra',   'extra-fruit',      // tâmaras/mel — frutas/extras similares
+  ]);
+  return compatPairs.has(`${origCat}-${subCat}`) ? 'compatible' : 'different';
+}
+
+/**
+ * Combined impact label for a substitution option.
+ *
+ * Two-layer evaluation:
+ *   Layer 1 — Day safety (getDailyImpact, Sprint B, unchanged):
+ *     "Fora da margem" always takes precedence.
+ *   Layer 2 — Individual swap quality (new):
+ *     Priority subs (curated .substitutes) inherit the day label directly — they
+ *     were hand-picked as nutritionally appropriate replacements.
+ *     Extra opts (remaining FOODS) also check category compatibility so cross-category
+ *     swaps get an honest label instead of a generic "macros desequilibrados".
+ *
+ * @param {boolean} isPriority   true = curated substitute; false = extra from FOODS
+ * @param {string}  origCat      category of the original ingredient
+ * @param {string}  subCat       category of the substitute food
+ * @param {object}  projected    projected day totals after this swap
+ * @param {object}  results      user daily targets
+ */
+function getSubImpact(isPriority, origCat, subCat, projected, results) {
+  const day = getDailyImpact(projected, results);
+
+  // "Fora da margem" (calorie window breached) always takes precedence — safety first
+  if (day.cls === 'sub-impact-low' || day.cls === 'sub-impact-high') return day;
+
+  // Curated priority substitutes: category is already appropriate — use day label only
+  if (isPriority) return day;
+
+  // Extra opts: add individual category-compatibility layer
+  const compat = getSwapCompatibility(origCat, subCat);
+
+  // Same category or nutritionally close → day label determines quality
+  if (compat === 'close') return day;
+
+  // Adjacent categories (e.g. carb ↔ fruit, protein ↔ dairy):
+  // note the macro difference but respect any day-level warning
+  if (compat === 'compatible') {
+    if (day.cls === 'sub-impact-safe') {
+      return { cls: 'sub-impact-ok', label: 'Calorias próximas, macros diferentes' };
+    }
+    return day; // day warning is stronger
+  }
+
+  // Truly different categories (e.g. pão → azeite, ovo → arroz):
+  // amber warning unless day already shows a more severe alert
+  if (day.cls === 'sub-impact-safe' || day.cls === 'sub-impact-ok') {
+    return { cls: 'sub-impact-macro', label: 'Macros muito diferentes' };
+  }
+  return day; // stronger day warning dominates
+}
+
+/**
  * Builds the display string for a whey substitution quantity.
  * Mirrors the scaleMeal whey handler.
  */
@@ -745,7 +814,8 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
       carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
       fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
     };
-    const impact = getDailyImpact(projected, results);
+    // isPriority=true: curated substitute — use day-level label only
+    const impact = getSubImpact(true, currentFood.category, opt.food.category, projected, results);
     const display = opt.id === 'whey'
       ? buildWheyDisplay(practicalG)
       : formatQty(opt.id, practicalG);
@@ -772,7 +842,8 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
         carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
         fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
       };
-      const impact = getDailyImpact(projected, results);
+      // isPriority=false: extra from FOODS — also evaluates category compatibility
+      const impact = getSubImpact(false, currentFood.category, food.category, projected, results);
       const display = id === 'whey'
         ? buildWheyDisplay(practicalG)
         : formatQty(id, practicalG);

@@ -3627,7 +3627,7 @@ const SPRINTB_HIGHCAL_FOOD = {
   baseUnit: 'g',
 };
 
-/** Labels válidos após Sprint B. */
+/** Labels válidos após Sprint B + Etapa 1 (separação individual vs dia). */
 const VALID_SPRINTB_LABELS = new Set([
   'Troca segura',
   'Troca aceitável',
@@ -3637,6 +3637,9 @@ const VALID_SPRINTB_LABELS = new Set([
   'Fora da margem: muito alto',
   'Atenção: gorduras acima do alvo',
   'Atenção: macros desequilibrados',
+  // Etapa 1 — labels de qualidade da troca individual
+  'Calorias próximas, macros diferentes',
+  'Macros muito diferentes',
 ]);
 
 test.describe('Sprint B — Troca segura por alvo diário', () => {
