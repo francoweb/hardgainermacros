@@ -514,6 +514,78 @@ const SUB_CARB_FLEX = new Set([
 ]);
 
 /**
+ * Dominant macro per food category (Sprint C1).
+ * Defines the primary nutritional metric used to compute substitute quantities
+ * for same-category and compatible swaps.
+ */
+const SUB_DOMINANT_MACRO = {
+  protein: 'prot',
+  dairy:   'prot',  // laticínios usados como fonte proteica
+  carb:    'carb',
+  fat:     'fat',
+  fruit:   'carb',  // fruta = carboidrato natural
+  veg:     'kcal',  // vegetais são residuais — kcal suficiente
+  extra:   'kcal',  // condimentos/extras — kcal suficiente
+};
+
+/**
+ * Computes the raw gram quantity of a substitute food that best approximates
+ * the dominant macro of the original ingredient (Sprint C1).
+ *
+ * For same-category / compatible swaps the dominant macro (carb for bread,
+ * prot for chicken, fat for olive oil, …) is used instead of pure kcal
+ * equivalence, so the suggested portion is nutritionally closer to the original.
+ *
+ * Falls back to kcal-equivalence when:
+ *   — the substitute has near-zero density in the dominant macro (cross-category,
+ *     e.g. pão → azeite: bread.dominant = carb, oil.carb ≈ 0)
+ *   — the original has near-zero dominant macro (avoids division noise)
+ *   — the macro-optimised portion would produce kcal far from the original
+ *     (guard: ratio > 3.0 or < 0.25) — prevents absurd quantities such as
+ *     252g of dried dates to replace one egg
+ *
+ * subPracticalGrams() is always applied afterwards to keep portions practical.
+ *
+ * @param {{ kcal:number, prot:number, carb:number, fat:number }} origMacros
+ * @param {string}  origCat   category of the original ingredient
+ * @param {{ per100: { kcal:number, prot:number, carb:number, fat:number } }} subFood
+ * @returns {number}  raw grams (before practical rounding by subPracticalGrams)
+ */
+function calcOptimalGrams(origMacros, origCat, subFood) {
+  const macro = SUB_DOMINANT_MACRO[origCat] || 'kcal';
+
+  // Calorie-equivalence (existing behaviour) used as fallback
+  const kcalG = () => origMacros.kcal > 0
+    ? (origMacros.kcal / subFood.per100.kcal) * 100
+    : 100;
+
+  // veg / extra: caloric reference is the right target
+  if (macro === 'kcal') return kcalG();
+
+  const origTarget = origMacros[macro];     // e.g. 26.1 g carb
+  const subDensity = subFood.per100[macro]; // e.g. 28.2 g carb / 100 g
+
+  // Cross-category: substitute has near-zero dominant macro → fallback kcal
+  // (e.g. pão → azeite: azeite.per100.carb = 0 < 1)
+  if (!subDensity || subDensity < 1) return kcalG();
+
+  // Original has near-zero dominant macro → fallback kcal to avoid division noise
+  if (origTarget < 1) return kcalG();
+
+  const rawByMacro = (origTarget / subDensity) * 100;
+
+  // Safety guard: if macro-matched portion produces kcal very different from the
+  // original (>3× or <25%), the foods are too different in caloric density →
+  // fallback to kcal.  Example: egg → dates produces 252g (710 kcal vs 72 kcal) —
+  // the guard catches it (ratio 9.9 > 3.0) and uses kcal-equivalence instead.
+  const estKcal   = subFood.per100.kcal * rawByMacro / 100;
+  const kcalRatio = estKcal / Math.max(origMacros.kcal, 1);
+  if (kcalRatio > 3.0 || kcalRatio < 0.25) return kcalG();
+
+  return rawByMacro;
+}
+
+/**
  * Applies practical rounding to a raw substitute quantity.
  * Mirrors the plan-generation rules so substituted quantities
  * are never impractical (e.g. 43g of chicken, 73g of rice).
@@ -829,10 +901,10 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
   const extraOpts = Object.entries(FOODS)
     .filter(([id, food]) => !priorityIds.has(id) && food.per100 && food.per100.kcal > 0)
     .map(([id, food]) => {
-      const targetKcal = ing.macros.kcal;
-      const equivG = targetKcal > 0
-        ? Math.max(5, Math.round((targetKcal / food.per100.kcal * 100) / 5) * 5)
-        : 100;
+      // Sprint C1: dominant-macro equivalence for same/compatible categories;
+      // automatically falls back to kcal for cross-category swaps.
+      const rawG   = calcOptimalGrams(ing.macros, currentFood.category, food);
+      const equivG = Math.max(5, Math.round(rawG / 5) * 5);
       const practicalG = subPracticalGrams(id, equivG);
       const macros = calcFoodMacros(id, practicalG);
       const delta = macros.kcal - ing.macros.kcal;

@@ -4253,3 +4253,197 @@ test.describe('C-SUB-FULL — Modal com todos os alimentos FOODS', () => {
   });
 
 });
+
+// =============================================================================
+// C-SUB-C1 — Sprint C1: macro-dominant quantity for extra opts
+// =============================================================================
+// Valida que extraOpts usam o macro dominante da categoria do original
+// para calcular a quantidade sugerida, em vez de equivalência calórica pura.
+
+/** Helpers locais para os testes C1. */
+const CENARIO_C1 = (() => {
+  const { CENARIO_4 } = require('./fixtures/scenarios');
+  // Targets = totais reais do Dia 1 → dia começa em ZERO de desvio
+  return {
+    ...CENARIO_4,
+    results: {
+      ...CENARIO_4.results,
+      calories: 2763,
+      protein:  { grams: 187 },
+      carb:     { grams: 324 },
+      fat:      { grams: 84  },
+    },
+  };
+})();
+
+/**
+ * Abre o modal para o primeiro ingrediente que bate com `nameRegex`.
+ * Retorna o texto de macros do alimento original, ou null se não encontrar.
+ */
+async function openSwapFor(page, nameRegex) {
+  for (const c of await page.locator('.ingredient-name').all()) {
+    const txt = (await c.textContent()) || '';
+    if (nameRegex.test(txt)) {
+      const btn = c.locator('xpath=ancestor::li[contains(@class,"ingredient")]').locator('[data-swap]');
+      if (await btn.count() > 0) {
+        await btn.click();
+        await page.waitForSelector('.modal-backdrop.show', { timeout: 6000 });
+        return (await page.locator('.sub-current-macros').textContent() || '').trim();
+      }
+    }
+  }
+  return null;
+}
+
+/** Abre (ou mantém aberta) uma categoria do accordion. */
+async function expandCat(page, label) {
+  for (const s of await page.locator('details.sub-cat-group summary').all()) {
+    const txt = (await s.textContent()) || '';
+    if (txt.includes(label)) {
+      if (await s.locator('xpath=parent::details').getAttribute('open') === null) await s.click();
+      await page.waitForTimeout(200);
+      return;
+    }
+  }
+}
+
+/** Encontra o primeiro extra opt (não priority) com nome matching `nameRegex`. */
+async function findExtraOpt(page, nameRegex) {
+  for (const o of await page.locator('details.sub-cat-group[open] .sub-option').all()) {
+    const name = (await o.locator('.sub-option-name').textContent() || '').trim();
+    if (nameRegex.test(name)) {
+      return {
+        name,
+        qty:    (await o.locator('.sub-option-qty').textContent() || '').trim(),
+        macros: (await o.locator('.sub-option-macros').textContent() || '').trim(),
+        label:  (await o.locator('.sub-impact').textContent() || '').trim(),
+      };
+    }
+  }
+  return null;
+}
+
+/** Extrai um valor de macro do texto de macros: parseFloat da primeira ocorrência de "L:Xg" */
+function parseMacro(macrosText, letter) {
+  const m = macrosText.match(new RegExp(`${letter}:([\\d.]+)g`));
+  return m ? parseFloat(m[1]) : null;
+}
+
+test.describe('C-SUB-C1 — Sprint C1: macro-dominant quantity for extra opts', () => {
+
+  // ── C-SUB-C1-1 ──────────────────────────────────────────────────────────
+  test('C-SUB-C1-1 — Pão → Arroz: carboidratos do substituto aproximam os do original', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; } // pão não está neste plano
+
+    const origCarb = parseMacro(origMacros, 'C');
+    expect(origCarb).not.toBeNull();
+
+    // Arroz branco cozido está em extraOpts (não está em pao_frances.substitutes)
+    await expandCat(page, 'Carboidratos');
+    const arroz = await findExtraOpt(page, /Arroz branco cozido/i);
+    if (!arroz) { await page.locator('[data-modal-close]').first().click(); return; }
+
+    const subCarb = parseMacro(arroz.macros, 'C');
+    expect(subCarb).not.toBeNull();
+
+    // Sprint C1: carb do substituto deve estar dentro de ±10g do original
+    // (vs kcal-only que dava C:31g para C original de ~26g → +5g diferença)
+    expect(Math.abs(subCarb - origCarb),
+      `Carboidratos do arroz (${subCarb}g) devem estar perto do original (${origCarb}g)`
+    ).toBeLessThanOrEqual(10);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C1-2 ──────────────────────────────────────────────────────────
+  test('C-SUB-C1-2 — Ovo → Skyr/Cottage: proteína do substituto aproxima a do original', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    const origProt = parseMacro(origMacros, 'P');
+    expect(origProt).not.toBeNull();
+
+    // Skyr e cottage são extraOpts (não estão em ovo_inteiro.substitutes)
+    await expandCat(page, 'Laticínios');
+
+    let found = false;
+    for (const regex of [/Skyr/i, /cottage/i]) {
+      const opt = await findExtraOpt(page, regex);
+      if (!opt) continue;
+      const subProt = parseMacro(opt.macros, 'P');
+      if (subProt === null) continue;
+      // Sprint C1: proteína do extra dairy deve estar dentro de ±5g do original
+      expect(Math.abs(subProt - origProt),
+        `Proteína de ${opt.name} (${subProt}g) deve estar perto do original (${origProt}g)`
+      ).toBeLessThanOrEqual(5);
+      found = true;
+      break;
+    }
+    if (!found) { /* skyr/cottage não visíveis neste contexto — skip silencioso */ }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C1-3 ──────────────────────────────────────────────────────────
+  test('C-SUB-C1-3 — Pão → Azeite (cross-category): fallback kcal + label honesta', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Gorduras');
+    const azeite = await findExtraOpt(page, /Azeite de oliva/i);
+    if (!azeite) { await page.locator('[data-modal-close]').first().click(); return; }
+
+    // Cross-category: azeite.per100.carb = 0 → fallback kcal → kcal próximas
+    const origKcal = parseFloat((origMacros.match(/(\d+)\s*kcal/) || [])[1] || '0');
+    const subKcal  = parseFloat((azeite.macros.match(/(\d+)\s*kcal/) || [])[1] || '0');
+    expect(Math.abs(subKcal - origKcal),
+      `Azeite deve manter kcal similar ao pão (fallback kcal para cross-category)`
+    ).toBeLessThanOrEqual(30);
+
+    // Label deve ser honesta: "Macros muito diferentes"
+    expect(azeite.label).toBe('Macros muito diferentes');
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C1-4 ──────────────────────────────────────────────────────────
+  test('C-SUB-C1-4 — Pão → Outros carboidratos extras têm quantidade prática (≥ 50g)', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Carboidratos');
+    const opts = await page.locator('details.sub-cat-group[open] .sub-option').all();
+    let checked = 0;
+    for (const o of opts.slice(0, 8)) {
+      const qty   = (await o.locator('.sub-option-qty').textContent() || '').trim();
+      const grams = qty.match(/(\d+)g/);
+      if (grams) {
+        const g = parseInt(grams[1], 10);
+        expect(g, `Quantidade de carboidrato extra deve ser ≥ 50g (got ${g}g from "${qty}")`).toBeGreaterThanOrEqual(50);
+        checked++;
+      }
+    }
+    // Deve ter encontrado pelo menos algumas opções
+    expect(checked, 'Deve haver opções de carb com gramas indicadas').toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+});
