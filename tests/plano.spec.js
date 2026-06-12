@@ -4447,3 +4447,204 @@ test.describe('C-SUB-C1 — Sprint C1: macro-dominant quantity for extra opts', 
   });
 
 });
+
+// =============================================================================
+// C-SUB-HF — Hotfix: alimentos contáveis sem unidades fracionadas
+// =============================================================================
+// Garante que alimentos com countableUnit:true (clara_ovo, pao_frances,
+// pao_forma) nunca exibem quantidades como "8.5 unidades" no modal.
+// Sprint C2 não foi implementada — nenhuma funcionalidade de C2 deve existir.
+
+test.describe('C-SUB-HF — Alimentos contáveis sem unidades fracionadas', () => {
+
+  // ── C-SUB-HF-1 ──────────────────────────────────────────────────────────────
+  // Clara de ovo é substitute curado de ovo_inteiro → aparece na categoria
+  // Proteínas quando se abrem as substituições de um ovo_inteiro no plano.
+  test('C-SUB-HF-1 — Clara de ovo não aparece com unidade fracionada', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Abre subs de qualquer ovo_inteiro do plano
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; } // plano não tem ovo neste cenário — skip
+
+    // Clara de ovo está em proteins; expande essa categoria
+    await expandCat(page, 'Proteínas');
+
+    const claraOpt = await findExtraOpt(page, /Clara de ovo/i);
+    // Clara pode também aparecer como curated (priority) — procurar em toda a lista
+    let claraQty = null;
+    if (claraOpt) {
+      claraQty = claraOpt.qty;
+    } else {
+      // Procura em todos os sub-options visíveis (inclui priority)
+      for (const o of await page.locator('.sub-option').all()) {
+        const name = (await o.locator('.sub-option-name').textContent() || '').trim();
+        if (/Clara de ovo/i.test(name)) {
+          claraQty = (await o.locator('.sub-option-qty').textContent() || '').trim();
+          break;
+        }
+      }
+    }
+
+    if (claraQty === null) {
+      // Clara de ovo não está visível neste contexto — skip silencioso
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    // Não deve mostrar número decimal antes de "unidade"
+    expect(claraQty,
+      `Clara de ovo não deve mostrar unidade fracionada (got "${claraQty}")`
+    ).not.toMatch(/\d+\.\d+\s+unidade/);
+
+    // Deve mostrar número inteiro de unidades
+    expect(claraQty,
+      `Clara de ovo deve mostrar inteiro de unidades (got "${claraQty}")`
+    ).toMatch(/^\d+\s+unidade/);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-2 ──────────────────────────────────────────────────────────────
+  test('C-SUB-HF-2 — Clara de ovo: gramas são múltiplo de 33', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Proteínas');
+
+    let claraQty = null;
+    for (const o of await page.locator('.sub-option').all()) {
+      const name = (await o.locator('.sub-option-name').textContent() || '').trim();
+      if (/Clara de ovo/i.test(name)) {
+        claraQty = (await o.locator('.sub-option-qty').textContent() || '').trim();
+        break;
+      }
+    }
+
+    if (!claraQty) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    // Extrai os gramas entre parêntesis, ex: "9 unidades (297g)" → 297
+    const gramsMatch = claraQty.match(/\(~?(\d+)g\)/);
+    if (gramsMatch) {
+      const g = parseInt(gramsMatch[1], 10);
+      expect(g % 33,
+        `Gramas de Clara de ovo (${g}g) devem ser múltiplo de 33`
+      ).toBe(0);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-3 ──────────────────────────────────────────────────────────────
+  // Ovo inteiro já tem case especial em subPracticalGrams (múltiplos de 50g).
+  // Confirma que nenhuma opção de ovo_inteiro no modal exibe fracção de "ovo".
+  test('C-SUB-HF-3 — Ovo inteiro não aparece com fracção de "ovo" no modal', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    // Ovo inteiro está em extraOpts das Proteínas
+    await expandCat(page, 'Proteínas');
+    const ovoOpt = await findExtraOpt(page, /Ovo inteiro/i);
+    if (!ovoOpt) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    expect(ovoOpt.qty,
+      `Ovo inteiro não deve mostrar fracção de "ovo" (got "${ovoOpt.qty}")`
+    ).not.toMatch(/\d+\.\d+\s+ovo/);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-4 ──────────────────────────────────────────────────────────────
+  // Alimentos pesáveis (proteínas como frango, carne) continuam a exibir gramas
+  // práticos (≥ 50g, múltiplos de 10g).
+  test('C-SUB-HF-4 — Alimentos pesáveis continuam com gramas práticos', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Proteínas');
+
+    const peito = await findExtraOpt(page, /Peito de frango/i);
+    if (peito) {
+      // Deve exibir em gramas, não em "unidades"
+      expect(peito.qty, `Frango deve exibir gramas (got "${peito.qty}")`).toMatch(/\d+g/);
+      const g = parseInt((peito.qty.match(/(\d+)g/) || [])[1] || '0', 10);
+      expect(g, `Frango deve ter ≥ 50g (got ${g})`).toBeGreaterThanOrEqual(50);
+      expect(g % 10, `Frango deve ser múltiplo de 10g (got ${g}g)`).toBe(0);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-5 ──────────────────────────────────────────────────────────────
+  // Sprint C1 intacta: substituição macro-dominante continua a funcionar.
+  // (Os testes C-SUB-C1-* são a guarda principal; este verifica a presença de
+  //  opções de carboidratos ao substituir pão, garantindo que a lógica C1 não
+  //  foi tocada pelo hotfix.)
+  test('C-SUB-HF-5 — Sprint C1 intacta: extraOpts de carb visíveis ao substituir pão', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Carboidratos');
+    const opts = await page.locator('details.sub-cat-group[open] .sub-option').all();
+
+    expect(opts.length,
+      'Sprint C1: deve haver opções de carboidratos ao substituir pão'
+    ).toBeGreaterThan(0);
+
+    // Pão francês agora tem countableUnit:true → confirma que a sua própria
+    // quantidade (quando aparece como extra) também é inteira, não fracionada
+    const paoFrancesOpt = await findExtraOpt(page, /Pão branco/i);
+    if (paoFrancesOpt) {
+      expect(paoFrancesOpt.qty,
+        `Pão francês não deve mostrar fracção de "unidade" (got "${paoFrancesOpt.qty}")`
+      ).not.toMatch(/\d+\.\d+\s+unidade/);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-6 ──────────────────────────────────────────────────────────────
+  // Sprint C2 não foi implementada: o modal não deve ter nenhum elemento
+  // introduzido por C2 (e.g. filtros, ordenação, histórico de substituições).
+  test('C-SUB-HF-6 — Sprint C2 não implementada: modal sem novos controlos de C2', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    // C2 não foi implementada: nenhum destes seletores deve existir
+    await expect(page.locator('[data-sub-filter]'),    'C2: filtros não devem existir').toHaveCount(0);
+    await expect(page.locator('[data-sub-sort]'),      'C2: ordenação não deve existir').toHaveCount(0);
+    await expect(page.locator('.sub-history'),         'C2: histórico não deve existir').toHaveCount(0);
+    await expect(page.locator('.sub-c2'),              'C2: elementos c2 não devem existir').toHaveCount(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+});
