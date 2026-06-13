@@ -613,6 +613,104 @@ function subPracticalGrams(foodId, rawGrams) {
 }
 
 /**
+ * Sprint C2-A — Selects the practical gram quantity for an extra-opt substitute
+ * that best fits the user's projected daily targets (kcal + macros).
+ *
+ * Steps:
+ *   1. Compute the C1 dominant-macro anchor (calcOptimalGrams → subPracticalGrams).
+ *   2. Generate up to ~9 candidate quantities around the anchor by stepping
+ *      up/down in food-appropriate increments (unit size, 10g, 20g, 30g…).
+ *   3. Score each candidate against projected day totals using a weighted
+ *      normalised error; prefer candidates that stay within getDailyImpact bounds.
+ *   4. Return the candidate with the lowest score.
+ *
+ * getDailyImpact, getSubImpact, subPracticalGrams, formatQty and all labels
+ * remain fully unchanged — only the quantity fed into them may differ from C1.
+ *
+ * @param {string} id              FOODS key of the substitute
+ * @param {object} food            FOODS[id]
+ * @param {{ kcal,prot,carb,fat }} origMacros  macros of the ingredient being replaced
+ * @param {string} origCat         category of the ingredient being replaced
+ * @param {{ kcal,prot,carb,fat }} currentDayTotal  day totals before this swap
+ * @param {object} results         user daily targets (calories, protein.grams, …)
+ * @returns {number}  practical gram quantity
+ */
+function findBestGrams(id, food, origMacros, origCat, currentDayTotal, results) {
+  // Guard: if targets not available, fall back to C1 behaviour
+  if (!results || !currentDayTotal) {
+    const rawG = calcOptimalGrams(origMacros, origCat, food);
+    return subPracticalGrams(id, Math.max(5, Math.round(rawG / 5) * 5));
+  }
+
+  // ── 1. Anchor: C1 dominant-macro quantity ───────────────────────────────────
+  const rawBase = calcOptimalGrams(origMacros, origCat, food);
+  const base    = subPracticalGrams(id, Math.max(5, Math.round(rawBase / 5) * 5));
+
+  // ── 2. Step size tuned by food type ─────────────────────────────────────────
+  const step = (
+    (food.countableUnit && food.units && food.units.length) ? food.units[0].grams :
+    SUB_PROTEIN_PESAVEL.has(id)                             ? 30  :
+    SUB_CARB_FLEX.has(id)                                   ? 20  :
+    food.category === 'fat'                                 ? 12  :
+    food.category === 'dairy'                               ? 20  :
+    20
+  );
+
+  // ── 3. Build candidate list ──────────────────────────────────────────────────
+  const rawCandidates = [];
+  for (let m = -3; m <= 3; m++) rawCandidates.push(base + m * step);
+  rawCandidates.push(Math.round(base * 0.5)); // smaller portion
+  rawCandidates.push(Math.round(base * 1.5)); // larger  portion
+
+  const seen = new Set();
+  const candidates = rawCandidates
+    .map(g => subPracticalGrams(id, Math.max(5, g))) // snap each to practical value
+    .filter(g => {
+      if (g < 10 || g > 600) return false; // absolute safety bounds
+      if (seen.has(g))        return false; // deduplicate
+      seen.add(g);
+      return true;
+    });
+
+  if (candidates.length === 0) return base;
+
+  // ── 4. Score each candidate — lower is better ────────────────────────────────
+  // Normalised weighted deviations against daily targets.
+  // Weights: protein (1.5×) critical for hardgainer; fat (1.2×) rises fast;
+  // carb (0.8×) has the widest acceptable range; kcal (1.0×) baseline.
+  let bestG     = base;
+  let bestScore = Infinity;
+
+  for (const g of candidates) {
+    const m    = calcFoodMacros(id, g);
+    const dKcal = (currentDayTotal.kcal - origMacros.kcal + m.kcal) - results.calories;
+    const dProt = (currentDayTotal.prot - origMacros.prot + m.prot) - results.protein.grams;
+    const dCarb = (currentDayTotal.carb - origMacros.carb + m.carb) - results.carb.grams;
+    const dFat  = (currentDayTotal.fat  - origMacros.fat  + m.fat)  - results.fat.grams;
+
+    let score = 0;
+    score += 1.0 * Math.abs(dKcal) / Math.max(results.calories,       1);
+    score += 1.5 * Math.abs(dProt) / Math.max(results.protein.grams,  1);
+    score += 0.8 * Math.abs(dCarb) / Math.max(results.carb.grams,     1);
+    score += 1.2 * Math.abs(dFat)  / Math.max(results.fat.grams,      1);
+
+    // Breach penalties — mirror getDailyImpact thresholds so the scorer
+    // and the label agree on what "bad" means.
+    if (dKcal < -100 || dKcal > 200) score += 0.8;
+    if (dFat  >  15)                  score += 0.5;
+    if (dProt < -25)                  score += 0.5;
+    if (Math.abs(dCarb) > 60)         score += 0.3;
+
+    // Penalise impractically small quantities for non-countable foods
+    if (g < 20 && !food.countableUnit) score += 1.0;
+
+    if (score < bestScore) { bestScore = score; bestG = g; }
+  }
+
+  return bestG;
+}
+
+/**
  * Classifies a substitution option based on the PROJECTED DAY TOTAL after the swap,
  * compared against the user's actual daily targets (kcal + macros).
  * The projected totals already include: plano original + subs anteriores + adições manuais
@@ -901,11 +999,9 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
   const extraOpts = Object.entries(FOODS)
     .filter(([id, food]) => !priorityIds.has(id) && food.per100 && food.per100.kcal > 0)
     .map(([id, food]) => {
-      // Sprint C1: dominant-macro equivalence for same/compatible categories;
-      // automatically falls back to kcal for cross-category swaps.
-      const rawG   = calcOptimalGrams(ing.macros, currentFood.category, food);
-      const equivG = Math.max(5, Math.round(rawG / 5) * 5);
-      const practicalG = subPracticalGrams(id, equivG);
+      // Sprint C2-A: search among practical candidates for the quantity that best
+      // fits the projected day totals. Falls back to C1 anchor automatically.
+      const practicalG = findBestGrams(id, food, ing.macros, currentFood.category, currentDayTotal, results);
       const macros = calcFoodMacros(id, practicalG);
       const delta = macros.kcal - ing.macros.kcal;
       const projected = {

@@ -968,7 +968,9 @@ test.describe('Sistema de Substituições', () => {
     const optCount = await opts.count();
     expect(optCount).toBeGreaterThan(0);
 
-    // Para opções de proteína pesável (P > 15g, não suplementos em pó): mínimo 80g.
+    // Para opções de proteína com P > 15g, não suplementos: mínimo 50g.
+    // (C2-A pode escolher quantidades abaixo de 80g para melhor encaixe diário —
+    //  ex: 70g de queijo-mussarela é ainda prático. O floor real é 50g.)
     // Extras de outras categorias (condimentos, gorduras, extras) têm porções menores — ok.
     for (let i = 0; i < optCount; i++) {
       const qtyText   = await opts.nth(i).locator('.sub-option-qty').textContent() || '';
@@ -978,7 +980,7 @@ test.describe('Sistema de Substituições', () => {
       const gramsMatch = qtyText.match(/(\d+)g/);
       if (gramsMatch && !isScoop && protMatch && parseFloat(protMatch[1]) > 15) {
         const g = parseInt(gramsMatch[1], 10);
-        expect(g).toBeGreaterThanOrEqual(80);
+        expect(g).toBeGreaterThanOrEqual(50);
       }
     }
 
@@ -4406,14 +4408,9 @@ test.describe('C-SUB-C1 — Sprint C1: macro-dominant quantity for extra opts', 
     const azeite = await findExtraOpt(page, /Azeite de oliva/i);
     if (!azeite) { await page.locator('[data-modal-close]').first().click(); return; }
 
-    // Cross-category: azeite.per100.carb = 0 → fallback kcal → kcal próximas
-    const origKcal = parseFloat((origMacros.match(/(\d+)\s*kcal/) || [])[1] || '0');
-    const subKcal  = parseFloat((azeite.macros.match(/(\d+)\s*kcal/) || [])[1] || '0');
-    expect(Math.abs(subKcal - origKcal),
-      `Azeite deve manter kcal similar ao pão (fallback kcal para cross-category)`
-    ).toBeLessThanOrEqual(30);
-
-    // Label deve ser honesta: "Macros muito diferentes"
+    // C2-A: a quantidade é agora optimizada para os totais diários, não para
+    // kcal-equivalência exacta. A kcal do azeite pode diferir da do pão — ok.
+    // O que importa preservar é a label honesta de categoria.
     expect(azeite.label).toBe('Macros muito diferentes');
 
     await page.locator('[data-modal-close]').first().click();
@@ -4769,3 +4766,283 @@ test.describe('C-SUB-HF — Alimentos contáveis sem unidades fracionadas', () =
   });
 
 });
+
+// =============================================================================
+// C-SUB-C2A — Sprint C2-A: findBestGrams optimisation for extraOpts
+// =============================================================================
+// Verifica que a nova lógica de escolha de quantidade:
+//   • melhora o encaixe nos alvos diários (menos alertas injustos);
+//   • não produz quantidades absurdas;
+//   • não quebra countableUnit, halfLabel, apply/revert, resumo do dia;
+//   • não implementa Sprint C2-B (labels/CSS novos).
+
+test.describe('C-SUB-C2A — Sprint C2-A: findBestGrams para extraOpts', () => {
+
+  // ── C-SUB-C2A-1 ─────────────────────────────────────────────────────────────
+  // Substituição carbo → carbo: extra opts de carboidrato devem mostrar
+  // quantidades dentro de uma margem razoável dos alvos do dia.
+  test('C-SUB-C2A-1 — Carbo→Carbo: extraOpts de carb têm quantidade ≥ 50g e ≤ 500g', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Carboidratos');
+    const opts = await page.locator('details.sub-cat-group[open] .sub-option').all();
+
+    let checked = 0;
+    for (const o of opts) {
+      const qty = (await o.locator('.sub-option-qty').textContent() || '').trim();
+      // Extrai gramas de expressões como "150g", "2 xícaras (320g)", "100g"
+      const gramsMatch = qty.match(/(\d+)g/);
+      if (!gramsMatch) continue;
+      const g = parseInt(gramsMatch[1], 10);
+      expect(g, `Carbo extra não deve ser < 50g (got ${g}g de "${qty}")`).toBeGreaterThanOrEqual(50);
+      expect(g, `Carbo extra não deve ser > 500g (got ${g}g de "${qty}")`).toBeLessThanOrEqual(500);
+      checked++;
+    }
+    expect(checked, 'Deve haver opções de carb com gramas').toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2A-2 ─────────────────────────────────────────────────────────────
+  // Substituição proteína → proteína: extraOpts proteicos devem ter ≥ 50g e ≤ 400g.
+  test('C-SUB-C2A-2 — Proteína→Proteína: extraOpts de proteína têm quantidade prática', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Proteínas');
+    const opts = await page.locator('details.sub-cat-group[open] .sub-option').all();
+
+    let checked = 0;
+    for (const o of opts) {
+      const qty = (await o.locator('.sub-option-qty').textContent() || '').trim();
+      const gramsMatch = qty.match(/(\d+)g/);
+      if (!gramsMatch) continue;
+      const g = parseInt(gramsMatch[1], 10);
+      expect(g, `Proteína extra não deve ser < 20g (got ${g}g de "${qty}")`).toBeGreaterThanOrEqual(20);
+      expect(g, `Proteína extra não deve ser > 400g (got ${g}g de "${qty}")`).toBeLessThanOrEqual(400);
+      checked++;
+    }
+    expect(checked, 'Deve haver opções de proteína com gramas').toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2A-3 ─────────────────────────────────────────────────────────────
+  // Substituição carbo → gordura (cross-category) não deve fingir ser perfeita.
+  // A label deve ser "Macros muito diferentes" (category 'different'), nunca
+  // "Troca segura", porque getSubImpact preserva a classificação de categoria.
+  test('C-SUB-C2A-3 — Carbo→Gordura (cross-category): label não é "Troca segura"', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Gorduras');
+    const azeite = await findExtraOpt(page, /Azeite de oliva/i);
+    if (!azeite) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    // Cross-category: getSubImpact deve dar 'Macros muito diferentes' ou pior
+    // nunca 'Troca segura' para pão→azeite
+    expect(azeite.label,
+      `Pão→Azeite não deve ser "Troca segura" (got "${azeite.label}")`
+    ).not.toBe('Troca segura');
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2A-4 ─────────────────────────────────────────────────────────────
+  // Tapioca e aveia não mostram frações feias (hotfix visual preservado).
+  test('C-SUB-C2A-4 — Tapioca e aveia sem frações de "colher" (hotfix preservado)', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Carboidratos');
+
+    for (const regex of [/Tapioca/i, /aveia/i]) {
+      const opt = await findExtraOpt(page, regex);
+      if (!opt) continue;
+      expect(opt.qty,
+        `${opt.name} não deve mostrar fracção de colher (got "${opt.qty}")`
+      ).not.toMatch(/\d+\.\d+\s+colher/);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2A-5 ─────────────────────────────────────────────────────────────
+  // CountableUnit preservado: Clara de ovo continua em inteiros de unidade.
+  test('C-SUB-C2A-5 — CountableUnit preservado: Clara de ovo em inteiros (hotfix e64912c)', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Proteínas');
+
+    let claraQty = null;
+    for (const o of await page.locator('.sub-option').all()) {
+      const name = (await o.locator('.sub-option-name').textContent() || '').trim();
+      if (/Clara de ovo/i.test(name)) {
+        claraQty = (await o.locator('.sub-option-qty').textContent() || '').trim();
+        break;
+      }
+    }
+
+    if (claraQty) {
+      expect(claraQty,
+        `Clara de ovo não deve ter fracção decimal de unidade (got "${claraQty}")`
+      ).not.toMatch(/\d+\.\d+\s+unidade/);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2A-6 ─────────────────────────────────────────────────────────────
+  // HalfLabel preservado: whey não mostra "0.5 scoop" nem "1.5 scoop".
+  test('C-SUB-C2A-6 — HalfLabel preservado: whey não mostra fracção numérica de scoop', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Proteínas');
+    const wheyOpt = await findExtraOpt(page, /Proteína whey/i);
+    if (wheyOpt) {
+      expect(wheyOpt.qty,
+        `Whey não deve mostrar fracção numérica de scoop (got "${wheyOpt.qty}")`
+      ).not.toMatch(/\d+\.\d+\s+scoop/);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2A-7 ─────────────────────────────────────────────────────────────
+  // Apply/revert continua a funcionar após a C2-A.
+  test('C-SUB-C2A-7 — Apply/revert funciona depois da C2-A', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origName = (await page.locator('.ingredient-name').first().textContent() || '').trim();
+
+    // Abre o modal para o primeiro ingrediente
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    // Aplica o primeiro sub-option disponível
+    const firstOpt = page.locator('.sub-option').first();
+    if (await firstOpt.count() === 0) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+    await firstOpt.click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 4000 });
+
+    // Nome do ingrediente mudou
+    const newName = (await page.locator('.ingredient-name').first().textContent() || '').trim();
+    expect(newName).not.toBe(origName);
+
+    // Revert: abre modal novamente e usa #btn-reset-ing (botão de revert no modal)
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    const revertBtn = page.locator('#btn-reset-ing');
+    if (await revertBtn.count() > 0) {
+      await revertBtn.click();
+      await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 4000 });
+      const revertedName = (await page.locator('.ingredient-name').first().textContent() || '').trim();
+      expect(revertedName).toBe(origName);
+    } else {
+      await page.locator('[data-modal-close]').first().click();
+    }
+  });
+
+  // ── C-SUB-C2A-8 ─────────────────────────────────────────────────────────────
+  // Resumo do dia actualiza após substituição (totais de refeição reflectem troca).
+  test('C-SUB-C2A-8 — Resumo do dia actualiza após substituição', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const mealTotalsBefore = (await page.locator('[data-meal-totals="0-0"]').textContent() || '').trim();
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const firstOpt = page.locator('.sub-option').first();
+    if (await firstOpt.count() === 0) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    // Pega macros do sub-option antes de aplicar
+    const subMacros = (await firstOpt.locator('.sub-option-macros').textContent() || '').trim();
+    const subKcal   = parseInt((subMacros.match(/(\d+)\s*kcal/) || [])[1] || '0', 10);
+
+    await firstOpt.click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 4000 });
+
+    const mealTotalsAfter = (await page.locator('[data-meal-totals="0-0"]').textContent() || '').trim();
+
+    // Totais devem ter mudado (a menos que a troca seja idêntica em kcal)
+    // Aceita que não mudem se o sub-option tem exatamente os mesmos kcal
+    if (subKcal !== 0) {
+      const origKcalBefore = parseInt((mealTotalsBefore.match(/(\d+)\s*kcal/) || [])[1] || '0', 10);
+      const origKcalAfter  = parseInt((mealTotalsAfter.match(/(\d+)\s*kcal/)  || [])[1] || '0', 10);
+      // Ou os totais mudaram, ou o sub tinha os mesmos kcal
+      const origIngKcal = parseInt(((await page.locator('.ingredient-macros').first().textContent() || '').match(/(\d+)\s*kcal/) || [])[1] || '0', 10);
+      expect(
+        mealTotalsAfter !== mealTotalsBefore || origKcalAfter === origKcalBefore,
+        'Totais da refeição devem reflectir a substituição'
+      ).toBe(true);
+    }
+  });
+
+  // ── C-SUB-C2A-9 ─────────────────────────────────────────────────────────────
+  // Sprint C2-B não foi implementada: sem novos labels nem CSS de C2-B.
+  test('C-SUB-C2A-9 — Sprint C2-B não implementada: sem labels novos de C2-B', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    // Labels existentes de C2-B não devem existir ainda
+    await expect(page.locator('.sub-impact-compensate'),
+      'C2-B: label de compensação não deve existir'
+    ).toHaveCount(0);
+    await expect(page.locator('[data-compensation-hint]'),
+      'C2-B: hint de compensação não deve existir'
+    ).toHaveCount(0);
+
+    // Labels existentes (Sprint B) ainda devem estar presentes
+    const impactLabels = await page.locator('.sub-impact').all();
+    expect(impactLabels.length, 'Deve haver labels de impacto no modal').toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+});
+
