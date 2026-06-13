@@ -21,6 +21,7 @@ import {
   loadSubstitutions, saveSubstitutions,
   loadCustomFoods, saveCustomFoods,
   loadAdditions, saveAdditions,
+  loadRemovals, saveRemovals,
   loadFormData,
 } from '../modules/storage.js';
 import { formatKcal } from '../modules/calculator.js';
@@ -40,10 +41,15 @@ function rebuildAndRender(mount) {
   const originalPlan = loadPlan();
   const results = loadResults();
   if (!originalPlan || !results) return;
-  const subs = loadSubstitutions();
+  const subs     = loadSubstitutions();
+  const removals = loadRemovals();
   const additions = loadAdditions();
-  const effective = applyAdditions(applySubstitutions(originalPlan, subs), additions);
-  render(mount, effective, results, subs, originalPlan, additions);
+  // Pipeline: subs → removals (marks isRemoved, recalcs totals) → additions
+  const effective = applyAdditions(
+    applyRemovals(applySubstitutions(originalPlan, subs), removals),
+    additions,
+  );
+  render(mount, effective, results, subs, originalPlan, additions, removals);
 }
 
 const PLAN_STRATEGY_LABEL = {
@@ -52,7 +58,7 @@ const PLAN_STRATEGY_LABEL = {
   practical: 'Máxima Praticidade',
 };
 
-function render(mount, plan, results, subs, originalPlan, additions) {
+function render(mount, plan, results, subs, originalPlan, additions, removals) {
   const strategy = results.routine?.strategy;
   const strategyLabel = PLAN_STRATEGY_LABEL[strategy] || 'Sistema Híbrido';
   const solidCount = countSolid(plan[0]);
@@ -116,7 +122,7 @@ function render(mount, plan, results, subs, originalPlan, additions) {
 
       <!-- Days -->
       <div id="days-container">
-        ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories, additions)).join('')}
+        ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories, additions, removals)).join('')}
       </div>
 
       <!-- Receitas base (no-print friendly) -->
@@ -284,6 +290,30 @@ function render(mount, plan, results, subs, originalPlan, additions) {
     });
   });
 
+  // Remove ingredient buttons — Sprint D1
+  mount.querySelectorAll('[data-remove-ingredient]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx, ingIdx, ingLabel } = btn.dataset;
+      const currentRemovals = loadRemovals();
+      currentRemovals[`${dayIdx}:${mealIdx}:${ingIdx}`] = { label: ingLabel || '' };
+      saveRemovals(currentRemovals);
+      rebuildAndRender(mount);
+    });
+  });
+
+  // Restore ingredient buttons — Sprint D1
+  mount.querySelectorAll('[data-restore-ingredient]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx, ingIdx } = btn.dataset;
+      const currentRemovals = loadRemovals();
+      delete currentRemovals[`${dayIdx}:${mealIdx}:${ingIdx}`];
+      saveRemovals(currentRemovals);
+      rebuildAndRender(mount);
+    });
+  });
+
   // PDF por dia — abre popup limpa com apenas o dia selecionado
   mount.querySelectorAll('[data-pdf-day]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -342,11 +372,12 @@ function render(mount, plan, results, subs, originalPlan, additions) {
 /* Day card rendering                                                           */
 /* ============================================================================ */
 
-function renderDayCard(day, idx, subs, originalDay, targetKcal, additions) {
+function renderDayCard(day, idx, subs, originalDay, targetKcal, additions, removals) {
   const isOpen = idx === 0;
   const dayHasSubs      = Object.keys(subs      || {}).some(k => k.startsWith(`${idx}:`));
   const dayHasAdditions = Object.keys(additions  || {}).some(k => k.startsWith(`${idx}:`));
-  const dayHasChanges   = dayHasSubs || dayHasAdditions;
+  const dayHasRemovals  = Object.keys(removals   || {}).some(k => k.startsWith(`${idx}:`));
+  const dayHasChanges   = dayHasSubs || dayHasAdditions || dayHasRemovals;
   const origT = originalDay?.totals;
   const curT = day.totals;
   let dayCompBlock = '';
@@ -361,7 +392,7 @@ function renderDayCard(day, idx, subs, originalDay, targetKcal, additions) {
     dayCompBlock = `
       <div class="day-comparison-block no-print" data-testid="day-comp-block">
         <div class="day-comp-row day-comp-row-current">
-          <span class="day-comp-lbl">Com substituições</span>
+          <span class="day-comp-lbl">Com alterações</span>
           <span class="day-comp-vals" data-testid="day-current-totals">${curT.kcal} kcal • P:${Math.round(curT.prot)}g • C:${Math.round(curT.carb)}g • G:${Math.round(curT.fat)}g</span>
         </div>
         <div class="day-comp-row day-comp-row-orig">
@@ -406,14 +437,15 @@ function renderDayCard(day, idx, subs, originalDay, targetKcal, additions) {
         <div class="day-chev" style="${isOpen ? 'transform: rotate(180deg);' : ''}">${icons.chevDown(18)}</div>
       </div>
       <div class="day-body" id="day-body-${idx}" style="display:${isOpen ? 'block' : 'none'};">
-        ${day.meals.map((meal, mIdx) => renderMealCard(meal, idx, mIdx, subs)).join('')}
+        ${day.meals.map((meal, mIdx) => renderMealCard(meal, idx, mIdx, subs, removals)).join('')}
       </div>
     </div>
   `;
 }
 
-function renderMealCard(meal, dayIdx, mealIdx, subs) {
-  const safeSubs = subs || {};
+function renderMealCard(meal, dayIdx, mealIdx, subs, removals) {
+  const safeSubs    = subs    || {};
+  const safeRemovals = removals || {};
   const isImperial = loadFormData()?.unit === 'imperial';
   return `
     <div class="meal-card ${meal.type}">
@@ -436,15 +468,33 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
       <div class="ingredient-label">Detalhamento Por Alimento</div>
       <ul class="ingredient-list">
         ${meal.ingredients.map((ing, iIdx) => {
-          const isAdded = ing.isAddition === true;
-          const subKey  = `${dayIdx}:${mealIdx}:${iIdx}`;
-          const isSub   = !isAdded && !!(safeSubs[subKey]);
+          const isAdded   = ing.isAddition === true;
+          const isRemoved = ing.isRemoved  === true;
+          const subKey    = `${dayIdx}:${mealIdx}:${iIdx}`;
+          const isSub     = !isAdded && !isRemoved && !!(safeSubs[subKey]);
+          const ingName   = ing.label || (getFoodWithCustom(ing.food)?.name || ing.food) || '';
+
+          // Ghost placeholder for removed plan ingredients (no-print: invisible in PDF)
+          if (isRemoved) {
+            const ghostLabel = ing.removedLabel || ingName;
+            return `
+              <li class="ingredient ingredient-removed no-print">
+                <div class="ingredient-main" style="opacity:0.55;font-style:italic;">
+                  <div class="ingredient-name" style="color:#999;">${escapeHtml(ghostLabel)} removido</div>
+                  <button type="button" class="ing-restore-btn no-print"
+                          data-restore-ingredient
+                          data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}"
+                          aria-label="Restaurar ${escapeHtml(ghostLabel)}">${icons.refresh(11)} Restaurar</button>
+                </div>
+              </li>`;
+          }
+
           const liClass = `ingredient${isSub ? ' ingredient-substituted' : ''}${isAdded ? ' ingredient-added' : ''}`;
           return `
             <li class="${liClass}">
               <div class="ingredient-main">
                 <div class="ingredient-name">
-                  ${ing.label || (getFoodWithCustom(ing.food)?.name || ing.food)}
+                  ${escapeHtml(ingName)}
                   ${isSub   ? '<span class="ing-badge-subst">Substituído</span>' : ''}
                   ${isAdded ? '<span class="ing-badge-added">Adicionado</span>' : ''}
                 </div>
@@ -454,6 +504,7 @@ function renderMealCard(meal, dayIdx, mealIdx, subs) {
                 ${isSub   ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
                 ${isAdded ? `<button type="button" class="ing-edit-btn no-print" data-edit-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Editar alimento adicionado">✎ Editar</button>` : ''}
                 ${isAdded ? `<button type="button" class="ing-remove-btn no-print" data-remove-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Remover alimento adicionado">✕ Remover</button>` : ''}
+                ${!isAdded ? `<button type="button" class="ing-remove-btn no-print" data-remove-ingredient data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" data-ing-label="${escapeHtml(ingName)}" aria-label="Remover ${escapeHtml(ingName)}">${icons.trash(12)} Remover</button>` : ''}
               </div>
               ${!isAdded ? `<button type="button" class="ingredient-sub-btn no-print" data-swap data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Substituir ${ing.label || ing.food}">${icons.swap(14)} Substituir</button>` : ''}
             </li>
@@ -1440,6 +1491,78 @@ function applyAdditions(plan, additions) {
       };
     });
 
+    const dayTotals = newMeals.reduce((acc, m) => ({
+      kcal: acc.kcal + m.totals.kcal,
+      prot: acc.prot + m.totals.prot,
+      carb: acc.carb + m.totals.carb,
+      fat:  acc.fat  + m.totals.fat,
+    }), { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+    return {
+      ...day,
+      meals: newMeals,
+      totals: {
+        kcal: Math.round(dayTotals.kcal),
+        prot: Math.round(dayTotals.prot),
+        carb: Math.round(dayTotals.carb),
+        fat:  Math.round(dayTotals.fat),
+      },
+    };
+  });
+}
+
+/**
+ * Sprint D1 — Marks plan ingredients as removed and recalculates meal/day totals.
+ *
+ * Removed ingredients are flagged with isRemoved:true instead of being spliced
+ * out of the array — this preserves indices (used by subs/removals keys) and
+ * allows ghost rendering + restore in the UI.  The PDF sees only active items
+ * because the ghost <li> carries class="no-print".
+ *
+ * @param {object[]} plan     effective plan (after applySubstitutions)
+ * @param {object}   removals { "dayIdx:mealIdx:ingIdx": { label } }
+ */
+function applyRemovals(plan, removals) {
+  if (!removals || Object.keys(removals).length === 0) return plan;
+
+  return plan.map((day, dayIdx) => {
+    let dayChanged = false;
+    const newMeals = day.meals.map((meal, mealIdx) => {
+      let mealChanged = false;
+      const newIngredients = meal.ingredients.map((ing, ingIdx) => {
+        const key = `${dayIdx}:${mealIdx}:${ingIdx}`;
+        if (!removals[key]) return ing;
+        mealChanged = true;
+        return { ...ing, isRemoved: true, removedLabel: removals[key].label };
+      });
+      if (!mealChanged) return meal;
+      dayChanged = true;
+
+      // Recalculate meal totals excluding removed ingredients
+      const totals = newIngredients
+        .filter(i => !i.isRemoved)
+        .reduce((acc, i) => ({
+          kcal: acc.kcal + i.macros.kcal,
+          prot: acc.prot + i.macros.prot,
+          carb: acc.carb + i.macros.carb,
+          fat:  acc.fat  + i.macros.fat,
+        }), { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+      return {
+        ...meal,
+        ingredients: newIngredients,
+        totals: {
+          kcal: Math.round(totals.kcal),
+          prot: Math.round(totals.prot * 10) / 10,
+          carb: Math.round(totals.carb * 10) / 10,
+          fat:  Math.round(totals.fat  * 10) / 10,
+        },
+      };
+    });
+
+    if (!dayChanged) return day;
+
+    // Recalculate day totals
     const dayTotals = newMeals.reduce((acc, m) => ({
       kcal: acc.kcal + m.totals.kcal,
       prot: acc.prot + m.totals.prot,

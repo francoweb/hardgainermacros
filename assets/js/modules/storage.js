@@ -28,6 +28,7 @@ export const K = {
   SUBSTITUTIONS: `${PREFIX}subs`,
   CUSTOM_FOODS:  `${PREFIX}custom_foods`,
   ADDITIONS:     `${PREFIX}additions`,
+  REMOVALS:      `${PREFIX}removals`,
   COOKIES: `${PREFIX}cookies`,
 
   // sessionStorage (progresso de sessão)
@@ -124,6 +125,9 @@ export function loadCustomFoods()     { return local.get(K.CUSTOM_FOODS) || []; 
 
 export function saveAdditions(data)   { local.set(K.ADDITIONS, data); }
 export function loadAdditions()       { return local.get(K.ADDITIONS) || {}; }
+
+export function saveRemovals(data)    { local.set(K.REMOVALS, data); }
+export function loadRemovals()        { return local.get(K.REMOVALS) || {}; }
 
 /**
  * Reset completo (Editar / Reiniciar).

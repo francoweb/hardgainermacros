@@ -5296,3 +5296,230 @@ test.describe('C-SUB-C2B — Labels delta-based (Sprint C2-B)', () => {
 
 });
 
+// =============================================================================
+// C-REMOVE — Sprint D1: remoção de ingredientes do plano
+// =============================================================================
+
+test.describe('C-REMOVE — Sprint D1: remoção e restauração de ingredientes', () => {
+
+  // Helper: click the remove button of the first non-added, non-removed plan ingredient
+  async function clickFirstRemoveBtn(page) {
+    const btns = await page.locator('[data-remove-ingredient]').all();
+    if (btns.length === 0) return null;
+    const label = await btns[0].getAttribute('data-ing-label');
+    await btns[0].click();
+    await page.waitForSelector('.ingredient-removed', { timeout: 5000 });
+    return label;
+  }
+
+  // ── C-REMOVE-1 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-1 — Remover alimento: ghost aparece com texto "removido" e botão Restaurar', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    expect(await page.locator('[data-remove-ingredient]').count()).toBeGreaterThan(0);
+
+    const removedLabel = await clickFirstRemoveBtn(page);
+    expect(removedLabel).toBeTruthy();
+
+    const ghost = page.locator('.ingredient-removed').first();
+    await expect(ghost).toBeVisible();
+    const ghostText = (await ghost.textContent() || '').toLowerCase();
+    expect(ghostText).toContain('removido');
+    await expect(ghost.locator('[data-restore-ingredient]')).toBeVisible();
+  });
+
+  // ── C-REMOVE-2 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-2 — Restaurar alimento: ghost desaparece, botões de remoção voltam', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const countBefore = await page.locator('[data-remove-ingredient]').count();
+    await clickFirstRemoveBtn(page);
+
+    await page.locator('[data-restore-ingredient]').first().click();
+    await expect(page.locator('.ingredient-removed')).toHaveCount(0, { timeout: 5000 });
+
+    const countAfter = await page.locator('[data-remove-ingredient]').count();
+    expect(countAfter).toBe(countBefore);
+  });
+
+  // ── C-REMOVE-3 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-3 — Macros da refeição diminuem após remoção', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = parseMacros(
+      await page.locator('[data-meal-totals="0-0"]').first().textContent() || ''
+    );
+    await clickFirstRemoveBtn(page);
+    const after = parseMacros(
+      await page.locator('[data-meal-totals="0-0"]').first().textContent() || ''
+    );
+
+    expect(after.kcal, 'kcal da refeição deve diminuir após remoção').toBeLessThan(before.kcal);
+  });
+
+  // ── C-REMOVE-4 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-4 — Restaurar repõe os macros exatos da refeição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = parseMacros(
+      await page.locator('[data-meal-totals="0-0"]').first().textContent() || ''
+    );
+    await clickFirstRemoveBtn(page);
+    await page.locator('[data-restore-ingredient]').first().click();
+    await expect(page.locator('.ingredient-removed')).toHaveCount(0, { timeout: 5000 });
+
+    const after = parseMacros(
+      await page.locator('[data-meal-totals="0-0"]').first().textContent() || ''
+    );
+    expect(after.kcal, 'kcal da refeição deve voltar ao valor original').toBe(before.kcal);
+  });
+
+  // ── C-REMOVE-5 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-5 — Alimento substituído pode ser removido e restaurado', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Aplica substituição
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    await page.locator('.sub-option').first().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.ing-badge-subst').first()).toBeVisible();
+
+    // Remove o ingrediente substituído
+    const removeBtns = page.locator('[data-remove-ingredient]');
+    expect(await removeBtns.count()).toBeGreaterThan(0);
+    await removeBtns.first().click();
+    await page.waitForSelector('.ingredient-removed', { timeout: 5000 });
+    await expect(page.locator('.ingredient-removed').first()).toBeVisible();
+
+    // Restaura
+    await page.locator('[data-restore-ingredient]').first().click();
+    await expect(page.locator('.ingredient-removed')).toHaveCount(0, { timeout: 5000 });
+  });
+
+  // ── C-REMOVE-6 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-6 — Ghost tem classe no-print (não aparece em PDF/print)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await clickFirstRemoveBtn(page);
+
+    const ghost = page.locator('.ingredient-removed').first();
+    await expect(ghost).toHaveClass(/no-print/);
+  });
+
+  // ── C-REMOVE-7 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-7 — Substituir continua funcionando após remoção de outro ingrediente', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await clickFirstRemoveBtn(page);
+
+    const swapBtns = page.locator('[data-swap]');
+    expect(await swapBtns.count(), 'Deve haver botões Substituir após remoção').toBeGreaterThan(0);
+
+    // Tenta até 3 botões de swap para garantir que encontra um com opções
+    let modalHasOptions = false;
+    const total = await swapBtns.count();
+    for (let i = 0; i < Math.min(total, 3); i++) {
+      await swapBtns.nth(i).click();
+      await expect(page.locator('.modal-backdrop.show')).toBeVisible({ timeout: 5000 });
+      const opts = await page.locator('.sub-option').count();
+      if (opts > 0) { modalHasOptions = true; break; }
+      await page.locator('[data-modal-close]').first().click();
+      await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 3000 });
+    }
+    expect(modalHasOptions, 'Pelo menos um modal de substituição deve ter opções').toBe(true);
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-REMOVE-8 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-8 — Reverter para original continua funcionando', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    await page.locator('.sub-option').first().click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 5000 });
+
+    await expect(page.locator('[data-revert]').first()).toBeVisible();
+    await page.locator('[data-revert]').first().click();
+    await expect(page.locator('.ing-badge-subst')).toHaveCount(0, { timeout: 3000 });
+  });
+
+  // ── C-REMOVE-9 ───────────────────────────────────────────────────────────────
+  test('C-REMOVE-9 — + Adicionar alimento continua funcionando após remoção', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await clickFirstRemoveBtn(page);
+
+    const addBtn = page.locator('[data-add-food]').first();
+    await expect(addBtn).toBeVisible();
+    await addBtn.click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible({ timeout: 5000 });
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-REMOVE-10 ──────────────────────────────────────────────────────────────
+  test('C-REMOVE-10 — Alimentos adicionados mantêm botão próprio (data-remove-addition)', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Verifica que botões do plano e de additions são distintos
+    const planRemoveBtns = await page.locator('[data-remove-ingredient]').count();
+    expect(planRemoveBtns, 'Deve haver botões de remoção do plano').toBeGreaterThan(0);
+
+    // data-remove-ingredient nunca deve coexistir com data-remove-addition no mesmo elemento
+    const overlap = await page.locator('[data-remove-ingredient][data-remove-addition]').count();
+    expect(overlap, 'data-remove-ingredient e data-remove-addition não devem coexistir').toBe(0);
+  });
+
+  // ── C-REMOVE-11 ──────────────────────────────────────────────────────────────
+  test('C-REMOVE-11 — Resumo do dia aparece após remoção (bloco de comparação)', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Sem alterações: bloco de comparação ausente
+    await expect(page.locator('[data-testid="day-comp-block"]').first()).not.toBeVisible();
+
+    // Após remoção: bloco aparece
+    await clickFirstRemoveBtn(page);
+    await expect(page.locator('[data-testid="day-comp-block"]').first()).toBeVisible();
+  });
+
+  // ── C-REMOVE-12 ──────────────────────────────────────────────────────────────
+  test('C-REMOVE-12 — Mobile 390px: ghost e Restaurar sem overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await clickFirstRemoveBtn(page);
+
+    const ghost = page.locator('.ingredient-removed').first();
+    await expect(ghost).toBeVisible();
+
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW, 'Mobile: sem overflow após remoção').toBeLessThanOrEqual(395);
+  });
+
+});
+
