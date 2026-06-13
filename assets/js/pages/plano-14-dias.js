@@ -760,6 +760,70 @@ function getDailyImpact(projected, results) {
 }
 
 /**
+ * Sprint C2-B — Classifies a substitution by the DELTA it introduces, not by
+ * whether the entire day meets its target.  This prevents the modal from
+ * penalising a substitute for pre-existing day imbalances.
+ *
+ * Evaluation priority:
+ *   1. Absolute kcal safety limits (unchanged thresholds — day must stay viable).
+ *   2. Fat: only warn when the swap itself causes the excess (delta + absolute).
+ *   3. Protein: only warn when the swap significantly reduces protein.
+ *   4. Carb: only warn when the swap creates a large carb swing vs the original.
+ *   5. "Boa troca": swap corrects a protein deficit without adding fat.
+ *   6. "Troca segura": swap stays close to the original in all macros.
+ *   7. "Aceitável com ajuste": moderate deviation, within absolute safety.
+ *
+ * @param {{ kcal,prot,carb,fat }} origMacros  macros of the ingredient being replaced
+ * @param {{ kcal,prot,carb,fat }} subMacros   macros of the substitute at chosen grams
+ * @param {{ kcal,prot,carb,fat }} projected   projected day totals after this swap
+ * @param {object}                 results     user daily targets
+ */
+function classifySwap(origMacros, subMacros, projected, results) {
+  // ── Delta: what this swap changes vs the original ingredient ───────────────
+  const dKcal = subMacros.kcal - origMacros.kcal;
+  const dProt = subMacros.prot - origMacros.prot;
+  const dCarb = subMacros.carb - origMacros.carb;
+  const dFat  = subMacros.fat  - origMacros.fat;
+
+  // ── Absolute day state after swap (used for safety limits only) ────────────
+  const absKcal = projected.kcal - results.calories;
+  const absFat  = projected.fat  - results.fat.grams;
+
+  // ── 1. Absolute kcal safety (unchanged thresholds from Sprint B) ───────────
+  if (absKcal < -100) return { cls: 'sub-impact-low',   label: 'Fora da margem: muito baixo' };
+  if (absKcal >  200) return { cls: 'sub-impact-high',  label: 'Fora da margem: muito alto'  };
+
+  // ── 2. Fat: only warn if the swap causes the overshoot ────────────────────
+  //    Requires both: the swap adds >10g fat AND the projected day total
+  //    exceeds the fat target by >15g.  Pre-existing fat excess is not blamed.
+  if (dFat > 10 && absFat > 15)
+    return { cls: 'sub-impact-macro', label: 'Atenção: gorduras acima do alvo' };
+
+  // ── 3. Protein: only warn if this swap significantly reduces protein ────────
+  if (dProt < -20)
+    return { cls: 'sub-impact-macro', label: 'Atenção: proteína baixa' };
+
+  // ── 4. Carb: only warn when the swap itself creates a large carb swing ──────
+  if (Math.abs(dCarb) > 50)
+    return { cls: 'sub-impact-macro', label: 'Atenção: carboidratos fora do alvo' };
+
+  // ── 5. "Boa troca": swap corrects a protein deficit without adding fat ───────
+  //    The day had prot deficit before this swap AND the swap adds protein.
+  const preAbsProt = projected.prot - dProt - results.protein.grams;
+  if (preAbsProt < -15 && dProt > 10 && dFat <= 4)
+    return { cls: 'sub-impact-safe', label: 'Boa troca' };
+
+  // ── 6. "Troca segura": swap is close to the original in all dimensions ───────
+  //    dProt: allowed to increase freely (only floor at −12g loss)
+  //    dFat:  allowed to decrease freely (only cap increases at +8g)
+  if (Math.abs(dKcal) <= 80 && dProt >= -12 && Math.abs(dCarb) <= 30 && dFat <= 8)
+    return { cls: 'sub-impact-safe', label: 'Troca segura' };
+
+  // ── 7. Moderate deviation — acceptable with awareness ────────────────────────
+  return { cls: 'sub-impact-ok', label: 'Aceitável com ajuste' };
+}
+
+/**
  * Returns how compatible two food categories are for substitution purposes.
  *   'close'      — same category or nutritionally equivalent role
  *   'compatible' — adjacent categories (similar caloric role, different macros)
@@ -779,53 +843,49 @@ function getSwapCompatibility(origCat, subCat) {
 }
 
 /**
- * Combined impact label for a substitution option.
+ * Combined impact label — Sprint C2-B update.
  *
  * Two-layer evaluation:
- *   Layer 1 — Day safety (getDailyImpact, Sprint B, unchanged):
- *     "Fora da margem" always takes precedence.
- *   Layer 2 — Individual swap quality (new):
- *     Priority subs (curated .substitutes) inherit the day label directly — they
- *     were hand-picked as nutritionally appropriate replacements.
- *     Extra opts (remaining FOODS) also check category compatibility so cross-category
- *     swaps get an honest label instead of a generic "macros desequilibrados".
+ *   Layer 1 — Swap quality (classifySwap, delta-based):
+ *     Evaluates how much this specific swap changes the day vs the original.
+ *     Avoids false alerts from pre-existing day imbalances.
+ *   Layer 2 — Category compatibility (unchanged from Sprint C):
+ *     Extra opts from structurally different categories get an honest label.
  *
- * @param {boolean} isPriority   true = curated substitute; false = extra from FOODS
- * @param {string}  origCat      category of the original ingredient
- * @param {string}  subCat       category of the substitute food
- * @param {object}  projected    projected day totals after this swap
- * @param {object}  results      user daily targets
+ * @param {boolean} isPriority    true = curated substitute; false = extra from FOODS
+ * @param {string}  origCat       category of the original ingredient
+ * @param {string}  subCat        category of the substitute food
+ * @param {{ kcal,prot,carb,fat }} origMacros  macros of the ingredient being replaced
+ * @param {{ kcal,prot,carb,fat }} subMacros   macros of the substitute at chosen grams
+ * @param {{ kcal,prot,carb,fat }} projected   projected day totals after this swap
+ * @param {object}  results       user daily targets
  */
-function getSubImpact(isPriority, origCat, subCat, projected, results) {
-  const day = getDailyImpact(projected, results);
+function getSubImpact(isPriority, origCat, subCat, origMacros, subMacros, projected, results) {
+  const swap = classifySwap(origMacros, subMacros, projected, results);
 
-  // "Fora da margem" (calorie window breached) always takes precedence — safety first
-  if (day.cls === 'sub-impact-low' || day.cls === 'sub-impact-high') return day;
+  // Absolute safety limits always take precedence
+  if (swap.cls === 'sub-impact-low' || swap.cls === 'sub-impact-high') return swap;
 
-  // Curated priority substitutes: category is already appropriate — use day label only
-  if (isPriority) return day;
+  // Curated priority subs: category is already vetted — swap quality is the signal
+  if (isPriority) return swap;
 
-  // Extra opts: add individual category-compatibility layer
+  // Extra opts: add category-compatibility layer
   const compat = getSwapCompatibility(origCat, subCat);
 
-  // Same category or nutritionally close → day label determines quality
-  if (compat === 'close') return day;
+  // Same category or nutritionally close → swap quality alone determines label
+  if (compat === 'close') return swap;
 
-  // Adjacent categories (e.g. carb ↔ fruit, protein ↔ dairy):
-  // note the macro difference but respect any day-level warning
+  // Adjacent categories (carb↔fruit, protein↔dairy, …):
+  // downgrade positive labels to signal the macro profile difference
   if (compat === 'compatible') {
-    if (day.cls === 'sub-impact-safe') {
-      return { cls: 'sub-impact-ok', label: 'Calorias próximas, macros diferentes' };
-    }
-    return day; // day warning is stronger
+    if (swap.cls === 'sub-impact-safe')
+      return { cls: 'sub-impact-ok', label: 'Aceitável com ajuste' };
+    return swap;
   }
 
-  // Truly different categories (e.g. pão → azeite, ovo → arroz):
-  // amber warning unless day already shows a more severe alert
-  if (day.cls === 'sub-impact-safe' || day.cls === 'sub-impact-ok') {
-    return { cls: 'sub-impact-macro', label: 'Macros muito diferentes' };
-  }
-  return day; // stronger day warning dominates
+  // Truly different categories (carb↔fat, protein↔carb, …):
+  // the category mismatch is the dominant honest signal — always amber
+  return { cls: 'sub-impact-macro', label: 'Macros muito diferentes' };
 }
 
 /**
@@ -984,8 +1044,8 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
       carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
       fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
     };
-    // isPriority=true: curated substitute — use day-level label only
-    const impact = getSubImpact(true, currentFood.category, opt.food.category, projected, results);
+    // isPriority=true: curated substitute — C2-B delta-based quality label
+    const impact = getSubImpact(true, currentFood.category, opt.food.category, ing.macros, macros, projected, results);
     const display = opt.id === 'whey'
       ? buildWheyDisplay(practicalG)
       : formatQty(opt.id, practicalG);
@@ -1010,8 +1070,8 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
         carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
         fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
       };
-      // isPriority=false: extra from FOODS — also evaluates category compatibility
-      const impact = getSubImpact(false, currentFood.category, food.category, projected, results);
+      // isPriority=false: extra from FOODS — C2-B delta-based + category compatibility
+      const impact = getSubImpact(false, currentFood.category, food.category, ing.macros, macros, projected, results);
       const display = id === 'whey'
         ? buildWheyDisplay(practicalG)
         : formatQty(id, practicalG);
@@ -1036,7 +1096,8 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
         carb: currentDayTotal.carb - ing.macros.carb + macros.carb,
         fat:  currentDayTotal.fat  - ing.macros.fat  + macros.fat,
       };
-      const impact = getDailyImpact(projected, results);
+      // Custom foods: same category as current — use delta-based classification
+      const impact = classifySwap(ing.macros, macros, projected, results);
       const sign   = delta >= 0 ? '+' : '';
       return { id: f.id, food: f, grams: equivG, macros, display: `${equivG}g`, delta, impact, sign, projected, isCustom: true };
     })

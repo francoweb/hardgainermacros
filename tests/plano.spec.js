@@ -3629,18 +3629,21 @@ const SPRINTB_HIGHCAL_FOOD = {
   baseUnit: 'g',
 };
 
-/** Labels válidos após Sprint B + Etapa 1 (separação individual vs dia). */
+/** Labels válidos após Sprint B + C2-B (delta-based classification). */
 const VALID_SPRINTB_LABELS = new Set([
-  'Troca segura',
-  'Troca aceitável',
-  'Atenção: abaixo do alvo',
-  'Atenção: acima do alvo',
+  // Safety (Sprint B — unchanged)
   'Fora da margem: muito baixo',
   'Fora da margem: muito alto',
+  // Positive (C2-B)
+  'Troca segura',
+  'Boa troca',
+  // Moderate (C2-B)
+  'Aceitável com ajuste',
+  // Specific warnings (C2-B)
   'Atenção: gorduras acima do alvo',
-  'Atenção: macros desequilibrados',
-  // Etapa 1 — labels de qualidade da troca individual
-  'Calorias próximas, macros diferentes',
+  'Atenção: proteína baixa',
+  'Atenção: carboidratos fora do alvo',
+  // Cross-category (unchanged)
   'Macros muito diferentes',
 ]);
 
@@ -5040,6 +5043,253 @@ test.describe('C-SUB-C2A — Sprint C2-A: findBestGrams para extraOpts', () => {
     // Labels existentes (Sprint B) ainda devem estar presentes
     const impactLabels = await page.locator('.sub-impact').all();
     expect(impactLabels.length, 'Deve haver labels de impacto no modal').toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+});
+
+// =============================================================================
+// C-SUB-C2B — Sprint C2-B: labels delta-based
+// =============================================================================
+// Verifica que as labels avaliam a QUALIDADE DA TROCA (delta vs original),
+// não se o dia inteiro está perfeito antes da troca.
+
+test.describe('C-SUB-C2B — Labels delta-based (Sprint C2-B)', () => {
+
+  // ── C-SUB-C2B-1 ─────────────────────────────────────────────────────────────
+  // Substitutos curados carbo→carbo (pão de forma, tapioca, bagel, wrap)
+  // não devem receber alerta injusto em dia dentro da margem.
+  test('C-SUB-C2B-1 — Priority carbo→carbo: bagel, tapioca, pão de forma mostram label positiva', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const orig = await openSwapFor(page, /Pão branco/i);
+    if (!orig) { return; }
+
+    // Priority subs do pão (pao_forma, tapioca, bagel, wrap_tortilha)
+    // aparecem em primeiro na categoria Carboidratos — devem ter label positiva
+    await expandCat(page, 'Carboidratos');
+    const opts = await page.locator('details.sub-cat-group[open] .sub-option').all();
+    let checked = 0;
+    for (const o of opts.slice(0, 6)) {
+      const name  = (await o.locator('.sub-option-name').textContent() || '').trim();
+      const label = (await o.locator('.sub-impact').textContent()      || '').trim();
+      // Carbo→carbo próximo: não deve ser aviso negativo forte
+      const isPositive = label === 'Troca segura' || label === 'Boa troca' || label === 'Aceitável com ajuste';
+      const isNegative = label === 'Atenção: macros desequilibrados'; // label antiga — não deve aparecer
+      expect(isNegative,
+        `${name}: label "${label}" contém alerta obsoleto "macros desequilibrados"`
+      ).toBe(false);
+      if (/Pão de forma|Tapioca|Bagel|Wrap/i.test(name)) {
+        expect(isPositive,
+          `${name}: carbo→carbo deve ter label positiva/neutra (got "${label}")`
+        ).toBe(true);
+        checked++;
+      }
+    }
+    expect(checked, 'Deve ter encontrado pelo menos 1 priority carbo sub').toBeGreaterThan(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2B-2 ─────────────────────────────────────────────────────────────
+  // Priority proteína→proteína (clara de ovo, frango, tofu) — label positiva.
+  test('C-SUB-C2B-2 — Priority proteína→proteína: clara de ovo, frango, tofu sem alerta injusto', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const orig = await openSwapFor(page, /[Oo]vo/i);
+    if (!orig) { return; }
+
+    await expandCat(page, 'Proteínas');
+    const opts = await page.locator('details.sub-cat-group[open] .sub-option').all();
+
+    for (const o of opts.slice(0, 8)) {
+      const name  = (await o.locator('.sub-option-name').textContent() || '').trim();
+      const label = (await o.locator('.sub-impact').textContent()      || '').trim();
+
+      // "Atenção: macros desequilibrados" não deve aparecer (label obsoleto)
+      expect(label,
+        `${name}: label "${label}" não deve ser alerta obsoleto`
+      ).not.toBe('Atenção: macros desequilibrados');
+
+      // Priority subs proteína→proteína (mesma categoria) devem ser positivos
+      if (/Clara de ovo|Peito de frango|Tofu/i.test(name)) {
+        const isPositive = label === 'Troca segura' || label === 'Boa troca' || label === 'Aceitável com ajuste';
+        expect(isPositive,
+          `${name}: proteína→proteína deve ter label positiva/neutra (got "${label}")`
+        ).toBe(true);
+      }
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2B-3 ─────────────────────────────────────────────────────────────
+  // Carbo → gordura (cross-category) continua honesto: nunca "Troca segura".
+  test('C-SUB-C2B-3 — Carbo→gordura: continua honesto, nunca "Troca segura"', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const orig = await openSwapFor(page, /Pão branco/i);
+    if (!orig) { return; }
+
+    await expandCat(page, 'Gorduras');
+    const azeite = await findExtraOpt(page, /Azeite/i);
+    if (!azeite) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    expect(azeite.label,
+      `Pão→Azeite nunca deve ser "Troca segura" (got "${azeite.label}")`
+    ).not.toBe('Troca segura');
+
+    expect(azeite.label,
+      `Pão→Azeite nunca deve ser "Boa troca" (got "${azeite.label}")`
+    ).not.toBe('Boa troca');
+
+    // A label honesta é "Macros muito diferentes" (categoria 'different')
+    expect(azeite.label,
+      `Pão→Azeite deve ser "Macros muito diferentes" (got "${azeite.label}")`
+    ).toBe('Macros muito diferentes');
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2B-4 ─────────────────────────────────────────────────────────────
+  // Desequilíbrio pré-existente não contamina label da troca.
+  // Injecta estado com dia ligeiramente fora do alvo e verifica que
+  // uma troca carbo→carbo razoável não recebe alerta.
+  test('C-SUB-C2B-4 — Desequilíbrio pré-existente não gera alerta na troca carbo→carbo', async ({ page }) => {
+    // Cenário com dia já ligeiramente abaixo nos carbos (−40g)
+    // Antes de C2-B isto disparava "Atenção: macros desequilibrados" para
+    // qualquer substituto que mantivesse os carbos no mesmo nível.
+    const cenarioDesequilibrado = {
+      ...CENARIO_C1,
+      results: {
+        ...CENARIO_C1.results,
+        // Alvo de carbo acima dos totais gerados pelo plano → simula desequilíbrio
+        carb: { grams: 360 },
+      },
+    };
+
+    await injectState(page, cenarioDesequilibrado);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const orig = await openSwapFor(page, /Pão branco/i);
+    if (!orig) { return; }
+
+    await expandCat(page, 'Carboidratos');
+
+    // Pão de forma e bagel são priority subs carbo→carbo com variação pequena
+    for (const regex of [/Pão de forma/i, /Bagel/i, /Tapioca/i]) {
+      const opt = await findExtraOpt(page, regex);
+      if (!opt) continue;
+      expect(opt.label,
+        `${opt.name}: desequilíbrio pré-existente não deve gerar "macros desequilibrados" (got "${opt.label}")`
+      ).not.toBe('Atenção: macros desequilibrados');
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2B-5 ─────────────────────────────────────────────────────────────
+  // Todos os labels visíveis no modal pertencem ao conjunto C2-B válido.
+  test('C-SUB-C2B-5 — Todos os labels no modal são do conjunto C2-B válido', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const orig = await openSwapFor(page, /Pão branco/i);
+    if (!orig) { return; }
+
+    const allLabels = await page.locator('.sub-impact').allTextContents();
+    for (const raw of allLabels) {
+      const label = raw.trim();
+      expect(VALID_SPRINTB_LABELS.has(label),
+        `Label inválido em modal C2-B: "${label}"`
+      ).toBe(true);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2B-6 ─────────────────────────────────────────────────────────────
+  // Apply/revert continuam a funcionar com os novos labels.
+  test('C-SUB-C2B-6 — Apply/revert funciona com labels C2-B', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origName = (await page.locator('.ingredient-name').first().textContent() || '').trim();
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const firstOpt = page.locator('.sub-option').first();
+    if (await firstOpt.count() === 0) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+    await firstOpt.click();
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 5000 });
+
+    const newName = (await page.locator('.ingredient-name').first().textContent() || '').trim();
+    expect(newName).not.toBe(origName);
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+    const revBtn = page.locator('#btn-reset-ing');
+    if (await revBtn.count() > 0) {
+      await revBtn.click();
+      await expect(page.locator('.modal-backdrop.show')).not.toBeVisible({ timeout: 5000 });
+      const back = (await page.locator('.ingredient-name').first().textContent() || '').trim();
+      expect(back).toBe(origName);
+    } else {
+      await page.locator('[data-modal-close]').first().click();
+    }
+  });
+
+  // ── C-SUB-C2B-7 ─────────────────────────────────────────────────────────────
+  // C2-B não adiciona pop-up nem sugestões de compensação.
+  test('C-SUB-C2B-7 — C2-B não implementa pop-up nem sugestões ainda', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const orig = await openSwapFor(page, /[Oo]vo/i);
+    if (!orig) { return; }
+
+    await expect(page.locator('[data-compensation-hint]'), 'C2-B: sem hint de compensação').toHaveCount(0);
+    await expect(page.locator('.sub-compensation'),        'C2-B: sem pop-up de compensação').toHaveCount(0);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-C2B-8 ─────────────────────────────────────────────────────────────
+  // C2-B não altera quantidades — as grams do sub são as mesmas de C2-A.
+  test('C-SUB-C2B-8 — Quantidades não foram alteradas pela C2-B', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const orig = await openSwapFor(page, /Pão branco/i);
+    if (!orig) { return; }
+
+    await expandCat(page, 'Carboidratos');
+    const arroz = await findExtraOpt(page, /Arroz branco/i);
+    if (arroz) {
+      const gm = arroz.qty.match(/(\d+)g/);
+      const g  = gm ? parseInt(gm[1]) : 0;
+      // C2-A escolheu esta quantidade — C2-B não a deve ter alterado
+      expect(g, `Arroz branco: C2-B não deve ter alterado a quantidade (got ${g}g)`).toBeGreaterThan(0);
+      expect(g, 'Arroz branco: quantidade prática ≥ 50g').toBeGreaterThanOrEqual(50);
+    }
 
     await page.locator('[data-modal-close]').first().click();
   });
