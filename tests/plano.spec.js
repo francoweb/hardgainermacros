@@ -4627,6 +4627,127 @@ test.describe('C-SUB-HF — Alimentos contáveis sem unidades fracionadas', () =
     await page.locator('[data-modal-close]').first().click();
   });
 
+  // ── C-SUB-HF-7 ──────────────────────────────────────────────────────────────
+  // Tofu não deve mostrar "1.5 porções" — deve exibir gramas reais.
+  test('C-SUB-HF-7 — Tofu não mostra "1.5 porções", exibe gramas reais', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Proteínas');
+    const tofuOpt = await findExtraOpt(page, /Tofu firme/i);
+    if (!tofuOpt) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    // Não deve exibir fracção de "porção"
+    expect(tofuOpt.qty,
+      `Tofu não deve mostrar fracção de "porção" (got "${tofuOpt.qty}")`
+    ).not.toMatch(/\d+\.\d+\s+por/);
+
+    // Deve exibir em gramas (sem label de unidade genérica fracionada)
+    expect(tofuOpt.qty,
+      `Tofu deve exibir gramas reais (got "${tofuOpt.qty}")`
+    ).toMatch(/^\d+g$/);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-8 ──────────────────────────────────────────────────────────────
+  // Tapioca não deve mostrar "6.5 colheres de sopa" — deve exibir gramas reais.
+  test('C-SUB-HF-8 — Tapioca não mostra "6.5 colheres de sopa", exibe gramas reais', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Carboidratos');
+    const tapOpt = await findExtraOpt(page, /Tapioca/i);
+    if (!tapOpt) {
+      await page.locator('[data-modal-close]').first().click();
+      return;
+    }
+
+    // Não deve exibir fracção de "colher"
+    expect(tapOpt.qty,
+      `Tapioca não deve mostrar fracção de "colher" (got "${tapOpt.qty}")`
+    ).not.toMatch(/\d+\.\d+\s+colher/);
+
+    // Se a quantidade for fracionada, deve estar em gramas puras
+    if (!/^\d+ colher/.test(tapOpt.qty)) {
+      expect(tapOpt.qty,
+        `Tapioca deve exibir gramas reais quando fraccionada (got "${tapOpt.qty}")`
+      ).toMatch(/^\d+g$/);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-9 ──────────────────────────────────────────────────────────────
+  // Whey e caseína continuam a exibir "meio scoop" / "1 scoop e meio" (halfLabel).
+  test('C-SUB-HF-9 — halfLabel (whey/caseína): "meio scoop" e "1 scoop e meio" continuam correctos', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Para obter whey como opção, abre substituições de proteína
+    const origMacros = await openSwapFor(page, /ovo/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Proteínas');
+
+    // Verifica que whey NÃO mostra "0.5 scoop" nem "1.5 scoop"
+    const wheyOpt = await findExtraOpt(page, /Proteína whey/i);
+    if (wheyOpt) {
+      expect(wheyOpt.qty,
+        `Whey não deve mostrar fracção numérica de scoop (got "${wheyOpt.qty}")`
+      ).not.toMatch(/\d+\.\d+\s+scoop/);
+    }
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
+  // ── C-SUB-HF-10 ─────────────────────────────────────────────────────────────
+  // Quantidades inteiras continuam com label natural (ex: "2 colheres de sopa (30g)").
+  test('C-SUB-HF-10 — Quantidades inteiras mantêm label com unidade (não regridem para gramas)', async ({ page }) => {
+    await injectState(page, CENARIO_C1);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const origMacros = await openSwapFor(page, /Pão branco/i);
+    if (!origMacros) { return; }
+
+    await expandCat(page, 'Carboidratos');
+    const opts = await page.locator('details.sub-cat-group[open] .sub-option').all();
+
+    // Pelo menos uma opção de carb deve mostrar label com unidade inteira
+    // (ex: "2 colheres de sopa", "1 xícara", "3 fatias")
+    let foundUnitLabel = false;
+    for (const o of opts.slice(0, 12)) {
+      const qty = (await o.locator('.sub-option-qty').textContent() || '').trim();
+      // Label com inteiro + nome de unidade (não só gramas)
+      if (/^\d+\s+\w/.test(qty) && !/^\d+g$/.test(qty) && !/^\d+\s+ml$/.test(qty)) {
+        foundUnitLabel = true;
+        // Confirma que não há fracção decimal neste label
+        expect(qty,
+          `Label de unidade inteira não deve ter decimal (got "${qty}")`
+        ).not.toMatch(/\d+\.\d+/);
+        break;
+      }
+    }
+    expect(foundUnitLabel,
+      'Deve haver pelo menos uma opção de carb com label de unidade inteira'
+    ).toBe(true);
+
+    await page.locator('[data-modal-close]').first().click();
+  });
+
   // ── C-SUB-HF-6 ──────────────────────────────────────────────────────────────
   // Sprint C2 não foi implementada: o modal não deve ter nenhum elemento
   // introduzido por C2 (e.g. filtros, ordenação, histórico de substituições).

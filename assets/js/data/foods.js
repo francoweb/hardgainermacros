@@ -873,8 +873,10 @@ export function formatQty(foodId, grams) {
           : `${whole} ${pluralize(u.label, whole)}${u.halfSuffix || ' e meio'}`;
         return `${display} (${Math.round(grams)}g)`;
       }
-      const display = rounded % 1 === 0 ? rounded : rounded.toFixed(1);
-      return `${display} ${pluralize(u.label, rounded)} (${Math.round(grams)}g)`;
+      // Fracção sem halfLabel (ex: "1.5 porções", "6.5 colheres de sopa"):
+      // retrocede para gramas — mais natural que mostrar X.5 unidades genéricas.
+      if (rounded % 1 !== 0) return `${Math.round(grams)}g`;
+      return `${rounded} ${pluralize(u.label, rounded)} (${Math.round(grams)}g)`;
     }
   }
   return `${Math.round(grams)}g`;
