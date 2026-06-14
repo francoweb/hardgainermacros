@@ -5523,3 +5523,246 @@ test.describe('C-REMOVE — Sprint D1: remoção e restauração de ingredientes
 
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Sprint E2-A — Adicionar alimento da biblioteca padrão
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Adicionar alimento da biblioteca (Sprint E2-A)', () => {
+
+  // ── C-E2A-1 ──────────────────────────────────────────────────────────────
+  test('C-E2A-1 — Botão "+ Adicionar Alimento" aparece ao lado de "+ Criar Alimento"', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const libBtns = page.locator('[data-add-library]');
+    const addBtns = page.locator('[data-add-food]');
+    const libCount = await libBtns.count();
+    const addCount = await addBtns.count();
+
+    expect(libCount).toBeGreaterThanOrEqual(6);
+    expect(addCount).toEqual(libCount);
+
+    const txt = (await libBtns.first().textContent() || '').trim();
+    expect(txt).toMatch(/Adicionar Alimento/i);
+
+    const addRow = page.locator('.ing-add-row').first();
+    await expect(addRow.locator('[data-add-food]')).toBeVisible();
+    await expect(addRow.locator('[data-add-library]')).toBeVisible();
+  });
+
+  // ── C-E2A-2 ──────────────────────────────────────────────────────────────
+  test('C-E2A-2 — Clicar em "+ Adicionar Alimento" abre modal da biblioteca', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-library]').first().click();
+    await expect(page.locator('.modal-backdrop.show')).toBeVisible();
+
+    const title = (await page.locator('.modal-title').first().textContent() || '').trim();
+    expect(title).toMatch(/Adicionar Alimento/i);
+
+    const groups = page.locator('.sub-cat-group');
+    expect(await groups.count()).toBeGreaterThanOrEqual(4);
+
+    const items = page.locator('.lib-food-item');
+    expect(await items.count()).toBeGreaterThan(10);
+  });
+
+  // ── C-E2A-3 ──────────────────────────────────────────────────────────────
+  test('C-E2A-3 — Modal mostra nome, porção, kcal/macros e botão Adicionar por alimento', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-library]').first().click();
+    await page.waitForSelector('.lib-food-item', { timeout: 5000 });
+
+    const first = page.locator('.lib-food-item').first();
+    await expect(first.locator('.lib-food-name')).toBeVisible();
+    await expect(first.locator('.lib-food-qty')).toBeVisible();
+    await expect(first.locator('.lib-food-macros')).toBeVisible();
+    await expect(first.locator('.lib-add-btn')).toBeVisible();
+
+    const macroTxt = await first.locator('.lib-food-macros').textContent() || '';
+    expect(macroTxt).toMatch(/kcal/i);
+    expect(macroTxt).toMatch(/P:/);
+  });
+
+  // ── C-E2A-4 ──────────────────────────────────────────────────────────────
+  test('C-E2A-4 — Adicionar da biblioteca: badge ADICIONADO aparece na refeição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    const beforeCount = await firstMeal.locator('.ing-badge-added').count();
+
+    await page.locator('[data-add-library][data-day-idx="0"][data-meal-idx="0"]').click();
+    await page.waitForSelector('.lib-add-btn', { timeout: 5000 });
+    await page.locator('.lib-add-btn').first().click();
+    await page.waitForTimeout(400);
+
+    const afterCount = await firstMeal.locator('.ing-badge-added').count();
+    expect(afterCount).toBeGreaterThan(beforeCount);
+  });
+
+  // ── C-E2A-5 ──────────────────────────────────────────────────────────────
+  test('C-E2A-5 — kcal/macros da refeição aumentam após adicionar da biblioteca', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const mealBefore = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    await page.locator('[data-add-library][data-day-idx="0"][data-meal-idx="0"]').click();
+    await page.waitForSelector('.lib-add-btn', { timeout: 5000 });
+    await page.locator('.lib-add-btn').first().click();
+    await page.waitForTimeout(400);
+
+    const mealAfter = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(mealAfter.kcal).toBeGreaterThan(mealBefore.kcal);
+  });
+
+  // ── C-E2A-6 ──────────────────────────────────────────────────────────────
+  test('C-E2A-6 — kcal/macros do dia aumentam após adicionar da biblioteca', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+
+    await page.locator('[data-add-library][data-day-idx="0"][data-meal-idx="0"]').click();
+    await page.waitForSelector('.lib-add-btn', { timeout: 5000 });
+    await page.locator('.lib-add-btn').first().click();
+    await page.waitForTimeout(400);
+
+    const dayAfter = await getDayTotals(page, 0);
+    expect(dayAfter.kcal).toBeGreaterThan(dayBefore.kcal);
+  });
+
+  // ── C-E2A-7 ──────────────────────────────────────────────────────────────
+  test('C-E2A-7 — Resumo do dia (Com alterações / Original / Diferença) aparece', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-library][data-day-idx="0"][data-meal-idx="0"]').click();
+    await page.waitForSelector('.lib-add-btn', { timeout: 5000 });
+    await page.locator('.lib-add-btn').first().click();
+    await page.waitForTimeout(400);
+
+    const comp = page.locator('[data-testid="day-comp-block"]').first();
+    await expect(comp).toBeVisible();
+    await expect(comp.locator('[data-testid="day-current-totals"]')).toBeVisible();
+    await expect(comp.locator('[data-testid="day-original-totals"]')).toBeVisible();
+    await expect(comp.locator('[data-testid="day-delta-totals"]')).toBeVisible();
+  });
+
+  // ── C-E2A-8 ──────────────────────────────────────────────────────────────
+  test('C-E2A-8 — Remover alimento da biblioteca: totais voltam ao original', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+
+    await page.locator('[data-add-library][data-day-idx="0"][data-meal-idx="0"]').click();
+    await page.waitForSelector('.lib-add-btn', { timeout: 5000 });
+    await page.locator('.lib-add-btn').first().click();
+    await page.waitForTimeout(400);
+
+    await firstMeal.locator('[data-remove-addition]').last().click();
+    await page.waitForTimeout(400);
+
+    const dayAfter = await getDayTotals(page, 0);
+    expect(Math.abs(dayAfter.kcal - dayBefore.kcal)).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-E2A-9 ──────────────────────────────────────────────────────────────
+  test('C-E2A-9 — PDF/print inclui alimento adicionado da biblioteca', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const ingsBefore = await page.locator('#day-pdf-print-area .ing-list li').count();
+
+    await page.locator('[data-add-library][data-day-idx="0"][data-meal-idx="0"]').click();
+    await page.waitForSelector('.lib-add-btn', { timeout: 5000 });
+    await page.locator('.lib-add-btn').first().click();
+    await page.waitForTimeout(400);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const ingsAfter = await page.locator('#day-pdf-print-area .ing-list li').count();
+
+    expect(ingsAfter).toBeGreaterThan(ingsBefore);
+  });
+
+  // ── C-E2A-10 ─────────────────────────────────────────────────────────────
+  test('C-E2A-10 — PDF/print não inclui alimento da biblioteca após remoção', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+
+    await page.locator('[data-add-library][data-day-idx="0"][data-meal-idx="0"]').click();
+    await page.waitForSelector('.lib-add-btn', { timeout: 5000 });
+    await page.locator('.lib-add-btn').first().click();
+    await page.waitForTimeout(400);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const ingsWithAdd = await page.locator('#day-pdf-print-area .ing-list li').count();
+
+    await firstMeal.locator('[data-remove-addition]').last().click();
+    await page.waitForTimeout(400);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const ingsAfterRemove = await page.locator('#day-pdf-print-area .ing-list li').count();
+
+    expect(ingsAfterRemove).toBeLessThan(ingsWithAdd);
+  });
+
+  // ── C-E2A-11 ─────────────────────────────────────────────────────────────
+  test('C-E2A-11 — Mobile 390px: dois botões visíveis sem overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await expect(page.locator('[data-add-food]').first()).toBeVisible();
+    await expect(page.locator('[data-add-library]').first()).toBeVisible();
+
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW, 'Mobile: sem overflow com 2 botões').toBeLessThanOrEqual(395);
+  });
+
+  // ── C-E2A-12 ─────────────────────────────────────────────────────────────
+  test('C-E2A-12 — "+ Criar Alimento" continua funcionando após E2-A', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-food]').first().click();
+    await expect(page.locator('#add-food-form')).toBeVisible();
+    await fillAddFoodForm(page, TEST_FOOD);
+    await page.locator('#add-food-form button[type="submit"]').click();
+    await page.waitForTimeout(400);
+
+    const badges = await page.locator('#day-body-0 .meal-card').first().locator('.ing-badge-added').count();
+    expect(badges).toBeGreaterThanOrEqual(1);
+  });
+
+});
+

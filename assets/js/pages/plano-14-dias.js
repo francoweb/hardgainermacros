@@ -256,12 +256,21 @@ function render(mount, plan, results, subs, originalPlan, additions, removals) {
     });
   });
 
-  // Add food buttons
+  // Add food buttons (+ Criar Alimento — manual form)
   mount.querySelectorAll('[data-add-food]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const { dayIdx, mealIdx } = btn.dataset;
       openAddFoodModal(Number(dayIdx), Number(mealIdx), mount);
+    });
+  });
+
+  // Add from library buttons (+ Adicionar Alimento — Sprint E2-A)
+  mount.querySelectorAll('[data-add-library]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx } = btn.dataset;
+      openAddLibraryModal(Number(dayIdx), Number(mealIdx), mount);
     });
   });
 
@@ -516,6 +525,11 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals) {
                 data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}"
                 aria-label="Criar alimento personalizado para a refeição ${mealIdx + 1}">
           + Criar Alimento
+        </button>
+        <button type="button" class="ing-add-btn ing-lib-btn" data-add-library data-testid="add-library-button"
+                data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}"
+                aria-label="Adicionar alimento da biblioteca à refeição ${mealIdx + 1}">
+          + Adicionar Alimento
         </button>
       </div>
 
@@ -1457,11 +1471,14 @@ function applyAdditions(plan, additions) {
         const food = getFoodWithCustom(add.food) || add.snapshot;
         if (!food || !food.per100) return null;
         const macros = calcMacrosFromFood(food, add.grams);
+        // Alimentos da biblioteca usam formatQty para display prático (ex: "1 porção média").
+        // Alimentos criados manualmente mantêm o display em quantidade + unidade inseridas.
+        const isLibrary = add.snapshot?.source === 'library' && !!getFood(add.food);
         return {
           food: add.food,
           label: food.name,
           grams: add.grams,
-          display: `${add.grams} ${add.unit || 'g'}`,
+          display: isLibrary ? formatQty(add.food, add.grams) : `${add.grams} ${add.unit || 'g'}`,
           macros,
           isAddition: true,
           additionId: add.id,
@@ -1819,6 +1836,134 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
 
     close();
     rebuildAndRender(mount);
+  });
+}
+
+/**
+ * Sprint E2-A — Abre modal para adicionar alimento da biblioteca padrão.
+ *
+ * Fluxo:
+ *   1. Agrupa FOODS por categoria (accordion) — sem busca nesta sprint.
+ *   2. Cada item mostra: nome, porção prática, kcal, P/C/G, botão "Adicionar".
+ *   3. Ao clicar "Adicionar": guarda em hg:additions com source:'library'.
+ *      applyAdditions() resolve o alimento via FOODS (getFood) — sem custom_foods.
+ *   4. rebuildAndRender() recalcula totais, comparação e PDF.
+ *
+ * Storage reutilizado: hg:additions — mesmo estrutura de openAddFoodModal.
+ * Pipeline reutilizado: applyAdditions() → totais → PDF → remoção.
+ */
+function openAddLibraryModal(dayIdx, mealIdx, mount) {
+  const LIB_CAT_LABEL = {
+    protein: 'Proteínas',
+    carb:    'Carboidratos',
+    dairy:   'Laticínios',
+    fruit:   'Frutas',
+    fat:     'Gorduras',
+    veg:     'Vegetais',
+    extra:   'Extras',
+  };
+  const LIB_CAT_ORDER = ['protein', 'carb', 'dairy', 'fruit', 'fat', 'veg', 'extra'];
+
+  /** Porção padrão prática: prefere primeira unidade do food, com fallbacks por categoria. */
+  function defaultGrams(foodId, food) {
+    if (food.units && food.units.length) return food.units[0].grams;
+    if (food.category === 'fat')   return 15;
+    if (food.category === 'extra') return 15;
+    if (food.category === 'veg')   return 80;
+    return 100;
+  }
+
+  // Agrupar FOODS por categoria
+  const grouped = {};
+  Object.entries(FOODS).forEach(([id, food]) => {
+    if (!food.per100 || food.per100.kcal <= 0) return;
+    const cat = food.category || 'extra';
+    if (!grouped[cat]) grouped[cat] = [];
+    const grams   = defaultGrams(id, food);
+    const macros  = calcFoodMacros(id, grams);
+    const display = formatQty(id, grams);
+    grouped[cat].push({ id, food, grams, macros, display });
+  });
+
+  const renderItems = (items) => items.map(({ id, food, grams, macros, display }) => `
+    <li class="lib-food-item">
+      <div class="lib-food-info">
+        <div class="lib-food-name">${escapeHtml(food.name)}</div>
+        <div class="lib-food-qty">${escapeHtml(display)}</div>
+        <div class="lib-food-macros">${macros.kcal} kcal · P:${macros.prot}g · C:${macros.carb}g · G:${macros.fat}g</div>
+      </div>
+      <button type="button" class="btn btn-primary lib-add-btn"
+              data-lib-id="${id}" data-lib-grams="${grams}"
+              aria-label="Adicionar ${escapeHtml(food.name)}">Adicionar</button>
+    </li>
+  `).join('');
+
+  const catGroupsHtml = LIB_CAT_ORDER
+    .filter(cat => grouped[cat])
+    .map((cat, i) => `
+      <details class="sub-cat-group"${i === 0 ? ' open' : ''}>
+        <summary class="sub-cat-label">${LIB_CAT_LABEL[cat] || cat}<span class="sub-cat-count"> (${grouped[cat].length})</span></summary>
+        <ul class="sub-cat-items">${renderItems(grouped[cat])}</ul>
+      </details>
+    `).join('');
+
+  const contentHtml = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Adicionar Alimento</div>
+        <div class="modal-sub">Escolha um alimento da biblioteca para adicionar à refeição</div>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin: 0 0 12px; font-size: 12.5px; color: var(--ink-muted);">Clique em <strong>Adicionar</strong> para incluir o alimento com a porção padrão. Os macros são recalculados automaticamente.</p>
+      <div class="sub-options">${catGroupsHtml}</div>
+      <div class="btn-row" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" data-modal-close>Fechar</button>
+      </div>
+    </div>
+  `;
+
+  const close = openModal(contentHtml);
+
+  // Accordion exclusivo (igual ao modal de substituições)
+  document.querySelectorAll('.sub-cat-group').forEach(det => {
+    det.addEventListener('toggle', () => {
+      if (det.open) {
+        document.querySelectorAll('.sub-cat-group').forEach(other => {
+          if (other !== det) other.removeAttribute('open');
+        });
+      }
+    });
+  });
+
+  // Botões Adicionar
+  document.querySelectorAll('.lib-add-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const foodId = btn.dataset.libId;
+      const grams  = Number(btn.dataset.libGrams);
+      const food   = FOODS[foodId];
+      if (!food) return;
+
+      const additions = loadAdditions();
+      const addKey    = `${dayIdx}:${mealIdx}`;
+      if (!additions[addKey]) additions[addKey] = [];
+      additions[addKey].push({
+        id:   `addition_${Date.now()}`,
+        food: foodId,
+        grams,
+        unit: 'g',
+        snapshot: {
+          name:     food.name,
+          per100:   food.per100,
+          category: food.category,
+          source:   'library',
+        },
+      });
+      saveAdditions(additions);
+      close();
+      rebuildAndRender(mount);
+    });
   });
 }
 
