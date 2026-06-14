@@ -481,11 +481,11 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals) {
               <li class="ingredient ingredient-removed no-print">
                 <div class="ingredient-main" style="opacity:0.55;font-style:italic;">
                   <div class="ingredient-name" style="color:#999;">${escapeHtml(ghostLabel)} removido</div>
-                  <button type="button" class="ing-restore-btn no-print"
-                          data-restore-ingredient
-                          data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}"
-                          aria-label="Restaurar ${escapeHtml(ghostLabel)}">${icons.refresh(11)} Restaurar</button>
                 </div>
+                <button type="button" class="ingredient-sub-btn no-print"
+                        data-restore-ingredient
+                        data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}"
+                        aria-label="Restaurar ${escapeHtml(ghostLabel)}">Restaurar</button>
               </li>`;
           }
 
@@ -2257,7 +2257,7 @@ function buildMealHtml(meal, mealIdx, dayIdx = null) {
   const isImperial = loadFormData()?.unit === 'imperial';
   const badgeLabel = meal.type === 'solid' ? 'Sólida' : 'Shake';
 
-  const ingsHtml = meal.ingredients.map(ing => `
+  const ingsHtml = meal.ingredients.filter(ing => !ing.isRemoved).map(ing => `
     <li class="ing-row">
       <div class="ing-info">
         <div class="ing-name">${ing.label || ing.food}</div>
@@ -2628,7 +2628,7 @@ function exportFullPlanPDF(plan, results) {
 
 function buildCompactMealHtml(meal, mealIdx) {
   const isImperial = loadFormData()?.unit === 'imperial';
-  const ingsHtml = meal.ingredients.map(ing => `
+  const ingsHtml = meal.ingredients.filter(ing => !ing.isRemoved).map(ing => `
     <li class="c-ing-row">
       <span class="c-ing-name">${ing.label || ing.food}</span>
       <span class="c-ing-qty">${isImperial && !ing.isAddition ? toImperialDisplay(ing.display) : ing.display}</span>
