@@ -22,6 +22,7 @@ import {
   loadCustomFoods, saveCustomFoods,
   loadAdditions, saveAdditions,
   loadRemovals, saveRemovals,
+  loadEdits, saveEdits,
   loadFormData,
 } from '../modules/storage.js';
 import { formatKcal } from '../modules/calculator.js';
@@ -41,15 +42,22 @@ function rebuildAndRender(mount) {
   const originalPlan = loadPlan();
   const results = loadResults();
   if (!originalPlan || !results) return;
-  const subs     = loadSubstitutions();
-  const removals = loadRemovals();
+  const subs      = loadSubstitutions();
+  const removals  = loadRemovals();
   const additions = loadAdditions();
-  // Pipeline: subs → removals (marks isRemoved, recalcs totals) → additions
+  const edits     = loadEdits();
+  // Pipeline: edits → subs → removals → additions
   const effective = applyAdditions(
-    applyRemovals(applySubstitutions(originalPlan, subs), removals),
+    applyRemovals(
+      applySubstitutions(
+        applyEdits(originalPlan, edits),
+        subs
+      ),
+      removals
+    ),
     additions,
   );
-  render(mount, effective, results, subs, originalPlan, additions, removals);
+  render(mount, effective, results, subs, originalPlan, additions, removals, edits);
 }
 
 const PLAN_STRATEGY_LABEL = {
@@ -58,7 +66,7 @@ const PLAN_STRATEGY_LABEL = {
   practical: 'Máxima Praticidade',
 };
 
-function render(mount, plan, results, subs, originalPlan, additions, removals) {
+function render(mount, plan, results, subs, originalPlan, additions, removals, edits) {
   const strategy = results.routine?.strategy;
   const strategyLabel = PLAN_STRATEGY_LABEL[strategy] || 'Sistema Híbrido';
   const solidCount = countSolid(plan[0]);
@@ -122,7 +130,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals) {
 
       <!-- Days -->
       <div id="days-container">
-        ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories, additions, removals)).join('')}
+        ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories, additions, removals, edits)).join('')}
       </div>
 
       <!-- Receitas base (no-print friendly) -->
@@ -274,6 +282,27 @@ function render(mount, plan, results, subs, originalPlan, additions, removals) {
     });
   });
 
+  // Edit plan ingredient buttons — Sprint F1
+  mount.querySelectorAll('[data-edit-ingredient]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx, ingIdx } = btn.dataset;
+      openEditPlanIngModal(Number(dayIdx), Number(mealIdx), Number(ingIdx), mount);
+    });
+  });
+
+  // Revert edit buttons — Sprint F1
+  mount.querySelectorAll('[data-revert-edit]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx, ingIdx } = btn.dataset;
+      const currentEdits = loadEdits();
+      delete currentEdits[`${dayIdx}:${mealIdx}:${ingIdx}`];
+      saveEdits(currentEdits);
+      rebuildAndRender(mount);
+    });
+  });
+
   // Edit addition buttons
   mount.querySelectorAll('[data-edit-addition]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -381,12 +410,13 @@ function render(mount, plan, results, subs, originalPlan, additions, removals) {
 /* Day card rendering                                                           */
 /* ============================================================================ */
 
-function renderDayCard(day, idx, subs, originalDay, targetKcal, additions, removals) {
+function renderDayCard(day, idx, subs, originalDay, targetKcal, additions, removals, edits) {
   const isOpen = idx === 0;
   const dayHasSubs      = Object.keys(subs      || {}).some(k => k.startsWith(`${idx}:`));
   const dayHasAdditions = Object.keys(additions  || {}).some(k => k.startsWith(`${idx}:`));
   const dayHasRemovals  = Object.keys(removals   || {}).some(k => k.startsWith(`${idx}:`));
-  const dayHasChanges   = dayHasSubs || dayHasAdditions || dayHasRemovals;
+  const dayHasEdits     = Object.keys(edits      || {}).some(k => k.startsWith(`${idx}:`));
+  const dayHasChanges   = dayHasSubs || dayHasAdditions || dayHasRemovals || dayHasEdits;
   const origT = originalDay?.totals;
   const curT = day.totals;
   let dayCompBlock = '';
@@ -446,15 +476,16 @@ function renderDayCard(day, idx, subs, originalDay, targetKcal, additions, remov
         <div class="day-chev" style="${isOpen ? 'transform: rotate(180deg);' : ''}">${icons.chevDown(18)}</div>
       </div>
       <div class="day-body" id="day-body-${idx}" style="display:${isOpen ? 'block' : 'none'};">
-        ${day.meals.map((meal, mIdx) => renderMealCard(meal, idx, mIdx, subs, removals)).join('')}
+        ${day.meals.map((meal, mIdx) => renderMealCard(meal, idx, mIdx, subs, removals, edits)).join('')}
       </div>
     </div>
   `;
 }
 
-function renderMealCard(meal, dayIdx, mealIdx, subs, removals) {
-  const safeSubs    = subs    || {};
+function renderMealCard(meal, dayIdx, mealIdx, subs, removals, edits) {
+  const safeSubs     = subs    || {};
   const safeRemovals = removals || {};
+  const safeEdits    = edits   || {};
   const isImperial = loadFormData()?.unit === 'imperial';
   return `
     <div class="meal-card ${meal.type}">
@@ -481,6 +512,7 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals) {
           const isRemoved = ing.isRemoved  === true;
           const subKey    = `${dayIdx}:${mealIdx}:${iIdx}`;
           const isSub     = !isAdded && !isRemoved && !!(safeSubs[subKey]);
+          const isEdited  = !isAdded && !isRemoved && !isSub && !!(safeEdits[subKey]);
           const ingName   = ing.label || (getFoodWithCustom(ing.food)?.name || ing.food) || '';
 
           // Ghost placeholder for removed plan ingredients (no-print: invisible in PDF)
@@ -498,21 +530,24 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals) {
               </li>`;
           }
 
-          const liClass = `ingredient${isSub ? ' ingredient-substituted' : ''}${isAdded ? ' ingredient-added' : ''}`;
+          const liClass = `ingredient${isSub ? ' ingredient-substituted' : ''}${isAdded ? ' ingredient-added' : ''}${isEdited ? ' ingredient-edited' : ''}`;
           return `
             <li class="${liClass}">
               <div class="ingredient-main">
                 <div class="ingredient-name">
                   ${escapeHtml(ingName)}
-                  ${isSub   ? '<span class="ing-badge-subst">Substituído</span>' : ''}
-                  ${isAdded ? '<span class="ing-badge-added">Adicionado</span>' : ''}
+                  ${isSub    ? '<span class="ing-badge-subst">Substituído</span>' : ''}
+                  ${isAdded  ? '<span class="ing-badge-added">Adicionado</span>' : ''}
+                  ${isEdited ? '<span class="ing-badge-edited">Editado</span>' : ''}
                 </div>
                 <div class="ingredient-qty">${isImperial && !ing.isAddition ? toImperialDisplay(ing.display) : ing.display}</div>
                 <div class="ingredient-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g C:${ing.macros.carb}g G:${ing.macros.fat}g</div>
                 ${isAdded && ing.micronutrients ? buildNutriDetailsHtml(ing.micronutrients, ing.grams) : ''}
-                ${isSub   ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
-                ${isAdded ? `<button type="button" class="ing-edit-btn no-print" data-edit-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Editar alimento adicionado">✎ Editar</button>` : ''}
-                ${isAdded ? `<button type="button" class="ing-remove-btn no-print" data-remove-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Remover alimento adicionado">✕ Remover</button>` : ''}
+                ${isSub    ? `<button type="button" class="ing-revert-btn no-print" data-revert data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter para original">${icons.refresh(11)} Reverter para original</button>` : ''}
+                ${isAdded  ? `<button type="button" class="ing-edit-btn no-print" data-edit-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Editar alimento adicionado">✎ Editar</button>` : ''}
+                ${isAdded  ? `<button type="button" class="ing-remove-btn no-print" data-remove-addition data-addition-id="${ing.additionId}" data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" aria-label="Remover alimento adicionado">✕ Remover</button>` : ''}
+                ${!isAdded && !isRemoved && !isSub ? `<button type="button" class="ing-edit-btn no-print" data-edit-ingredient data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Editar ${escapeHtml(ingName)}">✎ Editar</button>` : ''}
+                ${isEdited ? `<button type="button" class="ing-revert-edit-btn no-print" data-revert-edit data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Reverter edição">${icons.refresh(11)} Reverter edição</button>` : ''}
                 ${!isAdded ? `<button type="button" class="ing-remove-btn no-print" data-remove-ingredient data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" data-ing-label="${escapeHtml(ingName)}" aria-label="Remover ${escapeHtml(ingName)}">${icons.trash(12)} Remover</button>` : ''}
               </div>
               ${!isAdded ? `<button type="button" class="ingredient-sub-btn no-print" data-swap data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}" data-ing-idx="${iIdx}" aria-label="Substituir ${ing.label || ing.food}">${icons.swap(14)} Substituir</button>` : ''}
@@ -1303,6 +1338,195 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
       rebuildAndRender(mount);
     });
   }
+}
+
+/* ============================================================================ */
+/* Sprint F1 — Edit application                                                 */
+/* ============================================================================ */
+
+/**
+ * Aplica edições de quantidade a ingredientes originais do plano.
+ *
+ * Corre PRIMEIRO no pipeline (antes de applySubstitutions), de modo a que:
+ *  - substituições posteriores tenham precedência sobre edições;
+ *  - os índices de ingrediente (ingIdx) permaneçam estáveis.
+ *
+ * Storage: hg:edits keyed por "dayIdx:mealIdx:ingIdx" → { grams: number }.
+ * Macros recalculados via calcFoodMacros() — zero alteração a FOODS global.
+ *
+ * @param {object[]} plan   plano original (hg:plan)
+ * @param {object}   edits  { "d:m:i": { grams: number } }
+ */
+function applyEdits(plan, edits) {
+  if (!edits || Object.keys(edits).length === 0) return plan;
+
+  return plan.map((day, dayIdx) => {
+    let dayChanged = false;
+    const newMeals = day.meals.map((meal, mealIdx) => {
+      let mealChanged = false;
+      const newIngredients = meal.ingredients.map((ing, ingIdx) => {
+        const key  = `${dayIdx}:${mealIdx}:${ingIdx}`;
+        const edit = edits[key];
+        if (!edit) return ing;
+        mealChanged = true;
+        const newGrams = edit.grams;
+        // Recalculate macros from official food data when available
+        const macros = getFood(ing.food)
+          ? calcFoodMacros(ing.food, newGrams)
+          : (() => {
+              // Fallback: scale original macros proportionally
+              const f = newGrams / (ing.grams || 100);
+              return {
+                kcal: Math.round(ing.macros.kcal * f),
+                prot: Math.round(ing.macros.prot * f * 10) / 10,
+                carb: Math.round(ing.macros.carb * f * 10) / 10,
+                fat:  Math.round(ing.macros.fat  * f * 10) / 10,
+              };
+            })();
+        const display = getFood(ing.food) ? formatQty(ing.food, newGrams) : `${newGrams}g`;
+        return { ...ing, grams: newGrams, display, macros, isEdited: true };
+      });
+      if (!mealChanged) return meal;
+      dayChanged = true;
+
+      const totals = newIngredients
+        .filter(i => !i.isRemoved)
+        .reduce((acc, i) => ({
+          kcal: acc.kcal + i.macros.kcal,
+          prot: acc.prot + i.macros.prot,
+          carb: acc.carb + i.macros.carb,
+          fat:  acc.fat  + i.macros.fat,
+        }), { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+      return {
+        ...meal,
+        ingredients: newIngredients,
+        totals: {
+          kcal: Math.round(totals.kcal),
+          prot: Math.round(totals.prot * 10) / 10,
+          carb: Math.round(totals.carb * 10) / 10,
+          fat:  Math.round(totals.fat  * 10) / 10,
+        },
+      };
+    });
+    if (!dayChanged) return day;
+
+    const dayTotals = newMeals.reduce((acc, m) => ({
+      kcal: acc.kcal + m.totals.kcal,
+      prot: acc.prot + m.totals.prot,
+      carb: acc.carb + m.totals.carb,
+      fat:  acc.fat  + m.totals.fat,
+    }), { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+    return {
+      ...day,
+      meals: newMeals,
+      totals: {
+        kcal: Math.round(dayTotals.kcal),
+        prot: Math.round(dayTotals.prot),
+        carb: Math.round(dayTotals.carb),
+        fat:  Math.round(dayTotals.fat),
+      },
+    };
+  });
+}
+
+/**
+ * Sprint F1 — Abre modal para editar a quantidade de um ingrediente do plano.
+ *
+ * Mostra: nome (read-only), campo de gramas, preview live de macros.
+ * Guarda { grams } em hg:edits["dayIdx:mealIdx:ingIdx"].
+ * Reverter = delete da chave → rebuildAndRender().
+ */
+function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
+  const originalPlan = loadPlan();
+  if (!originalPlan) return;
+  const origIng = originalPlan[dayIdx]?.meals[mealIdx]?.ingredients[ingIdx];
+  if (!origIng) return;
+
+  const edits        = loadEdits();
+  const editKey      = `${dayIdx}:${mealIdx}:${ingIdx}`;
+  const existingEdit = edits[editKey];
+  const currentGrams = existingEdit ? existingEdit.grams : origIng.grams;
+  const origGrams    = origIng.grams;
+  const ingName      = origIng.label || getFood(origIng.food)?.name || origIng.food || '';
+
+  const origMacros = getFood(origIng.food)
+    ? calcFoodMacros(origIng.food, origGrams)
+    : origIng.macros;
+
+  const contentHtml = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Editar Quantidade</div>
+        <div class="modal-sub">Ajuste a quantidade deste ingrediente nesta refeição</div>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
+    </div>
+    <div class="modal-body">
+      <div class="sub-current" style="margin-bottom: 16px;">
+        <div class="sub-current-label">Ingrediente</div>
+        <div class="sub-current-name">${escapeHtml(ingName)}</div>
+        <div class="sub-current-macros">Original: ${origMacros.kcal} kcal · P:${origMacros.prot}g · C:${origMacros.carb}g · G:${origMacros.fat}g (${origGrams}g)</div>
+      </div>
+      <div class="add-food-grid">
+        <div class="add-food-field">
+          <label class="add-food-label" for="epi-grams">Quantidade (g)</label>
+          <input type="text" inputmode="decimal" autocomplete="off"
+                 id="epi-grams" class="add-food-input" value="${currentGrams}">
+        </div>
+      </div>
+      <div id="epi-preview" style="margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--surface-soft); border: 1px solid var(--border);">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-muted); margin-bottom: 6px;">Com esta quantidade</div>
+        <div id="epi-macros" class="sub-current-macros" style="font-size: 13px;"></div>
+      </div>
+      <div id="epi-error" style="display:none; color: #b91c1c; font-size: 13px; margin-top: 10px;"></div>
+      <div class="btn-row" style="margin-top: 20px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button type="button" class="btn btn-primary" id="epi-save">Guardar</button>
+      </div>
+    </div>
+  `;
+
+  const close = openModal(contentHtml);
+
+  const gramsInput = document.getElementById('epi-grams');
+  const macrosEl   = document.getElementById('epi-macros');
+  const errorEl    = document.getElementById('epi-error');
+
+  function updatePreview() {
+    const g = parseFloat(gramsInput.value);
+    if (!g || g <= 0 || isNaN(g)) { macrosEl.textContent = '—'; return; }
+    const m = getFood(origIng.food)
+      ? calcFoodMacros(origIng.food, g)
+      : (() => {
+          const f = g / (origGrams || 100);
+          return {
+            kcal: Math.round(origMacros.kcal * f),
+            prot: Math.round(origMacros.prot * f * 10) / 10,
+            carb: Math.round(origMacros.carb * f * 10) / 10,
+            fat:  Math.round(origMacros.fat  * f * 10) / 10,
+          };
+        })();
+    macrosEl.textContent = `${m.kcal} kcal · P:${m.prot}g · C:${m.carb}g · G:${m.fat}g (${Math.round(g)}g)`;
+  }
+
+  updatePreview();
+  gramsInput.addEventListener('input', updatePreview);
+
+  document.getElementById('epi-save').addEventListener('click', () => {
+    const g = parseFloat(gramsInput.value);
+    if (!g || g <= 0 || isNaN(g)) {
+      errorEl.textContent = 'Introduz uma quantidade válida (maior que zero).';
+      errorEl.style.display = 'block';
+      return;
+    }
+    const currentEdits = loadEdits();
+    currentEdits[editKey] = { grams: Math.round(g) };
+    saveEdits(currentEdits);
+    close();
+    rebuildAndRender(mount);
+  });
 }
 
 /* ============================================================================ */

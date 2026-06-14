@@ -29,6 +29,7 @@ export const K = {
   CUSTOM_FOODS:  `${PREFIX}custom_foods`,
   ADDITIONS:     `${PREFIX}additions`,
   REMOVALS:      `${PREFIX}removals`,
+  EDITS:         `${PREFIX}edits`,
   COOKIES: `${PREFIX}cookies`,
 
   // sessionStorage (progresso de sessão)
@@ -128,6 +129,10 @@ export function loadAdditions()       { return local.get(K.ADDITIONS) || {}; }
 
 export function saveRemovals(data)    { local.set(K.REMOVALS, data); }
 export function loadRemovals()        { return local.get(K.REMOVALS) || {}; }
+
+/** Sprint F1 — edições de quantidade por instância de ingrediente do plano. */
+export function saveEdits(data)       { local.set(K.EDITS, data); }
+export function loadEdits()           { return local.get(K.EDITS) || {}; }
 
 /**
  * Reset completo (Editar / Reiniciar).

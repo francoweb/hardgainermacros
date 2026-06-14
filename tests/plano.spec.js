@@ -5766,3 +5766,273 @@ test.describe('Adicionar alimento da biblioteca (Sprint E2-A)', () => {
 
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Sprint F1 — Editar quantidade de ingrediente do plano
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Helper: abre modal de edição do 1º ingrediente original da 1ª refeição do Dia 1. */
+async function openFirstEditModal(page) {
+  await page.locator('[data-edit-ingredient][data-day-idx="0"][data-meal-idx="0"]').first().click();
+  await page.waitForSelector('#epi-grams', { timeout: 5000 });
+}
+
+test.describe('Editar quantidade de ingrediente do plano (Sprint F1)', () => {
+
+  // ── C-EDIT-1 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-1 — Botão Editar aparece em ingredientes originais do plano', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const editBtns = page.locator('[data-edit-ingredient]');
+    const count    = await editBtns.count();
+    expect(count).toBeGreaterThan(0);
+    await expect(editBtns.first()).toBeVisible();
+
+    // Botão não aparece em alimentos adicionados (those use data-edit-addition)
+    const addEditBtns = page.locator('[data-edit-addition]');
+    expect(await addEditBtns.count()).toBe(0); // nenhum alimento adicionado ainda
+  });
+
+  // ── C-EDIT-2 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-2 — Clicar Editar abre modal com nome e gramas pré-preenchidos', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstEditModal(page);
+
+    await expect(page.locator('.modal-title').first()).toHaveText(/Editar Quantidade/i);
+    await expect(page.locator('#epi-grams')).toBeVisible();
+    // Campo deve ter valor numérico (gramas originais)
+    const val = parseFloat(await page.locator('#epi-grams').inputValue());
+    expect(val).toBeGreaterThan(0);
+    // Nome do ingrediente visível (read-only)
+    await expect(page.locator('.sub-current-name').first()).toBeVisible();
+    // Preview de macros calculado
+    await expect(page.locator('#epi-macros')).toContainText('kcal');
+  });
+
+  // ── C-EDIT-3 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-3 — Alterar gramas recalcula macros no preview ao vivo', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstEditModal(page);
+
+    const before = await page.locator('#epi-macros').textContent() || '';
+    await page.locator('#epi-grams').fill('200');
+    await page.waitForTimeout(100);
+    const after = await page.locator('#epi-macros').textContent() || '';
+    expect(before).not.toBe(after);
+    expect(after).toMatch(/kcal/i);
+  });
+
+  // ── C-EDIT-4 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-4 — Guardar edição mostra badge EDITADO', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const beforeBadges = await page.locator('#day-body-0 .meal-card').first().locator('.ing-badge-edited').count();
+    expect(beforeBadges).toBe(0);
+
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const afterBadges = await page.locator('#day-body-0 .meal-card').first().locator('.ing-badge-edited').count();
+    expect(afterBadges).toBeGreaterThan(0);
+  });
+
+  // ── C-EDIT-5 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-5 — Totais da refeição atualizam após edição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('1');  // quase zero gramas → macros caem
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const after = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(after.kcal).not.toBe(before.kcal);
+  });
+
+  // ── C-EDIT-6 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-6 — Totais do dia atualizam após edição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = await getDayTotals(page, 0);
+
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('1');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const after = await getDayTotals(page, 0);
+    expect(after.kcal).not.toBe(before.kcal);
+  });
+
+  // ── C-EDIT-7 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-7 — Resumo do dia (Com alterações/Original/Diferença) aparece', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const comp = page.locator('[data-testid="day-comp-block"]').first();
+    await expect(comp).toBeVisible();
+    await expect(comp.locator('[data-testid="day-current-totals"]')).toBeVisible();
+    await expect(comp.locator('[data-testid="day-original-totals"]')).toBeVisible();
+    await expect(comp.locator('[data-testid="day-delta-totals"]')).toBeVisible();
+  });
+
+  // ── C-EDIT-8 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-8 — PDF/print usa os valores editados', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // PDF antes da edição
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const totalsBefore = await page.locator('#day-pdf-print-area .tot-val').first().textContent() || '';
+
+    // Editar: 1g → kcal caem drasticamente
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('1');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // PDF depois da edição
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const totalsAfter = await page.locator('#day-pdf-print-area .tot-val').first().textContent() || '';
+
+    expect(totalsAfter).not.toBe(totalsBefore);
+  });
+
+  // ── C-EDIT-9 ──────────────────────────────────────────────────────────────
+  test('C-EDIT-9 — Reverter edição: valores voltam exatamente ao original', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayOriginal = await getDayTotals(page, 0);
+
+    // Editar
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Reverter
+    const revertBtn = page.locator('[data-revert-edit]').first();
+    await expect(revertBtn).toBeVisible();
+    await revertBtn.click();
+    await page.waitForTimeout(400);
+
+    // Badge EDITADO desapareceu
+    const badges = await page.locator('#day-body-0 .ing-badge-edited').count();
+    expect(badges).toBe(0);
+
+    // Totais voltaram ao original
+    const dayReverted = await getDayTotals(page, 0);
+    expect(Math.abs(dayReverted.kcal - dayOriginal.kcal)).toBeLessThanOrEqual(2);
+  });
+
+  // ── C-EDIT-10 ─────────────────────────────────────────────────────────────
+  test('C-EDIT-10 — Remover alimento editado continua funcionando', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Editar
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const dayAfterEdit = await getDayTotals(page, 0);
+
+    // Remover o ingrediente editado
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    const removeBtn = firstMeal.locator('[data-remove-ingredient]').first();
+    await removeBtn.click();
+    await page.waitForTimeout(400);
+
+    // Linha ghost aparece
+    const ghost = firstMeal.locator('.ingredient-removed').first();
+    await expect(ghost).toBeVisible();
+
+    // Totais diminuíram
+    const dayAfterRemove = await getDayTotals(page, 0);
+    expect(dayAfterRemove.kcal).toBeLessThan(dayAfterEdit.kcal);
+  });
+
+  // ── C-EDIT-11 ─────────────────────────────────────────────────────────────
+  test('C-EDIT-11 — Substituições continuam funcionando com edições activas', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Editar 1º ingrediente
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Substituir 2º ingrediente (diferente) usando a função helper existente
+    const swapBtn = page.locator('#day-body-0 .meal-card').first().locator('[data-swap]').nth(1);
+    if (await swapBtn.count() > 0) {
+      await swapBtn.click();
+      await page.waitForSelector('.modal-backdrop.show', { timeout: 5000 });
+      // Seleccionar apenas sub-options dentro de details[open] (visíveis)
+      const visibleOpt = page.locator('.sub-cat-group[open] .sub-option').first();
+      if (await visibleOpt.count() > 0) {
+        await visibleOpt.click();
+        await page.waitForTimeout(400);
+        const subBadge = page.locator('#day-body-0 .meal-card').first().locator('.ing-badge-subst');
+        await expect(subBadge.first()).toBeVisible();
+      }
+    }
+    // Badge editado mantém-se
+    await expect(page.locator('#day-body-0 .ing-badge-edited').first()).toBeVisible();
+  });
+
+  // ── C-EDIT-12 ─────────────────────────────────────────────────────────────
+  test('C-EDIT-12 — Mobile 390px: Editar funciona sem overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await expect(page.locator('[data-edit-ingredient]').first()).toBeVisible();
+
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW, 'Mobile: sem overflow').toBeLessThanOrEqual(395);
+
+    // Abrir modal e guardar no mobile
+    await openFirstEditModal(page);
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+    await expect(page.locator('.ing-badge-edited').first()).toBeVisible();
+  });
+
+});
+
