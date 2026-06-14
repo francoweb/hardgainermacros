@@ -137,7 +137,7 @@ test.describe('Paridade Mobile / Desktop', () => {
   });
 
   // ── C-MOBILE-PARITY8 ─────────────────────────────────────────────────────
-  test('C-MOBILE-PARITY8 — Modal "+ Adicionar alimento" no mobile: accordion e scroll', async ({ page }) => {
+  test('C-MOBILE-PARITY8 — Modal "+ Criar Alimento" no mobile: accordion e scroll', async ({ page }) => {
     await page.setViewportSize(MOBILE_390);
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
@@ -333,7 +333,7 @@ test.describe('UX Mobile — Plano Alimentar 14 Dias', () => {
   });
 
   // ── C-MOBILE-PLAN-UX9 ────────────────────────────────────────────────────
-  test('C-MOBILE-PLAN-UX9 — Mobile 390px: + Adicionar alimento funciona', async ({ page }) => {
+  test('C-MOBILE-PLAN-UX9 — Mobile 390px: + Criar Alimento funciona', async ({ page }) => {
     await gotoPlanoMobile(page, C4);
     await page.locator('[data-add-food]').first().click();
     await expect(page.locator('#add-food-form')).toBeVisible();

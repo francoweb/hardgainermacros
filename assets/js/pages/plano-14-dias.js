@@ -514,8 +514,8 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals) {
       <div class="ing-add-row no-print">
         <button type="button" class="ing-add-btn" data-add-food data-testid="add-food-button"
                 data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}"
-                aria-label="Adicionar alimento extra à refeição ${mealIdx + 1}">
-          + Adicionar alimento
+                aria-label="Criar alimento personalizado para a refeição ${mealIdx + 1}">
+          + Criar Alimento
         </button>
       </div>
 
@@ -1674,7 +1674,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
   const contentHtml = `
     <div class="modal-head">
       <div>
-        <div class="modal-title">Adicionar alimento</div>
+        <div class="modal-title">Criar Alimento</div>
         <div class="modal-sub">Cria um alimento personalizado e adiciona-o à refeição</div>
         <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará guardado apenas neste navegador.</p>
       </div>

@@ -1572,7 +1572,7 @@ test.describe('Validação Matemática das Substituições', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helpers — "+ Adicionar alimento"
+// Helpers — "+ Criar Alimento"
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Injeta alimentos personalizados no localStorage antes de navegar. */
@@ -1598,27 +1598,27 @@ async function fillAddFoodForm(page, { name, category, qty, unit, kcal, prot, ca
 const TEST_FOOD = { name: 'Skyr Test', category: 'dairy', qty: 150, unit: 'g', kcal: 120, prot: 18, carb: 8, fat: 1 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Grupo: "+ Adicionar alimento"
+// Grupo: "+ Criar Alimento"
 // ─────────────────────────────────────────────────────────────────────────────
 
-test.describe('Adicionar alimento personalizado', () => {
+test.describe('Criar alimento personalizado', () => {
 
   // ── C-ADD1 ───────────────────────────────────────────────────────────────
-  test('C-ADD1 — Botão "+ Adicionar alimento" aparece por refeição (não por ingrediente)', async ({ page }) => {
+  test('C-ADD1 — Botão "+ Criar Alimento" aparece por refeição (não por ingrediente)', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
 
     // O Dia 1 está aberto por defeito com 6 refeições.
-    // Deve haver 6 botões "+ Adicionar alimento" — um por refeição.
+    // Deve haver 6 botões "+ Criar Alimento" — um por refeição.
     const addBtns  = page.locator('[data-add-food]');
     const swapBtns = page.locator('[data-swap]');
     const addCount  = await addBtns.count();
     const swapCount = await swapBtns.count();
 
-    // add < swap: há MUITOS Substituir (um por ingrediente) mas POUCOS Adicionar (um por refeição)
-    expect(addCount,  'Deve existir pelo menos 6 botões + Adicionar (1 por refeição)').toBeGreaterThanOrEqual(6);
-    expect(swapCount, 'Deve existir muito mais Substituir do que Adicionar').toBeGreaterThan(addCount);
+    // add < swap: há MUITOS Substituir (um por ingrediente) mas POUCOS Criar Alimento (um por refeição)
+    expect(addCount,  'Deve existir pelo menos 6 botões + Criar Alimento (1 por refeição)').toBeGreaterThanOrEqual(6);
+    expect(swapCount, 'Deve existir muito mais Substituir do que Criar Alimento').toBeGreaterThan(addCount);
 
     // Botão + Adicionar é visível com dimensões reais
     await expect(addBtns.first()).toBeVisible();
@@ -1629,7 +1629,7 @@ test.describe('Adicionar alimento personalizado', () => {
 
     // Texto correcto
     const txt = (await addBtns.first().textContent() || '').trim();
-    expect(txt).toMatch(/Adicionar/i);
+    expect(txt).toMatch(/Criar/i);
 
     // O botão está dentro de .ing-add-row (posição no meal-card)
     const addRow = page.locator('.ing-add-row').first();
@@ -1639,11 +1639,11 @@ test.describe('Adicionar alimento personalizado', () => {
     // O botão Substituir por alimento continua intacto
     await expect(swapBtns.first()).toBeVisible();
 
-    console.log(`C-ADD1: Substituir visíveis=${swapCount}, + Adicionar visíveis=${addCount} (1 por refeição)`);
+    console.log(`C-ADD1: Substituir visíveis=${swapCount}, + Criar Alimento visíveis=${addCount} (1 por refeição)`);
   });
 
   // ── C-ADD2 ───────────────────────────────────────────────────────────────
-  test('C-ADD2 — Clicar em "+ Adicionar alimento" abre modal com formulário', async ({ page }) => {
+  test('C-ADD2 — Clicar em "+ Criar Alimento" abre modal com formulário', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
@@ -1657,7 +1657,7 @@ test.describe('Adicionar alimento personalizado', () => {
   });
 
   // ── C-ADD3 ───────────────────────────────────────────────────────────────
-  test('C-ADD3 — Validação: campos obrigatórios mostram erro ao submeter vazio', async ({ page }) => {
+  test('C-ADD3 — Validação: campos obrigatórios de Criar Alimento mostram erro ao submeter vazio', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
@@ -1907,7 +1907,7 @@ test.describe('Adicionar alimento personalizado', () => {
   });
 
   // ── C-ADD14 ──────────────────────────────────────────────────────────────
-  test('C-ADD14 — Layout: botões Substituir e "Adicionar" visíveis sem sobreposição', async ({ page }) => {
+  test('C-ADD14 — Layout: botões Substituir e "Criar Alimento" visíveis sem sobreposição', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
@@ -1918,7 +1918,7 @@ test.describe('Adicionar alimento personalizado', () => {
 
     // Botão add deve ter texto legível
     const addTxt = await page.locator('[data-add-food]').first().textContent() || '';
-    expect(addTxt.trim()).toMatch(/Adicionar/i);
+    expect(addTxt.trim()).toMatch(/Criar/i);
 
     // Botão sub deve ter texto legível
     const subTxt = await page.locator('[data-swap]').first().textContent() || '';
@@ -2362,7 +2362,7 @@ test.describe('Cancelar em todos os modais', () => {
   });
 
   // ── C-CANCEL2 ────────────────────────────────────────────────────────────
-  test('C-CANCEL2 — Cancelar no modal Adicionar: fecha sem adicionar alimento', async ({ page }) => {
+  test('C-CANCEL2 — Cancelar no modal Criar Alimento: fecha sem adicionar alimento', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
@@ -2538,7 +2538,7 @@ test.describe('Aviso de dados locais', () => {
   });
 
   // ── C-LOCALDATA2 ──────────────────────────────────────────────────────────
-  test('C-LOCALDATA2 — Modal Adicionar alimento mostra nota "guardado apenas neste navegador"', async ({ page }) => {
+  test('C-LOCALDATA2 — Modal Criar Alimento mostra nota "guardado apenas neste navegador"', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
@@ -5462,7 +5462,7 @@ test.describe('C-REMOVE — Sprint D1: remoção e restauração de ingredientes
   });
 
   // ── C-REMOVE-9 ───────────────────────────────────────────────────────────────
-  test('C-REMOVE-9 — + Adicionar alimento continua funcionando após remoção', async ({ page }) => {
+  test('C-REMOVE-9 — + Criar Alimento continua funcionando após remoção', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
