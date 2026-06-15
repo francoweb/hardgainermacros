@@ -122,6 +122,9 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
         </div>
       </details>
 
+      <!-- F2-B: UX copy — plano como base prática, valores como referências -->
+      <p class="no-print" style="margin:0 0 14px;padding:9px 14px;border-radius:8px;background:#f0f7fa;border:1px solid #c5dde8;font-size:12.5px;color:#3a5a66;line-height:1.6;box-sizing:border-box;">Este plano foi gerado automaticamente como uma base prática para seguir. Os valores nutricionais são referências gerais e podem variar por marca, rótulo e preparação. Se quiser mais precisão, use <strong>"Editar"</strong> para ajustar ao alimento que você realmente usa.</p>
+
       <!-- Aviso: dados locais -->
       <div class="local-data-notice no-print" data-testid="local-data-notice">
         <span class="local-data-notice-icon">🔒</span>
@@ -1495,11 +1498,14 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
     </div>
     <div class="modal-body">
-      <div class="sub-current" style="margin-bottom: 16px;">
+      <div class="sub-current" style="margin-bottom: 12px;">
         <div class="sub-current-label">Ingrediente</div>
         <div class="sub-current-name">${escapeHtml(ingName)}</div>
         <div class="sub-current-macros">Original: ${origMacros.kcal} kcal · P:${origMacros.prot}g · C:${origMacros.carb}g · G:${origMacros.fat}g (${origGrams}g)</div>
       </div>
+
+      <!-- F2-B: UX copy — hint sobre valores -->
+      <p style="margin:0 0 14px;font-size:12px;color:var(--ink-muted);line-height:1.5;">Pode manter os valores sugeridos pela app ou ajustar conforme o rótulo do seu alimento.</p>
 
       <div class="add-food-grid">
         <div class="add-food-field">
