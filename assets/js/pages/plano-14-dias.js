@@ -1345,6 +1345,24 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
 /* ============================================================================ */
 
 /**
+ * Remove quantidade numérica inicial do label de um ingrediente.
+ * Usado apenas para display quando o ingrediente está EDITADO,
+ * evitando contradição entre o nome ("2 ovos") e a porção editada ("6 ovos").
+ *
+ * "2 ovos mexidos"  → "Ovos mexidos"
+ * "3 claras de ovo" → "Claras de ovo"
+ * "1 ovo inteiro"   → "Ovo inteiro"
+ * "Pão branco"      → "Pão branco"   (inalterado — não começa com número)
+ * "Banana madura"   → "Banana madura" (inalterado)
+ */
+function stripLeadingQty(label) {
+  if (!label) return label;
+  const stripped = label.replace(/^\d+(?:[.,]\d+)?\s+/, '');
+  if (stripped === label) return label;          // sem número inicial — não muda
+  return stripped.charAt(0).toUpperCase() + stripped.slice(1);
+}
+
+/**
  * Aplica edições de quantidade a ingredientes originais do plano.
  *
  * Corre PRIMEIRO no pipeline (antes de applySubstitutions), de modo a que:
@@ -1384,7 +1402,10 @@ function applyEdits(plan, edits) {
               };
             })();
         const display = getFood(ing.food) ? formatQty(ing.food, newGrams) : `${newGrams}g`;
-        return { ...ing, grams: newGrams, display, macros, isEdited: true };
+        // Limpar quantidade numérica inicial do label para evitar contradição visual.
+        // "2 ovos mexidos" editado para 300g → "Ovos mexidos" (porção: "6 ovos (300g)").
+        const label   = stripLeadingQty(ing.label) || ing.label;
+        return { ...ing, grams: newGrams, display, macros, isEdited: true, label };
       });
       if (!mealChanged) return meal;
       dayChanged = true;

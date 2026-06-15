@@ -6036,3 +6036,157 @@ test.describe('Editar quantidade de ingrediente do plano (Sprint F1)', () => {
 
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Sprint F1 Hotfix — Label com quantidade numérica inicial limpo após edição
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Editar ingrediente — limpeza de label numérico (Sprint F1 Hotfix)', () => {
+
+  // ── C-EDIT-HOT-1 ──────────────────────────────────────────────────────────
+  test('C-EDIT-HOT-1 — Label com número inicial: nome limpo após edição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    const allIngs   = firstMeal.locator('.ingredient:not(.ingredient-removed)');
+    const ingCount  = await allIngs.count();
+
+    // Encontrar ingrediente cujo nome começa com número
+    let targetIdx = -1;
+    let originalName = '';
+    for (let i = 0; i < ingCount; i++) {
+      const nm = (await allIngs.nth(i).locator('.ingredient-name').first().textContent() || '').trim();
+      if (/^\d/.test(nm)) { targetIdx = i; originalName = nm; break; }
+    }
+    // Cenário tem ovos — deve haver pelo menos 1 nome com número
+    expect(targetIdx, 'Deve existir pelo menos 1 ingrediente com número no nome').toBeGreaterThanOrEqual(0);
+
+    // Editar esse ingrediente
+    await allIngs.nth(targetIdx).locator('[data-edit-ingredient]').click();
+    await page.waitForSelector('#epi-grams', { timeout: 5000 });
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Nome exibido não deve começar com dígito
+    const editedName = (await allIngs.nth(targetIdx).locator('.ingredient-name').first().textContent() || '')
+      .replace('Editado', '').replace('EDITADO', '').trim();
+    expect(editedName, 'Nome após edição não deve começar com número').not.toMatch(/^\d/);
+
+    // O nome deve ainda conter a palavra principal (ex: "ovos")
+    const keyWord = originalName.split(/\s+/).find(w => w.length > 2 && !/^\d/.test(w)) || '';
+    if (keyWord) {
+      expect(editedName.toLowerCase()).toContain(keyWord.toLowerCase());
+    }
+  });
+
+  // ── C-EDIT-HOT-2 ──────────────────────────────────────────────────────────
+  test('C-EDIT-HOT-2 — Reverter edição: nome original com número é restaurado', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    const allIngs   = firstMeal.locator('.ingredient:not(.ingredient-removed)');
+
+    // Encontrar e editar ingrediente com número no nome
+    let targetIdx = -1;
+    let originalName = '';
+    for (let i = 0; i < await allIngs.count(); i++) {
+      const nm = (await allIngs.nth(i).locator('.ingredient-name').first().textContent() || '').trim();
+      if (/^\d/.test(nm)) { targetIdx = i; originalName = nm; break; }
+    }
+    if (targetIdx === -1) return; // nenhum disponível — skip
+
+    await allIngs.nth(targetIdx).locator('[data-edit-ingredient]').click();
+    await page.waitForSelector('#epi-grams', { timeout: 5000 });
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Reverter
+    const revertBtn = allIngs.nth(targetIdx).locator('[data-revert-edit]');
+    await expect(revertBtn).toBeVisible();
+    await revertBtn.click();
+    await page.waitForTimeout(400);
+
+    // Nome deve voltar exactamente ao original (com número)
+    const revertedName = (await allIngs.nth(targetIdx).locator('.ingredient-name').first().textContent() || '').trim();
+    expect(revertedName).toBe(originalName);
+  });
+
+  // ── C-EDIT-HOT-3 ──────────────────────────────────────────────────────────
+  test('C-EDIT-HOT-3 — Nomes sem número inicial não mudam após edição', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    const allIngs   = firstMeal.locator('.ingredient:not(.ingredient-removed)');
+
+    // Encontrar ingrediente cujo nome NÃO começa com número
+    let targetIdx = -1;
+    let originalName = '';
+    for (let i = 0; i < await allIngs.count(); i++) {
+      const nm = (await allIngs.nth(i).locator('.ingredient-name').first().textContent() || '').trim();
+      if (!/^\d/.test(nm) && nm.length > 3) { targetIdx = i; originalName = nm; break; }
+    }
+    if (targetIdx === -1) return; // todos começam com número — improvável
+
+    await allIngs.nth(targetIdx).locator('[data-edit-ingredient]').click();
+    await page.waitForSelector('#epi-grams', { timeout: 5000 });
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Nome sem número inicial deve permanecer igual
+    const editedName = (await allIngs.nth(targetIdx).locator('.ingredient-name').first().textContent() || '')
+      .replace('Editado', '').replace('EDITADO', '').trim();
+    expect(editedName).toBe(originalName);
+  });
+
+  // ── C-EDIT-HOT-4 ──────────────────────────────────────────────────────────
+  test('C-EDIT-HOT-4 — PDF usa nome limpo para ingrediente editado', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    const allIngs   = firstMeal.locator('.ingredient:not(.ingredient-removed)');
+
+    // Encontrar e editar ingrediente com número no nome
+    let targetIdx = -1;
+    let originalName = '';
+    for (let i = 0; i < await allIngs.count(); i++) {
+      const nm = (await allIngs.nth(i).locator('.ingredient-name').first().textContent() || '').trim();
+      if (/^\d/.test(nm)) { targetIdx = i; originalName = nm; break; }
+    }
+    if (targetIdx === -1) return;
+
+    await allIngs.nth(targetIdx).locator('[data-edit-ingredient]').click();
+    await page.waitForSelector('#epi-grams', { timeout: 5000 });
+    await page.locator('#epi-grams').fill('200');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Capturar nome limpo da tela
+    const screenName = (await allIngs.nth(targetIdx).locator('.ingredient-name').first().textContent() || '')
+      .replace('Editado', '').replace('EDITADO', '').trim();
+
+    // Verificar PDF
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const pdfNames = await page.locator('#day-pdf-print-area .ing-name').allTextContents();
+    // Nome limpo (sem número) deve aparecer no PDF
+    const pdfHasCleanName = pdfNames.some(n => n.includes(screenName));
+    expect(pdfHasCleanName, 'PDF deve mostrar nome limpo: "' + screenName + '"').toBe(true);
+    // Nome original COM número NÃO deve aparecer no PDF (para este ingrediente)
+    const pdfHasOriginalName = pdfNames.some(n => n === originalName);
+    expect(pdfHasOriginalName, 'PDF não deve mostrar nome original com número: "' + originalName + '"').toBe(false);
+  });
+
+});
+
