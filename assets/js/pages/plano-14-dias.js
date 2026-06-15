@@ -123,7 +123,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
       </details>
 
       <!-- F2-B: UX copy — plano como base prática, valores como referências -->
-      <p class="no-print" style="margin:0 0 14px;padding:9px 14px;border-radius:8px;background:#f0f7fa;border:1px solid #c5dde8;font-size:12.5px;color:#3a5a66;line-height:1.6;box-sizing:border-box;">Este plano foi gerado automaticamente como uma base prática para seguir. Os valores nutricionais são referências gerais e podem variar por marca, rótulo e preparação. Se quiser mais precisão, use <strong>"Editar"</strong> para ajustar ao alimento que você realmente usa.</p>
+      <p class="no-print" style="margin:0 0 14px;padding:9px 14px;border-radius:8px;background:#f0f7fa;border:1px solid #c5dde8;font-size:12.5px;color:#3a5a66;line-height:1.6;box-sizing:border-box;">Você pode seguir este plano como uma base prática para o seu objetivo. O que mais importa é repetir o plano com consistência todos os dias. Os valores nutricionais são referências gerais e podem variar por marca, rótulo e preparo. Se quiser mais precisão, use <strong>"Editar"</strong>.</p>
 
       <!-- Aviso: dados locais -->
       <div class="local-data-notice no-print" data-testid="local-data-notice">
