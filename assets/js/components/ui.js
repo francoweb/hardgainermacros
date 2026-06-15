@@ -138,8 +138,8 @@ export function mountCookieBanner() {
   const html = `
     <div class="cookie show" id="cookie-banner" role="dialog" aria-label="Preferências de cookies">
       <p>
-        Usamos armazenamento local para guardar o seu progresso nesta calculadora
-        e funcionar corretamente. Não partilhamos os seus dados.
+        Usamos armazenamento local para salvar seu progresso nesta calculadora
+        e funcionar corretamente. Não compartilhamos seus dados.
         <a href="/politica-de-privacidade" data-route>Saber mais</a>.
       </p>
       <div class="cookie-row">

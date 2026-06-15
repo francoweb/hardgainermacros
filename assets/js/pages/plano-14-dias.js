@@ -128,7 +128,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
       <!-- Aviso: dados locais -->
       <div class="local-data-notice no-print" data-testid="local-data-notice">
         <span class="local-data-notice-icon">🔒</span>
-        <span>Os seus alimentos personalizados ficam guardados apenas neste navegador. Se limpar a cache, trocar de dispositivo ou clicar em Resetar, estes dados podem ser apagados.</span>
+        <span>Seus alimentos personalizados ficam salvos apenas neste navegador. Se limpar o cache, trocar de dispositivo ou clicar em Resetar, esses dados podem ser perdidos.</span>
       </div>
 
       <!-- Days -->
@@ -2044,7 +2044,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
           <div class="add-food-field add-food-field-full">
             <label class="add-food-label" for="aff-name">Nome do alimento *</label>
             <input type="text" id="aff-name" class="add-food-input"
-                   placeholder="Ex: Skyr proteico Lidl" maxlength="80">
+                   placeholder="Ex: Iogurte proteico natural" maxlength="80">
           </div>
           <div class="add-food-field">
             <label class="add-food-label" for="aff-category">Categoria *</label>
@@ -2343,7 +2343,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
     <div class="modal-head">
       <div>
         <div class="modal-title">Editar alimento adicionado</div>
-        <div class="modal-sub">Os dados desta refeição serão actualizados</div>
+        <div class="modal-sub">Os dados desta refeição serão atualizados</div>
         <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará guardado apenas neste navegador.</p>
       </div>
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
@@ -2670,7 +2670,7 @@ function buildOptionalNutriSections(prefix, vals = {}) {
         <div class="add-food-optional-group-label">Notas</div>
         <div class="add-food-field add-food-field-full">
           <input type="text" id="${prefix}-notes" class="add-food-input"
-                 ${notesVal ? `value="${notesVal}"` : 'placeholder="Ex: Rótulo do produto"'}
+                 ${notesVal ? `value="${notesVal}"` : 'placeholder="Ex: Fonte dos dados ou observações"'}
                  maxlength="200">
         </div>
       </div>
