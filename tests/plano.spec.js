@@ -5802,15 +5802,16 @@ test.describe('Editar quantidade de ingrediente do plano (Sprint F1)', () => {
 
     await openFirstEditModal(page);
 
-    await expect(page.locator('.modal-title').first()).toHaveText(/Editar Quantidade/i);
+    await expect(page.locator('.modal-title').first()).toHaveText(/Editar Ingrediente/i);
     await expect(page.locator('#epi-grams')).toBeVisible();
     // Campo deve ter valor numérico (gramas originais)
     const val = parseFloat(await page.locator('#epi-grams').inputValue());
     expect(val).toBeGreaterThan(0);
     // Nome do ingrediente visível (read-only)
     await expect(page.locator('.sub-current-name').first()).toBeVisible();
-    // Preview de macros calculado
-    await expect(page.locator('#epi-macros')).toContainText('kcal');
+    // Campos de macro pré-preenchidos (F2-A: substituem o preview de texto)
+    const kcalVal = parseFloat(await page.locator('#epi-kcal').inputValue());
+    expect(kcalVal).toBeGreaterThan(0);
   });
 
   // ── C-EDIT-3 ──────────────────────────────────────────────────────────────
@@ -5821,12 +5822,13 @@ test.describe('Editar quantidade de ingrediente do plano (Sprint F1)', () => {
 
     await openFirstEditModal(page);
 
-    const before = await page.locator('#epi-macros').textContent() || '';
+    // F2-A: os campos de macro são o preview — verificar que kcal muda ao alterar gramas
+    const kcalBefore = parseFloat(await page.locator('#epi-kcal').inputValue() || '0');
     await page.locator('#epi-grams').fill('200');
     await page.waitForTimeout(100);
-    const after = await page.locator('#epi-macros').textContent() || '';
-    expect(before).not.toBe(after);
-    expect(after).toMatch(/kcal/i);
+    const kcalAfter = parseFloat(await page.locator('#epi-kcal').inputValue() || '0');
+    expect(kcalAfter).not.toBeCloseTo(kcalBefore);
+    expect(kcalAfter).toBeGreaterThan(0);
   });
 
   // ── C-EDIT-4 ──────────────────────────────────────────────────────────────
@@ -6186,6 +6188,303 @@ test.describe('Editar ingrediente — limpeza de label numérico (Sprint F1 Hotf
     // Nome original COM número NÃO deve aparecer no PDF (para este ingrediente)
     const pdfHasOriginalName = pdfNames.some(n => n === originalName);
     expect(pdfHasOriginalName, 'PDF não deve mostrar nome original com número: "' + originalName + '"').toBe(false);
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sprint F2-A — Edição manual de macros
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Helper: abre modal do 1º ingrediente original da 1ª refeição e retorna os valores. */
+async function openFirstIngModal(page) {
+  await page.locator('[data-edit-ingredient][data-day-idx="0"][data-meal-idx="0"]').first().click();
+  await page.waitForSelector('#epi-kcal', { timeout: 5000 });
+}
+
+test.describe('Editar macros manualmente (Sprint F2-A)', () => {
+
+  // ── C-F2A-1 ───────────────────────────────────────────────────────────────
+  test('C-F2A-1 — Modal Editar mostra campos kcal/P/C/G editáveis', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstIngModal(page);
+
+    await expect(page.locator('#epi-kcal')).toBeVisible();
+    await expect(page.locator('#epi-prot')).toBeVisible();
+    await expect(page.locator('#epi-carb')).toBeVisible();
+    await expect(page.locator('#epi-fat')).toBeVisible();
+    await expect(page.locator('#epi-grams')).toBeVisible();
+
+    // Campos pré-preenchidos com valores numéricos
+    const kcal = parseFloat(await page.locator('#epi-kcal').inputValue());
+    expect(kcal).toBeGreaterThan(0);
+  });
+
+  // ── C-F2A-2 ───────────────────────────────────────────────────────────────
+  test('C-F2A-2 — Alterar gramas recalcula campos de macro automaticamente', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstIngModal(page);
+
+    const kcalBefore = parseFloat(await page.locator('#epi-kcal').inputValue());
+    await page.locator('#epi-grams').fill('200');
+    await page.waitForTimeout(100);
+    const kcalAfter = parseFloat(await page.locator('#epi-kcal').inputValue());
+
+    expect(kcalAfter).not.toBeCloseTo(kcalBefore);  // recalculado
+    expect(kcalAfter).toBeGreaterThan(0);
+  });
+
+  // ── C-F2A-3 ───────────────────────────────────────────────────────────────
+  test('C-F2A-3 — Editar macros manualmente: valores guardados como override', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstIngModal(page);
+    await page.locator('#epi-kcal').fill('999');
+    await page.locator('#epi-prot').fill('88');
+    await page.locator('#epi-carb').fill('11');
+    await page.locator('#epi-fat').fill('2');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Macros da refeição devem incluir os valores manuais
+    const mealMacros = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(mealMacros.kcal).toBeGreaterThan(900); // deve incluir os 999 kcal
+  });
+
+  // ── C-F2A-4 ───────────────────────────────────────────────────────────────
+  test('C-F2A-4 — Totais da refeição usam macros manuais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    await openFirstIngModal(page);
+    await page.locator('#epi-kcal').fill('1');  // quase zero
+    await page.locator('#epi-prot').fill('0.1');
+    await page.locator('#epi-carb').fill('0.1');
+    await page.locator('#epi-fat').fill('0.1');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const after = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(after.kcal).toBeLessThan(before.kcal);
+  });
+
+  // ── C-F2A-5 ───────────────────────────────────────────────────────────────
+  test('C-F2A-5 — Totais do dia usam macros manuais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayBefore = await getDayTotals(page, 0);
+
+    await openFirstIngModal(page);
+    await page.locator('#epi-kcal').fill('1');
+    await page.locator('#epi-prot').fill('0.1');
+    await page.locator('#epi-carb').fill('0.1');
+    await page.locator('#epi-fat').fill('0.1');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const dayAfter = await getDayTotals(page, 0);
+    expect(dayAfter.kcal).toBeLessThan(dayBefore.kcal);
+  });
+
+  // ── C-F2A-6 ───────────────────────────────────────────────────────────────
+  test('C-F2A-6 — Resumo do dia aparece após edição manual de macros', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstIngModal(page);
+    await page.locator('#epi-kcal').fill('999');
+    await page.locator('#epi-prot').fill('50');
+    await page.locator('#epi-carb').fill('10');
+    await page.locator('#epi-fat').fill('5');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const comp = page.locator('[data-testid="day-comp-block"]').first();
+    await expect(comp).toBeVisible();
+    await expect(comp.locator('[data-testid="day-current-totals"]')).toBeVisible();
+  });
+
+  // ── C-F2A-7 ───────────────────────────────────────────────────────────────
+  test('C-F2A-7 — PDF usa macros manuais', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // PDF antes
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const totBefore = (await page.locator('#day-pdf-print-area .tot-val').first().textContent() || '').trim();
+
+    // Editar macros manualmente
+    await openFirstIngModal(page);
+    await page.locator('#epi-kcal').fill('1');
+    await page.locator('#epi-prot').fill('0.1');
+    await page.locator('#epi-carb').fill('0.1');
+    await page.locator('#epi-fat').fill('0.1');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // PDF depois
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+    const totAfter = (await page.locator('#day-pdf-print-area .tot-val').first().textContent() || '').trim();
+
+    expect(totAfter).not.toBe(totBefore);
+  });
+
+  // ── C-F2A-8 ───────────────────────────────────────────────────────────────
+  test('C-F2A-8 — Reverter edição: macros originais restaurados', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dayOriginal = await getDayTotals(page, 0);
+
+    // Editar
+    await openFirstIngModal(page);
+    await page.locator('#epi-kcal').fill('999');
+    await page.locator('#epi-prot').fill('50');
+    await page.locator('#epi-carb').fill('10');
+    await page.locator('#epi-fat').fill('5');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Reverter
+    await page.locator('[data-revert-edit]').first().click();
+    await page.waitForTimeout(400);
+
+    const dayReverted = await getDayTotals(page, 0);
+    expect(Math.abs(dayReverted.kcal - dayOriginal.kcal)).toBeLessThanOrEqual(2);
+    expect(await page.locator('#day-body-0 .ing-badge-edited').count()).toBe(0);
+  });
+
+  // ── C-F2A-9 ───────────────────────────────────────────────────────────────
+  test('C-F2A-9 — Alterar gramas limpa override e recalcula macro fields', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Primeiro: guardar com override manual
+    await openFirstIngModal(page);
+    await page.locator('#epi-kcal').fill('999');
+    await page.locator('#epi-prot').fill('50');
+    await page.locator('#epi-carb').fill('10');
+    await page.locator('#epi-fat').fill('5');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Reabrir e alterar só gramas
+    await openFirstIngModal(page);
+    const kcalWithOverride = parseFloat(await page.locator('#epi-kcal').inputValue());
+    expect(kcalWithOverride).toBeCloseTo(999, 0); // override pré-preenchido
+
+    // Alterar gramas → campos de macro devem ser recalculados (não 999)
+    await page.locator('#epi-grams').fill('100');
+    await page.waitForTimeout(100);
+    const kcalAfterGramsChange = parseFloat(await page.locator('#epi-kcal').inputValue());
+    expect(kcalAfterGramsChange).not.toBeCloseTo(999, 0); // recalculado, não o override
+    expect(kcalAfterGramsChange).toBeGreaterThan(0);
+
+    // Guardar sem alterar macros → deve salvar só grams, sem override
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Totais devem reflectir cálculo por gramas, não o override de 999
+    const mealKcal = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '').kcal;
+    expect(mealKcal).toBeLessThan(900); // 999 já não está ativo
+  });
+
+  // ── C-F2A-10 ──────────────────────────────────────────────────────────────
+  test('C-F2A-10 — Validação: kcal ≤ 0, prot/carb/fat < 0 mostram erro', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstIngModal(page);
+
+    // kcal = 0 → erro
+    await page.locator('#epi-kcal').fill('0');
+    await page.locator('#epi-save').click();
+    await expect(page.locator('#epi-error')).toBeVisible();
+    const errKcal = await page.locator('#epi-error').textContent() || '';
+    expect(errKcal.toLowerCase()).toMatch(/kcal/i);
+
+    // kcal válido, prot negativa → erro
+    await page.locator('#epi-kcal').fill('100');
+    await page.locator('#epi-prot').fill('-1');
+    await page.locator('#epi-save').click();
+    await expect(page.locator('#epi-error')).toBeVisible();
+    const errProt = await page.locator('#epi-error').textContent() || '';
+    expect(errProt.toLowerCase()).toMatch(/prote/i);
+
+    // prot válida, fat negativa → erro
+    await page.locator('#epi-prot').fill('10');
+    await page.locator('#epi-fat').fill('-5');
+    await page.locator('#epi-save').click();
+    await expect(page.locator('#epi-error')).toBeVisible();
+
+    // Tudo válido → fecha sem erro
+    await page.locator('#epi-fat').fill('5');
+    await page.locator('#epi-carb').fill('10');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+    await expect(page.locator('#epi-kcal')).not.toBeVisible(); // modal fechou
+  });
+
+  // ── C-F2A-11 ──────────────────────────────────────────────────────────────
+  test('C-F2A-11 — F1 (só gramas, sem override) continua funcionando', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const before = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    // Editar só gramas — não tocar nos campos de macro
+    await openFirstIngModal(page);
+    await page.locator('#epi-grams').fill('200');
+    // NÃO editar os campos de macro
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    const after = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(after.kcal).not.toBe(before.kcal); // mudou por cálculo automático
+    expect(await page.locator('#day-body-0 .ing-badge-edited').first().isVisible()).toBe(true);
+  });
+
+  // ── C-F2A-12 ──────────────────────────────────────────────────────────────
+  test('C-F2A-12 — Mobile 390px: modal com macros sem overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstIngModal(page);
+    await expect(page.locator('#epi-kcal')).toBeVisible();
+
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+
+    // Editar e guardar no mobile
+    await page.locator('#epi-kcal').fill('500');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+    await expect(page.locator('.ing-badge-edited').first()).toBeVisible();
   });
 
 });

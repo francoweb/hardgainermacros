@@ -1388,19 +1388,22 @@ function applyEdits(plan, edits) {
         if (!edit) return ing;
         mealChanged = true;
         const newGrams = edit.grams;
-        // Recalculate macros from official food data when available
-        const macros = getFood(ing.food)
-          ? calcFoodMacros(ing.food, newGrams)
-          : (() => {
-              // Fallback: scale original macros proportionally
-              const f = newGrams / (ing.grams || 100);
-              return {
-                kcal: Math.round(ing.macros.kcal * f),
-                prot: Math.round(ing.macros.prot * f * 10) / 10,
-                carb: Math.round(ing.macros.carb * f * 10) / 10,
-                fat:  Math.round(ing.macros.fat  * f * 10) / 10,
-              };
-            })();
+        // Sprint F2-A: macrosOverride (manual entry) takes precedence.
+        // Falls back to calcFoodMacros() when no override is present.
+        const macros = edit.macrosOverride
+          ? edit.macrosOverride
+          : (getFood(ing.food)
+              ? calcFoodMacros(ing.food, newGrams)
+              : (() => {
+                  const f = newGrams / (ing.grams || 100);
+                  return {
+                    kcal: Math.round(ing.macros.kcal * f),
+                    prot: Math.round(ing.macros.prot * f * 10) / 10,
+                    carb: Math.round(ing.macros.carb * f * 10) / 10,
+                    fat:  Math.round(ing.macros.fat  * f * 10) / 10,
+                  };
+                })()
+            );
         const display = getFood(ing.food) ? formatQty(ing.food, newGrams) : `${newGrams}g`;
         // Limpar quantidade numérica inicial do label para evitar contradição visual.
         // "2 ovos mexidos" editado para 300g → "Ovos mexidos" (porção: "6 ovos (300g)").
@@ -1453,11 +1456,15 @@ function applyEdits(plan, edits) {
 }
 
 /**
- * Sprint F1 — Abre modal para editar a quantidade de um ingrediente do plano.
+ * Sprint F1/F2-A — Abre modal para editar quantidade e macros de um ingrediente do plano.
  *
- * Mostra: nome (read-only), campo de gramas, preview live de macros.
- * Guarda { grams } em hg:edits["dayIdx:mealIdx:ingIdx"].
- * Reverter = delete da chave → rebuildAndRender().
+ * F1: edita gramas → macros recalculados automaticamente via calcFoodMacros().
+ * F2-A: adiciona campos editáveis de kcal/P/C/G.
+ *   - Gramas → recalcula e preenche os campos de macro (userEditedMacros = false).
+ *   - Campo de macro editado → userEditedMacros = true.
+ *   - Guardar com userEditedMacros = true → guarda macrosOverride.
+ *   - Guardar com userEditedMacros = false → guarda só grams (F1 behaviour).
+ *   - Reverter = delete da chave → pipeline original restaurado.
  */
 function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
   const originalPlan = loadPlan();
@@ -1465,22 +1472,25 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
   const origIng = originalPlan[dayIdx]?.meals[mealIdx]?.ingredients[ingIdx];
   if (!origIng) return;
 
-  const edits        = loadEdits();
-  const editKey      = `${dayIdx}:${mealIdx}:${ingIdx}`;
-  const existingEdit = edits[editKey];
-  const currentGrams = existingEdit ? existingEdit.grams : origIng.grams;
-  const origGrams    = origIng.grams;
-  const ingName      = origIng.label || getFood(origIng.food)?.name || origIng.food || '';
+  const edits         = loadEdits();
+  const editKey       = `${dayIdx}:${mealIdx}:${ingIdx}`;
+  const existingEdit  = edits[editKey];
+  const currentGrams  = existingEdit?.grams ?? origIng.grams;
+  const origGrams     = origIng.grams;
+  const ingName       = origIng.label || getFood(origIng.food)?.name || origIng.food || '';
 
   const origMacros = getFood(origIng.food)
     ? calcFoodMacros(origIng.food, origGrams)
     : origIng.macros;
 
+  // Se existe um override guardado, pré-preencher com ele; caso contrário calcular.
+  const initMacros = existingEdit?.macrosOverride ?? calcFoodMacros(origIng.food, currentGrams) ?? origIng.macros;
+
   const contentHtml = `
     <div class="modal-head">
       <div>
-        <div class="modal-title">Editar Quantidade</div>
-        <div class="modal-sub">Ajuste a quantidade deste ingrediente nesta refeição</div>
+        <div class="modal-title">Editar Ingrediente</div>
+        <div class="modal-sub">Ajuste a quantidade e os macros nesta refeição</div>
       </div>
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
     </div>
@@ -1490,17 +1500,44 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
         <div class="sub-current-name">${escapeHtml(ingName)}</div>
         <div class="sub-current-macros">Original: ${origMacros.kcal} kcal · P:${origMacros.prot}g · C:${origMacros.carb}g · G:${origMacros.fat}g (${origGrams}g)</div>
       </div>
+
       <div class="add-food-grid">
         <div class="add-food-field">
-          <label class="add-food-label" for="epi-grams">Quantidade (g)</label>
+          <label class="add-food-label" for="epi-grams">Quantidade (g) *</label>
           <input type="text" inputmode="decimal" autocomplete="off"
                  id="epi-grams" class="add-food-input" value="${currentGrams}">
         </div>
       </div>
-      <div id="epi-preview" style="margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--surface-soft); border: 1px solid var(--border);">
-        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-muted); margin-bottom: 6px;">Com esta quantidade</div>
-        <div id="epi-macros" class="sub-current-macros" style="font-size: 13px;"></div>
+
+      <div class="add-food-macros-title" style="margin-top: 14px;">
+        Macros desta porção
+        <span style="font-weight:400; color:var(--ink-muted); font-size:10px; margin-left:6px;">
+          — alterar gramas recalcula automaticamente
+        </span>
       </div>
+      <div class="add-food-macros-grid">
+        <div class="add-food-macro-field">
+          <label class="add-food-label" for="epi-kcal">Kcal *</label>
+          <input type="text" inputmode="decimal" autocomplete="off"
+                 id="epi-kcal" class="add-food-input" value="${initMacros.kcal}">
+        </div>
+        <div class="add-food-macro-field">
+          <label class="add-food-label" for="epi-prot">Proteína (g) *</label>
+          <input type="text" inputmode="decimal" autocomplete="off"
+                 id="epi-prot" class="add-food-input" value="${initMacros.prot}">
+        </div>
+        <div class="add-food-macro-field">
+          <label class="add-food-label" for="epi-carb">Carbs (g) *</label>
+          <input type="text" inputmode="decimal" autocomplete="off"
+                 id="epi-carb" class="add-food-input" value="${initMacros.carb}">
+        </div>
+        <div class="add-food-macro-field">
+          <label class="add-food-label" for="epi-fat">Gorduras (g) *</label>
+          <input type="text" inputmode="decimal" autocomplete="off"
+                 id="epi-fat" class="add-food-input" value="${initMacros.fat}">
+        </div>
+      </div>
+
       <div id="epi-error" style="display:none; color: #b91c1c; font-size: 13px; margin-top: 10px;"></div>
       <div class="btn-row" style="margin-top: 20px; flex-wrap: wrap;">
         <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
@@ -1512,38 +1549,89 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
   const close = openModal(contentHtml);
 
   const gramsInput = document.getElementById('epi-grams');
-  const macrosEl   = document.getElementById('epi-macros');
+  const kcalInput  = document.getElementById('epi-kcal');
+  const protInput  = document.getElementById('epi-prot');
+  const carbInput  = document.getElementById('epi-carb');
+  const fatInput   = document.getElementById('epi-fat');
   const errorEl    = document.getElementById('epi-error');
 
-  function updatePreview() {
-    const g = parseFloat(gramsInput.value);
-    if (!g || g <= 0 || isNaN(g)) { macrosEl.textContent = '—'; return; }
-    const m = getFood(origIng.food)
-      ? calcFoodMacros(origIng.food, g)
-      : (() => {
-          const f = g / (origGrams || 100);
-          return {
-            kcal: Math.round(origMacros.kcal * f),
-            prot: Math.round(origMacros.prot * f * 10) / 10,
-            carb: Math.round(origMacros.carb * f * 10) / 10,
-            fat:  Math.round(origMacros.fat  * f * 10) / 10,
-          };
-        })();
-    macrosEl.textContent = `${m.kcal} kcal · P:${m.prot}g · C:${m.carb}g · G:${m.fat}g (${Math.round(g)}g)`;
+  // Flag: true quando o utilizador edita manualmente os campos de macro.
+  // Gramas → recalcula → reset para false. Salvar com true → guarda macrosOverride.
+  let userEditedMacros = !!(existingEdit?.macrosOverride);
+
+  /** Calcula macros para uma quantidade g (usa FOODS ou escala proporcional). */
+  function calcMacrosFromGrams(g) {
+    if (getFood(origIng.food)) return calcFoodMacros(origIng.food, g);
+    const f = g / (origGrams || 100);
+    return {
+      kcal: Math.round(origMacros.kcal * f),
+      prot: Math.round(origMacros.prot * f * 10) / 10,
+      carb: Math.round(origMacros.carb * f * 10) / 10,
+      fat:  Math.round(origMacros.fat  * f * 10) / 10,
+    };
   }
 
-  updatePreview();
-  gramsInput.addEventListener('input', updatePreview);
-
-  document.getElementById('epi-save').addEventListener('click', () => {
+  // Gramas → recalcula e preenche os campos de macro, reseta o flag.
+  gramsInput.addEventListener('input', () => {
     const g = parseFloat(gramsInput.value);
+    if (!g || g <= 0 || isNaN(g)) return;
+    const m = calcMacrosFromGrams(g);
+    kcalInput.value = m.kcal;
+    protInput.value = m.prot;
+    carbInput.value = m.carb;
+    fatInput.value  = m.fat;
+    userEditedMacros = false; // recalculo automático — sem override
+  });
+
+  // Qualquer campo de macro editado activa o flag de override manual.
+  [kcalInput, protInput, carbInput, fatInput].forEach(inp => {
+    inp.addEventListener('input', () => { userEditedMacros = true; });
+  });
+
+  // Guardar
+  document.getElementById('epi-save').addEventListener('click', () => {
+    errorEl.style.display = 'none';
+
+    const g    = parseFloat(gramsInput.value);
+    const kcal = parseFloat(kcalInput.value);
+    const prot = parseFloat(protInput.value);
+    const carb = parseFloat(carbInput.value);
+    const fat  = parseFloat(fatInput.value);
+
+    // Validação
     if (!g || g <= 0 || isNaN(g)) {
-      errorEl.textContent = 'Introduz uma quantidade válida (maior que zero).';
-      errorEl.style.display = 'block';
-      return;
+      errorEl.textContent = 'Quantidade deve ser maior que zero.';
+      errorEl.style.display = 'block'; return;
     }
+    if (isNaN(kcal) || kcal <= 0) {
+      errorEl.textContent = 'Kcal deve ser maior que zero.';
+      errorEl.style.display = 'block'; return;
+    }
+    if (isNaN(prot) || prot < 0) {
+      errorEl.textContent = 'Proteína não pode ser negativa.';
+      errorEl.style.display = 'block'; return;
+    }
+    if (isNaN(carb) || carb < 0) {
+      errorEl.textContent = 'Carboidratos não podem ser negativos.';
+      errorEl.style.display = 'block'; return;
+    }
+    if (isNaN(fat) || fat < 0) {
+      errorEl.textContent = 'Gorduras não podem ser negativas.';
+      errorEl.style.display = 'block'; return;
+    }
+
+    const editData = { grams: Math.round(g) };
+    if (userEditedMacros) {
+      editData.macrosOverride = {
+        kcal: Math.round(kcal),
+        prot: Math.round(prot * 10) / 10,
+        carb: Math.round(carb * 10) / 10,
+        fat:  Math.round(fat  * 10) / 10,
+      };
+    }
+
     const currentEdits = loadEdits();
-    currentEdits[editKey] = { grams: Math.round(g) };
+    currentEdits[editKey] = editData;
     saveEdits(currentEdits);
     close();
     rebuildAndRender(mount);
