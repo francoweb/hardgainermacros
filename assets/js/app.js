@@ -15,6 +15,7 @@ import { renderRotinaPage } from './pages/rotina.js';
 import { renderResultadosPage } from './pages/resultados.js';
 import { renderPlanoPage } from './pages/plano-14-dias.js';
 import { renderPrivacyPage, renderTermsPage, renderContactPage } from './pages/legal.js';
+import { renderUpdatesPage } from './pages/updates.js';
 
 const mount = () => document.getElementById('app-mount');
 
@@ -46,6 +47,7 @@ function onRouteChange(page, path) {
     case 'privacy':  renderPrivacyPage(el); break;
     case 'terms':    renderTermsPage(el); break;
     case 'contact':  renderContactPage(el); break;
+    case 'updates':  renderUpdatesPage(el); break;
     default:         renderDadosFisicosPage(el);
   }
 

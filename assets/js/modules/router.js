@@ -23,9 +23,10 @@ const ROUTES = {
   '/rotina': { page: 'routine', protected: true, requires: [K.STEP1_DONE, K.STEP2_DONE] },
   '/resultados': { page: 'results', protected: true, requires: [K.RESULTS_READY] },
   '/plano-14-dias': { page: 'plan', protected: true, requires: [K.PLAN_READY] },
-  '/politica-de-privacidade': { page: 'privacy', protected: false },
-  '/termos-de-uso': { page: 'terms', protected: false },
-  '/contato': { page: 'contact', protected: false },
+  '/politica-de-privacidade': { page: 'privacy',  protected: false },
+  '/termos-de-uso':           { page: 'terms',   protected: false },
+  '/contato':                 { page: 'contact', protected: false },
+  '/atualizacoes':            { page: 'updates', protected: false },
 };
 
 let handler = null;

@@ -84,6 +84,8 @@ export function renderFooter() {
           <a href="/termos-de-uso" data-route>Termos de Uso</a>
           <span class="footer-sep">•</span>
           <a href="/contato" data-route>Contato</a>
+          <span class="footer-sep">•</span>
+          <a href="/atualizacoes" data-route>Atualizações</a>
         </div>
         <div class="footer-meta">
           © ${year} Todos os direitos reservados<br>
