@@ -2169,7 +2169,7 @@ test.describe('Editar alimento adicionado', () => {
     expect(Number(await page.locator('#eff-qty').inputValue())).toBe(TEST_FOOD_EDIT_V1.qty);
     expect(Number(await page.locator('#eff-kcal').inputValue())).toBeCloseTo(TEST_FOOD_EDIT_V1.kcal, 0);
     const submitTxt = await page.locator('#edit-food-form button[type="submit"]').textContent() || '';
-    expect(submitTxt).toMatch(/Guardar/i);
+    expect(submitTxt).toMatch(/Salvar/i);
   });
 
   test('C-ADD-EDIT3 — Editar 100ml → 330ml: quantidade actualiza na refeição', async ({ page }) => {
@@ -2538,7 +2538,7 @@ test.describe('Aviso de dados locais', () => {
   });
 
   // ── C-LOCALDATA2 ──────────────────────────────────────────────────────────
-  test('C-LOCALDATA2 — Modal Criar Alimento mostra nota "guardado apenas neste navegador"', async ({ page }) => {
+  test('C-LOCALDATA2 — Modal Criar Alimento mostra nota "salvo apenas neste navegador"', async ({ page }) => {
     await injectState(page, CENARIO_4);
     await gotoResultados(page);
     await gotoPlano(page);
@@ -2549,7 +2549,7 @@ test.describe('Aviso de dados locais', () => {
     const note = page.locator('[data-testid="local-data-modal-note"]');
     await expect(note).toBeVisible();
     const text = (await note.textContent()) || '';
-    expect(text).toMatch(/guardado apenas neste navegador/i);
+    expect(text).toMatch(/salvo apenas neste navegador/i);
   });
 
 });

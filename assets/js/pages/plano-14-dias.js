@@ -1547,7 +1547,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
       <div id="epi-error" style="display:none; color: #b91c1c; font-size: 13px; margin-top: 10px;"></div>
       <div class="btn-row" style="margin-top: 20px; flex-wrap: wrap;">
         <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
-        <button type="button" class="btn btn-primary" id="epi-save">Guardar</button>
+        <button type="button" class="btn btn-primary" id="epi-save">Salvar</button>
       </div>
     </div>
   `;
@@ -2032,7 +2032,7 @@ function openAddFoodModal(dayIdx, mealIdx, mount) {
       <div>
         <div class="modal-title">Criar Alimento</div>
         <div class="modal-sub">Cria um alimento personalizado e adiciona-o à refeição</div>
-        <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará guardado apenas neste navegador.</p>
+        <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará salvo apenas neste navegador.</p>
       </div>
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
     </div>
@@ -2344,7 +2344,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
       <div>
         <div class="modal-title">Editar alimento adicionado</div>
         <div class="modal-sub">Os dados desta refeição serão atualizados</div>
-        <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará guardado apenas neste navegador.</p>
+        <p class="local-data-modal-note" data-testid="local-data-modal-note">🔒 Este alimento ficará salvo apenas neste navegador.</p>
       </div>
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
     </div>
@@ -2397,7 +2397,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
 
         <div class="btn-row" style="margin-top:20px;flex-wrap:wrap;">
           <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar alterações</button>
+          <button type="submit" class="btn btn-primary">Salvar alterações</button>
         </div>
       </form>
     </div>
