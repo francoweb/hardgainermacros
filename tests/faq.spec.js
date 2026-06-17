@@ -168,3 +168,131 @@ test.describe('Página de Perguntas Frequentes (/faq)', () => {
   });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Botão Flutuante de Ajuda (FAB)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Botão flutuante de ajuda (FAB)', () => {
+
+  test('C-FAB-1 — FAB visível na home (desktop)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
+  });
+
+  test('C-FAB-2 — clicar no FAB navega para /faq', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.locator('#help-fab-btn').click();
+    await page.waitForSelector('[data-testid="faq-item"]', { timeout: 10000 });
+    expect(page.url()).toMatch(/\/faq$/);
+  });
+
+  test('C-FAB-3 — FAB não aparece na página /faq', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.evaluate(() => {
+      history.pushState({}, '', '/faq');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForSelector('[data-testid="faq-item"]', { timeout: 10000 });
+    await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
+  });
+
+  test('C-FAB-4 — clicar no × dispensa o FAB', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
+    await page.locator('#help-fab-dismiss').click();
+    await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
+  });
+
+  test('C-FAB-5 — após dispensar, FAB não reaparece ao navegar na mesma sessão', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.locator('#help-fab-dismiss').click();
+    await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
+
+    // Navegar para outra página e voltar
+    await page.evaluate(() => {
+      history.pushState({}, '', '/atualizacoes');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForTimeout(500);
+    await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
+  });
+
+  test('C-FAB-6 — FAB não aparece na área de print', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    const isHiddenInPrint = await page.evaluate(() => {
+      const sheets = [...document.styleSheets];
+      for (const sheet of sheets) {
+        try {
+          const rules = [...sheet.cssRules];
+          for (const rule of rules) {
+            if (rule.media && [...rule.media].some(m => m.includes('print'))) {
+              if (rule.cssText.includes('help-fab') && rule.cssText.includes('none')) return true;
+            }
+          }
+        } catch {}
+      }
+      return false;
+    });
+    expect(isHiddenInPrint).toBe(true);
+  });
+
+  test('C-FAB-7 — FAB fica abaixo do modal (z-index < 1000)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    const fabZIndex = await page.evaluate(() => {
+      const fab = document.getElementById('help-fab');
+      if (!fab) return 0;
+      return parseInt(getComputedStyle(fab).zIndex, 10) || 0;
+    });
+    expect(fabZIndex).toBeLessThan(1000);
+    expect(fabZIndex).toBeGreaterThan(0);
+  });
+
+  test('C-FAB-8 — mobile 390px: FAB visível sem overflow horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
+    const overflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth);
+    expect(overflow).toBe(false);
+  });
+
+  test('C-FAB-9 — /faq, /atualizacoes e plano continuam funcionando com FAB', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+
+    // /faq
+    await page.evaluate(() => {
+      history.pushState({}, '', '/faq');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForSelector('[data-testid="faq-item"]', { timeout: 10000 });
+    await expect(page.locator('h1.hero-title')).toBeVisible();
+
+    // /atualizacoes
+    await page.evaluate(() => {
+      history.pushState({}, '', '/atualizacoes');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForTimeout(1000);
+    const bodyText = await page.locator('body').textContent();
+    expect(bodyText).toMatch(/Atualizações|FAQ mais completa/i);
+
+    // home
+    await page.evaluate(() => {
+      history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForTimeout(500);
+    const inputs = await page.locator('input[type="number"]').count();
+    expect(inputs).toBeGreaterThanOrEqual(1);
+  });
+
+});

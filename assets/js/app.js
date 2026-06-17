@@ -7,7 +7,7 @@
  */
 
 import { initRouter, navigate } from './modules/router.js';
-import { renderHeader, renderFooter, mountCookieBanner } from './components/ui.js';
+import { renderHeader, renderFooter, mountCookieBanner, mountHelpFab } from './components/ui.js';
 
 import { renderDadosFisicosPage } from './pages/dados-fisicos.js';
 import { renderPerfilPage } from './pages/perfil.js';
@@ -31,6 +31,7 @@ function onRouteChange(page, path) {
   renderHeader();
   renderFooter();
   mountCookieBanner();
+  mountHelpFab(page);
 
   // Animação de entrada
   el.classList.remove('page-enter');

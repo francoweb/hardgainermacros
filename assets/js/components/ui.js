@@ -171,6 +171,59 @@ export function mountCookieBanner() {
   });
 }
 
+/* ---------- HELP FAB ---------- */
+/**
+ * Monta o botão flutuante de ajuda no canto inferior direito.
+ *
+ * @param {string} currentPage — nome da página actual (ex.: 'faq', 'home', 'plan')
+ *
+ * Não aparece em /faq nem se o usuário já tiver dispensado na sessão.
+ * Navega para /faq via router SPA ao clicar em "?".
+ * O × dispensa o FAB para o resto da sessão (sessionStorage).
+ */
+export function mountHelpFab(currentPage) {
+  // Remover FAB existente ao navegar (evita duplicatas)
+  const existing = document.getElementById('help-fab');
+  if (existing) existing.remove();
+
+  // Não aparecer na própria FAQ
+  if (currentPage === 'faq') return;
+
+  // Não aparecer se já foi dispensado nesta sessão
+  try {
+    if (sessionStorage.getItem('hg:help-dismissed')) return;
+  } catch {}
+
+  const fab = document.createElement('div');
+  fab.id = 'help-fab';
+  fab.className = 'help-fab';
+  fab.setAttribute('data-testid', 'help-fab');
+  fab.innerHTML = `
+    <button
+      class="help-fab-dismiss"
+      id="help-fab-dismiss"
+      aria-label="Dispensar ajuda"
+      title="Dispensar">×</button>
+    <button
+      class="help-fab-btn"
+      id="help-fab-btn"
+      aria-label="Ajuda"
+      title="Ajuda">?</button>
+  `;
+
+  document.body.appendChild(fab);
+
+  document.getElementById('help-fab-btn').addEventListener('click', () => {
+    // Navega para /faq via router SPA
+    import('../modules/router.js').then(({ navigate }) => navigate('/faq'));
+  });
+
+  document.getElementById('help-fab-dismiss').addEventListener('click', () => {
+    fab.remove();
+    try { sessionStorage.setItem('hg:help-dismissed', '1'); } catch {}
+  });
+}
+
 /* ---------- MODAL (substituição) ---------- */
 export function openModal(contentHtml, onClose) {
   let mount = document.getElementById('modal-mount');
