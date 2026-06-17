@@ -34,11 +34,11 @@ test.describe('Página de Perguntas Frequentes (/faq)', () => {
     await expect(page.getByText('Perguntas Frequentes').first()).toBeVisible();
   });
 
-  test('C-FAQ-2 — página tem pelo menos 30 perguntas no DOM', async ({ page }) => {
+  test('C-FAQ-2 — página tem pelo menos 76 itens no DOM (51 perguntas + 25 glossário)', async ({ page }) => {
     await gotoFaq(page);
     const items = page.locator('[data-testid="faq-item"]');
     const count = await items.count();
-    expect(count).toBeGreaterThanOrEqual(30);
+    expect(count).toBeGreaterThanOrEqual(76);
   });
 
   test('C-FAQ-3 — busca por "PDF" mostra perguntas relacionadas e oculta outras', async ({ page }) => {
@@ -127,6 +127,44 @@ test.describe('Página de Perguntas Frequentes (/faq)', () => {
 
     await page.waitForURL('**/');
     expect(page.url()).toMatch(/\/$/);
+  });
+
+  test('C-FAQ-9 — accordion exclusivo: abrir uma pergunta fecha as outras', async ({ page }) => {
+    await gotoFaq(page);
+
+    const items  = page.locator('[data-testid="faq-item"]');
+    const first  = items.nth(0);
+    const second = items.nth(1);
+
+    // Abrir a primeira
+    await first.locator('summary').click();
+    await expect(first).toHaveAttribute('open', '');
+
+    // Abrir a segunda — a primeira deve fechar automaticamente
+    await second.locator('summary').click();
+    await expect(second).toHaveAttribute('open', '');
+    await expect(first).not.toHaveAttribute('open');
+
+    // Fechar a segunda clicando nela novamente
+    await second.locator('summary').click();
+    await expect(second).not.toHaveAttribute('open');
+  });
+
+  test('C-FAQ-10 — busca por "Kcal" encontra termos do glossário', async ({ page }) => {
+    await gotoFaq(page);
+
+    await page.locator('#faq-search').fill('Kcal');
+    await page.waitForTimeout(300);
+
+    // Mensagem de zero resultados deve estar oculta (há resultados)
+    await expect(page.locator('#faq-no-results')).toBeHidden();
+
+    // Deve haver pelo menos 1 item visível
+    const visibleCount = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-testid="faq-item"]')]
+        .filter(el => el.style.display !== 'none').length
+    );
+    expect(visibleCount).toBeGreaterThanOrEqual(1);
   });
 
 });

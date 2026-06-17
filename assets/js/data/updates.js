@@ -13,6 +13,14 @@
 
 export const UPDATES = [
   {
+    date: '2026-06-17',
+    type: 'Melhoria',
+    title: 'FAQ mais completa com glossário',
+    description:
+      'A página de perguntas frequentes foi ampliada com novas respostas sobre uso da ferramenta, plano alimentar, ajustes, dúvidas comuns e termos importantes de nutrição para hardgainers. Agora ficou mais fácil encontrar ajuda pela busca antes de precisar entrar em contato.',
+    tags: ['Ajuda', 'FAQ', 'Nutrição'],
+  },
+  {
     date: '2026-06-16',
     type: 'Nova funcionalidade',
     title: 'Nova página de perguntas frequentes',

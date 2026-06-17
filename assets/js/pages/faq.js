@@ -120,6 +120,18 @@ export function renderFaqPage(mount) {
   const allItems    = mount.querySelectorAll('.faq-item');
   const allCats     = mount.querySelectorAll('.faq-cat');
 
+  // ── Accordion exclusivo ───────────────────────────────────────────────
+  // Ao abrir um item, fecha todos os outros automaticamente.
+  // Fechar o item aberto funciona normalmente (clicando nele).
+  allItems.forEach(details => {
+    details.addEventListener('toggle', () => {
+      if (!details.open) return;
+      allItems.forEach(other => {
+        if (other !== details) other.removeAttribute('open');
+      });
+    });
+  });
+
   searchInput.addEventListener('input', () => {
     const term = searchInput.value.toLowerCase().trim();
     let anyVisible = false;

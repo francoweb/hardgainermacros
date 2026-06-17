@@ -3,7 +3,8 @@
  *
  * REGRA: Se uma dúvida comum surgir repetidamente no suporte, adicione
  * uma entrada aqui com linguagem clara e útil para o usuário.
- * Sem linguagem técnica, sem termos internos, sem prometer resultados médicos.
+ * Português do Brasil neutro, simples e sem linguagem técnica desnecessária.
+ * Sem prometer resultado garantido. Em dúvidas de saúde, sugerir profissional.
  *
  * Campos obrigatórios: id, category, question, answer, keywords
  * Ordenação: por categoria (mantida pelo agrupamento na página)
@@ -16,8 +17,8 @@ export const FAQS = [
     category: 'Começando',
     question: 'Como funciona a app?',
     answer:
-      'Você preenche seus dados físicos e rotina, e a app calcula suas necessidades calóricas e gera um plano alimentar de 14 dias personalizado para o seu perfil. Não é necessário criar conta — tudo funciona direto no navegador.',
-    keywords: ['começar', 'funciona', 'conta', 'como usar'],
+      'Você informa seus dados — peso, altura, idade, objetivo e rotina de refeições. A app usa essas informações para calcular quantas calorias você precisa por dia e gera um plano alimentar de 14 dias com alimentos práticos e variados.\n\nExemplo: se você tem 23 anos, pesa 70 kg e tem dificuldade em ganhar peso, a app pode calcular que você precisa de cerca de 2.600 kcal por dia. Esse total é dividido em 5 ou 6 refeições ao longo do dia — com alimentos como frango, arroz, ovos, aveia, batata e shakes de proteína.\n\nDepois de gerar o plano, você pode ajustar à vontade: mudar a quantidade de um alimento, trocar por outro que prefira, criar alimentos com os valores da embalagem do produto que você usa, remover o que não gosta e salvar o plano em PDF.\n\nNão precisa criar conta — tudo funciona direto no navegador, sem instalar nada.',
+    keywords: ['começar', 'funciona', 'conta', 'como usar', 'exemplo'],
   },
   {
     id: 'preciso-criar-conta',
@@ -100,15 +101,15 @@ export const FAQS = [
     category: 'Macros e calorias',
     question: 'Por que os valores nutricionais podem ser diferentes do rótulo?',
     answer:
-      'Os valores da app são referências gerais baseadas em tabelas nutricionais. Cada marca, receita e forma de preparo pode ter valores ligeiramente diferentes. Se quiser mais precisão, use o botão "Editar" e ajuste os valores de acordo com o rótulo do produto que você usa.',
-    keywords: ['rótulo', 'valores', 'diferente', 'marca', 'editar', 'preparo'],
+      'Os valores da app são referências gerais baseadas em tabelas nutricionais. Cada marca, receita e forma de preparo pode ter valores ligeiramente diferentes. Se quiser mais precisão, use o botão "Editar" e ajuste os valores de acordo com a embalagem do produto que você usa.',
+    keywords: ['rótulo', 'valores', 'diferente', 'marca', 'editar', 'preparo', 'embalagem'],
   },
   {
     id: 'superavit-calorico',
     category: 'Macros e calorias',
     question: 'O que é superávit calórico?',
     answer:
-      'Superávit calórico significa consumir mais calorias do que o seu corpo gasta. Para hardgainers que querem ganhar peso e massa muscular, esse excedente é necessário para o corpo ter energia suficiente para crescer.',
+      'Superávit calórico significa comer mais calorias do que o seu corpo gasta. Para quem tem dificuldade em ganhar peso, esse excedente é necessário para o corpo ter energia suficiente para crescer.',
     keywords: ['superávit', 'calorias', 'ganhar peso', 'energia'],
   },
   {
@@ -134,8 +135,8 @@ export const FAQS = [
     category: 'Alimentos e personalização',
     question: 'Como edito os macros de um alimento manualmente?',
     answer:
-      'Ao clicar no ícone de edição de um alimento, além do campo de gramas, você verá campos editáveis para calorias, proteína, carboidratos e gorduras. Altere os valores conforme o rótulo do seu produto e clique em "Salvar".',
-    keywords: ['editar', 'macros', 'calorias', 'proteína', 'carboidratos', 'gorduras', 'rótulo', 'manual'],
+      'Ao clicar no ícone de edição de um alimento, além do campo de gramas, você verá campos editáveis para calorias, proteína, carboidratos e gorduras. Altere os valores conforme a embalagem do seu produto e clique em "Salvar".',
+    keywords: ['editar', 'macros', 'calorias', 'proteína', 'carboidratos', 'gorduras', 'rótulo', 'manual', 'embalagem'],
   },
   {
     id: 'reverter-edicao',
@@ -222,6 +223,170 @@ export const FAQS = [
     keywords: ['PDF', 'edição', 'personalização', 'reflete', 'imprime', 'impressão'],
   },
 
+  // ── Usando no dia a dia ───────────────────────────────────────────────
+  {
+    id: 'usar-balanca',
+    category: 'Usando no dia a dia',
+    question: 'Tenho que pesar cada alimento com balança?',
+    answer:
+      'Não é obrigatório. O plano usa quantidades práticas que você pode estimar. A balança ajuda se quiser mais precisão, mas não é exigida.',
+    keywords: ['balança', 'pesar', 'medir'],
+  },
+  {
+    id: 'mesmas-quantidades',
+    category: 'Usando no dia a dia',
+    question: 'Preciso comer exatamente as mesmas quantidades todos os dias?',
+    answer:
+      'Não. Pequenas variações são normais e não prejudicam os resultados. O que mais importa é manter uma rotina consistente ao longo da semana.',
+    keywords: ['quantidade', 'exato', 'variar'],
+  },
+  {
+    id: 'repetir-refeicoes',
+    category: 'Usando no dia a dia',
+    question: 'Posso repetir as mesmas refeições todos os dias?',
+    answer:
+      'Sim. Se preferir simplicidade, escolha as refeições que mais gosta e repita. O plano tem variação para tornar a alimentação menos monótona, mas repetir também funciona.',
+    keywords: ['repetir', 'mesmo', 'todos os dias'],
+  },
+  {
+    id: 'usar-sem-complicar',
+    category: 'Usando no dia a dia',
+    question: 'Como usar a app no dia a dia sem complicar?',
+    answer:
+      'Gere o plano, salve em PDF e siga as refeições como referência. Use "Editar" só quando o alimento que você tem em casa for diferente do sugerido.',
+    keywords: ['dia a dia', 'simples', 'rotina'],
+  },
+  {
+    id: 'ajustar-ao-viajar',
+    category: 'Usando no dia a dia',
+    question: 'Como ajustar o plano quando viajar ou sair da rotina?',
+    answer:
+      'Tente manter o total de calorias próximo com o que estiver disponível. Uma refeição fora do plano não desfaz o progresso. A consistência ao longo das semanas é o que mais conta.',
+    keywords: ['viajar', 'rotina', 'sair'],
+  },
+  {
+    id: 'fins-de-semana',
+    category: 'Usando no dia a dia',
+    question: 'Posso adaptar o plano nos fins de semana?',
+    answer:
+      'Sim. Você pode usar refeições mais flexíveis aos fins de semana, desde que o total de calorias e proteína fique próximo da meta.',
+    keywords: ['fim de semana', 'adaptar', 'flexível'],
+  },
+
+  // ── Nutrição para hardgainers ─────────────────────────────────────────
+  {
+    id: 'peso-nao-sobe',
+    category: 'Nutrição para hardgainers',
+    question: 'Por que meu peso não está subindo mesmo seguindo o plano?',
+    answer:
+      'Pode ser que você esteja comendo um pouco menos do que parece, ou que seu corpo gaste mais energia do que o estimado. Tente seguir as quantidades com mais atenção por 2 a 3 semanas. Se o peso continuar parado, consulte um nutricionista.',
+    keywords: ['peso parado', 'não sobe', 'estagnado'],
+  },
+  {
+    id: 'tempo-resultados',
+    category: 'Nutrição para hardgainers',
+    question: 'Quanto tempo demora para ver resultados?',
+    answer:
+      'Em geral, os primeiros sinais aparecem em 4 a 8 semanas de consistência. O ganho muscular é lento por natureza. Não espere ver diferença em poucos dias.',
+    keywords: ['resultado', 'tempo', 'semanas'],
+  },
+  {
+    id: 'nao-consegue-comer-tudo',
+    category: 'Nutrição para hardgainers',
+    question: 'O que fazer se não conseguir comer tudo no dia?',
+    answer:
+      'Foque nas refeições mais calóricas e nas fontes de proteína. Com o tempo o apetite tende a aumentar.',
+    keywords: ['não consegue comer', 'apetite', 'volume'],
+  },
+  {
+    id: 'dificuldade-digestao',
+    category: 'Nutrição para hardgainers',
+    question: 'O que fazer se ficar com dificuldade de digestão?',
+    answer:
+      'Reduza o volume de uma refeição e distribua melhor ao longo do dia. Prefira alimentos mais fáceis de digerir. Se o desconforto persistir, consulte um profissional de saúde.',
+    keywords: ['digestão', 'cheio', 'desconforto'],
+  },
+  {
+    id: 'suplementos',
+    category: 'Nutrição para hardgainers',
+    question: 'Devo tomar suplementos para ganhar peso?',
+    answer:
+      'A alimentação é a base. Proteína em pó pode ajudar a atingir a meta, mas não é obrigatória. Consulte um nutricionista antes de incluir qualquer suplemento.',
+    keywords: ['suplemento', 'whey', 'proteína em pó'],
+  },
+  {
+    id: 'gramas-proteina',
+    category: 'Nutrição para hardgainers',
+    question: 'Quantas gramas de proteína eu preciso por dia?',
+    answer:
+      'A app calcula isso com base no seu peso e perfil. Em geral, quem tem dificuldade em ganhar peso se beneficia de 1,6 a 2,5g de proteína por kg de peso corporal por dia.',
+    keywords: ['proteína', 'gramas', 'quantidade'],
+  },
+  {
+    id: 'ganho-peso-musculo',
+    category: 'Nutrição para hardgainers',
+    question: 'O ganho de peso é sempre músculo?',
+    answer:
+      'Não. O ganho de peso inclui músculo, gordura e água. Com treino e alimentação adequada, a tendência é ganhar mais músculo e menos gordura ao longo do tempo.',
+    keywords: ['músculo', 'gordura', 'peso'],
+  },
+  {
+    id: 'retencao-liquidos',
+    category: 'Nutrição para hardgainers',
+    question: 'O que é retenção de líquidos?',
+    answer:
+      'É o acúmulo temporário de água no corpo, que pode fazer o peso variar sem relação com gordura ou músculo. É comum após dias com mais sal ou carboidratos.',
+    keywords: ['retenção', 'líquidos', 'água', 'peso'],
+  },
+  {
+    id: 'precisa-treinar',
+    category: 'Nutrição para hardgainers',
+    question: 'Preciso treinar para a app funcionar?',
+    answer:
+      'A app gera um plano independentemente de treino. Mas para ganhar músculo, o treino é fundamental — a alimentação sozinha não constrói músculo sem o estímulo do exercício.',
+    keywords: ['treinar', 'academia', 'exercício'],
+  },
+  {
+    id: 'o-que-e-consistencia',
+    category: 'Nutrição para hardgainers',
+    question: 'O que é consistência e por que ela importa?',
+    answer:
+      'Consistência é manter a alimentação próxima do plano ao longo de semanas e meses. Um dia perfeito não muda nada; 30 dias com boa rotina sim. É o fator mais importante para quem tem dificuldade em ganhar peso.',
+    keywords: ['consistência', 'hábito', 'rotina'],
+  },
+  {
+    id: 'contar-calorias',
+    category: 'Nutrição para hardgainers',
+    question: 'Devo contar calorias no final do dia?',
+    answer:
+      'Não é obrigatório. O plano já foi calculado para atingir a meta. Se seguir as refeições propostas, já estará próximo do alvo.',
+    keywords: ['contar calorias', 'acompanhar'],
+  },
+  {
+    id: 'adaptar-sem-alimento',
+    category: 'Nutrição para hardgainers',
+    question: 'Como adaptar as refeições quando não tenho o alimento sugerido?',
+    answer:
+      'Use "Substituir" para trocar por um equivalente, ou "Editar" para ajustar as quantidades ao que você tem. Manter a categoria do alimento — proteína, carboidrato ou gordura — é o mais importante.',
+    keywords: ['substituir', 'adaptar', 'sem alimento'],
+  },
+  {
+    id: 'substitui-nutricionista',
+    category: 'Nutrição para hardgainers',
+    question: 'A app substitui um nutricionista?',
+    answer:
+      'Não. A app é uma calculadora de apoio para organizar a alimentação. Para dúvidas de saúde, condições especiais ou acompanhamento personalizado, um nutricionista é insubstituível.',
+    keywords: ['nutricionista', 'profissional', 'saúde'],
+  },
+  {
+    id: 'duvida-saude',
+    category: 'Nutrição para hardgainers',
+    question: 'Se tiver uma dúvida de saúde ou condição especial, o que fazer?',
+    answer:
+      'A app é uma ferramenta de apoio e não substitui acompanhamento profissional. Em caso de doença, transtorno alimentar ou condição especial, consulte um médico ou nutricionista.',
+    keywords: ['médico', 'saúde', 'doença', 'condição'],
+  },
+
   // ── Dados e privacidade ───────────────────────────────────────────────
   {
     id: 'dados-enviados-servidor',
@@ -272,5 +437,207 @@ export const FAQS = [
     answer:
       'Use o Contato se tiver uma dúvida que não está respondida aqui, se encontrar algum erro na app, ou se quiser sugerir uma melhoria. Para dúvidas comuns, esta página costuma ter a resposta.',
     keywords: ['contato', 'suporte', 'dúvida', 'erro', 'problema'],
+  },
+
+  // ── Glossário ─────────────────────────────────────────────────────────
+  {
+    id: 'glossario-hardgainer',
+    category: 'Glossário',
+    question: 'Hardgainer',
+    answer:
+      'Pessoa com dificuldade em ganhar peso mesmo comendo bastante.\n\nExemplo: alguém que come muito mas não engorda com facilidade.',
+    keywords: ['hardgainer', 'ganhar peso', 'ectomorfo'],
+  },
+  {
+    id: 'glossario-ectomorfo',
+    category: 'Glossário',
+    question: 'Ectomorfo',
+    answer:
+      'Tipo de corpo com metabolismo mais rápido e estrutura mais magra. Tende a ter dificuldade em acumular massa.\n\nExemplo: pessoas que parecem não engordar mesmo comendo muito.',
+    keywords: ['ectomorfo', 'biotipo', 'magro', 'hardgainer'],
+  },
+  {
+    id: 'glossario-caloria-kcal',
+    category: 'Glossário',
+    question: 'Caloria / Kcal',
+    answer:
+      'Unidade que mede a energia dos alimentos. Quanto maior o número, mais energia o alimento fornece.\n\nExemplo: 100g de arroz cozido têm cerca de 130 kcal.',
+    keywords: ['caloria', 'kcal', 'energia', 'calorias'],
+  },
+  {
+    id: 'glossario-macros',
+    category: 'Glossário',
+    question: 'Macros',
+    answer:
+      'Forma curta de macronutrientes: proteína, carboidrato e gordura. São os três componentes principais dos alimentos.\n\nExemplo: o plano distribui as calorias entre proteína, carboidrato e gordura.',
+    keywords: ['macros', 'macronutrientes', 'nutrientes'],
+  },
+  {
+    id: 'glossario-proteina',
+    category: 'Glossário',
+    question: 'Proteína',
+    answer:
+      'Nutriente essencial para construir e manter os músculos. Encontrado em carnes, ovos, laticínios e leguminosas.\n\nExemplo: 100g de frango grelhado têm cerca de 30g de proteína.',
+    keywords: ['proteína', 'músculo', 'aminoácidos'],
+  },
+  {
+    id: 'glossario-carboidrato',
+    category: 'Glossário',
+    question: 'Carboidrato',
+    answer:
+      'Nutriente que fornece energia para o corpo e o cérebro. Principal combustível das atividades do dia a dia.\n\nExemplo: arroz, batata, aveia e pão são fontes de carboidrato.',
+    keywords: ['carboidrato', 'energia', 'carbo'],
+  },
+  {
+    id: 'glossario-gordura',
+    category: 'Glossário',
+    question: 'Gordura',
+    answer:
+      'Nutriente essencial para os hormônios e para absorver certas vitaminas. Não deve ser eliminada da alimentação.\n\nExemplo: azeite, abacate, ovos e castanhas são fontes de gordura.',
+    keywords: ['gordura', 'hormônio', 'lipídio'],
+  },
+  {
+    id: 'glossario-superavit',
+    category: 'Glossário',
+    question: 'Superávit calórico',
+    answer:
+      'Comer mais calorias do que o corpo gasta. Necessário para ganhar peso.\n\nExemplo: se o corpo gasta 2.200 kcal e você come 2.600 kcal, está em superávit.',
+    keywords: ['superávit', 'ganhar peso', 'calorias'],
+  },
+  {
+    id: 'glossario-deficit',
+    category: 'Glossário',
+    question: 'Déficit calórico',
+    answer:
+      'Comer menos calorias do que o corpo gasta. Leva à perda de peso. Não é o objetivo para quem quer ganhar massa.\n\nExemplo: se o corpo gasta 2.200 kcal e você come 1.800 kcal, está em déficit.',
+    keywords: ['déficit', 'perder peso', 'calorias'],
+  },
+  {
+    id: 'glossario-manutencao',
+    category: 'Glossário',
+    question: 'Manutenção calórica',
+    answer:
+      'Quantidade de calorias que mantém o peso estável, sem ganhar nem perder.\n\nExemplo: se você come 2.200 kcal e o peso não muda, essa é sua manutenção.',
+    keywords: ['manutenção', 'estável', 'peso'],
+  },
+  {
+    id: 'glossario-gasto-calorico',
+    category: 'Glossário',
+    question: 'Gasto calórico diário',
+    answer:
+      'Total de calorias que o corpo usa em um dia, incluindo o metabolismo e as atividades físicas.\n\nExemplo: uma pessoa com rotina moderada pode gastar entre 2.000 e 2.800 kcal por dia.',
+    keywords: ['gasto', 'metabolismo', 'energia', 'diário'],
+  },
+  {
+    id: 'glossario-massa-muscular',
+    category: 'Glossário',
+    question: 'Massa muscular',
+    answer:
+      'Tecido muscular do corpo, diferente de gordura e água. É construída com treino e alimentação adequada.\n\nExemplo: braços, pernas e costas são compostos em grande parte de massa muscular.',
+    keywords: ['massa', 'músculo', 'tecido'],
+  },
+  {
+    id: 'glossario-hipertrofia',
+    category: 'Glossário',
+    question: 'Hipertrofia',
+    answer:
+      'Crescimento dos músculos por meio do treino e de uma alimentação adequada.\n\nExemplo: após meses de treino e boa alimentação, os músculos ficam maiores e mais fortes.',
+    keywords: ['hipertrofia', 'crescimento', 'músculo'],
+  },
+  {
+    id: 'glossario-refeicao-solida',
+    category: 'Glossário',
+    question: 'Refeição sólida',
+    answer:
+      'Refeição feita com alimentos que se mastiga, como arroz, frango, ovo e batata.\n\nExemplo: almoço com frango, arroz, feijão e salada.',
+    keywords: ['sólida', 'alimentos', 'mastigar', 'refeição'],
+  },
+  {
+    id: 'glossario-shake-proteina',
+    category: 'Glossário',
+    question: 'Shake de proteína',
+    answer:
+      'Bebida feita com pó de proteína misturado a líquidos e outros ingredientes. Prático para atingir a meta calórica.\n\nExemplo: pó de proteína com leite e banana.',
+    keywords: ['shake', 'proteína', 'bebida', 'whey'],
+  },
+  {
+    id: 'glossario-tabela-nutricional',
+    category: 'Glossário',
+    question: 'Tabela nutricional',
+    answer:
+      'Tabela nas embalagens de alimentos que mostra as calorias e os nutrientes por porção.\n\nExemplo: a tabela do iogurte mostra 80 kcal e 8g de proteína por 100g.',
+    keywords: ['tabela', 'embalagem', 'nutrição', 'rótulo'],
+  },
+  {
+    id: 'glossario-porcao',
+    category: 'Glossário',
+    question: 'Porção',
+    answer:
+      'Quantidade de referência de um alimento indicada na embalagem. Pode ser diferente de 100g.\n\nExemplo: a embalagem indica "porção de 30g" com 120 kcal.',
+    keywords: ['porção', 'quantidade', 'referência', 'embalagem'],
+  },
+  {
+    id: 'glossario-gramas',
+    category: 'Glossário',
+    question: 'Gramas (g)',
+    answer:
+      'Unidade de peso usada para medir alimentos.\n\nExemplo: 150g de frango grelhado.',
+    keywords: ['gramas', 'peso', 'medida'],
+  },
+  {
+    id: 'glossario-substituicao',
+    category: 'Glossário',
+    question: 'Substituição',
+    answer:
+      'Troca de um alimento por outro com valor calórico parecido.\n\nExemplo: trocar arroz por batata doce mantendo a mesma quantidade de calorias.',
+    keywords: ['substituição', 'trocar', 'alternativa'],
+  },
+  {
+    id: 'glossario-alimento-personalizado',
+    category: 'Glossário',
+    question: 'Alimento personalizado',
+    answer:
+      'Alimento criado pelo usuário na app com os valores da embalagem do produto que ele usa.\n\nExemplo: criar "Iogurte Marca X" com os valores da tabela da embalagem.',
+    keywords: ['personalizado', 'criado', 'embalagem', 'alimento'],
+  },
+  {
+    id: 'glossario-consistencia',
+    category: 'Glossário',
+    question: 'Consistência',
+    answer:
+      'Manter a alimentação próxima do plano ao longo do tempo, mesmo sem ver resultado imediato.\n\nExemplo: seguir o plano por 8 semanas seguidas, inclusive nos fins de semana.',
+    keywords: ['consistência', 'hábito', 'rotina'],
+  },
+  {
+    id: 'glossario-progressao',
+    category: 'Glossário',
+    question: 'Progressão',
+    answer:
+      'Melhora gradual ao longo de semanas ou meses — peso, força e disposição.\n\nExemplo: ganhar 0,5 kg por mês de forma consistente ao longo de 6 meses.',
+    keywords: ['progressão', 'evolução', 'resultado'],
+  },
+  {
+    id: 'glossario-retencao',
+    category: 'Glossário',
+    question: 'Retenção de líquidos',
+    answer:
+      'Acúmulo temporário de água no corpo que faz o peso variar sem relação com gordura ou músculo.\n\nExemplo: após um dia com muito sal, o peso pode subir cerca de 1 kg de água.',
+    keywords: ['retenção', 'água', 'líquido', 'peso'],
+  },
+  {
+    id: 'glossario-apetite',
+    category: 'Glossário',
+    question: 'Apetite',
+    answer:
+      'Sensação de fome e vontade de comer. Quem tem dificuldade em ganhar peso muitas vezes tem apetite menor.\n\nExemplo: sentir-se satisfeito com pouco alimento, mesmo abaixo da meta calórica.',
+    keywords: ['apetite', 'fome', 'comer'],
+  },
+  {
+    id: 'glossario-digestao',
+    category: 'Glossário',
+    question: 'Digestão',
+    answer:
+      'Processo pelo qual o corpo absorve os nutrientes dos alimentos. Pode ser afetada pelo volume e pela velocidade com que se come.\n\nExemplo: comer rápido demais ou em grande volume pode causar desconforto.',
+    keywords: ['digestão', 'absorção', 'estômago'],
   },
 ];
