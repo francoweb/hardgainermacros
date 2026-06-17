@@ -86,6 +86,8 @@ export function renderFooter() {
           <a href="/contato" data-route>Contato</a>
           <span class="footer-sep">•</span>
           <a href="/atualizacoes" data-route>Atualizações</a>
+          <span class="footer-sep">•</span>
+          <a href="/faq" data-route>FAQ</a>
         </div>
         <div class="footer-meta">
           © ${year} Todos os direitos reservados<br>

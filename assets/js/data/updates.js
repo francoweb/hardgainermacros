@@ -14,6 +14,14 @@
 export const UPDATES = [
   {
     date: '2026-06-16',
+    type: 'Nova funcionalidade',
+    title: 'Nova página de perguntas frequentes',
+    description:
+      'Agora a ferramenta tem uma página de FAQ com respostas rápidas sobre plano alimentar, macros, edição de alimentos, PDF, dados salvos no navegador e dúvidas comuns. Isso ajuda você a encontrar ajuda sem precisar entrar em contato com o suporte.',
+    tags: ['Ajuda', 'Suporte'],
+  },
+  {
+    date: '2026-06-16',
     type: 'Melhoria',
     title: 'Botões com linguagem mais familiar',
     description:
