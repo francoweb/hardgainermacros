@@ -295,4 +295,22 @@ test.describe('Botão flutuante de ajuda (FAB)', () => {
     expect(inputs).toBeGreaterThanOrEqual(1);
   });
 
+  test('C-FAB-10 — FAB não sobrepõe o botão "Voltar ao topo" no plano', async ({ page }) => {
+    // Navegar para o plano via SPA (requer dados no storage — simular preenchimento básico)
+    await page.goto('/');
+    await page.waitForLoadState('load');
+
+    // Verificar que o FAB está posicionado à esquerda do "Voltar ao topo"
+    // FAB right (desktop padrão): 72px; "Voltar ao topo" right: 28px, width: 36px → left edge: 64px
+    // FAB ? ocupa right: 72px a right: 116px — não sobrepõe o "Voltar ao topo"
+    const fabRight = await page.evaluate(() => {
+      const fab = document.getElementById('help-fab');
+      if (!fab) return 0;
+      const style = getComputedStyle(fab);
+      return parseInt(style.right, 10);
+    });
+    // FAB right deve ser >= 64px (left edge do botão "Voltar ao topo") para não sobrepor
+    expect(fabRight).toBeGreaterThanOrEqual(64);
+  });
+
 });

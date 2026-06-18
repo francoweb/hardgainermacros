@@ -2084,7 +2084,7 @@ details[open] > .sub-cat-label::after {
 .help-fab {
   position: fixed;
   bottom: 24px;
-  right: 20px;
+  right: 72px; /* afastado para não sobrepor o botão "Voltar ao topo" (right:28px, width:36px) */
   z-index: 500;
   display: flex;
   align-items: center;
