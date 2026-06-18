@@ -2095,7 +2095,7 @@ details[open] > .sub-cat-label::after {
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: var(--accent);
+  background: #4F6F52;
   color: #fff;
   font-size: 20px;
   font-weight: 700;
@@ -2108,15 +2108,15 @@ details[open] > .sub-cat-label::after {
   transition: background var(--t-fast), transform var(--t-fast);
   font-family: var(--font-body);
 }
-.help-fab-btn:hover { background: var(--accent-dark); transform: scale(1.07); }
-.help-fab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.help-fab-btn:hover { background: #3F5A42; transform: scale(1.07); }
+.help-fab-btn:focus-visible { outline: 2px solid #4F6F52; outline-offset: 3px; }
 .help-fab-dismiss {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--ink-muted);
+  border: 1px solid #D8D0C2;
+  background: #F7F3EA;
+  color: #4F6F52;
   font-size: 13px;
   line-height: 1;
   cursor: pointer;
@@ -2128,8 +2128,8 @@ details[open] > .sub-cat-label::after {
   transition: background var(--t-fast);
   font-family: var(--font-body);
 }
-.help-fab-dismiss:hover { background: var(--border); color: var(--ink); }
-.help-fab-dismiss:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.help-fab-dismiss:hover { background: #D8D0C2; color: #3F5A42; }
+.help-fab-dismiss:focus-visible { outline: 2px solid #4F6F52; outline-offset: 2px; }
 @media (max-width: 480px) {
   .help-fab { bottom: 80px; right: 16px; }
 }
