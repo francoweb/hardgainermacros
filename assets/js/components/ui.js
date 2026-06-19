@@ -177,9 +177,11 @@ export function mountCookieBanner() {
  *
  * @param {string} currentPage — nome da página actual (ex.: 'faq', 'home', 'plan')
  *
- * Não aparece em /faq nem se o usuário já tiver dispensado na sessão.
+ * Não aparece em /faq.
  * Navega para /faq via router SPA ao clicar em "?".
- * O × dispensa o FAB para o resto da sessão (sessionStorage).
+ * O × esconde apenas o próprio × (não o ? principal).
+ * O ? permanece sempre visível nas páginas onde o FAB aparece.
+ * O estado oculto do × é salvo em sessionStorage (hg:help-x-hidden).
  */
 export function mountHelpFab(currentPage) {
   // Remover FAB existente ao navegar (evita duplicatas)
@@ -189,9 +191,10 @@ export function mountHelpFab(currentPage) {
   // Não aparecer na própria FAQ
   if (currentPage === 'faq') return;
 
-  // Não aparecer se já foi dispensado nesta sessão
+  // Verificar se o × já foi escondido nesta sessão
+  let xHidden = false;
   try {
-    if (sessionStorage.getItem('hg:help-dismissed')) return;
+    xHidden = !!sessionStorage.getItem('hg:help-x-hidden');
   } catch {}
 
   const fab = document.createElement('div');
@@ -203,7 +206,8 @@ export function mountHelpFab(currentPage) {
       class="help-fab-dismiss"
       id="help-fab-dismiss"
       aria-label="Dispensar ajuda"
-      title="Dispensar">×</button>
+      title="Dispensar"
+      style="${xHidden ? 'display:none' : ''}">×</button>
     <button
       class="help-fab-btn"
       id="help-fab-btn"
@@ -219,8 +223,9 @@ export function mountHelpFab(currentPage) {
   });
 
   document.getElementById('help-fab-dismiss').addEventListener('click', () => {
-    fab.remove();
-    try { sessionStorage.setItem('hg:help-dismissed', '1'); } catch {}
+    // Esconde apenas o ×; o ? continua visível e funcional
+    document.getElementById('help-fab-dismiss').style.display = 'none';
+    try { sessionStorage.setItem('hg:help-x-hidden', '1'); } catch {}
   });
 }
 

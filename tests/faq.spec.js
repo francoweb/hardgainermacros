@@ -200,27 +200,38 @@ test.describe('Botão flutuante de ajuda (FAB)', () => {
     await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
   });
 
-  test('C-FAB-4 — clicar no × dispensa o FAB', async ({ page }) => {
+  test('C-FAB-4 — clicar no × esconde o ×, mas ? continua visível e funcional', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('load');
     await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
+    await expect(page.locator('#help-fab-dismiss')).toBeVisible();
+
     await page.locator('#help-fab-dismiss').click();
-    await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
+
+    // × deve estar oculto
+    await expect(page.locator('#help-fab-dismiss')).toBeHidden();
+    // ? deve continuar visível
+    await expect(page.locator('#help-fab-btn')).toBeVisible();
+    // FAB continua no DOM
+    await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
   });
 
-  test('C-FAB-5 — após dispensar, FAB não reaparece ao navegar na mesma sessão', async ({ page }) => {
+  test('C-FAB-5 — após esconder ×, ? continua visível ao navegar; × não reaparece', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('load');
     await page.locator('#help-fab-dismiss').click();
-    await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
 
-    // Navegar para outra página e voltar
+    // Navegar para outra página
     await page.evaluate(() => {
       history.pushState({}, '', '/atualizacoes');
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
     await page.waitForTimeout(500);
-    await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
+
+    // ? visível
+    await expect(page.locator('#help-fab-btn')).toBeVisible();
+    // × continua oculto
+    await expect(page.locator('#help-fab-dismiss')).toBeHidden();
   });
 
   test('C-FAB-6 — FAB não aparece na área de print', async ({ page }) => {
