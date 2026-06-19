@@ -2130,6 +2130,33 @@ details[open] > .sub-cat-label::after {
 }
 .help-fab-dismiss:hover { background: #D8D0C2; color: #3F5A42; }
 .help-fab-dismiss:focus-visible { outline: 2px solid #4F6F52; outline-offset: 2px; }
+
+/* Botão de restaurar — visível apenas no estado minimizado */
+.help-fab-restore {
+  display: none;
+  padding: 5px 12px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid #4F6F52;
+  background: var(--surface);
+  color: #4F6F52;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--sh-sm);
+  font-family: var(--font-body);
+  transition: background var(--t-fast);
+  align-items: center;
+  gap: 4px;
+}
+.help-fab-restore:hover { background: #edf2ed; }
+.help-fab-restore:focus-visible { outline: 2px solid #4F6F52; outline-offset: 2px; }
+
+/* Estado minimizado: ocultar ? e ×, mostrar restaurar */
+.help-fab.is-minimized .help-fab-dismiss { display: none !important; }
+.help-fab.is-minimized .help-fab-btn    { display: none !important; }
+.help-fab.is-minimized .help-fab-restore { display: flex; }
+
 @media (max-width: 480px) {
   .help-fab { bottom: 80px; right: 16px; }
 }

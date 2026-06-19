@@ -200,26 +200,59 @@ test.describe('Botão flutuante de ajuda (FAB)', () => {
     await expect(page.locator('[data-testid="help-fab"]')).toHaveCount(0);
   });
 
-  test('C-FAB-4 — clicar no × esconde o ×, mas ? continua visível e funcional', async ({ page }) => {
+  test('C-FAB-4 — clicar no × minimiza o widget: ? e × ocultam, restaurar aparece', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('load');
-    await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
-    await expect(page.locator('#help-fab-dismiss')).toBeVisible();
 
-    await page.locator('#help-fab-dismiss').click();
-
-    // × deve estar oculto
-    await expect(page.locator('#help-fab-dismiss')).toBeHidden();
-    // ? deve continuar visível
+    // Estado normal: ? e × visíveis, restaurar oculto
     await expect(page.locator('#help-fab-btn')).toBeVisible();
+    await expect(page.locator('#help-fab-dismiss')).toBeVisible();
+    await expect(page.locator('#help-fab-restore')).toBeHidden();
+
+    // Minimizar
+    await page.locator('#help-fab-dismiss').click();
+    await page.waitForTimeout(200);
+
+    // Estado minimizado: ? e × ocultos, restaurar visível
+    await expect(page.locator('#help-fab-btn')).toBeHidden();
+    await expect(page.locator('#help-fab-dismiss')).toBeHidden();
+    await expect(page.locator('#help-fab-restore')).toBeVisible();
+
     // FAB continua no DOM
     await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
   });
 
-  test('C-FAB-5 — após esconder ×, ? continua visível ao navegar; × não reaparece', async ({ page }) => {
+  test('C-FAB-4b — clicar no botão minimizado restaura ? e ×; ? navega para /faq', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('load');
+
+    // Minimizar
     await page.locator('#help-fab-dismiss').click();
+    await page.waitForTimeout(200);
+    await expect(page.locator('#help-fab-restore')).toBeVisible();
+
+    // Restaurar
+    await page.locator('#help-fab-restore').click();
+    await page.waitForTimeout(200);
+
+    // Estado normal restaurado
+    await expect(page.locator('#help-fab-btn')).toBeVisible();
+    await expect(page.locator('#help-fab-dismiss')).toBeVisible();
+    await expect(page.locator('#help-fab-restore')).toBeHidden();
+
+    // ? ainda navega para /faq
+    await page.locator('#help-fab-btn').click();
+    await page.waitForSelector('[data-testid="faq-item"]', { timeout: 10000 });
+    expect(page.url()).toMatch(/\/faq$/);
+  });
+
+  test('C-FAB-5 — estado minimizado persiste ao navegar; restaurar aparece', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+
+    // Minimizar
+    await page.locator('#help-fab-dismiss').click();
+    await page.waitForTimeout(200);
 
     // Navegar para outra página
     await page.evaluate(() => {
@@ -228,10 +261,9 @@ test.describe('Botão flutuante de ajuda (FAB)', () => {
     });
     await page.waitForTimeout(500);
 
-    // ? visível
-    await expect(page.locator('#help-fab-btn')).toBeVisible();
-    // × continua oculto
-    await expect(page.locator('#help-fab-dismiss')).toBeHidden();
+    // Estado minimizado persiste: ? oculto, restaurar visível
+    await expect(page.locator('#help-fab-btn')).toBeHidden();
+    await expect(page.locator('#help-fab-restore')).toBeVisible();
   });
 
   test('C-FAB-6 — FAB não aparece na área de print', async ({ page }) => {

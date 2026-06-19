@@ -177,11 +177,12 @@ export function mountCookieBanner() {
  *
  * @param {string} currentPage — nome da página actual (ex.: 'faq', 'home', 'plan')
  *
- * Não aparece em /faq.
- * Navega para /faq via router SPA ao clicar em "?".
- * O × esconde apenas o próprio × (não o ? principal).
- * O ? permanece sempre visível nas páginas onde o FAB aparece.
- * O estado oculto do × é salvo em sessionStorage (hg:help-x-hidden).
+ * Estados:
+ *  - Normal:    mostra [×] [?]. Clicar em ? → /faq. Clicar em × → minimiza.
+ *  - Minimizado: mostra apenas [? Ajuda] pequeno. Clicar → restaura estado normal.
+ *
+ * Persistência: hg:help-minimized em sessionStorage.
+ * Chaves antigas (hg:help-x-hidden) são ignoradas sem quebrar nada.
  */
 export function mountHelpFab(currentPage) {
   // Remover FAB existente ao navegar (evita duplicatas)
@@ -191,41 +192,51 @@ export function mountHelpFab(currentPage) {
   // Não aparecer na própria FAQ
   if (currentPage === 'faq') return;
 
-  // Verificar se o × já foi escondido nesta sessão
-  let xHidden = false;
+  // Verificar estado inicial
+  let minimized = false;
   try {
-    xHidden = !!sessionStorage.getItem('hg:help-x-hidden');
+    minimized = !!sessionStorage.getItem('hg:help-minimized');
   } catch {}
 
   const fab = document.createElement('div');
   fab.id = 'help-fab';
-  fab.className = 'help-fab';
+  fab.className = 'help-fab' + (minimized ? ' is-minimized' : '');
   fab.setAttribute('data-testid', 'help-fab');
   fab.innerHTML = `
     <button
       class="help-fab-dismiss"
       id="help-fab-dismiss"
-      aria-label="Dispensar ajuda"
-      title="Dispensar"
-      style="${xHidden ? 'display:none' : ''}">×</button>
+      aria-label="Minimizar ajuda"
+      title="Minimizar">×</button>
     <button
       class="help-fab-btn"
       id="help-fab-btn"
       aria-label="Ajuda"
       title="Ajuda">?</button>
+    <button
+      class="help-fab-restore"
+      id="help-fab-restore"
+      aria-label="Abrir ajuda"
+      title="Abrir ajuda">? Ajuda</button>
   `;
 
   document.body.appendChild(fab);
 
+  // ? → navegar para /faq
   document.getElementById('help-fab-btn').addEventListener('click', () => {
-    // Navega para /faq via router SPA
     import('../modules/router.js').then(({ navigate }) => navigate('/faq'));
   });
 
+  // × → minimizar
   document.getElementById('help-fab-dismiss').addEventListener('click', () => {
-    // Esconde apenas o ×; o ? continua visível e funcional
-    document.getElementById('help-fab-dismiss').style.display = 'none';
-    try { sessionStorage.setItem('hg:help-x-hidden', '1'); } catch {}
+    fab.classList.add('is-minimized');
+    try { sessionStorage.setItem('hg:help-minimized', '1'); } catch {}
+  });
+
+  // botão minimizado → restaurar
+  document.getElementById('help-fab-restore').addEventListener('click', () => {
+    fab.classList.remove('is-minimized');
+    try { sessionStorage.removeItem('hg:help-minimized'); } catch {}
   });
 }
 
