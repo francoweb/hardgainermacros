@@ -364,49 +364,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
     });
   });
 
-  // Botão flutuante Voltar ao Topo — remove anterior se existir (re-render seguro)
-  const existingBackTop = document.getElementById('back-to-top-btn');
-  if (existingBackTop) existingBackTop.remove();
-
-  const backTopBtn = document.createElement('button');
-  backTopBtn.id = 'back-to-top-btn';
-  backTopBtn.className = 'no-print';
-  backTopBtn.setAttribute('aria-label', 'Voltar ao topo');
-  backTopBtn.setAttribute('title', 'Voltar ao topo');
-  backTopBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
-  backTopBtn.style.cssText = [
-    'position:fixed', 'bottom:28px', 'right:28px',
-    'width:36px', 'height:36px', 'border-radius:50%',
-    'background:#c26d5a', 'color:#fff', 'border:none',
-    'cursor:pointer', 'display:none', 'align-items:center', 'justify-content:center',
-    'box-shadow:0 1px 5px rgba(194,109,90,0.25)',
-    'z-index:900', 'transition:transform 0.15s ease,box-shadow 0.15s ease,background 0.15s ease',
-    'outline:none',
-  ].join(';');
-  document.body.appendChild(backTopBtn);
-
-  backTopBtn.addEventListener('mouseenter', () => {
-    backTopBtn.style.transform = 'translateY(-1px)';
-    backTopBtn.style.background = '#b45d4a';
-    backTopBtn.style.boxShadow = '0 4px 12px rgba(194,109,90,0.32)';
-  });
-  backTopBtn.addEventListener('mouseleave', () => {
-    backTopBtn.style.transform = '';
-    backTopBtn.style.background = '#c26d5a';
-    backTopBtn.style.boxShadow = '0 2px 8px rgba(194,109,90,0.25)';
-  });
-
-  backTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-  const onBackTopScroll = () => {
-    // Auto-remove listener se o botão já não existe (navegação SPA)
-    if (!document.getElementById('back-to-top-btn')) {
-      window.removeEventListener('scroll', onBackTopScroll);
-      return;
-    }
-    backTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
-  };
-  window.addEventListener('scroll', onBackTopScroll, { passive: true });
+  // Botão "Voltar ao topo" agora é global — montado por mountBackToTop() em app.js.
 }
 
 /* ============================================================================ */

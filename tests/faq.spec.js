@@ -390,3 +390,117 @@ test.describe('Botão flutuante de ajuda (FAB)', () => {
   });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Botão "Voltar ao topo" global
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Botão "Voltar ao topo" global', () => {
+
+  /** Navega via SPA e rola para activar o botão */
+  async function gotoAndScroll(page, path, waitFor) {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    if (path !== '/') {
+      await page.evaluate((p) => {
+        history.pushState({}, '', p);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, path);
+      if (waitFor) await page.waitForSelector(waitFor, { timeout: 10000 });
+      else await page.waitForTimeout(1000);
+    }
+    // Rolar para activar o botão (scrollY > 300)
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await page.waitForTimeout(500);
+  }
+
+  test('C-BACKTOP-1 — aparece na home (/) após scroll', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await page.waitForTimeout(500);
+    const btn = page.locator('#back-to-top-btn');
+    await expect(btn).toBeVisible();
+  });
+
+  test('C-BACKTOP-2 — aparece em /faq após scroll', async ({ page }) => {
+    await gotoAndScroll(page, '/faq', '[data-testid="faq-item"]');
+    await expect(page.locator('#back-to-top-btn')).toBeVisible();
+  });
+
+  test('C-BACKTOP-3 — aparece em /atualizacoes após scroll', async ({ page }) => {
+    await gotoAndScroll(page, '/atualizacoes', null);
+    await expect(page.locator('#back-to-top-btn')).toBeVisible();
+  });
+
+  test('C-BACKTOP-4 — não duplica ao navegar entre rotas', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+
+    // Navegar entre várias páginas
+    for (const path of ['/faq', '/atualizacoes', '/']) {
+      await page.evaluate((p) => {
+        history.pushState({}, '', p);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, path);
+      await page.waitForTimeout(600);
+    }
+
+    const count = await page.locator('#back-to-top-btn').count();
+    expect(count).toBe(1);
+  });
+
+  test('C-BACKTOP-5 — oculto no topo; visível após scroll; volta ao topo ao clicar', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+
+    // Oculto no topo
+    const btnAtTop = await page.locator('#back-to-top-btn').evaluate(el => el.style.display);
+    expect(btnAtTop).not.toBe('flex');
+
+    // Visível após scroll
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await page.waitForTimeout(500);
+    await expect(page.locator('#back-to-top-btn')).toBeVisible();
+
+    // Clicar → scroll suave para o topo
+    await page.locator('#back-to-top-btn').click();
+    await page.waitForTimeout(800);
+    const scrollY = await page.evaluate(() => window.scrollY);
+    expect(scrollY).toBeLessThan(50);
+  });
+
+  test('C-BACKTOP-6 — oculto em print/PDF (no-print)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    const hasNoPrint = await page.locator('#back-to-top-btn').evaluate(el => el.classList.contains('no-print'));
+    expect(hasNoPrint).toBe(true);
+  });
+
+  test('C-BACKTOP-7 — mobile 390px: sem overflow horizontal com botão visível', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await page.waitForTimeout(500);
+    const overflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth);
+    expect(overflow).toBe(false);
+    await expect(page.locator('#back-to-top-btn')).toBeVisible();
+  });
+
+  test('C-BACKTOP-8 — não quebra FAB de ajuda (ambos coexistem)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.evaluate(() => window.scrollTo(0, 600));
+    await page.waitForTimeout(500);
+
+    // Ambos presentes no DOM
+    await expect(page.locator('[data-testid="help-fab"]')).toBeVisible();
+    await expect(page.locator('#back-to-top-btn')).toBeVisible();
+
+    // Sem duplicatas
+    expect(await page.locator('#back-to-top-btn').count()).toBe(1);
+    expect(await page.locator('[data-testid="help-fab"]').count()).toBe(1);
+  });
+
+});

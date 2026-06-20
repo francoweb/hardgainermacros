@@ -240,6 +240,58 @@ export function mountHelpFab(currentPage) {
   });
 }
 
+/* ---------- BACK TO TOP ---------- */
+/**
+ * Monta o botão flutuante "Voltar ao topo" — componente global.
+ * Remove instância anterior antes de criar (seguro em SPA).
+ * O listener de scroll auto-remove quando o botão deixa de existir.
+ */
+export function mountBackToTop() {
+  // Remover botão anterior (evita duplicatas em navegação SPA)
+  const existing = document.getElementById('back-to-top-btn');
+  if (existing) existing.remove();
+
+  const btn = document.createElement('button');
+  btn.id = 'back-to-top-btn';
+  btn.className = 'no-print';
+  btn.setAttribute('aria-label', 'Voltar ao topo');
+  btn.setAttribute('title', 'Voltar ao topo');
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+  btn.style.cssText = [
+    'position:fixed', 'bottom:28px', 'right:28px',
+    'width:36px', 'height:36px', 'border-radius:50%',
+    'background:#c26d5a', 'color:#fff', 'border:none',
+    'cursor:pointer', 'display:none', 'align-items:center', 'justify-content:center',
+    'box-shadow:0 1px 5px rgba(194,109,90,0.25)',
+    'z-index:900', 'transition:transform 0.15s ease,box-shadow 0.15s ease,background 0.15s ease',
+    'outline:none',
+  ].join(';');
+  document.body.appendChild(btn);
+
+  btn.addEventListener('mouseenter', () => {
+    btn.style.transform = 'translateY(-1px)';
+    btn.style.background = '#b45d4a';
+    btn.style.boxShadow = '0 4px 12px rgba(194,109,90,0.32)';
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+    btn.style.background = '#c26d5a';
+    btn.style.boxShadow = '0 2px 8px rgba(194,109,90,0.25)';
+  });
+
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  const onScroll = () => {
+    // Auto-limpa o listener quando o botão deixa de existir (navegação SPA)
+    if (!document.getElementById('back-to-top-btn')) {
+      window.removeEventListener('scroll', onScroll);
+      return;
+    }
+    btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
 /* ---------- MODAL (substituição) ---------- */
 export function openModal(contentHtml, onClose) {
   let mount = document.getElementById('modal-mount');
