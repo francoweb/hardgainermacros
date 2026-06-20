@@ -1417,6 +1417,17 @@ function applyEdits(plan, edits) {
 }
 
 /**
+ * Devolve a unidade visual do campo de quantidade no modal de edição.
+ * Para alimentos dairy (exibidos em ml por formatQty), devolve 'ml'.
+ * Para todos os restantes devolve 'g' — nenhuma conversão de valor é necessária.
+ */
+function getIngEditUnit(foodId) {
+  const food = getFood(foodId);
+  if (food && food.category === 'dairy') return 'ml';
+  return 'g';
+}
+
+/**
  * Sprint F1/F2-A — Abre modal para editar quantidade e macros de um ingrediente do plano.
  *
  * F1: edita gramas → macros recalculados automaticamente via calcFoodMacros().
@@ -1439,6 +1450,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
   const currentGrams  = existingEdit?.grams ?? origIng.grams;
   const origGrams     = origIng.grams;
   const ingName       = origIng.label || getFood(origIng.food)?.name || origIng.food || '';
+  const editUnit      = getIngEditUnit(origIng.food);
 
   const origMacros = getFood(origIng.food)
     ? calcFoodMacros(origIng.food, origGrams)
@@ -1459,7 +1471,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
       <div class="sub-current" style="margin-bottom: 12px;">
         <div class="sub-current-label">Ingrediente</div>
         <div class="sub-current-name">${escapeHtml(ingName)}</div>
-        <div class="sub-current-macros">Original: ${origMacros.kcal} kcal · P:${origMacros.prot}g · C:${origMacros.carb}g · G:${origMacros.fat}g (${origGrams}g)</div>
+        <div class="sub-current-macros">Original: ${origMacros.kcal} kcal · P:${origMacros.prot}g · C:${origMacros.carb}g · G:${origMacros.fat}g (${origGrams}${editUnit})</div>
       </div>
 
       <!-- F2-B: UX copy — hint sobre valores -->
@@ -1467,7 +1479,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
 
       <div class="add-food-grid">
         <div class="add-food-field">
-          <label class="add-food-label" for="epi-grams">Quantidade (g) *</label>
+          <label class="add-food-label" for="epi-grams">Quantidade (${editUnit.toUpperCase()}) *</label>
           <input type="text" inputmode="decimal" autocomplete="off"
                  id="epi-grams" class="add-food-input" value="${currentGrams}">
         </div>
@@ -1476,7 +1488,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
       <div class="add-food-macros-title" style="margin-top: 14px;">
         Macros desta porção
         <span style="font-weight:400; color:var(--ink-muted); font-size:10px; margin-left:6px;">
-          — alterar gramas recalcula automaticamente
+          — alterar ${editUnit === 'ml' ? 'ml' : 'gramas'} recalcula automaticamente
         </span>
       </div>
       <div class="add-food-macros-grid">

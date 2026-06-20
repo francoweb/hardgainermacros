@@ -6489,3 +6489,213 @@ test.describe('Editar macros manualmente (Sprint F2-A)', () => {
 
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Sprint G1 — Modal "Editar Ingrediente": unidade dinâmica (ML para dairy)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Helper: encontra o primeiro ingrediente com display em "ml" no Dia 1 e abre o modal de edição.
+ * Devolve { ingLi, editBtn } ou null se não existir nenhum ingrediente dairy visível.
+ */
+async function openFirstDairyEditModal(page) {
+  const ingList = page.locator('#day-body-0 .ingredient:not(.ingredient-removed):not(.ingredient-added)');
+  const count   = await ingList.count();
+  for (let i = 0; i < count; i++) {
+    const qtyText = (await ingList.nth(i).locator('.ingredient-qty').textContent() || '').trim();
+    if (/\bml\b/i.test(qtyText)) {
+      const editBtn = ingList.nth(i).locator('[data-edit-ingredient]');
+      if (await editBtn.count() > 0) {
+        await editBtn.click();
+        await page.waitForSelector('#epi-grams', { timeout: 5000 });
+        return { qtyText };
+      }
+    }
+  }
+  return null;
+}
+
+test.describe('Modal Editar Ingrediente — unidade dinâmica (Sprint G1)', () => {
+
+  // ── C-EDITUNIT-1 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-1 — Leite integral: modal mostra "ML" no label de quantidade', async ({ page }) => {
+    // CENARIO_6 = hybrid 6 refeições — inclui shakes com leite integral
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const found = await openFirstDairyEditModal(page);
+    if (!found) { console.warn('C-EDITUNIT-1: nenhum ingrediente dairy no plano — SKIP'); return; }
+
+    // Label deve conter "ML" (case-insensitive)
+    const labelText = await page.locator('label[for="epi-grams"]').textContent() || '';
+    expect(labelText.toUpperCase()).toContain('ML');
+    expect(labelText.toUpperCase()).not.toContain('(G)');
+
+    // Hint de recálculo também deve mencionar "ml"
+    const hintText = await page.locator('.add-food-macros-title').textContent() || '';
+    expect(hintText.toLowerCase()).toContain('ml');
+  });
+
+  // ── C-EDITUNIT-2 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-2 — Leite integral: campo abre com valor numérico correcto (ex: 150)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const found = await openFirstDairyEditModal(page);
+    if (!found) { console.warn('C-EDITUNIT-2: nenhum ingrediente dairy — SKIP'); return; }
+
+    // Extrair número do display (ex: "150 ml" → 150)
+    const numMatch = found.qtyText.match(/^(\d+)/);
+    const expectedVal = numMatch ? parseInt(numMatch[1], 10) : null;
+
+    const fieldVal = parseFloat(await page.locator('#epi-grams').inputValue() || '0');
+    expect(fieldVal).toBeGreaterThan(0);
+    if (expectedVal !== null) {
+      expect(fieldVal).toBe(expectedVal);
+    }
+  });
+
+  // ── C-EDITUNIT-3 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-3 — Leite integral: alterar valor recalcula macros correctamente', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const found = await openFirstDairyEditModal(page);
+    if (!found) { console.warn('C-EDITUNIT-3: nenhum ingrediente dairy — SKIP'); return; }
+
+    const kcalBefore = parseFloat(await page.locator('#epi-kcal').inputValue() || '0');
+    await page.locator('#epi-grams').fill('300');
+    await page.waitForTimeout(150);
+    const kcalAfter = parseFloat(await page.locator('#epi-kcal').inputValue() || '0');
+
+    expect(kcalAfter).toBeGreaterThan(0);
+    expect(kcalAfter).not.toBeCloseTo(kcalBefore);
+  });
+
+  // ── C-EDITUNIT-4 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-4 — Leite integral: salvar actualiza a refeição e mostra badge "Editado"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const found = await openFirstDairyEditModal(page);
+    if (!found) { console.warn('C-EDITUNIT-4: nenhum ingrediente dairy — SKIP'); return; }
+
+    await page.locator('#epi-grams').fill('300');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Modal fechou
+    await expect(page.locator('.modal-backdrop.show')).not.toBeVisible();
+    // Badge "Editado" aparece
+    await expect(page.locator('#day-body-0 .ing-badge-edited').first()).toBeVisible();
+  });
+
+  // ── C-EDITUNIT-5 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-5 — Leite integral: reverter edição restaura valor original', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Encontrar o índice do primeiro ingrediente dairy para re-localizá-lo após revert
+    const ingList = page.locator('#day-body-0 .ingredient:not(.ingredient-removed):not(.ingredient-added)');
+    const count   = await ingList.count();
+    let dairyIdx  = -1;
+    let origQty   = '';
+    for (let i = 0; i < count; i++) {
+      const qtyText = (await ingList.nth(i).locator('.ingredient-qty').textContent() || '').trim();
+      if (/\bml\b/i.test(qtyText)) { dairyIdx = i; origQty = qtyText; break; }
+    }
+    if (dairyIdx === -1) { console.warn('C-EDITUNIT-5: nenhum ingrediente dairy — SKIP'); return; }
+
+    // Editar
+    const editBtn = ingList.nth(dairyIdx).locator('[data-edit-ingredient]');
+    await editBtn.click();
+    await page.waitForSelector('#epi-grams', { timeout: 5000 });
+    await page.locator('#epi-grams').fill('300');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Reverter (badge "Editado" → botão de revert no mesmo ingrediente)
+    const revertBtn = page.locator('[data-revert-edit]').first();
+    await expect(revertBtn).toBeVisible();
+    await revertBtn.click();
+    await page.waitForTimeout(400);
+
+    // Quantidade voltou ao original — ré-selecionar pelo mesmo índice
+    const restoredQty = (await ingList.nth(dairyIdx).locator('.ingredient-qty').textContent() || '').trim();
+    const origNum     = origQty.match(/^(\d+)/)?.[1];
+    const restoredNum = restoredQty.match(/^(\d+)/)?.[1];
+    if (origNum && restoredNum) expect(restoredNum).toBe(origNum);
+    // Badge "Editado" desaparece
+    await expect(page.locator('#day-body-0 .ing-badge-edited')).toHaveCount(0);
+  });
+
+  // ── C-EDITUNIT-6 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-6 — Alimento sólido: modal continua a mostrar "(G)" no label', async ({ page }) => {
+    // CENARIO_4 = solid — primeiro ingrediente é sempre um sólido
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await openFirstEditModal(page);
+
+    const labelText = await page.locator('label[for="epi-grams"]').textContent() || '';
+    expect(labelText.toUpperCase()).toContain('(G)');
+    expect(labelText.toUpperCase()).not.toContain('(ML)');
+  });
+
+  // ── C-EDITUNIT-7 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-7 — Manual macro override continua funcionando com alimento dairy', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const found = await openFirstDairyEditModal(page);
+    if (!found) { console.warn('C-EDITUNIT-7: nenhum ingrediente dairy — SKIP'); return; }
+
+    // Editar manualmente os campos de macro (override)
+    await page.locator('#epi-kcal').fill('999');
+    await page.locator('#epi-prot').fill('50');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+
+    // Badge "Editado" aparece → override guardado
+    await expect(page.locator('#day-body-0 .ing-badge-edited').first()).toBeVisible();
+
+    // Abrir modal de novo — valores override pré-preenchidos
+    const found2 = await openFirstDairyEditModal(page);
+    if (!found2) return;
+    const kcalVal = parseFloat(await page.locator('#epi-kcal').inputValue() || '0');
+    expect(kcalVal).toBeCloseTo(999, 0);
+  });
+
+  // ── C-EDITUNIT-8 ────────────────────────────────────────────────────────────
+  test('C-EDITUNIT-8 — Mobile 390px: modal dairy sem overflow horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const found = await openFirstDairyEditModal(page);
+    if (!found) { console.warn('C-EDITUNIT-8: nenhum ingrediente dairy — SKIP'); return; }
+
+    // Modal aberto: sem overflow
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+
+    // Label mostra ML
+    const labelText = await page.locator('label[for="epi-grams"]').textContent() || '';
+    expect(labelText.toUpperCase()).toContain('ML');
+
+    // Editar e guardar
+    await page.locator('#epi-grams').fill('250');
+    await page.locator('#epi-save').click();
+    await page.waitForTimeout(400);
+    await expect(page.locator('.ing-badge-edited').first()).toBeVisible();
+  });
+
+});
+
