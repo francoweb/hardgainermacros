@@ -356,4 +356,37 @@ test.describe('Botão flutuante de ajuda (FAB)', () => {
     expect(fabRight).toBeGreaterThanOrEqual(64);
   });
 
+  test('C-FAB-11 — mobile 390px: estado minimizado fica colado ao fundo (bottom < 20px)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.waitForLoadState('load');
+
+    // Minimizar o FAB
+    await page.locator('#help-fab-dismiss').click();
+    await page.waitForTimeout(200);
+
+    // Estado minimizado deve estar visível
+    await expect(page.locator('#help-fab-restore')).toBeVisible();
+
+    // bottom do container deve ser próximo ao fundo (< 20px no estado minimizado mobile)
+    const fabBottom = await page.evaluate(() => {
+      const fab = document.getElementById('help-fab');
+      return fab ? parseInt(getComputedStyle(fab).bottom, 10) : 999;
+    });
+    expect(fabBottom).toBeLessThan(20);
+
+    // Sem overflow horizontal
+    const overflow = await page.evaluate(() => document.body.scrollWidth > window.innerWidth);
+    expect(overflow).toBe(false);
+
+    // Estado normal ainda tem bottom >= 70px (não foi afetado)
+    await page.locator('#help-fab-restore').click();
+    await page.waitForTimeout(200);
+    const fabBottomNormal = await page.evaluate(() => {
+      const fab = document.getElementById('help-fab');
+      return fab ? parseInt(getComputedStyle(fab).bottom, 10) : 0;
+    });
+    expect(fabBottomNormal).toBeGreaterThanOrEqual(70);
+  });
+
 });

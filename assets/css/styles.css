@@ -2158,7 +2158,8 @@ details[open] > .sub-cat-label::after {
 .help-fab.is-minimized .help-fab-restore { display: flex; }
 
 @media (max-width: 480px) {
-  .help-fab { bottom: 80px; right: 16px; }
+  .help-fab              { bottom: 80px; right: 16px; } /* estado normal — acima da toolbar */
+  .help-fab.is-minimized { bottom: 8px; }               /* estado minimizado — colado ao fundo */
 }
 
 /* Print styles for the 14-day plan */
