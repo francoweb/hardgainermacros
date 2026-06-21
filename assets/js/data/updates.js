@@ -13,6 +13,55 @@
 
 export const UPDATES = [
   {
+    date: '2026-06-21',
+    type: 'Melhoria',
+    title: 'Edição de líquidos mais clara',
+    description:
+      'Ao editar alimentos líquidos como leite, o campo de quantidade agora mostra "ml" em vez de "g", deixando a edição mais clara e coerente com o que aparece no plano alimentar.',
+    tags: ['Plano alimentar', 'Interface'],
+  },
+  {
+    date: '2026-06-20',
+    type: 'Melhoria',
+    title: 'Botão "Voltar ao topo" em mais páginas',
+    description:
+      'O botão "Voltar ao topo" agora funciona em todas as páginas da ferramenta — FAQ, Atualizações e Início — e não apenas no plano alimentar. Ideal para quem percorre listas longas.',
+    tags: ['Navegação', 'Interface'],
+  },
+  {
+    date: '2026-06-20',
+    type: 'Melhoria',
+    title: 'Botão de ajuda ajustado no celular',
+    description:
+      'Quando minimizado no celular, o botão de ajuda agora fica mais próximo do fundo da tela e ocupa menos espaço visual, sem interferir com outros elementos da página.',
+    tags: ['Celular', 'Interface'],
+  },
+  {
+    date: '2026-06-19',
+    type: 'Melhoria',
+    title: 'Botão de ajuda minimizável',
+    description:
+      'O botão de ajuda pode agora ser minimizado com um clique no "×", deixando a tela mais limpa. Para restaurá-lo, basta clicar no pequeno botão "? Ajuda" que fica visível no canto.',
+    tags: ['Interface', 'Celular'],
+  },
+  {
+    date: '2026-06-18',
+    type: 'Melhoria',
+    title: 'Botão de ajuda com nova cor',
+    description:
+      'O botão de ajuda recebeu uma cor verde oliva mais alinhada com a identidade visual da ferramenta, tornando-o mais fácil de diferenciar de outros botões flutuantes na tela.',
+    tags: ['Interface'],
+  },
+  {
+    date: '2026-06-18',
+    type: 'Nova funcionalidade',
+    title: 'Botão de ajuda rápida',
+    description:
+      'Um botão de ajuda passou a estar visível em todas as páginas da ferramenta. Com um clique, abre diretamente a página de perguntas frequentes com respostas às dúvidas mais comuns.',
+    tags: ['Ajuda', 'Navegação'],
+    highlight: true,
+  },
+  {
     date: '2026-06-17',
     type: 'Melhoria',
     title: 'FAQ mais completa com glossário',

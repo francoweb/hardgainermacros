@@ -2,12 +2,16 @@
  * PÁGINA — Atualizações (/atualizacoes)
  * =============================================================================
  * Página pública (sem proteção de rota). Mostra as atualizações da ferramenta
- * em linguagem útil para o usuário, agrupadas por mês.
+ * em linguagem útil para o usuário, agrupadas por mês, com paginação.
  * =============================================================================
  */
 
 import { UPDATES } from '../data/updates.js';
 import { icons }   from '../modules/icons.js';
+
+// ─── Configuração ─────────────────────────────────────────────────────────────
+
+const PAGE_SIZE = 6;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -40,12 +44,24 @@ function badgeStyle(type) {
   return 'background:var(--surface-soft);color:var(--ink-muted);';
 }
 
-// ─── Renderer ─────────────────────────────────────────────────────────────────
+// ─── Renderização da lista + paginação ───────────────────────────────────────
 
-export function renderUpdatesPage(mount) {
-  // Agrupar por mês (preserva a ordem — UPDATES já vem mais recente primeiro)
+/**
+ * Renderiza as entradas da página atual e o controlo de paginação
+ * dentro do elemento #updates-list, sem tocar no resto da página.
+ *
+ * @param {HTMLElement} listEl  — o elemento #updates-list já no DOM
+ * @param {number}      page   — página actual (1-indexed)
+ */
+function renderUpdatesContent(listEl, page) {
+  const totalPages = Math.ceil(UPDATES.length / PAGE_SIZE);
+  const safePage   = Math.max(1, Math.min(page, totalPages));
+  const start      = (safePage - 1) * PAGE_SIZE;
+  const slice      = UPDATES.slice(start, start + PAGE_SIZE);
+
+  // Agrupar por mês dentro da fatia atual
   const groupMap = new Map();
-  UPDATES.forEach(u => {
+  slice.forEach(u => {
     const key = monthLabel(u.date);
     if (!groupMap.has(key)) groupMap.set(key, []);
     groupMap.get(key).push(u);
@@ -73,15 +89,85 @@ export function renderUpdatesPage(mount) {
     </div>
   `).join('');
 
+  // Paginação — só aparece se existir mais do que uma página
+  const paginationHtml = totalPages > 1 ? `
+    <nav class="upd-pagination" data-testid="upd-pagination" aria-label="Paginação de atualizações">
+      <button
+        class="upd-pg-btn"
+        data-pg-prev
+        data-testid="upd-pg-prev"
+        ${safePage === 1 ? 'disabled aria-disabled="true"' : ''}
+        aria-label="Página anterior">← Anterior</button>
+
+      <div class="upd-pg-nums">
+        ${Array.from({ length: totalPages }, (_, i) => i + 1).map(p => `
+          <button
+            class="upd-pg-num${p === safePage ? ' upd-pg-num--active' : ''}"
+            data-pg-num="${p}"
+            data-testid="upd-pg-num"
+            aria-label="Página ${p}"
+            aria-current="${p === safePage ? 'page' : 'false'}"
+          >${p}</button>
+        `).join('')}
+      </div>
+
+      <button
+        class="upd-pg-btn"
+        data-pg-next
+        data-testid="upd-pg-next"
+        ${safePage === totalPages ? 'disabled aria-disabled="true"' : ''}
+        aria-label="Próxima página">Próxima →</button>
+    </nav>
+  ` : '';
+
+  listEl.innerHTML = groupsHtml + paginationHtml;
+
+  // Scroll suave para o topo da lista ao trocar de página
+  function scrollToList() {
+    const top = listEl.getBoundingClientRect().top + window.scrollY - 20;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }
+
+  // Evento: Anterior
+  const prevBtn = listEl.querySelector('[data-pg-prev]');
+  if (prevBtn && !prevBtn.disabled) {
+    prevBtn.addEventListener('click', () => {
+      scrollToList();
+      renderUpdatesContent(listEl, safePage - 1);
+    });
+  }
+
+  // Evento: Próxima
+  const nextBtn = listEl.querySelector('[data-pg-next]');
+  if (nextBtn && !nextBtn.disabled) {
+    nextBtn.addEventListener('click', () => {
+      scrollToList();
+      renderUpdatesContent(listEl, safePage + 1);
+    });
+  }
+
+  // Evento: número de página
+  listEl.querySelectorAll('[data-pg-num]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = parseInt(btn.dataset.pgNum, 10);
+      if (p !== safePage) {
+        scrollToList();
+        renderUpdatesContent(listEl, p);
+      }
+    });
+  });
+}
+
+// ─── Renderer principal ────────────────────────────────────────────────────────
+
+export function renderUpdatesPage(mount) {
   mount.innerHTML = `
     <div class="container">
       <div class="legal" style="padding: 36px clamp(20px, 5vw, 44px) 48px;">
         <a href="/" data-route class="legal-back">${icons.arrowLeft(14)} Voltar ao início</a>
         <h1 class="hero-title">Atualizações</h1>
         <p class="legal-meta">Últimas melhorias, novas funcionalidades e correções da ferramenta.</p>
-        <div id="updates-list">
-          ${groupsHtml}
-        </div>
+        <div id="updates-list"></div>
       </div>
     </div>
 
@@ -110,10 +196,31 @@ export function renderUpdatesPage(mount) {
                          background: var(--surface-soft); border: 1px solid var(--border);
                          color: var(--ink-muted); }
 
+      /* Paginação */
+      .upd-pagination  { display: flex; align-items: center; justify-content: center;
+                         gap: 6px; flex-wrap: wrap; margin-top: 32px; padding-top: 20px;
+                         border-top: 1px solid var(--border); }
+      .upd-pg-nums     { display: flex; gap: 4px; }
+      .upd-pg-btn,
+      .upd-pg-num      { font-size: 13px; font-weight: 600; padding: 7px 14px;
+                         border: 1px solid var(--border); border-radius: var(--r-md);
+                         background: var(--surface); color: var(--ink);
+                         cursor: pointer; transition: background 0.12s, border-color 0.12s; }
+      .upd-pg-btn:hover:not(:disabled),
+      .upd-pg-num:hover { background: var(--surface-soft); border-color: var(--ink-muted); }
+      .upd-pg-num--active { background: var(--accent); color: #fff;
+                            border-color: var(--accent); cursor: default; }
+      .upd-pg-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
       @media (max-width: 420px) {
-        .upd-card      { padding: 14px 16px; }
-        .upd-date      { margin-left: 0; width: 100%; }
+        .upd-card        { padding: 14px 16px; }
+        .upd-date        { margin-left: 0; width: 100%; }
+        .upd-pg-btn,
+        .upd-pg-num      { font-size: 12px; padding: 6px 11px; }
       }
     </style>
   `;
+
+  const listEl = document.getElementById('updates-list');
+  renderUpdatesContent(listEl, 1);
 }
