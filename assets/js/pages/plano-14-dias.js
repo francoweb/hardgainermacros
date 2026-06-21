@@ -131,6 +131,8 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
         <span>Seus alimentos personalizados ficam salvos apenas neste navegador. Se limpar o cache, trocar de dispositivo ou clicar em Resetar, esses dados podem ser perdidos.</span>
       </div>
 
+      ${renderHydrationCard(results)}
+
       <!-- Days -->
       <div id="days-container">
         ${plan.map((day, idx) => renderDayCard(day, idx, subs, originalPlan?.[idx], results.calories, additions, removals, edits)).join('')}
@@ -1745,6 +1747,82 @@ function formatGramsHumans(g) {
 
 function countSolid(day) { return day.meals.filter(m => m.type === 'solid').length; }
 function countShake(day) { return day.meals.filter(m => m.type === 'shake').length; }
+
+/* ============================================================================ */
+/* Hydration card — Sprint Hidratação 1                                         */
+/* ============================================================================ */
+
+/**
+ * Formata mililitros como litros no padrão brasileiro.
+ * 3200 → "3,2 L" · 3000 → "3 L" · 3750 → "3,8 L"
+ */
+function formatHydrationLiters(ml) {
+  const liters = ml / 1000;
+  const formatted = liters % 1 === 0
+    ? String(Math.round(liters))
+    : liters.toFixed(1);
+  return formatted.replace('.', ',') + ' L';
+}
+
+/**
+ * Calcula metas de hidratação com base no peso e dias de treino.
+ * Base: peso corporal × 40 ml/dia.
+ * Dias com treino: base + 500 ml.
+ */
+function getHydrationTargets(results) {
+  const weightKg = results.weightKg || 0;
+  const trainDays = results.routine?.trainDays ?? 0;
+  const baseMl = Math.round(weightKg * 40);
+  const trainMl = baseMl + 500;
+  return { baseMl, trainMl, hasTraining: trainDays > 0 };
+}
+
+/**
+ * Renderiza o card de hidratação do dia.
+ * Inserido antes dos cards dos 14 dias, após o aviso de dados locais.
+ * Classe no-print: invisível em PDFs e impressões.
+ */
+function renderHydrationCard(results) {
+  const { baseMl, trainMl, hasTraining } = getHydrationTargets(results);
+  const baseL = formatHydrationLiters(baseMl);
+  const trainL = formatHydrationLiters(trainMl);
+
+  if (hasTraining) {
+    return `
+      <div class="card card-section no-print" data-testid="hydration-card" style="border-left:4px solid #6ba8b8;">
+        <h3 class="card-title">💧 Hidratação do dia</h3>
+        <p class="card-body" style="text-align:center;margin-bottom:4px;">Meta aproximada em dias com treino: <strong>${trainL}</strong></p>
+        <p class="card-body" style="text-align:center;margin-bottom:14px;">Meta aproximada em dias sem treino: <strong>${baseL}</strong></p>
+        <p class="card-body">Beba em pequenas doses ao longo do dia. Evite beber muita água junto das refeições para não atrapalhar o apetite.</p>
+        <p style="margin:8px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-muted);">Distribuição prática</p>
+        <ul class="check-list">
+          <li>🌅 <strong>Ao acordar:</strong> 400–500 ml</li>
+          <li>🍽️ <strong>Entre refeições:</strong> 200–300 ml</li>
+          <li>⚡ <strong>Antes do treino:</strong> 300–400 ml</li>
+          <li>🏋️ <strong>Durante o treino:</strong> pequenos goles</li>
+          <li>💪 <strong>Depois do treino:</strong> 400–600 ml</li>
+          <li>🌙 <strong>Final do dia:</strong> 200–300 ml</li>
+        </ul>
+        <p class="card-body" style="margin-top:12px;">Em dias sem treino, mantenha a meta base e distribua ao longo do dia.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="card card-section no-print" data-testid="hydration-card" style="border-left:4px solid #6ba8b8;">
+      <h3 class="card-title">💧 Hidratação do dia</h3>
+      <p class="card-body" style="text-align:center;margin-bottom:14px;">Meta aproximada diária: <strong>${baseL}</strong></p>
+      <p class="card-body">Beba em pequenas doses ao longo do dia. Evite beber muita água junto das refeições para não atrapalhar o apetite.</p>
+      <p style="margin:8px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-muted);">Distribuição prática</p>
+      <ul class="check-list">
+        <li>🌅 <strong>Ao acordar:</strong> 400–500 ml</li>
+        <li>🍽️ <strong>Entre refeições:</strong> 200–300 ml</li>
+        <li>💧 <strong>Ao longo do dia:</strong> pequenos goles</li>
+        <li>🌙 <strong>Final do dia:</strong> 200–300 ml</li>
+      </ul>
+    </div>
+  `;
+}
 
 /* ============================================================================ */
 /* Custom food helpers                                                          */
