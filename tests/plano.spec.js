@@ -6699,3 +6699,180 @@ test.describe('Modal Editar Ingrediente — unidade dinâmica (Sprint G1)', () =
 
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Hidratação — PDF individual por dia (Sprint Hidratação 2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Hidratação — PDF individual por dia', () => {
+
+  // ── C-HYDR-PDF1 ─────────────────────────────────────────────────────────────
+  test('C-HYDR-PDF1 — sem treino: PDF do dia contém "Hidratação do dia" e "Meta aproximada diária"', async ({ page }) => {
+    await injectState(page, CENARIO_6); // trainDays: 0, weight: 75 kg → base 3 L
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    // Suprimir diálogo de impressão para inspecionar o DOM injectado
+    await page.evaluate(() => { window.print = () => {}; });
+
+    // Clicar em "Baixar PDF" do Dia 1
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const text = await page.locator('#day-pdf-print-area').evaluate(el => el.textContent || '');
+    expect(text).toContain('Hidratação do dia');
+    expect(text).toContain('Meta aproximada diária');
+  });
+
+  // ── C-HYDR-PDF2 ─────────────────────────────────────────────────────────────
+  test('C-HYDR-PDF2 — sem treino: PDF do dia NÃO contém "Com treino" nem "Sem treino"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const text = await page.locator('#day-pdf-print-area').evaluate(el => el.textContent || '');
+    expect(text).not.toContain('Com treino');
+    expect(text).not.toContain('Sem treino');
+  });
+
+  // ── C-HYDR-PDF3 ─────────────────────────────────────────────────────────────
+  test('C-HYDR-PDF3 — com treino: PDF do dia contém "Hidratação do dia", "Com treino" e "Sem treino"', async ({ page }) => {
+    await injectState(page, CENARIO_5); // trainDays: 3, weight: 75 kg → 3,5 L / 3 L
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const text = await page.locator('#day-pdf-print-area').evaluate(el => el.textContent || '');
+    expect(text).toContain('Hidratação do dia');
+    expect(text).toContain('Com treino');
+    expect(text).toContain('Sem treino');
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Hidratação — PDF compacto (Sprint Hidratação 2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Captura o HTML gerado pelo PDF compacto.
+ *
+ * O PDF compacto usa um iframe isolado cujo Document pertence a um realm separado
+ * (Document.prototype do main window não o alcança). A estratégia é:
+ *  1. Interceptar Node.prototype.appendChild para detectar o iframe quando ele
+ *     é adicionado ao DOM — nesse momento contentWindow já existe.
+ *  2. Sobrescrever iframeDoc.Document.prototype.write para capturar o HTML antes
+ *     de o iframe ser limpo.
+ *  3. window.print = () => {} previne o diálogo de impressão principal.
+ */
+async function captureCompactPdfHtml(page) {
+  await page.evaluate(() => {
+    window.print = () => {};
+    window.__capturedCompactHtml = null;
+    const origAppend = Node.prototype.appendChild;
+    Node.prototype.appendChild = function(node) {
+      const result = origAppend.call(this, node);
+      if (node && node.tagName === 'IFRAME' && node.contentWindow) {
+        try {
+          const IDoc = node.contentWindow.Document;
+          if (IDoc && IDoc.prototype && !IDoc.prototype.__captureSet) {
+            const origWrite = IDoc.prototype.write;
+            IDoc.prototype.write = function(...args) {
+              const html = args.join('');
+              if (html.includes('cp-header')) window.__capturedCompactHtml = html;
+              return origWrite.apply(this, args);
+            };
+            IDoc.prototype.__captureSet = true;
+          }
+        } catch(e) {}
+      }
+      return result;
+    };
+  });
+  await page.locator('#btn-print-compact').click();
+  await page.waitForFunction(() => window.__capturedCompactHtml !== null, { timeout: 5000 });
+  return page.evaluate(() => window.__capturedCompactHtml || '');
+}
+
+test.describe('Hidratação — PDF compacto', () => {
+
+  // ── C-HYDR-COMPACT1 ─────────────────────────────────────────────────────────
+  test('C-HYDR-COMPACT1 — sem treino: PDF compacto contém "Hidratação" e "L/dia"', async ({ page }) => {
+    await injectState(page, CENARIO_6); // trainDays: 0, weight: 75 kg → 3 L/dia
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const html = await captureCompactPdfHtml(page);
+    expect(html).toContain('Hidratação');
+    expect(html).toContain('L/dia');
+  });
+
+  // ── C-HYDR-COMPACT2 ─────────────────────────────────────────────────────────
+  test('C-HYDR-COMPACT2 — com treino: PDF compacto contém "treino" e "sem treino"', async ({ page }) => {
+    await injectState(page, CENARIO_5); // trainDays: 3, weight: 75 kg → treino 3,5 L · sem treino 3 L
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const html = await captureCompactPdfHtml(page);
+    expect(html).toContain('Hidratação');
+    expect(html).toContain('treino');
+    expect(html).toContain('sem treino');
+  });
+
+  // ── C-HYDR-COMPACT3 ─────────────────────────────────────────────────────────
+  test('C-HYDR-COMPACT3 — PDF compacto não contém lista de distribuição prática', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const html = await captureCompactPdfHtml(page);
+    // Card grande da tela não deve estar no PDF compacto
+    expect(html).not.toContain('Ao acordar');
+    expect(html).not.toContain('Entre refeições');
+    expect(html).not.toContain('Final do dia');
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Hidratação — PDF completo (Sprint Hidratação 2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Hidratação — PDF completo', () => {
+
+  // ── C-HYDR-FULL1 ────────────────────────────────────────────────────────────
+  test('C-HYDR-FULL1 — sem treino: PDF completo contém "Hidratação" e "L/dia"', async ({ page }) => {
+    await injectState(page, CENARIO_6); // trainDays: 0, weight: 75 kg → 3 L/dia
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('#btn-print').click();
+    await page.waitForSelector('#full-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const text = await page.locator('#full-pdf-print-area').evaluate(el => el.textContent || '');
+    expect(text).toContain('Hidratação');
+    expect(text).toContain('L/dia');
+  });
+
+  // ── C-HYDR-FULL2 ────────────────────────────────────────────────────────────
+  test('C-HYDR-FULL2 — com treino: PDF completo contém "Hidratação: treino" e "sem treino"', async ({ page }) => {
+    await injectState(page, CENARIO_5); // trainDays: 3, weight: 75 kg → treino 3,5 L · sem treino 3 L
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('#btn-print').click();
+    await page.waitForSelector('#full-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const text = await page.locator('#full-pdf-print-area').evaluate(el => el.textContent || '');
+    expect(text).toContain('Hidratação');
+    expect(text).toContain('Hidratação: treino');
+    expect(text).toContain('sem treino');
+  });
+
+});
+

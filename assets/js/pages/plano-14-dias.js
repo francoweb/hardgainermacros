@@ -1824,6 +1824,27 @@ function renderHydrationCard(results) {
   `;
 }
 
+/**
+ * Constrói o bloco compacto de hidratação para o PDF individual do dia.
+ * Reutiliza getHydrationTargets e formatHydrationLiters (Sprint Hidratação 1).
+ */
+function buildHydrationPdfBlock(results) {
+  const { baseMl, trainMl, hasTraining } = getHydrationTargets(results);
+  const baseL  = formatHydrationLiters(baseMl);
+  const trainL = formatHydrationLiters(trainMl);
+
+  const metaLine = hasTraining
+    ? `Com treino: <strong>${trainL}</strong> &nbsp;·&nbsp; Sem treino: <strong>${baseL}</strong>`
+    : `Meta aproximada diária: <strong>${baseL}</strong>`;
+
+  return `
+    <div class="pdf-hydration">
+      <div class="pdf-hydration-line1">💧 <strong>Hidratação do dia</strong> &nbsp;—&nbsp; ${metaLine}</div>
+      <div class="pdf-hydration-line2">Beba em pequenas doses ao longo do dia. Evite grandes volumes junto das refeições.</div>
+    </div>
+  `;
+}
+
 /* ============================================================================ */
 /* Custom food helpers                                                          */
 /* ============================================================================ */
@@ -2870,6 +2891,7 @@ function exportDayPDF(day, dayIdx, results) {
         <span class="tot-label">Gordura</span>
       </div>
     </div>
+    ${buildHydrationPdfBlock(results)}
     <div class="pdf-meals">
       ${mealsHtml}
     </div>
@@ -2925,6 +2947,11 @@ function exportDayPDF(day, dayIdx, results) {
       .day-pdf-print-area .tot-item:last-child { border-right: none; }
       .day-pdf-print-area .tot-val { display: block; font-size: 22px; font-weight: 700; color: #1a1814; line-height: 1.1; }
       .day-pdf-print-area .tot-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: #8a7f75; margin-top: 4px; }
+
+      /* ── HYDRATION BLOCK ── */
+      .day-pdf-print-area .pdf-hydration { padding: 5px 28px 6px; background: #f5f9fb; border-bottom: 1px solid #c8dce3; page-break-inside: avoid; break-inside: avoid; }
+      .day-pdf-print-area .pdf-hydration-line1 { font-size: 11px; font-weight: 600; color: #1a3a44; line-height: 1.4; }
+      .day-pdf-print-area .pdf-hydration-line2 { font-size: 10px; color: #4a6a74; line-height: 1.4; }
 
       /* ── MEALS CONTAINER ── */
       .day-pdf-print-area .pdf-meals { padding: 22px 28px 8px; }
@@ -3032,6 +3059,14 @@ function exportFullPlanPDF(plan, results) {
     `;
   }).join('');
 
+  // Sprint Hidratação 2 — linha compacta de hidratação para PDF completo
+  const { baseMl: fpBaseMl, trainMl: fpTrainMl, hasTraining: fpHasTrain } = getHydrationTargets(results);
+  const fpBaseL  = formatHydrationLiters(fpBaseMl);
+  const fpTrainL = formatHydrationLiters(fpTrainMl);
+  const fullHydration = fpHasTrain
+    ? `treino ${fpTrainL} · sem treino ${fpBaseL}`
+    : `${fpBaseL}/dia`;
+
   const contentHtml = `
     <div class="full-pdf-header">
       <div class="full-pdf-brand">Hardgainer Macros</div>
@@ -3048,6 +3083,7 @@ function exportFullPlanPDF(plan, results) {
         <span>G: ${results.fat.grams}g</span>
       </div>
     </div>
+    <div class="full-pdf-hydration">💧 Hidratação: ${fullHydration}</div>
     <div class="full-pdf-body">
       ${daysHtml}
     </div>
@@ -3092,6 +3128,7 @@ function exportFullPlanPDF(plan, results) {
       #full-pdf-print-area .full-pdf-header-divider { width: 36px; height: 2px; background: rgba(255,255,255,0.4); margin-bottom: 18px; }
       #full-pdf-print-area .full-pdf-title { font-size: 26px; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
       #full-pdf-print-area .full-pdf-meta { font-size: 13px; color: rgba(255,255,255,0.80); display: flex; gap: 8px; flex-wrap: wrap; }
+      #full-pdf-print-area .full-pdf-hydration { padding: 6px 32px 7px; font-size: 11px; color: #2e4050; background: #f5f9fb; border-bottom: 1px solid #c8dce3; }
 
       /* ── DAY SECTION ── */
       #full-pdf-print-area .full-pdf-day.page-break { page-break-before: always; break-before: page; }
@@ -3203,11 +3240,20 @@ function exportCompactPlanPDF(plan, results) {
     `;
   }).join('');
 
+  // Sprint Hidratação 2 — linha compacta de hidratação para PDF compacto
+  const { baseMl: cpBaseMl, trainMl: cpTrainMl, hasTraining: cpHasTrain } = getHydrationTargets(results);
+  const cpBaseL  = formatHydrationLiters(cpBaseMl);
+  const cpTrainL = formatHydrationLiters(cpTrainMl);
+  const cpHydration = cpHasTrain
+    ? `treino ${cpTrainL} · sem treino ${cpBaseL}`
+    : `${cpBaseL}/dia`;
+
   const bodyHtml = `
     <div class="cp-header">
       <div class="cp-title">Plano Alimentar de 14 Dias — Compacto</div>
       <div class="cp-sub">${profileName}${profileName && stratLabel ? ' · ' : ''}${stratLabel}${dailyKcal ? ' · ' + dailyKcal + ' kcal/dia' : ''}</div>
     </div>
+    <div class="cp-hydration">💧 Hidratação: ${cpHydration}</div>
     ${daysHtml}
   `;
 
@@ -3218,6 +3264,7 @@ function exportCompactPlanPDF(plan, results) {
     .cp-header { background: #c26d5a; color: #fff; padding: 6px 10px; margin-bottom: 8px; border-radius: 4px; }
     .cp-title { font-size: 13pt; font-weight: 700; }
     .cp-sub { font-size: 9pt; margin-top: 2px; opacity: 0.92; }
+    .cp-hydration { font-size: 8pt; color: #3a5a66; padding: 2px 10px 4px; margin-bottom: 6px; }
     .c-day { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 6px; page-break-inside: avoid; break-inside: avoid; }
     .c-day-header { background: #f6f3ec; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
     .c-day-title { font-weight: 700; font-size: 10pt; color: #c26d5a; }
