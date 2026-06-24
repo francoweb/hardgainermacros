@@ -153,7 +153,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
           <div class="day-num">${icons.list(18)}</div>
           <div class="day-info">
             <div class="day-name">Lista de Compras (7 Primeiros Dias)</div>
-            <div class="day-summary">Agregada de todas as refeições • Quantidades aproximadas</div>
+            <div class="day-summary">Lista baseada nos 7 primeiros dias • Quantidades aproximadas para compra</div>
           </div>
           <div class="day-chev" style="transform:rotate(180deg)">${icons.chevDown(18)}</div>
         </div>
@@ -1686,7 +1686,374 @@ function applySubstitutions(plan, subs) {
 /* Shopping list                                                                */
 /* ============================================================================ */
 
+/**
+ * Mapa de IDs de alimentos para tipos de regra de compra prática.
+ * IDs ausentes mantêm o formato de exibição atual sem sugestão de compra.
+ */
+const SHOPPING_RULE_MAP = {
+  // carnes/frango/peixe/carne moída → blocos de 500 g
+  peito_frango:          'meat',
+  carne_moida:           'meat',
+  peixe_tilapia:         'meat',
+  peixe_pescada:         'meat',
+  peixe_salmao:          'meat',
+  coxa_frango:           'meat',
+  peito_peru:            'meat',
+  alcatra_grelhada:      'meat',
+  camarao:               'meat',
+  bacalhau_fresco:       'meat',
+  // ovos → dúzias
+  ovo_inteiro:           'eggs',
+  // leite e bebidas vegetais → embalagens de 1 L
+  leite_integral:        'dairy_liquid',
+  leite_lactose_free:    'dairy_liquid',
+  bebida_aveia:          'dairy_liquid',
+  bebida_amendoa:        'dairy_liquid',
+  // iogurte/skyr/cottage → potes
+  iogurte_grego:         'dairy_solid',
+  iogurte_natural:       'dairy_solid',
+  skyr:                  'dairy_solid',
+  queijo_cottage:        'dairy_solid',
+  // atum → latas de ~120 g
+  atum_agua:             'canned',
+  // secos comprados secos → pacotes
+  aveia_flocos:          'dry_goods',
+  creme_arroz:           'dry_goods',
+  // cereais e leguminosas cozidos → estimar peso seco (÷ fator de cozimento)
+  arroz_branco_cozido:   'cooked_grain',
+  arroz_basmati_cozido:  'cooked_grain',
+  arroz_integral_cozido: 'cooked_grain',
+  arroz_jasmine_cozido:  'cooked_grain',
+  quinoa_cozida:         'cooked_grain',
+  macarrao_cozido:       'cooked_grain',
+  feijao_carioca:        'cooked_grain',
+  // tapioca → goma seca em pacote
+  tapioca:               'dry_goods',
+  // batatas/raízes → peso aproximado in natura
+  batata_cozida:         'produce',
+  batata_doce_cozida:    'produce',
+  mandioca_cozida:       'produce',
+  // frutas → unidades ou cachos práticos
+  banana_prata:          'produce',
+  maca:                  'produce',
+  pera:                  'produce',
+  manga:                 'produce',
+  mamao:                 'produce',
+  datil:                 'small_pack',
+  // gordura-fruta → unidade prática
+  abacate:               'produce',
+  // vegetais → unidade ou pacote
+  brocolis:              'produce',
+  abobrinha:             'produce',
+  cenoura:               'produce',
+  salada_mista:          'produce',
+  // molhos e extratos → embalagem
+  molho_tomate:          'sauce_pack',
+  // purê → reagrupado com batata inglesa na lista de compras
+  pure_batata:           'produce',
+  // queijos → embalagem pequena
+  queijo_branco:         'cheese_pack',
+  queijo_mussarela:      'cheese_pack',
+  // pão → unidades ou pacote
+  pao_frances:           'bread_roll',
+  pao_forma:             'bread_loaf',
+  // whey / caseína → pote
+  whey:                  'whey',
+  caseina:               'whey',
+  // pastas de oleaginosas → pote
+  pasta_amendoim:        'nut_butter',
+  pasta_amendoa:         'nut_butter',
+  pasta_castanha_caju:   'nut_butter',
+  // óleos → garrafa
+  azeite:                'oil',
+  oleo_coco:             'oil',
+  // mel → frasco
+  mel:                   'honey',
+  // cacau/canela/temperos → embalagem pequena
+  cacau_po:              'small_pack',
+  canela:                'small_pack',
+};
+
+/**
+ * Fator de conversão peso cozido → peso seco para cereais.
+ * Ex.: arroz: 100 g seco → ~300 g cozido, logo fator = 1/3.
+ */
+const COOKED_GRAIN_FACTOR = {
+  arroz_branco_cozido:   1 / 3,
+  arroz_basmati_cozido:  1 / 3,
+  arroz_integral_cozido: 1 / 3,
+  arroz_jasmine_cozido:  1 / 3,
+  quinoa_cozida:         1 / 3,
+  macarrao_cozido:       0.4,
+  feijao_carioca:        0.4,   // ~100g seco → ~250g cozido
+};
+
+/**
+ * Nomes limpos para exibição na Lista de Compras.
+ * Mostra o alimento como é comprado no mercado, não como aparece preparado no plano.
+ * IDs ausentes caem no regex de limpeza de termos de preparo.
+ */
+const SHOPPING_DISPLAY_NAMES = {
+  ovo_inteiro:           'Ovos',
+  carne_moida:           'Carne moída',
+  peito_frango:          'Peito de frango',
+  peixe_pescada:         'Pescada',
+  peixe_tilapia:         'Tilápia',
+  peixe_salmao:          'Salmão',
+  coxa_frango:           'Coxa de frango',
+  peito_peru:            'Peito de peru',
+  alcatra_grelhada:      'Alcatra',
+  camarao:               'Camarão',
+  bacalhau_fresco:       'Bacalhau',
+  arroz_branco_cozido:   'Arroz branco',
+  arroz_basmati_cozido:  'Arroz basmati',
+  arroz_integral_cozido: 'Arroz integral',
+  arroz_jasmine_cozido:  'Arroz jasmine',
+  quinoa_cozida:         'Quinoa',
+  macarrao_cozido:       'Macarrão',
+  // frutas/veg com nome não-limpo pelo regex
+  maca:                  'Maçã',
+  molho_tomate:          'Molho de tomate',
+  // itens cujo nome de compra difere do nome preparado
+  pure_batata:           'Batata inglesa',   // agrupado com batata_cozida
+  salada_mista:          'Folhas para salada',
+  pao_forma:             'Pão de forma',
+};
+
+/**
+ * Retorna o nome do alimento como deve ser exibido na Lista de Compras.
+ * Remove termos de preparo e parênteses explicativos — apenas visual,
+ * nunca altera o nome original do alimento no plano.
+ */
+function getShoppingDisplayName(foodId, originalName) {
+  if (SHOPPING_DISPLAY_NAMES[foodId]) return SHOPPING_DISPLAY_NAMES[foodId];
+  return originalName
+    .replace(/\s+(grelhad[ao]s?|cozid[ao]s?|assad[ao]s?|mexid[ao]s?)\b/gi, '')
+    .replace(/\s*\([^)]*\)/g, '')
+    .trim();
+}
+
+/** Formata gramas como kg com vírgula decimal (pt-BR). Ex: 1500 → "1,5 kg". */
+function fmtKg(g) {
+  const kg = g / 1000;
+  const s = kg % 1 === 0 ? String(Math.round(kg)) : kg.toFixed(1);
+  return `${s.replace('.', ',')} kg`;
+}
+
+/**
+ * Sugestão prática de compra para a lista de compras (display-only).
+ * Retorna null quando o alimento não tem regra — o display antigo é mantido.
+ * Nunca altera item.grams nem qualquer valor usado em cálculo nutricional.
+ */
+function getPurchaseSuggestion(foodId, grams, isImperial) {
+  const rule = SHOPPING_RULE_MAP[foodId];
+
+  if (!isImperial) {
+    // ── MÉTRICO ──────────────────────────────────────────────────────────────
+    if (rule === 'meat') {
+      const p = Math.ceil(grams / 500) * 500;
+      return p >= 1000 ? `~${fmtKg(p)}` : `~${p} g`;
+    }
+    if (rule === 'eggs') {
+      const doz = Math.ceil(Math.ceil(grams / 50) / 12);
+      return doz === 1 ? '1 dúzia' : `${doz} dúzias`;
+    }
+    if (rule === 'dairy_liquid') {
+      const lt = Math.ceil(grams / 1000);
+      return lt === 1 ? '1 embalagem de 1 L' : `${lt} embalagens de 1 L`;
+    }
+    if (rule === 'dairy_solid') {
+      if (grams <= 500)  return '1 pote de 500 g';
+      if (grams <= 1000) return '1 pote de 1 kg';
+      const potes = Math.ceil(grams / 1000);
+      return `${potes} potes de 1 kg`;
+    }
+    if (rule === 'canned') {
+      const cans = Math.ceil(grams / 120);
+      return cans === 1 ? '~1 lata' : `~${cans} latas`;
+    }
+    if (rule === 'dry_goods') {
+      if (grams <= 500) return '1 pacote de 500 g';
+      const kg = Math.ceil(grams / 1000);
+      return `~${kg} kg`;
+    }
+    if (rule === 'cooked_grain') {
+      const factor  = COOKED_GRAIN_FACTOR[foodId] || (1 / 3);
+      const dryG    = Math.round(grams * factor);
+      const rounded = Math.ceil(dryG / 500) * 500;
+      if (rounded <= 500)  return '1 pacote de 500 g';
+      if (rounded <= 1000) return '1 kg';
+      return `~${Math.ceil(rounded / 1000)} kg`;
+    }
+    if (rule === 'produce') {
+      // Quantidade aproximada usada como referência visual
+      const qty = grams >= 1000
+        ? `~${fmtKg(Math.ceil(grams / 100) * 100)}`
+        : `~${Math.ceil(grams / 50) * 50} g`;
+      // ── Frutas ───────────────────────────────────────────────────────────
+      // Pesos práticos por unidade (usados só para sugestão visual de compra):
+      //   banana média  ~125 g  |  maçã/pera média ~150 g  |  manga média ~200 g
+      //   abacate peq.   ~85 g  |  abacate médio   ~155 g  |  abacate grande ~205 g
+      //   abobrinha média ~150 g|  brócolis un.    ~300 g  |  salada pacote ~225 g
+      if (foodId === 'banana_prata') {
+        const n = Math.max(1, Math.round(grams / 125));
+        return `cerca de ${n} bananas médias (${qty})`;
+      }
+      if (foodId === 'maca' || foodId === 'pera') {
+        const n = Math.max(1, Math.round(grams / 150));
+        return n === 1 ? `1 unidade média (${qty})` : `${n} unidades médias (${qty})`;
+      }
+      if (foodId === 'manga') {
+        const n = Math.max(1, Math.round(grams / 200));
+        return n === 1 ? `1 unidade média (${qty})` : `${n} unidades médias (${qty})`;
+      }
+      if (foodId === 'mamao') {
+        const n = Math.max(1, Math.round(grams / 800));
+        return n === 1 ? `1 unidade (${qty})` : `${n} unidades (${qty})`;
+      }
+      if (foodId === 'abacate') {
+        // Limiares baseados em peso real: pequeno ≤100 g, médio 101–170 g, grande 171–230 g
+        if (grams <= 100) return `1 unidade pequena (${qty})`;
+        if (grams <= 170) return `1 unidade média (${qty})`;
+        if (grams <= 230) return `1 unidade grande (${qty})`;
+        const n = Math.ceil(grams / 155);
+        return `${n} unidades médias (${qty})`;
+      }
+      // ── Vegetais ─────────────────────────────────────────────────────────
+      if (foodId === 'brocolis') {
+        const n = Math.max(1, Math.ceil(grams / 300));
+        return n === 1 ? `1 unidade ou 1 pacote (${qty})` : `${n} unidades ou pacotes (${qty})`;
+      }
+      if (foodId === 'abobrinha') {
+        const n = Math.max(1, Math.ceil(grams / 150));
+        return n === 1 ? `1 unidade (${qty})` : `${n} unidades médias (${qty})`;
+      }
+      if (foodId === 'cenoura') {
+        const n = Math.max(1, Math.ceil(grams / 80));
+        return n === 1 ? `1 unidade (${qty})` : `${n} unidades (${qty})`;
+      }
+      if (foodId === 'salada_mista') {
+        const n   = Math.max(1, Math.ceil(grams / 225));
+        const low = Math.max(1, n - 1);
+        if (n === 1) return `1 pacote ou 1 maço (${qty})`;
+        return `${low}–${n} pacotes/maços pequenos (${qty})`;
+      }
+      // ── Raízes/batatas → só peso ──────────────────────────────────────────
+      const p = Math.ceil(grams / 500) * 500;
+      return p >= 1000 ? `~${fmtKg(p)}` : `~${p} g`;
+    }
+    if (rule === 'sauce_pack') {
+      return '1 embalagem de 300–500 g';
+    }
+    if (rule === 'cheese_pack') {
+      const qty = grams >= 1000
+        ? `~${fmtKg(Math.ceil(grams / 100) * 100)}`
+        : `~${Math.ceil(grams / 50) * 50} g`;
+      if (grams <= 250) return `1 embalagem pequena (~100–250 g)`;
+      if (grams <= 500) return `1–2 embalagens (${qty})`;
+      return `${Math.ceil(grams / 250)} embalagens (${qty})`;
+    }
+    if (rule === 'bread_roll') {
+      const qty = grams >= 1000
+        ? `~${fmtKg(Math.ceil(grams / 100) * 100)}`
+        : `~${Math.ceil(grams / 50) * 50} g`;
+      const n = Math.max(1, Math.round(grams / 50));
+      return `cerca de ${n} pães/unidades (${qty})`;
+    }
+    if (rule === 'bread_loaf') {
+      const qty = grams >= 1000
+        ? `~${fmtKg(Math.ceil(grams / 100) * 100)}`
+        : `~${Math.ceil(grams / 50) * 50} g`;
+      const n = Math.max(1, Math.ceil(grams / 450));
+      return n === 1 ? `1 pacote (${qty})` : `${n} pacotes (${qty})`;
+    }
+    if (rule === 'whey') {
+      return grams > 900 ? '2 potes de whey' : '1 pote de whey';
+    }
+    if (rule === 'nut_butter') {
+      if (grams <= 500)  return '1 pote de 500 g';
+      if (grams <= 1000) return '1 pote de 1 kg';
+      const potes = Math.ceil(grams / 1000);
+      return `${potes} potes de 1 kg`;
+    }
+    if (rule === 'oil') {
+      return grams <= 500 ? '1 garrafa de 500 ml' : '1 garrafa de 1 L';
+    }
+    if (rule === 'honey') {
+      return grams <= 500 ? '1 frasco de 500 g' : '1 frasco de 1 kg';
+    }
+    if (rule === 'small_pack') {
+      return '1 embalagem pequena';
+    }
+    // fallback genérico — exibe quantidade aproximada
+    const rounded = Math.ceil(grams / 50) * 50;
+    return rounded >= 1000 ? `~${fmtKg(rounded)}` : `~${rounded} g`;
+  } else {
+    // ── IMPERIAL ─────────────────────────────────────────────────────────────
+    if (rule === 'meat') {
+      const lbs = grams / 453.592;
+      const p   = Math.ceil(lbs / 0.5) * 0.5;
+      const s   = p % 1 === 0 ? String(p) : p.toFixed(1);
+      return `~${s} lb`;
+    }
+    if (rule === 'eggs') {
+      const doz = Math.ceil(Math.ceil(grams / 50) / 12);
+      return doz === 1 ? '1 dozen' : `${doz} dozen`;
+    }
+    if (rule === 'dairy_liquid') {
+      const ml = grams;
+      if (ml <= 946)  return '~1 qt';
+      if (ml <= 1893) return '~1 half-gal';
+      const gals = Math.ceil(ml / 3785);
+      return gals === 1 ? '~1 gal' : `~${gals} gal`;
+    }
+    if (rule === 'dairy_solid') {
+      const oz = grams / 28.35;
+      if (oz <= 16) return '~1 tub (16 oz)';
+      const tubs = Math.ceil(oz / 32);
+      return tubs === 1 ? '~1 tub (32 oz)' : `~${tubs} tubs (32 oz)`;
+    }
+    if (rule === 'canned') {
+      const cans = Math.ceil(grams / 120);
+      return cans === 1 ? '~1 can' : `~${cans} cans`;
+    }
+    if (rule === 'dry_goods') {
+      const p = Math.ceil(grams / 453.592);
+      return p === 1 ? '~1 lb' : `~${p} lb`;
+    }
+    if (rule === 'cooked_grain') {
+      const factor = COOKED_GRAIN_FACTOR[foodId] || (1 / 3);
+      const dryOz  = Math.round(grams * factor / 28.35);
+      return dryOz <= 16 ? '~1 lb' : `~${Math.ceil(dryOz / 16)} lb`;
+    }
+    if (rule === 'produce') {
+      const lbs = grams / 453.592;
+      const p   = Math.ceil(lbs / 0.5) * 0.5;
+      const s   = p % 1 === 0 ? String(p) : p.toFixed(1);
+      return `~${s} lb`;
+    }
+    if (rule === 'sauce_pack')  return '1 can or pack (10–16 oz)';
+    if (rule === 'cheese_pack') return '1 package';
+    if (rule === 'bread_roll')  return `~${Math.max(1, Math.round(grams / 50))} rolls`;
+    if (rule === 'bread_loaf')  return '1 loaf';
+    if (rule === 'whey')        return grams > 900 ? '2 tubs of whey' : '1 tub of whey';
+    if (rule === 'nut_butter') return '1 jar';
+    if (rule === 'oil')        return '1 bottle';
+    if (rule === 'honey')      return '1 jar';
+    if (rule === 'small_pack') return '1 small pack';
+    // fallback genérico imperial
+    const lbs = grams / 453.592;
+    if (lbs >= 1) {
+      const p = Math.ceil(lbs / 0.5) * 0.5;
+      const s = p % 1 === 0 ? String(p) : p.toFixed(1);
+      return `~${s} lb`;
+    }
+    return `~${Math.round(grams / 28.35)} oz`;
+  }
+}
+
 function renderShoppingList(days) {
+  const isImperial = loadFormData()?.unit === 'imperial';
   const totals = {};
   days.forEach(day => {
     day.meals.forEach(meal => {
@@ -1707,6 +2074,21 @@ function renderShoppingList(days) {
     byCategory[cat].push({ foodId, food: f, grams: Math.ceil(grams / 50) * 50 });
   });
 
+  // Mesclar itens com o mesmo nome de compra dentro da mesma categoria
+  // Ex.: purê de batata + batata cozida → Batata inglesa (grams somados)
+  Object.keys(byCategory).forEach(cat => {
+    const seen = {};
+    byCategory[cat].forEach(item => {
+      const key = getShoppingDisplayName(item.foodId, item.food.name);
+      if (seen[key]) {
+        seen[key].grams += item.grams;
+      } else {
+        seen[key] = { ...item };
+      }
+    });
+    byCategory[cat] = Object.values(seen);
+  });
+
   const CAT_LABEL = {
     protein: 'Proteínas',
     carb: 'Carboidratos',
@@ -1719,25 +2101,28 @@ function renderShoppingList(days) {
 
   const catOrder = ['protein', 'carb', 'dairy', 'fruit', 'veg', 'fat', 'extra'];
 
-  return catOrder.filter(c => byCategory[c]).map(cat => `
+  const shopNote = `<p class="shopping-note" style="font-size:12.5px;color:var(--ink-muted);margin:0 0 12px;font-style:italic;">Alguns produtos, como whey, azeite, mel e pastas, podem sobrar para as próximas semanas.</p>`;
+
+  return shopNote + catOrder.filter(c => byCategory[c]).map(cat => `
     <div class="shopping-cat">
       <h4 class="shopping-cat-title">${CAT_LABEL[cat] || cat}</h4>
       <ul class="shopping-list">
-        ${byCategory[cat].sort((a, b) => b.grams - a.grams).map(item => `
-          <li class="shopping-item">
-            <span class="shopping-name">${item.food.name}</span>
-            <span class="shopping-qty">
-              ${item.food.category === 'dairy' ? `~${item.grams} ml` : `~${formatGramsHumans(item.grams)}`}
-            </span>
-          </li>
-        `).join('')}
+        ${byCategory[cat].sort((a, b) => b.grams - a.grams).map(item => {
+          const displayName = getShoppingDisplayName(item.foodId, item.food.name);
+          const suggestion  = getPurchaseSuggestion(item.foodId, item.grams, isImperial);
+          return `
+            <li class="shopping-item" style="flex-direction:column;align-items:flex-start;gap:2px;">
+              <span class="shopping-name">${displayName}</span>
+              <span style="font-size:13px;font-weight:600;color:var(--ink);">Comprar: ${suggestion}</span>
+            </li>`;
+        }).join('')}
       </ul>
     </div>
   `).join('');
 }
 
 function formatGramsHumans(g) {
-  if (g >= 1000) return `${(g / 1000).toFixed(1)} kg`;
+  if (g >= 1000) return `${(g / 1000).toFixed(1).replace('.', ',')} kg`;
   return `${g} g`;
 }
 

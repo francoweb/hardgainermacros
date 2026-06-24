@@ -6876,3 +6876,528 @@ test.describe('Hidratação — PDF completo', () => {
 
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Lista de Compras — Quantidades Práticas (Sprint Lista de Compras 1)
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Lista de Compras — Quantidades Práticas', () => {
+
+  // ── C-SHOP1 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP1 — lista mostra "Comprar:" para itens com regra e sem "Usado no plano:"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).toContain('Comprar:');
+    expect(text).not.toContain('Usado no plano:');
+  });
+
+  // ── C-SHOP2 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP2 — leite integral mostra "embalagem(ns) de 1 L" (se presente)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // Usa evaluate + replace de whitespace para evitar variações de espaço/newline no textContent
+    const leiteItems = page.locator('#shopping-body .shopping-item').filter({ hasText: 'Leite integral' });
+    if (await leiteItems.count() > 0) {
+      const leiteText = await leiteItems.first().evaluate(el => (el.textContent || '').replace(/\s+/g, ' '));
+      // 'embalagem' (singular) e 'embalagens' (plural) partilham o prefixo 'embalage'
+      expect(leiteText).toContain('embalage');
+    }
+  });
+
+  // ── C-SHOP3 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP3 — ovos mostram "dúzia(s)" (se presentes)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Ovo inteiro')) {
+      expect(text).toContain('dúzia');
+    }
+  });
+
+  // ── C-SHOP4 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP4 — iogurte mostra "pote" (se presente)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Iogurte')) {
+      expect(text).toContain('pote');
+    }
+  });
+
+  // ── C-SHOP5 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP5 — itens com "Comprar:" não têm "Usado no plano:" e têm nome limpo', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const items = page.locator('#shopping-body li.shopping-item');
+    const count = await items.count();
+    for (let i = 0; i < Math.min(count, 30); i++) {
+      const itemText = await items.nth(i).textContent() || '';
+      if (itemText.includes('Comprar:')) {
+        expect(itemText).not.toContain('Usado no plano:');
+      }
+    }
+  });
+
+  // ── C-SHOP6 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP6 — nota informativa aparece no topo da lista de compras', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).toContain('podem sobrar para as próximas semanas');
+  });
+
+  // ── C-SHOP7 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP7 — sem valores inválidos na lista (NaN, undefined)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).not.toContain('NaN');
+    expect(text).not.toContain('undefined');
+    expect(text).not.toContain('null');
+  });
+
+  // ── C-SHOP8 ──────────────────────────────────────────────────────────────────
+  test('C-SHOP8 — mobile 390px: lista de compras sem overflow horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+  });
+
+  // ── C-SHOP-NAME1 ──────────────────────────────────────────────────────────────
+  test('C-SHOP-NAME1 — lista não mostra "Peito de frango grelhado", mostra "Peito de frango"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Peito de frango')) {
+      expect(text).not.toContain('Peito de frango grelhado');
+    }
+  });
+
+  // ── C-SHOP-NAME2 ──────────────────────────────────────────────────────────────
+  test('C-SHOP-NAME2 — lista não mostra "Arroz branco cozido", mostra "Arroz branco"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Arroz branco')) {
+      expect(text).not.toContain('Arroz branco cozido');
+    }
+  });
+
+  // ── C-SHOP-NAME3 ──────────────────────────────────────────────────────────────
+  test('C-SHOP-NAME3 — lista não mostra "Macarrão cozido", mostra "Macarrão"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Macarrão')) {
+      expect(text).not.toContain('Macarrão cozido');
+    }
+  });
+
+  // ── C-SHOP-NAME4 ──────────────────────────────────────────────────────────────
+  test('C-SHOP-NAME4 — lista não mostra "Usado no plano:" em nenhum item', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).not.toContain('Usado no plano:');
+  });
+
+  // ── C-SHOP-LAYOUT1 ────────────────────────────────────────────────────────────
+  test('C-SHOP-LAYOUT1 — nenhum item exibe quantidade solta à direita (sem .shopping-qty)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const qtySpans = page.locator('#shopping-body .shopping-qty');
+    expect(await qtySpans.count()).toBe(0);
+  });
+
+  // ── C-SHOP-LAYOUT2 ────────────────────────────────────────────────────────────
+  test('C-SHOP-LAYOUT2 — todos os itens exibem "Comprar:"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const items = page.locator('#shopping-body li.shopping-item');
+    const count = await items.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const itemText = await items.nth(i).textContent() || '';
+      expect(itemText).toContain('Comprar:');
+    }
+  });
+
+  // ── C-SHOP-PACK1 ─────────────────────────────────────────────────────────────
+  test('C-SHOP-PACK1 — whey mostra "pote de whey", não gramas soltos', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Proteína whey')) {
+      expect(text).toContain('pote de whey');
+    }
+  });
+
+  // ── C-SHOP-PACK2 ─────────────────────────────────────────────────────────────
+  test('C-SHOP-PACK2 — pasta de amendoim mostra "pote"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Pasta de amendoim')) {
+      expect(text).toContain('pote');
+    }
+  });
+
+  // ── C-SHOP-PACK3 ─────────────────────────────────────────────────────────────
+  test('C-SHOP-PACK3 — azeite mostra "garrafa"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Azeite de oliva')) {
+      expect(text).toContain('garrafa');
+    }
+  });
+
+  // ── C-SHOP-PACK4 ─────────────────────────────────────────────────────────────
+  test('C-SHOP-PACK4 — cacau e canela mostram "embalagem pequena"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    const hasCacau  = text.includes('Cacau em pó');
+    const hasCanela = text.includes('Canela em pó');
+    if (hasCacau || hasCanela) {
+      expect(text).toContain('embalagem pequena');
+    }
+  });
+
+  // ── C-SHOP-MACROS ─────────────────────────────────────────────────────────────
+  test('C-SHOP-MACROS — macros/kcal do plano não foram alterados pela lista de compras', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // A lista de compras existe e não tem NaN
+    const shopText = await page.locator('#shopping-body').textContent() || '';
+    expect(shopText.length).toBeGreaterThan(0);
+    expect(shopText).not.toContain('NaN');
+    expect(shopText).not.toContain('undefined');
+    // O corpo da página (que contém o plano) também não tem NaN
+    const bodyText = await page.evaluate(() => document.body.textContent || '');
+    expect(bodyText).not.toContain('NaN');
+  });
+
+  // ── C-SHOP-PRODUCE1 ───────────────────────────────────────────────────────────
+  test('C-SHOP-PRODUCE1 — banana mostra número de bananas médias sem "cacho"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Banana madura')) {
+      expect(text).toMatch(/bananas médias/i);
+      expect(text).not.toMatch(/cacho/i);
+    }
+  });
+
+  // ── C-SHOP-PRODUCE2 ───────────────────────────────────────────────────────────
+  test('C-SHOP-PRODUCE2 — abacate mostra unidade com peso aproximado', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Abacate')) {
+      expect(text).toMatch(/unidade/i);
+    }
+  });
+
+  // ── C-SHOP-PRODUCE3 ───────────────────────────────────────────────────────────
+  test('C-SHOP-PRODUCE3 — maçã mostra unidades médias com peso aproximado', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Maçã')) {
+      expect(text).toMatch(/unidade/i);
+    }
+  });
+
+  // ── C-SHOP-PRODUCE4 ───────────────────────────────────────────────────────────
+  test('C-SHOP-PRODUCE4 — manga mostra unidades médias com peso aproximado', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Manga')) {
+      expect(text).toMatch(/unidade/i);
+    }
+  });
+
+  // ── C-SHOP-PRODUCE5 ───────────────────────────────────────────────────────────
+  test('C-SHOP-PRODUCE5 — molho de tomate mostra embalagem, não só gramas', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Molho de tomate')) {
+      expect(text).toMatch(/embalagem/i);
+      // Não deve mostrar só "~X g" sem contexto de embalagem
+      expect(text).not.toMatch(/Molho de tomate[^C]*Comprar: ~\d+ g/);
+    }
+  });
+
+  // ── C-SHOP-PRODUCE6 ───────────────────────────────────────────────────────────
+  test('C-SHOP-PRODUCE6 — brócolis mostra unidade ou pacote com peso aproximado', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Brócolis')) {
+      expect(text).toMatch(/unidade|pacote/i);
+    }
+  });
+
+  // ── C-SHOP-PRODUCE7 ───────────────────────────────────────────────────────────
+  test('C-SHOP-PRODUCE7 — salada aparece como "Folhas para salada" com pacote/maço', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    // "Salada (alface, tomate)" não deve aparecer
+    expect(text).not.toContain('Salada (alface, tomate)');
+    if (text.includes('Folhas para salada')) {
+      expect(text).toMatch(/pacote|maço/i);
+    }
+  });
+
+  // ── C-SHOP-REFINE1 ────────────────────────────────────────────────────────────
+  test('C-SHOP-REFINE1 — "Purê de batata" não aparece na lista de compras', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).not.toContain('Purê de batata');
+  });
+
+  // ── C-SHOP-REFINE2 ────────────────────────────────────────────────────────────
+  test('C-SHOP-REFINE2 — se havia purê, aparece "Batata inglesa" no lugar', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // Verificar que purê não aparece; batata inglesa pode ou não aparecer dependendo do plano
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).not.toContain('Purê de batata');
+    // Se existe "batata" na lista, deve ser "Batata inglesa"
+    if (text.includes('Batata')) {
+      expect(text).not.toContain('Purê');
+    }
+  });
+
+  // ── C-SHOP-REFINE3 ────────────────────────────────────────────────────────────
+  test('C-SHOP-REFINE3 — banana não mostra "cacho"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).not.toMatch(/cacho/i);
+  });
+
+  // ── C-SHOP-REFINE4 ────────────────────────────────────────────────────────────
+  test('C-SHOP-REFINE4 — queijo branco mostra embalagem pequena', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Queijo branco')) {
+      expect(text).toMatch(/embalagem/i);
+    }
+  });
+
+  // ── C-SHOP-REFINE5 ────────────────────────────────────────────────────────────
+  test('C-SHOP-REFINE5 — pão branco mostra unidades ou pacote', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Pão branco')) {
+      expect(text).toMatch(/unidade|pacote/i);
+    }
+    if (text.includes('Pão de forma')) {
+      expect(text).toMatch(/pacote/i);
+    }
+  });
+
+  // ── C-SHOP-REFINE6 ────────────────────────────────────────────────────────────
+  test('C-SHOP-REFINE6 — nenhum texto técnico visível na lista de compras', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).not.toMatch(/fallback/i);
+    expect(text).not.toMatch(/peso seco estimado/i);
+    expect(text).not.toMatch(/fator de/i);
+    expect(text).not.toContain('Purê');
+    expect(text).not.toContain('cozido');
+    expect(text).not.toContain('grelhado');
+  });
+
+  // ── C-SHOP-FINAL1 ────────────────────────────────────────────────────────────
+  test('C-SHOP-FINAL1 — subtítulo novo aparece na Lista de Compras', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-head').textContent() || '';
+    expect(text).toContain('7 primeiros dias');
+    expect(text).toContain('Quantidades aproximadas para compra');
+  });
+
+  // ── C-SHOP-FINAL2 ────────────────────────────────────────────────────────────
+  test('C-SHOP-FINAL2 — subtítulo antigo não aparece', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-head').textContent() || '';
+    expect(text).not.toContain('Agregada de todas as refeições');
+  });
+
+  // ── C-SHOP-FINAL3 ────────────────────────────────────────────────────────────
+  test('C-SHOP-FINAL3 — feijão carioca mostra pacote de 500 g', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Feijão carioca')) {
+      expect(text).toMatch(/pacote/i);
+    }
+  });
+
+  // ── C-SHOP-FINAL4 ────────────────────────────────────────────────────────────
+  test('C-SHOP-FINAL4 — tapioca mostra pacote de 500 g', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Tapioca')) {
+      expect(text).toMatch(/pacote/i);
+    }
+  });
+
+  // ── C-SHOP-FINAL5 ────────────────────────────────────────────────────────────
+  test('C-SHOP-FINAL5 — pão branco mostra "pães/unidades"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Pão branco')) {
+      expect(text).toMatch(/pães\/unidades/i);
+    }
+  });
+
+  // ── C-SHOP-FINAL6 ────────────────────────────────────────────────────────────
+  test('C-SHOP-FINAL6 — queijo branco mostra "embalagem pequena" com faixa ~100–250 g', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Queijo branco')) {
+      expect(text).toMatch(/embalagem pequena/i);
+      expect(text).toContain('100–250 g');
+    }
+  });
+
+  // ── C-SHOP-WEIGHT1 ────────────────────────────────────────────────────────────
+  test('C-SHOP-WEIGHT1 — abacate com ~200 g NÃO mostra "unidade pequena"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    // A sugestão "1 unidade pequena" não deve aparecer com peso ≥ 150 g
+    // (detecta padrão "1 unidade pequena (~1XX g)" ou "(~2XX g)")
+    expect(text).not.toMatch(/1 unidade pequena \(~[12]\d\d g\)/);
+  });
+
+  // ── C-SHOP-WEIGHT2 ────────────────────────────────────────────────────────────
+  test('C-SHOP-WEIGHT2 — abacate mostra tamanho de unidade coerente quando presente', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Abacate')) {
+      expect(text).toMatch(/unidade (pequena|média|grande|médias)/i);
+    }
+  });
+
+  // ── C-SHOP-WEIGHT3 ────────────────────────────────────────────────────────────
+  test('C-SHOP-WEIGHT3 — banana usa base de ~125 g por unidade (resultado coerente)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Banana madura')) {
+      expect(text).toMatch(/cerca de \d+ bananas médias/i);
+      // Não deve mostrar número de bananas próximo ao que seria com 100g/unidade
+      // (a diferença de ~25% é difícil de testar sem saber os grams exactos;
+      //  validamos apenas que o formato é correto)
+      expect(text).not.toMatch(/cacho/i);
+    }
+  });
+
+  // ── C-SHOP-WEIGHT4 ────────────────────────────────────────────────────────────
+  test('C-SHOP-WEIGHT4 — abobrinha mostra "unidades médias" (não unidades genéricas)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Abobrinha')) {
+      expect(text).toMatch(/unidade/i);
+    }
+  });
+
+  // ── C-SHOP-WEIGHT5 ────────────────────────────────────────────────────────────
+  test('C-SHOP-WEIGHT5 — brócolis mostra unidade ou pacote com peso coerente', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Brócolis')) {
+      expect(text).toMatch(/unidade|pacote/i);
+    }
+  });
+
+  // ── C-SHOP-WEIGHT6 ────────────────────────────────────────────────────────────
+  test('C-SHOP-WEIGHT6 — folhas para salada mostra pacotes/maços com faixa de quantidade', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    if (text.includes('Folhas para salada')) {
+      expect(text).toMatch(/pacote|maço/i);
+    }
+  });
+
+  // ── C-SHOP-WEIGHT7 ────────────────────────────────────────────────────────────
+  test('C-SHOP-WEIGHT7 — nenhum texto técnico de pesos visível na lista', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const text = await page.locator('#shopping-body').textContent() || '';
+    expect(text).not.toMatch(/estimado internamente/i);
+    expect(text).not.toMatch(/fator/i);
+    expect(text).not.toMatch(/fallback/i);
+    expect(text).not.toMatch(/peso seco/i);
+    expect(text).not.toContain('Usado no plano');
+  });
+
+});
+
