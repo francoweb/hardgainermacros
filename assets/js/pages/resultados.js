@@ -223,7 +223,7 @@ export function renderResultadosPage(mount) {
     <div class="container">
       <div class="results-hero">
         <h1 class="hero-title">Seu Plano Personalizado</h1>
-        <p class="hero-sub">Baseado no Sistema de Alimentação Híbrida para Hardgainers</p>
+        <p class="hero-sub">Baseado no <a href="https://hardgainerhibrido.com/" target="_blank" rel="noopener noreferrer">Sistema de Alimentação Híbrida</a> para Hardgainers</p>
       </div>
 
       <div class="btn-row">

@@ -77,7 +77,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
   // P1: texto de "Princípios das Receitas" condicional por estratégia
   const principiosText = strategy === 'solid'
     ? 'Todas as refeições são sólidas: carboidratos de digestão leve (arroz branco, pão francês, macarrão, batata) e proteínas completas (ovos, frango, carne magra, peixe) em cada bloco. A estrutura valoriza volume e variedade para atingir o superávit calórico com comida de verdade.'
-    : 'Todas as refeições seguem o Sistema Híbrido do ebook: refeições sólidas com carboidratos de digestão leve (arroz branco, pão francês, macarrão, batata) e proteínas completas (ovos, frango, carne magra, peixe). Os shakes combinam whey, leite integral, fruta e uma fonte de gordura boa (pasta de amendoim, aveia ou azeite) para concentrar calorias.';
+    : 'Todas as refeições seguem o <a href="https://hardgainerhibrido.com/" target="_blank" rel="noopener noreferrer">Sistema Híbrido do Guia</a>: refeições sólidas com carboidratos de digestão leve (arroz branco, pão francês, macarrão, batata) e proteínas completas (ovos, frango, carne magra, peixe). Os shakes combinam whey, leite integral, fruta e uma fonte de gordura boa (pasta de amendoim, aveia ou azeite) para concentrar calorias.';
 
   // P2: item 2 de "Como Aplicar" condicional por estratégia
   const item2Text = strategy === 'solid'

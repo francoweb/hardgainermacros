@@ -28,7 +28,7 @@ import { calcAll } from '../modules/calculator.js';
 
 const STRATEGIES = [
   { id: 'solid',     title: 'Mais Refeições Sólidas', desc: '70% sólido + 30% shakes. Mais mastigação e saciedade.', badge: null },
-  { id: 'hybrid',    title: 'Sistema Híbrido',        desc: '60% sólido + 40% shakes. A combinação do ebook.',    badge: 'Recomendado' },
+  { id: 'hybrid',    title: 'Sistema Híbrido',        desc: '60% sólido + 40% shakes. A combinação do Guia Hardgainer.',    badge: 'Recomendado' },
   { id: 'practical', title: 'Máxima Praticidade',    desc: '45% sólido + 55% shakes. Para rotinas muito corridas.', badge: null },
 ];
 
@@ -186,6 +186,7 @@ export function renderRotinaPage(mount) {
             <strong>Sistema Híbrido para Hardgainers:</strong>
             3 refeições sólidas (café, almoço, jantar) + 3 shakes anabólicos nos intervalos.
             O líquido digere rápido e permite atingir 3000+ kcal sem desconforto estomacal.
+            Saiba mais no <a href="https://hardgainerhibrido.com/" target="_blank" rel="noopener noreferrer">Guia Hardgainer</a>.
           </div>
         </div>
 

@@ -82,6 +82,104 @@ test.describe('Plano Alimentar — Princípios das Receitas condicional', () => 
       .toBeVisible();
   });
 
+  // ── C-P2 ─────────────────────────────────────────────────────────────────────
+  test('C-P2 — Nenhuma página visível da app exibe "ebook" ou "e-book"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    // Verificar na página de rotina
+    await page.goto('http://127.0.0.1:5500/');
+    const homeText = await page.evaluate(() => document.body.innerText);
+    expect(homeText).not.toMatch(/\bebook\b/i);
+    expect(homeText).not.toMatch(/\be-book\b/i);
+    // Verificar no plano alimentar
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const planoText = await page.evaluate(() => document.body.innerText);
+    expect(planoText).not.toMatch(/\bebook\b/i);
+    expect(planoText).not.toMatch(/\be-book\b/i);
+  });
+
+  // ── C-P3 ─────────────────────────────────────────────────────────────────────
+  test('C-P3 — Link "Guia Hardgainer" existe, abre em nova aba e aponta para hardgainerhibrido.com', async ({ page }) => {
+    // A hint box com o link está em /rotina (requer flags de sessão)
+    await injectState(page, CENARIO_6);
+    await page.goto('http://127.0.0.1:5500/');
+    await page.waitForLoadState('load');
+    await page.evaluate(() => {
+      history.pushState({}, '', '/rotina');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForSelector('.hint', { timeout: 5000 });
+    const link = page.locator('a[href="https://hardgainerhibrido.com/"]').first();
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    const linkText = await link.textContent();
+    expect(linkText?.trim()).toBe('Guia Hardgainer');
+  });
+
+  // ── C-P4 ─────────────────────────────────────────────────────────────────────
+  test('C-P4 — "Sistema Híbrido" como label de opção não virou link indevido', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await page.goto('http://127.0.0.1:5500/');
+    await page.waitForLoadState('load');
+    await page.evaluate(() => {
+      history.pushState({}, '', '/rotina');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForSelector('.hint', { timeout: 5000 });
+    // O título do botão "Sistema Híbrido" não deve ser um link
+    const strategyBtn = page.locator('button[data-strategy="hybrid"]');
+    if (await strategyBtn.count() > 0) {
+      const hasLinkInside = await strategyBtn.evaluate(el => !!el.querySelector('a'));
+      expect(hasLinkInside).toBe(false);
+    }
+    // O link adicionado está no hint box (fora dos botões)
+    const linkInHint = page.locator('.hint a[href="https://hardgainerhibrido.com/"]');
+    await expect(linkInHint).toBeVisible();
+  });
+
+  // ── C-P5 ─────────────────────────────────────────────────────────────────────
+  test('C-P5 — "Sistema de Alimentação Híbrida" está linkado no subtítulo dos resultados', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    // O subtítulo hero-sub deve conter o link
+    const heroSub = page.locator('.hero-sub');
+    await expect(heroSub).toBeVisible();
+    const link = heroSub.locator('a[href="https://hardgainerhibrido.com/"]');
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    const linkText = await link.textContent();
+    expect(linkText?.trim()).toBe('Sistema de Alimentação Híbrida');
+  });
+
+  // ── C-P6 ─────────────────────────────────────────────────────────────────────
+  test('C-P6 — "Sistema de Alimentação Híbrida" está linkado no rodapé', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    // O rodapé aparece em todas as páginas — verificar o link no footer-meta
+    const footerLink = page.locator('.footer-meta a[href="https://hardgainerhibrido.com/"]');
+    await expect(footerLink).toBeVisible();
+    await expect(footerLink).toHaveAttribute('target', '_blank');
+    await expect(footerLink).toHaveAttribute('rel', 'noopener noreferrer');
+    const linkText = await footerLink.textContent();
+    expect(linkText?.trim()).toBe('Sistema de Alimentação Híbrida');
+  });
+
+  // ── C-P7 ─────────────────────────────────────────────────────────────────────
+  test('C-P7 — "Sistema Híbrido do Guia" está linkado no card Princípios das Receitas', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // O card "Princípios das Receitas" deve ter o link (só aparece na estratégia híbrida)
+    const principiosCard = page.locator('.card-body a[href="https://hardgainerhibrido.com/"]').first();
+    await expect(principiosCard).toBeVisible();
+    await expect(principiosCard).toHaveAttribute('target', '_blank');
+    await expect(principiosCard).toHaveAttribute('rel', 'noopener noreferrer');
+    const linkText = await principiosCard.textContent();
+    expect(linkText?.trim()).toBe('Sistema Híbrido do Guia');
+  });
+
 });
 
 // C-P3 removido: botão "Personalizar" foi removido da interface.

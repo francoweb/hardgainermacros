@@ -92,7 +92,7 @@ export function renderFooter() {
         <div class="footer-meta">
           © ${year} Todos os direitos reservados<br>
           Esta ferramenta é apenas para fins educacionais e não substitui acompanhamento profissional.<br>
-          Baseado no Sistema de Alimentação Híbrida para Hardgainers.<br>
+          Baseado no <a href="https://hardgainerhibrido.com/" target="_blank" rel="noopener noreferrer">Sistema de Alimentação Híbrida</a> para Hardgainers.<br>
           Ferramenta desenvolvida por <a href="https://www.instagram.com/marcofrancooficial" target="_blank" rel="noopener">@marcofrancooficial</a>
         </div>
       </div>
