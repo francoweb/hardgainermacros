@@ -131,6 +131,40 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
         <span>Seus alimentos personalizados ficam salvos apenas neste navegador. Se limpar o cache, trocar de dispositivo ou clicar em Resetar, esses dados podem ser perdidos.</span>
       </div>
 
+      <!-- Como usar este plano -->
+      <details id="how-to-use" class="no-print" style="margin-bottom: 20px; background: #f0f6fa; border: 1px solid #c5dde8; border-left: 4px solid #6ba8b8; border-radius: 0 8px 8px 0; padding: 10px 16px; font-size: 13px; color: #2e4a55; line-height: 1.6; box-sizing: border-box; width: 100%;">
+        <summary style="cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <span style="font-size: 13px; font-weight: 600; color: #1e3a44;">📋 Como usar este plano</span>
+          <span style="font-size: 11px; white-space: nowrap; color: #6ba8b8; flex-shrink: 0;">▸ Ver orientações</span>
+        </summary>
+        <div style="margin: 10px 0 2px; padding-top: 10px; border-top: 1px solid #c5dde8; color: #3a5a66; font-size: 13px;">
+          <p style="margin: 0 0 6px; font-weight: 600; color: #1e3a44;">Antes de começar</p>
+          <ul style="margin: 0 0 14px; padding-left: 18px;">
+            <li style="margin-bottom: 4px;">Confira os horários das refeições no plano.</li>
+            <li style="margin-bottom: 4px;">Veja a lista de compras dos 7 primeiros dias antes de ir ao mercado.</li>
+            <li>Prepare o básico com antecedência para não depender de improviso durante a semana.</li>
+          </ul>
+          <p style="margin: 0 0 6px; font-weight: 600; color: #1e3a44;">Durante os 14 dias</p>
+          <ul style="margin: 0 0 14px; padding-left: 18px;">
+            <li style="margin-bottom: 4px;">Use o plano como base prática, não como regra absoluta.</li>
+            <li style="margin-bottom: 4px;">Evite mudar tudo logo no primeiro dia — adapte aos poucos se necessário.</li>
+            <li style="margin-bottom: 4px;">Se algum alimento não fizer sentido para você, use a substituição ou ajuste a quantidade.</li>
+            <li style="margin-bottom: 4px;">Se estiver difícil comer tudo sólido, use os shakes do plano para facilitar.</li>
+            <li style="margin-bottom: 4px;">Veja a meta de hidratação indicada pela app e distribua a água em pequenas doses ao longo do dia.</li>
+            <li style="margin-bottom: 4px;">Evite beber grandes volumes junto das refeições para não atrapalhar o apetite.</li>
+            <li>O mais importante é repetir com consistência.</li>
+          </ul>
+          <p style="margin: 0 0 6px; font-weight: 600; color: #1e3a44;">Depois dos 14 dias</p>
+          <ul style="margin: 0; padding-left: 18px;">
+            <li style="margin-bottom: 4px;">Veja se conseguiu cumprir o plano na maior parte dos dias.</li>
+            <li style="margin-bottom: 4px;">Veja se o peso subiu, ficou igual ou desceu.</li>
+            <li style="margin-bottom: 4px;">Se não conseguiu seguir bem, melhore a consistência antes de mudar as calorias.</li>
+            <li style="margin-bottom: 4px;">Se seguiu bem e mesmo assim não evoluiu, ajuste as porções ou calorias aos poucos.</li>
+            <li>Se o ganho vier com muito desconforto ou gordura abdominal, reduza um pouco o excesso e ajuste com calma.</li>
+          </ul>
+        </div>
+      </details>
+
       ${renderHydrationCard(results)}
 
       <!-- Days -->

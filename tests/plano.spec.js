@@ -185,6 +185,105 @@ test.describe('Plano Alimentar — Princípios das Receitas condicional', () => 
 // C-P3 removido: botão "Personalizar" foi removido da interface.
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Grupo: Card "Como usar este plano"
+// ─────────────────────────────────────────────────────────────────────────────
+
+test.describe('Plano Alimentar — Card "Como usar este plano"', () => {
+
+  // ── C-HOW1 ───────────────────────────────────────────────────────────────────
+  test('C-HOW1 — card "Como usar este plano" existe no plano (modo métrico)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const card = page.locator('#how-to-use');
+    await expect(card).toBeAttached();
+  });
+
+  // ── C-HOW2 ───────────────────────────────────────────────────────────────────
+  test('C-HOW2 — card está fechado por padrão (sem atributo open)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const card = page.locator('#how-to-use');
+    const isOpen = await card.evaluate(el => el.hasAttribute('open'));
+    expect(isOpen).toBe(false);
+  });
+
+  // ── C-HOW3 ───────────────────────────────────────────────────────────────────
+  test('C-HOW3 — clicar no summary abre o card e exibe o conteúdo', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const summary = page.locator('#how-to-use summary');
+    await summary.click();
+    const card = page.locator('#how-to-use');
+    const isOpen = await card.evaluate(el => el.hasAttribute('open'));
+    expect(isOpen).toBe(true);
+    // Conteúdo deve estar visível após abrir
+    await expect(page.locator('#how-to-use').getByText('Antes de começar')).toBeVisible();
+    await expect(page.locator('#how-to-use').getByText('Durante os 14 dias')).toBeVisible();
+    await expect(page.locator('#how-to-use').getByText('Depois dos 14 dias')).toBeVisible();
+  });
+
+  // ── C-HOW4 ───────────────────────────────────────────────────────────────────
+  test('C-HOW4 — card tem classe no-print (não aparece em PDF)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const card = page.locator('#how-to-use');
+    await expect(card).toHaveClass(/no-print/);
+  });
+
+  // ── C-HOW5 ───────────────────────────────────────────────────────────────────
+  test('C-HOW5 — mobile 390px: card sem overflow horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+  });
+
+  // ── C-HOW6 ───────────────────────────────────────────────────────────────────
+  test('C-HOW6 — card aparece em modo imperial (unit-independent)', async ({ page }) => {
+    const imperialState = {
+      ...CENARIO_6,
+      form: { ...CENARIO_6.form, unit: 'imperial' },
+    };
+    await injectState(page, imperialState);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const card = page.locator('#how-to-use');
+    await expect(card).toBeAttached();
+  });
+
+  // ── C-HOW7 ───────────────────────────────────────────────────────────────────
+  test('C-HOW7 — texto do card não contém valores fixos de unidade (kg, lb, oz, ml, "X L")', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // Abrir o card para ler o conteúdo
+    await page.locator('#how-to-use summary').click();
+    const cardText = await page.locator('#how-to-use').textContent() || '';
+    // Não deve conter valores fixos com unidades (ex: "3 L", "500 ml", "2 kg", "5 lb", "3 oz")
+    expect(cardText).not.toMatch(/\d+\s*(L|ml|mL|kg|lb|oz)\b/);
+  });
+
+  // ── C-HOW8 ───────────────────────────────────────────────────────────────────
+  test('C-HOW8 — card menciona "meta de hidratação indicada pela app"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // Abrir para ler conteúdo
+    await page.locator('#how-to-use summary').click();
+    const cardText = await page.locator('#how-to-use').textContent() || '';
+    expect(cardText).toContain('meta de hidratação indicada pela app');
+  });
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Grupo: F3 — Frutas/tubérculos sem fracções impráticas
 // ─────────────────────────────────────────────────────────────────────────────
 // Problema: "0.5 unidade M" para banana, batata, maçã, manga quando o slot
