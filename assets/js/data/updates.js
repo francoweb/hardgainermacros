@@ -13,6 +13,32 @@
 
 export const UPDATES = [
   {
+    date: '2026-06-25',
+    type: 'Nova funcionalidade',
+    title: 'Como usar este plano',
+    description:
+      'Adicionamos um card expansível na página do plano alimentar para explicar, sem poluir a tela, como começar o plano, como seguir os 14 dias e o que fazer depois. A orientação também lembra o usuário de acompanhar a meta de hidratação indicada pela app.',
+    tags: ['Plano alimentar', 'Orientação'],
+    highlight: true,
+  },
+  {
+    date: '2026-06-25',
+    type: 'Melhoria',
+    title: 'Lista de compras mais prática',
+    description:
+      'A lista de compras ficou mais próxima da vida real. Agora ela usa sugestões mais fáceis de comprar no mercado, como embalagens de leite, dúzias de ovos, potes, garrafas, pacotes e unidades quando fizer sentido.',
+    tags: ['Lista de Compras', 'Plano alimentar'],
+    highlight: true,
+  },
+  {
+    date: '2026-06-25',
+    type: 'Melhoria',
+    title: 'Guia Hardgainer nos textos da app',
+    description:
+      'Atualizamos alguns textos visíveis para usar "Guia" de forma mais natural e adicionamos links úteis para o Guia Hardgainer em pontos específicos da app, sem transformar botões ou opções funcionais em links.',
+    tags: ['Interface'],
+  },
+  {
     date: '2026-06-21',
     type: 'Melhoria',
     title: 'Edição de líquidos mais clara',
