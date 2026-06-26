@@ -7596,5 +7596,127 @@ test.describe('Lista de Compras — Quantidades Práticas', () => {
     expect(text).not.toContain('Usado no plano');
   });
 
+  // ── C-SHOP-ACTIONS1 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS1 — botão "Copiar lista" aparece na lista de compras', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const btn = page.locator('#btn-copy-shopping');
+    await expect(btn).toBeVisible();
+    await expect(btn).toContainText('Copiar lista');
+  });
+
+  // ── C-SHOP-ACTIONS2 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS2 — botão "Salvar PDF" aparece na lista de compras', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const btn = page.locator('#btn-pdf-shopping');
+    await expect(btn).toBeVisible();
+    await expect(btn).toContainText('Salvar PDF');
+  });
+
+  // ── C-SHOP-ACTIONS3 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS3 — texto copiável contém "Lista de Compras — 7 primeiros dias"', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // Interceptar clipboard para verificar conteúdo sem dependência de permissões
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.locator('#btn-copy-shopping').click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toContain('Lista de Compras — 7 primeiros dias');
+  });
+
+  // ── C-SHOP-ACTIONS4 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS4 — texto copiável contém categorias (Proteínas, Carboidratos)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.locator('#btn-copy-shopping').click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toMatch(/Proteínas|Carboidratos/);
+  });
+
+  // ── C-SHOP-ACTIONS5 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS5 — texto copiável não contém HTML', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.locator('#btn-copy-shopping').click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).not.toMatch(/<[a-z]/i);
+    expect(copied).not.toContain('</');
+  });
+
+  // ── C-SHOP-ACTIONS6 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS6 — texto copiável contém sugestões práticas (dúzia, pacote, pote ou garrafa)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.locator('#btn-copy-shopping').click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toMatch(/dúzia|pacote|pote|garrafa|embalagem/i);
+  });
+
+  // ── C-SHOP-ACTIONS7 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS7 — feedback "Lista copiada!" aparece após clicar', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    const btn = page.locator('#btn-copy-shopping');
+    await btn.click();
+    await expect(btn).toContainText('Lista copiada!');
+  });
+
+  // ── C-SHOP-ACTIONS8 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS8 — funciona em modo imperial (sugestões em lb/dozen/tub)', async ({ page }) => {
+    const imperialState = { ...CENARIO_6, form: { ...CENARIO_6.form, unit: 'imperial' } };
+    await injectState(page, imperialState);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.locator('#btn-copy-shopping').click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toContain('Lista de Compras — 7 primeiros dias');
+    // No modo imperial, sugestões usam lb, dozen ou tub
+    expect(copied).toMatch(/lb|dozen|tub|jar|bottle|pack/i);
+  });
+
+  // ── C-SHOP-ACTIONS9 ──────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS9 — botões têm classe no-print (não aparecem em PDFs)', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const actions = page.locator('.shopping-actions');
+    await expect(actions).toHaveClass(/no-print/);
+  });
+
+  // ── C-SHOP-ACTIONS10 ─────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS10 — mobile 390px: botões sem overflow horizontal', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+  });
+
+  // ── C-SHOP-ACTIONS11 ─────────────────────────────────────────────────────────
+  test('C-SHOP-ACTIONS11 — lista visual aprovada continua igual após adicionar botões', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    // Os itens da lista continuam com "Comprar:"
+    const shopText = await page.locator('#shopping-body').textContent() || '';
+    expect(shopText).toContain('Comprar:');
+    expect(shopText).not.toContain('Usado no plano:');
+    expect(shopText).not.toMatch(/NaN|undefined/);
+  });
+
 });
 

@@ -192,6 +192,10 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
           <div class="day-chev" style="transform:rotate(180deg)">${icons.chevDown(18)}</div>
         </div>
         <div class="day-body" id="shopping-body" style="display:block;">
+          <div class="shopping-actions no-print" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;">
+            <button type="button" class="btn btn-ghost" id="btn-copy-shopping" style="font-size:13px;padding:6px 12px;">📋 Copiar lista</button>
+            <button type="button" class="btn btn-ghost" id="btn-pdf-shopping" style="font-size:13px;padding:6px 12px;">${icons.download(14)} Salvar PDF</button>
+          </div>
           ${renderShoppingList(plan.slice(0, 7))}
         </div>
       </div>
@@ -267,6 +271,11 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
     head.addEventListener('click', toggle);
     head.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
   });
+
+  // Shopping list actions — Copiar e Salvar PDF
+  const _plan7 = plan.slice(0, 7);
+  document.getElementById('btn-copy-shopping').addEventListener('click', () => copyShoppingList(_plan7));
+  document.getElementById('btn-pdf-shopping').addEventListener('click', () => exportShoppingListPDF(_plan7));
 
   // Shopping collapse
   const shoppingHead = document.getElementById('shopping-head');
@@ -2158,6 +2167,188 @@ function renderShoppingList(days) {
 function formatGramsHumans(g) {
   if (g >= 1000) return `${(g / 1000).toFixed(1).replace('.', ',')} kg`;
   return `${g} g`;
+}
+
+/* ============================================================================ */
+/* Shopping list — Copiar e Salvar PDF                                          */
+/* ============================================================================ */
+
+/** Constantes partilhadas para texto/PDF da lista de compras. */
+const SHOPPING_CAT_LABEL = {
+  protein: 'Proteínas',
+  carb: 'Carboidratos',
+  fat: 'Gorduras e oleaginosas',
+  fruit: 'Frutas',
+  veg: 'Vegetais',
+  dairy: 'Lácteos',
+  extra: 'Extras e temperos',
+};
+const SHOPPING_CAT_ORDER = ['protein', 'carb', 'dairy', 'fruit', 'veg', 'fat', 'extra'];
+
+/**
+ * Processa os dados da lista de compras e devolve {byCategory, isImperial}.
+ * Replica a mesma lógica de renderShoppingList — apenas sem gerar HTML.
+ */
+function _getShoppingData(days) {
+  const isImperial = loadFormData()?.unit === 'imperial';
+  const totals = {};
+  days.forEach(day => {
+    day.meals.forEach(meal => {
+      meal.ingredients.forEach(ing => {
+        if (!totals[ing.food]) totals[ing.food] = 0;
+        totals[ing.food] += ing.grams;
+      });
+    });
+  });
+  const byCategory = {};
+  Object.entries(totals).forEach(([foodId, grams]) => {
+    const f = FOODS[foodId];
+    if (!f) return;
+    const cat = f.category;
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push({ foodId, food: f, grams: Math.ceil(grams / 50) * 50 });
+  });
+  Object.keys(byCategory).forEach(cat => {
+    const seen = {};
+    byCategory[cat].forEach(item => {
+      const key = getShoppingDisplayName(item.foodId, item.food.name);
+      if (seen[key]) {
+        seen[key].grams += item.grams;
+      } else {
+        seen[key] = { ...item };
+      }
+    });
+    byCategory[cat] = Object.values(seen);
+  });
+  return { byCategory, isImperial };
+}
+
+/**
+ * Gera texto simples da lista de compras para clipboard.
+ * Não contém HTML, botões nem linguagem técnica.
+ */
+function buildShoppingListText(days) {
+  const { byCategory, isImperial } = _getShoppingData(days);
+  let text = 'Lista de Compras — 7 primeiros dias\n';
+  text += 'Quantidades aproximadas para compra.\n';
+  SHOPPING_CAT_ORDER.filter(c => byCategory[c]).forEach(cat => {
+    text += `\n${SHOPPING_CAT_LABEL[cat] || cat}\n`;
+    byCategory[cat].sort((a, b) => b.grams - a.grams).forEach(item => {
+      const name = getShoppingDisplayName(item.foodId, item.food.name);
+      const sug  = getPurchaseSuggestion(item.foodId, item.grams, isImperial);
+      text += `- ${name}: ${sug}\n`;
+    });
+  });
+  return text.trim();
+}
+
+/**
+ * Copia a lista de compras em texto simples para o clipboard.
+ * Mostra feedback visual temporário no botão.
+ */
+async function copyShoppingList(days) {
+  const text = buildShoppingListText(days);
+  const btn  = document.getElementById('btn-copy-shopping');
+
+  const showFeedback = () => {
+    if (!btn) return;
+    btn.textContent = '✓ Lista copiada!';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = '📋 Copiar lista';
+      btn.disabled = false;
+    }, 2000);
+  };
+
+  try {
+    await navigator.clipboard.writeText(text);
+    showFeedback();
+  } catch (_) {
+    // Fallback para browsers sem Clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); showFeedback(); } catch (err) { /* silently fail */ }
+    finally { document.body.removeChild(ta); }
+  }
+}
+
+/**
+ * Gera PDF isolado da Lista de Compras via iframe (não toca nos PDFs existentes).
+ */
+function exportShoppingListPDF(days) {
+  const { byCategory, isImperial } = _getShoppingData(days);
+
+  const catsHtml = SHOPPING_CAT_ORDER.filter(c => byCategory[c]).map(cat => `
+    <div class="sl-cat">
+      <div class="sl-cat-title">${SHOPPING_CAT_LABEL[cat] || cat}</div>
+      <ul class="sl-items">
+        ${byCategory[cat].sort((a, b) => b.grams - a.grams).map(item => {
+          const name = getShoppingDisplayName(item.foodId, item.food.name);
+          const sug  = getPurchaseSuggestion(item.foodId, item.grams, isImperial);
+          return `<li class="sl-item"><span class="sl-name">${name}</span><span class="sl-sug">${sug}</span></li>`;
+        }).join('')}
+      </ul>
+    </div>
+  `).join('');
+
+  const bodyHtml = `
+    <div class="sl-header">
+      <div class="sl-title">Lista de Compras — 7 primeiros dias</div>
+      <div class="sl-sub">Quantidades aproximadas para compra, baseadas no plano alimentar.</div>
+    </div>
+    <div class="sl-note">Alguns produtos, como whey, azeite, mel e pastas, podem sobrar para as próximas semanas.</div>
+    <div class="sl-body">${catsHtml}</div>
+    <div class="sl-footer">hardgainermacros.com</div>
+  `;
+
+  const css = `
+    @page { margin: 14mm; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; font-size: 10pt; color: #2b2622; background: #fff; margin: 0; padding: 0; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .sl-header { background: #2e5d4b; color: #fff; padding: 14px 18px 12px; margin-bottom: 10px; }
+    .sl-title  { font-size: 17pt; font-weight: 700; margin-bottom: 4px; }
+    .sl-sub    { font-size: 9pt; opacity: 0.85; }
+    .sl-note   { font-size: 8.5pt; color: #5a7060; border-left: 3px solid #b5c9b0; padding: 4px 10px; margin: 0 0 14px; font-style: italic; background: #f4f8f4; }
+    .sl-body   { columns: 2; column-gap: 18px; }
+    .sl-cat    { break-inside: avoid; margin-bottom: 14px; }
+    .sl-cat-title { font-size: 9.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #2e5d4b; border-bottom: 1.5px solid #2e5d4b; padding-bottom: 3px; margin-bottom: 6px; }
+    .sl-items  { list-style: none; margin: 0; padding: 0; }
+    .sl-item   { display: flex; justify-content: space-between; align-items: flex-start; padding: 3px 0; border-bottom: 1px dotted #ddd; font-size: 9.5pt; gap: 6px; }
+    .sl-item:last-child { border-bottom: none; }
+    .sl-name   { flex: 1; color: #1a1814; }
+    .sl-sug    { flex-shrink: 0; color: #2e5d4b; font-weight: 600; font-size: 9pt; text-align: right; }
+    .sl-footer { margin-top: 14px; font-size: 8pt; color: #aaa; text-align: right; }
+  `;
+
+  // Iframe isolado — não toca o DOM principal nem os PDFs existentes
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;visibility:hidden;';
+  document.body.appendChild(iframe);
+
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    window.removeEventListener('afterprint', cleanup);
+    try { iframe.contentWindow.removeEventListener('afterprint', cleanup); } catch (_) {}
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+  };
+
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+  iframeDoc.open();
+  iframeDoc.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${bodyHtml}</body></html>`);
+  iframeDoc.close();
+
+  iframe.contentWindow.addEventListener('afterprint', cleanup);
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(cleanup, 30000);
+
+  iframe.contentWindow.focus();
+  iframe.contentWindow.print();
 }
 
 /* ============================================================================ */
