@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-06-26',
+    type: 'Nova funcionalidade',
+    title: 'Lista de compras com copiar e PDF',
+    description:
+      'Adicionamos ações rápidas na Lista de Compras para facilitar o uso no dia a dia. Agora é possível copiar a lista em texto simples ou salvar uma versão limpa em PDF, sem incluir o plano alimentar inteiro.',
+    tags: ['Lista de Compras', 'PDF', 'Praticidade'],
+    highlight: true,
+  },
+  {
     date: '2026-06-25',
     type: 'Nova funcionalidade',
     title: 'Como usar este plano',
