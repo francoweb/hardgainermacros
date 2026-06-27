@@ -29,6 +29,7 @@ import { formatKcal } from '../modules/calculator.js';
 import {
   FOODS, calcFoodMacros, getSubstitutes, formatQty, getFood,
 } from '../data/foods.js';
+import { RECIPES } from '../data/recipes.js';         // Sprint R4-A
 
 export function renderPlanoPage(mount) {
   const plan = loadPlan();
@@ -330,6 +331,15 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
     });
   });
 
+  // Ver receitas buttons — Sprint R4-A (apenas visualização, sem substituição)
+  mount.querySelectorAll('[data-use-recipe]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { mealSlot } = btn.dataset;
+      openRecipeModal(mealSlot || '');
+    });
+  });
+
   // Edit plan ingredient buttons — Sprint F1
   mount.querySelectorAll('[data-edit-ingredient]').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -571,6 +581,13 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals, edits) {
                 data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}"
                 aria-label="Adicionar alimento da biblioteca à refeição ${mealIdx + 1}">
           + Adicionar Alimento
+        </button>
+        <button type="button" class="ing-add-btn ing-recipe-btn no-print" data-use-recipe
+                data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}"
+                data-meal-slot="${meal.slot || ''}"
+                data-testid="use-recipe-button"
+                aria-label="Ver receitas para esta refeição">
+          ${icons.list(13)} Ver receitas
         </button>
       </div>
 
@@ -2983,6 +3000,69 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
       rebuildAndRender(mount);
     });
   });
+}
+
+/* ============================================================================ */
+/* Recipe modal — Sprint R4-A                                                   */
+/* Visualização apenas. Sem substituição de refeição nesta sprint.              */
+/* ============================================================================ */
+
+/**
+ * Abre o modal de receitas da biblioteca, filtrado pelo slot da refeição.
+ * Não altera o plano, ingredientes, totais nem localStorage.
+ *
+ * @param {string} mealSlot - slot da refeição (ex: 'breakfast', 'lunch', 'shake_morning')
+ */
+function openRecipeModal(mealSlot) {
+  const TYPE_LABEL = { solid: 'Sólida', shake: 'Shake' };
+
+  const compatible   = RECIPES.filter(r => Array.isArray(r.suggestedSlots) && r.suggestedSlots.includes(mealSlot));
+  const incompatible = RECIPES.filter(r => !Array.isArray(r.suggestedSlots) || !r.suggestedSlots.includes(mealSlot));
+
+  function renderItem(r, isCompat) {
+    const typeCls   = r.type === 'shake' ? 'recipe-modal-badge-shake' : 'recipe-modal-badge-solid';
+    const typeTxt   = TYPE_LABEL[r.type] || r.type;
+    const compatEl  = isCompat
+      ? '<span class="recipe-modal-compat">✅ Compatível</span>'
+      : '<span class="recipe-modal-incompat">⚠️ Fora dos slots sugeridos</span>';
+    return `
+      <li class="recipe-modal-item">
+        <div class="recipe-modal-item-head">
+          <span class="recipe-modal-name">${escapeHtml(r.name)}</span>
+          <span class="recipe-modal-badge ${typeCls}">${typeTxt}</span>
+        </div>
+        <div class="recipe-modal-desc">${escapeHtml(r.description)}</div>
+        <div class="recipe-modal-meta">~${r.baseKcal} kcal &nbsp;·&nbsp; ${compatEl}</div>
+      </li>`;
+  }
+
+  const compatHtml = compatible.length
+    ? `<ul class="recipe-modal-list">${compatible.map(r => renderItem(r, true)).join('')}</ul>`
+    : `<p class="recipe-modal-empty">Ainda não há receitas sugeridas para esta refeição.</p>`;
+
+  const incompatSection = incompatible.length ? `
+    <div class="recipe-modal-section-label">Outras receitas da biblioteca</div>
+    <ul class="recipe-modal-list">${incompatible.map(r => renderItem(r, false)).join('')}</ul>
+  ` : '';
+
+  const contentHtml = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Receitas para esta refeição</div>
+        <div class="modal-sub">Veja receitas compatíveis com este tipo de refeição. A substituição automática será aplicada na próxima etapa.</div>
+      </div>
+      <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
+    </div>
+    <div class="modal-body">
+      ${compatHtml}
+      ${incompatSection}
+      <div class="btn-row" style="margin-top: 16px;">
+        <button type="button" class="btn btn-secondary" data-modal-close>Fechar</button>
+      </div>
+    </div>
+  `;
+
+  openModal(contentHtml);
 }
 
 /** Abre o modal em modo edição para um alimento já adicionado. */

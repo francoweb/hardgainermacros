@@ -1602,6 +1602,70 @@ details[open] > .sub-cat-label::after {
 .ing-lib-btn:active { background: rgba(194, 109, 90, 0.18); border-color: var(--accent-hover); }
 .ing-lib-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* --- Recipe button variant — Sprint R4-A --- */
+.ing-recipe-btn {
+  background: rgba(80, 120, 180, 0.08);
+  color: #2c5a9a;
+  border-color: rgba(80, 120, 180, 0.30);
+}
+.ing-recipe-btn:hover {
+  background: rgba(80, 120, 180, 0.14);
+  border-color: rgba(80, 120, 180, 0.60);
+  color: #1e4080;
+  box-shadow: 0 1px 4px rgba(80, 120, 180, 0.18);
+}
+.ing-recipe-btn:active  { background: rgba(80, 120, 180, 0.20); }
+.ing-recipe-btn:focus-visible { outline: 2px solid rgba(80, 120, 180, 0.60); outline-offset: 2px; }
+
+/* --- Recipe modal items — Sprint R4-A --- */
+.recipe-modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.recipe-modal-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.recipe-modal-item:last-child { border-bottom: none; }
+.recipe-modal-item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+.recipe-modal-name  { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.recipe-modal-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  flex-shrink: 0;
+}
+.recipe-modal-badge-solid { background: var(--success-soft); color: var(--success-dark); }
+.recipe-modal-badge-shake { background: var(--accent-softer); color: var(--accent-dark); }
+.recipe-modal-desc  { font-size: 12.5px; color: var(--ink-muted); margin-bottom: 4px; }
+.recipe-modal-meta  { font-size: 12px; color: var(--ink-soft); }
+.recipe-modal-compat   { color: var(--success-dark); font-weight: 600; }
+.recipe-modal-incompat { color: #b06000; font-weight: 600; }
+.recipe-modal-empty { font-size: 13px; color: var(--ink-muted); padding: 12px 0; margin: 0; }
+.recipe-modal-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  margin: 16px 0 8px;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 12px;
+}
+
 /* --- Library food modal item --- Sprint E2-A --- */
 .lib-food-item {
   display: flex;
