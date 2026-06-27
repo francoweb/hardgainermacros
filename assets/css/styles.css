@@ -1666,6 +1666,62 @@ details[open] > .sub-cat-label::after {
   padding-top: 12px;
 }
 
+/* --- Recipe list items — clickable (R4-B) --- */
+.recipe-modal-item[role="button"] {
+  cursor: pointer;
+  border-radius: var(--r-md);
+  margin: 0 -6px;
+  padding-left: 6px;
+  padding-right: 6px;
+  transition: background var(--t-fast);
+}
+.recipe-modal-item[role="button"]:hover  { background: var(--bg-alt); }
+.recipe-modal-item--selected {
+  background: rgba(80, 120, 180, 0.08) !important;
+  border-left: 3px solid rgba(80, 120, 180, 0.60);
+  padding-left: 9px;
+}
+.recipe-modal-item--selected .recipe-modal-name { color: #1e4080; }
+
+/* --- Recipe preview panel (R4-B) --- */
+.recipe-preview-panel {
+  margin: 16px 0 0;
+  border-top: 2px solid var(--border-soft);
+  padding-top: 14px;
+}
+.recipe-preview { display: flex; flex-direction: column; gap: 8px; }
+.recipe-preview-head   { margin-bottom: 2px; }
+.recipe-preview-title  { font-size: 14px; font-weight: 700; color: var(--ink); }
+.recipe-preview-sub    { font-size: 12px; color: var(--ink-muted); }
+.recipe-preview-macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+}
+.recipe-preview-kcal   { font-size: 18px; font-weight: 700; color: var(--ink); }
+.recipe-preview-macro  { font-size: 13px; color: var(--ink-soft); }
+.recipe-preview-delta  { font-size: 11.5px; color: var(--ink-muted); }
+.recipe-preview-fit    {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--bg-alt);
+  color: var(--ink-soft);
+}
+.recipe-preview-fit--good     { background: var(--success-soft); color: var(--success-dark); }
+.recipe-preview-fit--approx   { background: #fff8e1; color: #7a5c00; }
+.recipe-preview-fit--mismatch { background: #fff3e0; color: #a04400; }
+.recipe-preview-fit--bad      { background: #fce8e8; color: #b00000; }
+.recipe-preview-ings-label { font-size: 12px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+.recipe-preview-ings  { list-style: none; padding: 0; margin: 4px 0 0; display: flex; flex-direction: column; gap: 4px; }
+.recipe-preview-ing   { font-size: 13px; color: var(--ink); }
+.recipe-preview-ing-name { color: var(--ink-muted); }
+.recipe-preview-warnings { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.recipe-preview-warning  { font-size: 12px; color: #7a5c00; background: #fff8e1; border-radius: var(--r-sm); padding: 4px 8px; }
+
 /* --- Library food modal item --- Sprint E2-A --- */
 .lib-food-item {
   display: flex;

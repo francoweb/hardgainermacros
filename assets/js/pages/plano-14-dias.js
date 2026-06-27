@@ -29,7 +29,8 @@ import { formatKcal } from '../modules/calculator.js';
 import {
   FOODS, calcFoodMacros, getSubstitutes, formatQty, getFood,
 } from '../data/foods.js';
-import { RECIPES } from '../data/recipes.js';         // Sprint R4-A
+import { RECIPES } from '../data/recipes.js';                    // Sprint R4-A
+import { scaleRecipe } from '../modules/recipe-scaler.js';      // Sprint R4-B
 
 export function renderPlanoPage(mount) {
   const plan = loadPlan();
@@ -331,12 +332,12 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
     });
   });
 
-  // Ver receitas buttons — Sprint R4-A (apenas visualização, sem substituição)
+  // Ver receitas buttons — Sprint R4-A/B (apenas visualização, sem substituição)
   mount.querySelectorAll('[data-use-recipe]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const { mealSlot } = btn.dataset;
-      openRecipeModal(mealSlot || '');
+      const { dayIdx, mealIdx, mealSlot } = btn.dataset;
+      openRecipeModal(Number(dayIdx), Number(mealIdx), mealSlot || '');
     });
   });
 
@@ -3003,30 +3004,42 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
 }
 
 /* ============================================================================ */
-/* Recipe modal — Sprint R4-A                                                   */
-/* Visualização apenas. Sem substituição de refeição nesta sprint.              */
+/* Recipe modal — Sprint R4-A/B                                                 */
+/* Visualização e pré-visualização escalada. Sem substituição de refeição.      */
 /* ============================================================================ */
 
 /**
  * Abre o modal de receitas da biblioteca, filtrado pelo slot da refeição.
- * Não altera o plano, ingredientes, totais nem localStorage.
+ * Ao clicar numa receita, mostra pré-visualização escalada contra a refeição
+ * efectiva. Não altera o plano, ingredientes, totais nem localStorage.
  *
+ * @param {number} dayIdx   - índice do dia no plano (0-13)
+ * @param {number} mealIdx  - índice da refeição no dia
  * @param {string} mealSlot - slot da refeição (ex: 'breakfast', 'lunch', 'shake_morning')
  */
-function openRecipeModal(mealSlot) {
+function openRecipeModal(dayIdx, mealIdx, mealSlot) {
   const TYPE_LABEL = { solid: 'Sólida', shake: 'Shake' };
+
+  // ── Target macros: refeição efectiva (com edições e subs aplicadas) ────────
+  const effectivePlan = applySubstitutions(
+    applyEdits(loadPlan(), loadEdits()),
+    loadSubstitutions()
+  );
+  const targetMeal = (effectivePlan[dayIdx]?.meals[mealIdx]?.totals) || { kcal: 500, prot: 35, carb: 45, fat: 18 };
 
   const compatible   = RECIPES.filter(r => Array.isArray(r.suggestedSlots) && r.suggestedSlots.includes(mealSlot));
   const incompatible = RECIPES.filter(r => !Array.isArray(r.suggestedSlots) || !r.suggestedSlots.includes(mealSlot));
 
   function renderItem(r, isCompat) {
-    const typeCls   = r.type === 'shake' ? 'recipe-modal-badge-shake' : 'recipe-modal-badge-solid';
-    const typeTxt   = TYPE_LABEL[r.type] || r.type;
-    const compatEl  = isCompat
+    const typeCls  = r.type === 'shake' ? 'recipe-modal-badge-shake' : 'recipe-modal-badge-solid';
+    const typeTxt  = TYPE_LABEL[r.type] || r.type;
+    const compatEl = isCompat
       ? '<span class="recipe-modal-compat">✅ Compatível</span>'
       : '<span class="recipe-modal-incompat">⚠️ Fora dos slots sugeridos</span>';
     return `
-      <li class="recipe-modal-item">
+      <li class="recipe-modal-item" data-recipe-id="${r.id}"
+          role="button" tabindex="0"
+          aria-label="Ver pré-visualização: ${escapeHtml(r.name)}">
         <div class="recipe-modal-item-head">
           <span class="recipe-modal-name">${escapeHtml(r.name)}</span>
           <span class="recipe-modal-badge ${typeCls}">${typeTxt}</span>
@@ -3049,13 +3062,16 @@ function openRecipeModal(mealSlot) {
     <div class="modal-head">
       <div>
         <div class="modal-title">Receitas para esta refeição</div>
-        <div class="modal-sub">Veja receitas compatíveis com este tipo de refeição. A substituição automática será aplicada na próxima etapa.</div>
+        <div class="modal-sub">Clique numa receita para ver a pré-visualização ajustada a esta refeição.</div>
       </div>
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
     </div>
     <div class="modal-body">
-      ${compatHtml}
-      ${incompatSection}
+      <div class="recipe-list-section">
+        ${compatHtml}
+        ${incompatSection}
+      </div>
+      <div id="recipe-preview-panel" class="recipe-preview-panel" style="display:none;" data-testid="recipe-preview-panel"></div>
       <div class="btn-row" style="margin-top: 16px;">
         <button type="button" class="btn btn-secondary" data-modal-close>Fechar</button>
       </div>
@@ -3063,6 +3079,89 @@ function openRecipeModal(mealSlot) {
   `;
 
   openModal(contentHtml);
+
+  // ── Handlers de clique nas receitas — após openModal reconstruir o DOM ─────
+  document.querySelectorAll('.recipe-modal-item[data-recipe-id]').forEach(item => {
+    const handleSelect = () => {
+      const recipe = RECIPES.find(r => r.id === item.dataset.recipeId);
+      if (!recipe) return;
+
+      // Destaque visual do item seleccionado
+      document.querySelectorAll('.recipe-modal-item').forEach(i => i.classList.remove('recipe-modal-item--selected'));
+      item.classList.add('recipe-modal-item--selected');
+
+      // Calcular pré-visualização (puro — sem efeitos laterais)
+      const result = scaleRecipe(recipe, targetMeal, { slot: mealSlot });
+
+      // Renderizar painel
+      const panel = document.getElementById('recipe-preview-panel');
+      if (panel) {
+        panel.innerHTML = renderRecipePreview(result);
+        panel.style.display = 'block';
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    };
+
+    item.addEventListener('click', handleSelect);
+    // Acessibilidade — teclas Enter e Espaço
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(); }
+    });
+  });
+}
+
+/**
+ * Sprint R4-B — Gera o HTML do painel de pré-visualização da receita escalada.
+ * Apenas apresentação — sem botão Aplicar, sem efeitos laterais.
+ *
+ * @param {object} result - output de scaleRecipe()
+ * @returns {string} HTML do painel
+ */
+function renderRecipePreview(result) {
+  const FIT_CLS = {
+    good:            'recipe-preview-fit--good',
+    approximate:     'recipe-preview-fit--approx',
+    macro_mismatch:  'recipe-preview-fit--mismatch',
+    not_recommended: 'recipe-preview-fit--bad',
+  };
+  const fitCls = FIT_CLS[result.fitScore] || '';
+
+  const ingsHtml = result.scaledIngredients.map(ing => {
+    const display = formatQty(ing.foodId, ing.grams);
+    return `<li class="recipe-preview-ing"><span class="recipe-preview-ing-name">${escapeHtml(ing.name)}</span> <strong>${escapeHtml(display)}</strong></li>`;
+  }).join('');
+
+  const warningsHtml = result.warnings.length
+    ? `<div class="recipe-preview-warnings" data-testid="recipe-preview-warnings">
+        ${result.warnings.map(w => `<div class="recipe-preview-warning">⚠️ ${escapeHtml(w)}</div>`).join('')}
+       </div>`
+    : '';
+
+  const dKcal  = result.deltas.kcal;
+  const dSign  = dKcal > 0 ? '+' : '';
+  const deltaNote = `${dSign}${dKcal} kcal em relação ao alvo (${result.target.kcal} kcal)`;
+
+  return `
+    <div class="recipe-preview" data-testid="recipe-preview">
+      <div class="recipe-preview-head">
+        <div class="recipe-preview-title">Pré-visualização</div>
+        <div class="recipe-preview-sub">Ajustada para esta refeição</div>
+      </div>
+      <div class="recipe-preview-macros" data-testid="recipe-preview-macros">
+        <span class="recipe-preview-kcal">${result.totals.kcal} kcal</span>
+        <span class="recipe-preview-macro">P: <strong>${result.totals.prot}g</strong></span>
+        <span class="recipe-preview-macro">C: <strong>${result.totals.carb}g</strong></span>
+        <span class="recipe-preview-macro">G: <strong>${result.totals.fat}g</strong></span>
+      </div>
+      <div class="recipe-preview-delta">${escapeHtml(deltaNote)}</div>
+      <div class="recipe-preview-fit ${fitCls}" data-testid="recipe-preview-fit">${escapeHtml(result.fitLabel)}</div>
+      <div class="recipe-preview-ings-label">Ingredientes ajustados:</div>
+      <ul class="recipe-preview-ings" data-testid="recipe-preview-ings">
+        ${ingsHtml}
+      </ul>
+      ${warningsHtml}
+    </div>
+  `;
 }
 
 /** Abre o modal em modo edição para um alimento já adicionado. */
