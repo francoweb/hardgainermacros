@@ -24,6 +24,7 @@ import {
   loadRemovals, saveRemovals,
   loadEdits, saveEdits,
   loadFormData,
+  loadRecipeMeals, saveRecipeMeals,   // Sprint R4-C
 } from '../modules/storage.js';
 import { formatKcal } from '../modules/calculator.js';
 import {
@@ -44,15 +45,19 @@ function rebuildAndRender(mount) {
   const originalPlan = loadPlan();
   const results = loadResults();
   if (!originalPlan || !results) return;
-  const subs      = loadSubstitutions();
-  const removals  = loadRemovals();
-  const additions = loadAdditions();
-  const edits     = loadEdits();
-  // Pipeline: edits → subs → removals → additions
+  const subs        = loadSubstitutions();
+  const removals    = loadRemovals();
+  const additions   = loadAdditions();
+  const edits       = loadEdits();
+  const recipeMeals = loadRecipeMeals();                           // Sprint R4-C
+  // Pipeline: recipeMeals → edits → subs → removals → additions
   const effective = applyAdditions(
     applyRemovals(
       applySubstitutions(
-        applyEdits(originalPlan, edits),
+        applyEdits(
+          applyRecipeMeals(originalPlan, recipeMeals),             // Sprint R4-C
+          edits
+        ),
         subs
       ),
       removals
@@ -332,12 +337,48 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
     });
   });
 
-  // Ver receitas buttons — Sprint R4-A/B (apenas visualização, sem substituição)
+  // Reverter receita — Sprint R4-C
+  mount.querySelectorAll('[data-revert-recipe]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const { dayIdx, mealIdx } = btn.dataset;
+      const key    = `${dayIdx}:${mealIdx}`;
+      const prefix = `${key}:`;
+
+      // Remove receita aplicada
+      const recipeMeals = loadRecipeMeals();
+      delete recipeMeals[key];
+      saveRecipeMeals(recipeMeals);
+
+      // Clean slate: limpa ajustes deixados sobre a receita
+      const subs = loadSubstitutions();
+      Object.keys(subs).forEach(k => { if (k.startsWith(prefix)) delete subs[k]; });
+      saveSubstitutions(subs);
+
+      const edits = loadEdits();
+      Object.keys(edits).forEach(k => { if (k.startsWith(prefix)) delete edits[k]; });
+      saveEdits(edits);
+
+      const removals = loadRemovals();
+      Object.keys(removals).forEach(k => { if (k.startsWith(prefix)) delete removals[k]; });
+      saveRemovals(removals);
+
+      const additions = loadAdditions();
+      if (additions[key]) { delete additions[key]; saveAdditions(additions); }
+
+      // Feedback breve no botão antes de re-renderizar
+      btn.textContent = 'Refeição original restaurada ✓';
+      btn.disabled = true;
+      setTimeout(() => rebuildAndRender(mount), 500);
+    });
+  });
+
+  // Ver receitas buttons — Sprint R4-A/B/C
   mount.querySelectorAll('[data-use-recipe]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const { dayIdx, mealIdx, mealSlot } = btn.dataset;
-      openRecipeModal(Number(dayIdx), Number(mealIdx), mealSlot || '');
+      openRecipeModal(Number(dayIdx), Number(mealIdx), mealSlot || '', mount);  // mount passado para R4-C
     });
   });
 
@@ -433,7 +474,8 @@ function renderDayCard(day, idx, subs, originalDay, targetKcal, additions, remov
   const dayHasAdditions = Object.keys(additions  || {}).some(k => k.startsWith(`${idx}:`));
   const dayHasRemovals  = Object.keys(removals   || {}).some(k => k.startsWith(`${idx}:`));
   const dayHasEdits     = Object.keys(edits      || {}).some(k => k.startsWith(`${idx}:`));
-  const dayHasChanges   = dayHasSubs || dayHasAdditions || dayHasRemovals || dayHasEdits;
+  const dayHasRecipes   = day.meals.some(m => m.isRecipeMeal);    // Sprint R4-C
+  const dayHasChanges   = dayHasSubs || dayHasAdditions || dayHasRemovals || dayHasEdits || dayHasRecipes;
   const origT = originalDay?.totals;
   const curT = day.totals;
   let dayCompBlock = '';
@@ -513,6 +555,7 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals, edits) {
           <div class="meal-card-name">${meal.slotLabel} — ${meal.name}</div>
         </div>
         <span class="meal-card-badge ${meal.type}">${meal.type === 'solid' ? 'Sólida' : 'Shake'}</span>
+        ${meal.isRecipeMeal ? `<span class="meal-card-badge-recipe no-print" data-testid="recipe-badge">Receita</span>` : ''}
       </div>
 
       <div class="meal-totals" data-meal-totals="${dayIdx}-${mealIdx}">
@@ -590,6 +633,13 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals, edits) {
                 aria-label="Ver receitas para esta refeição">
           ${icons.list(13)} Ver receitas
         </button>
+        ${meal.isRecipeMeal ? `
+        <button type="button" class="ing-add-btn ing-revert-recipe-btn no-print" data-revert-recipe
+                data-day-idx="${dayIdx}" data-meal-idx="${mealIdx}"
+                data-testid="revert-recipe-button"
+                aria-label="Voltar à refeição original">
+          ${icons.refresh(13)} Voltar à refeição original
+        </button>` : ''}
       </div>
 
       ${(meal.steps && meal.steps.length) || meal.note ? `
@@ -3004,9 +3054,57 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
 }
 
 /* ============================================================================ */
-/* Recipe modal — Sprint R4-A/B                                                 */
-/* Visualização e pré-visualização escalada. Sem substituição de refeição.      */
+/* Recipe modal — Sprint R4-A/B/C                                               */
+/* Visualização, pré-visualização escalada e substituição de refeição.          */
 /* ============================================================================ */
+
+/**
+ * Nomes legíveis em português para cada slot de refeição.
+ * Usado para humanizar os avisos técnicos do recipe-scaler — Sprint R4-C fix.
+ */
+const SLOT_LABEL_PT = {
+  breakfast:          'café da manhã',
+  shake_morning:      'shake da manhã',
+  lunch:              'almoço',
+  shake_afternoon:    'shake da tarde',
+  dinner:             'jantar',
+  shake_night:        'shake noturno',
+  shake_extra:        'shake extra',
+  shake_extra2:       'shake extra',
+  pre_workout_light:  'pré-treino',
+  post_workout_night: 'shake noturno',
+};
+
+/** Converte um slotId em nome legível; remove underscores como fallback seguro. */
+function humanSlot(slotId) {
+  return SLOT_LABEL_PT[slotId] || slotId.replace(/_/g, ' ');
+}
+
+/**
+ * Substitui o aviso técnico de slot (gerado pelo recipe-scaler) por uma
+ * mensagem amigável em português. Não toca nos outros avisos (clamping, etc.).
+ *
+ * @param {string[]} warnings   - lista de warnings de scaleRecipe
+ * @param {object}   recipe     - objecto de RECIPES
+ * @param {string}   mealSlot   - slot da refeição actual
+ * @returns {string[]}
+ */
+function humanizeSlotWarnings(warnings, recipe, mealSlot) {
+  if (!mealSlot || (recipe.suggestedSlots || []).includes(mealSlot)) return warnings;
+
+  // Remove o aviso técnico (começa com 'Slot "')
+  const filtered = warnings.filter(w => !w.startsWith('Slot "'));
+
+  // Adiciona aviso amigável
+  const suggestedNames = (recipe.suggestedSlots || []).map(humanSlot).join(', ');
+  const currentName    = humanSlot(mealSlot);
+  filtered.push(
+    `Esta receita não é das mais indicadas para ${currentName}. ` +
+    `Costuma encaixar melhor em ${suggestedNames}.`
+  );
+
+  return filtered;
+}
 
 /**
  * Abre o modal de receitas da biblioteca, filtrado pelo slot da refeição.
@@ -3017,7 +3115,7 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
  * @param {number} mealIdx  - índice da refeição no dia
  * @param {string} mealSlot - slot da refeição (ex: 'breakfast', 'lunch', 'shake_morning')
  */
-function openRecipeModal(dayIdx, mealIdx, mealSlot) {
+function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionado em R4-C
   const TYPE_LABEL = { solid: 'Sólida', shake: 'Shake' };
 
   // ── Target macros: refeição efectiva (com edições e subs aplicadas) ────────
@@ -3078,7 +3176,7 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot) {
     </div>
   `;
 
-  openModal(contentHtml);
+  const closeModal = openModal(contentHtml);  // Sprint R4-C: captura close para usar em applySelectedRecipe
 
   // ── Handlers de clique nas receitas — após openModal reconstruir o DOM ─────
   document.querySelectorAll('.recipe-modal-item[data-recipe-id]').forEach(item => {
@@ -3093,12 +3191,29 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot) {
       // Calcular pré-visualização (puro — sem efeitos laterais)
       const result = scaleRecipe(recipe, targetMeal, { slot: mealSlot });
 
+      // Sprint R4-C fix: traduzir avisos técnicos de slot para português legível
+      const displayResult = {
+        ...result,
+        warnings: humanizeSlotWarnings(result.warnings, recipe, mealSlot),
+      };
+
       // Renderizar painel
       const panel = document.getElementById('recipe-preview-panel');
       if (panel) {
-        panel.innerHTML = renderRecipePreview(result);
+        panel.innerHTML = renderRecipePreview(displayResult);
         panel.style.display = 'block';
         panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Sprint R4-C: registar handler do botão "Aplicar receita"
+        const applyBtn = panel.querySelector('[data-apply-recipe]');
+        if (applyBtn) {
+          applyBtn.addEventListener('click', () => {
+            applyBtn.textContent = '✓ Receita aplicada';
+            applyBtn.disabled = true;
+            // Usa displayResult (warnings humanizados) — lógica de apply usa result original
+            setTimeout(() => applySelectedRecipe(dayIdx, mealIdx, result, mount, closeModal), 500);
+          });
+        }
       }
     };
 
@@ -3111,10 +3226,54 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot) {
 }
 
 /**
- * Sprint R4-B — Gera o HTML do painel de pré-visualização da receita escalada.
- * Apenas apresentação — sem botão Aplicar, sem efeitos laterais.
+ * Sprint R4-C fix — Gera até 2 avisos de perfil de macros baseados nos
+ * totais da receita escalada vs o target da refeição.
  *
- * @param {object} result - output de scaleRecipe()
+ * Não é técnico, não bloqueia a aplicação, não usa IDs internos.
+ * Funciona para qualquer receita actual ou futura.
+ *
+ * Thresholds:
+ *  - Carboidrato baixo:  totals.carb ≤ 10 g  OU  (target.carb > 20 g E deltas.carb < −25 g)
+ *  - Proteína baixa:     target.prot > 0 E deltas.prot < −15 g
+ *  - Gordura alta:       target.fat > 0 E deltas.fat > 20 g
+ *  - Carboidrato alto:   deltas.carb > 30 g
+ *
+ * @param {object} result - output de scaleRecipe() (com deltas e target)
+ * @returns {string[]} lista de avisos, máx. 2
+ */
+function macroProfileWarnings(result) {
+  const { totals, target, deltas } = result;
+  const w = [];
+
+  // 1. Proteína muito abaixo do alvo (> 15 g a menos)
+  if (target.prot > 0 && deltas.prot < -15) {
+    w.push('Esta receita tem pouca proteína para esta refeição. Pode ser útil escolher uma opção mais proteica ou ajustar os ingredientes.');
+  }
+
+  // 2. Carboidrato muito baixo (absoluto ≤ 10 g OU muito abaixo do alvo)
+  if (totals.carb <= 10 || (target.carb > 20 && deltas.carb < -25)) {
+    w.push('Esta receita tem poucos carboidratos. Se esta refeição deve sustentar treino ou trabalho físico, considere acompanhar com uma fonte de carboidrato.');
+  }
+
+  // 3. Gordura muito acima do alvo (> 20 g a mais)
+  if (target.fat > 0 && deltas.fat > 20) {
+    w.push('Esta receita concentra mais gordura do que o habitual nesta refeição. Costuma ser boa para calorias, mas pode pesar mais na digestão.');
+  }
+
+  // 4. Carboidrato muito acima do alvo (> 30 g a mais)
+  if (deltas.carb > 30) {
+    w.push('Esta receita concentra mais carboidratos. Pode ser útil perto do treino, mas veja se encaixa no resto do dia.');
+  }
+
+  // Máximo 2 avisos para não poluir o modal
+  return w.slice(0, 2);
+}
+
+/**
+ * Sprint R4-B/C — Gera o HTML do painel de pré-visualização da receita escalada.
+ * Apenas apresentação — sem efeitos laterais.
+ *
+ * @param {object} result - output de scaleRecipe() (com warnings já humanizados)
  * @returns {string} HTML do painel
  */
 function renderRecipePreview(result) {
@@ -3160,8 +3319,148 @@ function renderRecipePreview(result) {
         ${ingsHtml}
       </ul>
       ${warningsHtml}
+      ${(() => {
+        const profileW = macroProfileWarnings(result);
+        return profileW.length
+          ? `<div class="recipe-preview-profile-advice" data-testid="recipe-preview-profile-advice">
+              ${profileW.map(w => `<div class="recipe-preview-profile-tip">ℹ️ ${escapeHtml(w)}</div>`).join('')}
+             </div>`
+          : '';
+      })()}
+      <div class="recipe-preview-apply no-print">
+        <button type="button" class="btn btn-primary" data-apply-recipe
+                data-testid="apply-recipe-button"
+                aria-label="Aplicar esta receita à refeição">
+          Aplicar receita
+        </button>
+      </div>
     </div>
   `;
+}
+
+/* ============================================================================ */
+/* applyRecipeMeals + applySelectedRecipe — Sprint R4-C                         */
+/* ============================================================================ */
+
+/**
+ * Substitui refeições marcadas com a receita escalada correspondente.
+ * Corre PRIMEIRO no pipeline (antes de applyEdits).
+ * Adiciona `isRecipeMeal: true` ao objecto meal para que `renderMealCard`
+ * possa mostrar o badge e o botão de reversão.
+ *
+ * @param {object[]} plan
+ * @param {object}   recipeMeals  { "dayIdx:mealIdx": { recipeId, recipeName, fitLabel, ingredients, totals } }
+ * @returns {object[]}
+ */
+function applyRecipeMeals(plan, recipeMeals) {
+  if (!recipeMeals || Object.keys(recipeMeals).length === 0) return plan;
+
+  return plan.map((day, dayIdx) => {
+    let dayChanged = false;
+    const newMeals = day.meals.map((meal, mealIdx) => {
+      const key     = `${dayIdx}:${mealIdx}`;
+      const applied = recipeMeals[key];
+      if (!applied) return meal;
+
+      dayChanged = true;
+      return {
+        ...meal,                         // preserva slot, slotLabel, type, time
+        name:         applied.recipeName,
+        ingredients:  applied.ingredients,
+        totals:       applied.totals,
+        // Sprint R4-C fix: sobrescrever steps/note com os da receita aplicada
+        steps:        applied.steps  || [],
+        note:         applied.note   || '',
+        isRecipeMeal: true,
+        recipeId:     applied.recipeId,
+        recipeName:   applied.recipeName,
+        fitLabel:     applied.fitLabel,
+      };
+    });
+
+    if (!dayChanged) return day;
+
+    const dayTotals = newMeals.reduce((acc, m) => ({
+      kcal: acc.kcal + m.totals.kcal,
+      prot: acc.prot + m.totals.prot,
+      carb: acc.carb + m.totals.carb,
+      fat:  acc.fat  + m.totals.fat,
+    }), { kcal: 0, prot: 0, carb: 0, fat: 0 });
+
+    return {
+      ...day,
+      meals: newMeals,
+      totals: {
+        kcal: Math.round(dayTotals.kcal),
+        prot: Math.round(dayTotals.prot),
+        carb: Math.round(dayTotals.carb),
+        fat:  Math.round(dayTotals.fat),
+      },
+    };
+  });
+}
+
+/**
+ * Aplica uma receita escalada a uma refeição específica.
+ *
+ * 1. Mapeia scaledIngredients → formato do plano (food, label, grams, display, macros)
+ * 2. Limpa ajustes existentes naquela refeição (clean slate)
+ * 3. Guarda em hg:recipe_meals
+ * 4. Re-renderiza o plano
+ * 5. Fecha o modal
+ *
+ * @param {number}   dayIdx
+ * @param {number}   mealIdx
+ * @param {object}   result     - output de scaleRecipe()
+ * @param {object}   mount      - elemento de montagem
+ * @param {Function} closeModal - fecha o modal
+ */
+function applySelectedRecipe(dayIdx, mealIdx, result, mount, closeModal) {
+  const key    = `${dayIdx}:${mealIdx}`;
+  const prefix = `${key}:`;
+
+  // 1. Mapear scaledIngredients para formato do plano
+  const ingredients = result.scaledIngredients.map(ing => ({
+    food:    ing.foodId,                          // compatível com shopping list e substitutions
+    label:   ing.name,
+    grams:   ing.grams,
+    display: formatQty(ing.foodId, ing.grams),   // compatível com imperial (toImperialDisplay)
+    macros:  ing.macros,
+  }));
+
+  // 2. Salvar receita aplicada (incluindo steps e note para substituir bloco de preparação)
+  const recipe = RECIPES.find(r => r.id === result.recipeId);
+  const recipeMeals = loadRecipeMeals();
+  recipeMeals[key] = {
+    recipeId:   result.recipeId,
+    recipeName: result.recipeName,
+    fitLabel:   result.fitLabel,
+    ingredients,
+    totals:     result.totals,
+    steps:      recipe?.steps || [],   // Sprint R4-C fix: preparação da receita
+    note:       recipe?.note  || '',   // Sprint R4-C fix: nota prática da receita
+  };
+  saveRecipeMeals(recipeMeals);
+
+  // 3. Clean slate: limpar ajustes anteriores naquela refeição
+  const subs = loadSubstitutions();
+  Object.keys(subs).forEach(k => { if (k.startsWith(prefix)) delete subs[k]; });
+  saveSubstitutions(subs);
+
+  const edits = loadEdits();
+  Object.keys(edits).forEach(k => { if (k.startsWith(prefix)) delete edits[k]; });
+  saveEdits(edits);
+
+  const removals = loadRemovals();
+  Object.keys(removals).forEach(k => { if (k.startsWith(prefix)) delete removals[k]; });
+  saveRemovals(removals);
+
+  const additions = loadAdditions();
+  if (additions[key]) { delete additions[key]; saveAdditions(additions); }
+
+  // 4. Fechar modal primeiro, depois re-renderizar
+  closeModal();
+  rebuildAndRender(mount);
 }
 
 /** Abre o modal em modo edição para um alimento já adicionado. */

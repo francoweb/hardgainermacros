@@ -134,11 +134,15 @@ test.describe('R4-B — Preview ao clicar numa receita', () => {
     expect(fitText).toBeTruthy();
   });
 
-  test('R4-B-11 — Modal NÃO tem botão "Aplicar" dentro do preview', async ({ page }) => {
+  // Actualizado em R4-C: "Aplicar receita" foi adicionado ao preview.
+  // Este teste verifica que não existe botão de nomenclatura confusa.
+  test('R4-B-11 — Modal não tem botão "Substituir refeição" (apenas "Aplicar receita")', async ({ page }) => {
     await abrirModal(page);
     await clicarPrimeiraReceita(page);
     const modal = page.locator('.modal');
-    await expect(modal.getByRole('button', { name: /aplicar/i })).not.toBeVisible();
+    // "Aplicar receita" agora existe (R4-C) — verificar pelo testid
+    await expect(modal.locator('[data-testid="apply-recipe-button"]')).toBeVisible();
+    // "Substituir refeição" não deve existir (nomenclatura diferente/confusa)
     await expect(modal.getByRole('button', { name: /substituir refeição/i })).not.toBeVisible();
   });
 

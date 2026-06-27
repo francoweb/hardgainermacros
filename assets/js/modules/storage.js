@@ -30,6 +30,7 @@ export const K = {
   ADDITIONS:     `${PREFIX}additions`,
   REMOVALS:      `${PREFIX}removals`,
   EDITS:         `${PREFIX}edits`,
+  RECIPE_MEALS:  `${PREFIX}recipe_meals`,   // Sprint R4-C
   COOKIES: `${PREFIX}cookies`,
 
   // sessionStorage (progresso de sessão)
@@ -133,6 +134,10 @@ export function loadRemovals()        { return local.get(K.REMOVALS) || {}; }
 /** Sprint F1 — edições de quantidade por instância de ingrediente do plano. */
 export function saveEdits(data)       { local.set(K.EDITS, data); }
 export function loadEdits()           { return local.get(K.EDITS) || {}; }
+
+/** Sprint R4-C — receitas aplicadas a refeições específicas do plano. */
+export function saveRecipeMeals(data) { local.set(K.RECIPE_MEALS, data); }
+export function loadRecipeMeals()     { return local.get(K.RECIPE_MEALS) || {}; }
 
 /**
  * Reset completo (Editar / Reiniciar).
