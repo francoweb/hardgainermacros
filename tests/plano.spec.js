@@ -2520,6 +2520,69 @@ test.describe('Editar alimento adicionado', () => {
     await expect(page.locator('[data-add-food]').first()).toBeVisible();
   });
 
+  test('C-ADD-EDIT12 — Alterar porção base recalcula macros no modal proporcionalmente', async ({ page }) => {
+    // Adicionar alimento base: 100 ml, 66 kcal
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const mealBefore = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+
+    await page.locator('[data-add-food][data-day-idx="0"][data-meal-idx="0"]').click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    const mealAfterAdd = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    // Refeição deve ter aumentado ~66 kcal
+    expect(Math.abs(mealAfterAdd.kcal - mealBefore.kcal - TEST_FOOD_EDIT_V1.kcal)).toBeLessThanOrEqual(5);
+
+    // Abrir modal de edição
+    await page.locator('[data-edit-addition]').first().click();
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+
+    // Confirmar valores iniciais (100 ml)
+    expect(Number(await page.locator('#eff-qty').inputValue())).toBe(100);
+    expect(Number(await page.locator('#eff-kcal').inputValue())).toBeCloseTo(66, 0);
+
+    // Alterar porção base para 50 ml → auto-recalcular
+    await page.locator('#eff-qty').fill('50');
+    await page.locator('#eff-qty').dispatchEvent('input');
+
+    // Verificar recálculo proporcional (50% de 100 ml)
+    expect(Number(await page.locator('#eff-kcal').inputValue())).toBeCloseTo(33, 0);
+    expect(Number(await page.locator('#eff-prot').inputValue())).toBeCloseTo(1.7, 1);
+    expect(Number(await page.locator('#eff-carb').inputValue())).toBeCloseTo(2.4, 1);
+    expect(Number(await page.locator('#eff-fat').inputValue())).toBeCloseTo(1.8, 1);
+
+    // Salvar e verificar que refeição reflecte ~33 kcal (metade de 66)
+    await page.locator('#edit-food-form button[type="submit"]').click();
+    const mealAfterEdit = parseMacros(await page.locator('[data-meal-totals="0-0"]').textContent() || '');
+    expect(Math.abs(mealAfterEdit.kcal - mealBefore.kcal - 33)).toBeLessThanOrEqual(5);
+  });
+
+  test('C-ADD-EDIT13 — Edição manual de macro desativa auto-recálculo ao mudar porção', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+    await page.locator('[data-add-food]').first().click();
+    await fillAddFoodForm(page, TEST_FOOD_EDIT_V1);
+    await page.locator('#add-food-form button[type="submit"]').click();
+
+    await page.locator('[data-edit-addition]').first().click();
+    await expect(page.locator('#edit-food-form')).toBeVisible();
+
+    // Utilizador edita kcal manualmente — activa flag userEditedMacros
+    await page.locator('#eff-kcal').fill('99');
+    await page.locator('#eff-kcal').dispatchEvent('input');
+
+    // Agora muda porção base — NÃO deve sobrescrever kcal
+    await page.locator('#eff-qty').fill('50');
+    await page.locator('#eff-qty').dispatchEvent('input');
+
+    // kcal deve manter 99 (manual), não recalcular para 33
+    expect(Number(await page.locator('#eff-kcal').inputValue())).toBeCloseTo(99, 0);
+  });
+
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -3562,6 +3562,33 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
 
   const close = openModal(contentHtml);
 
+  // Hotfix R4-C — recalcular macros ao alterar porção base.
+  // Usa foodData.per100 como baseline (mesma fórmula do pre-fill acima).
+  const effQtyInput  = document.getElementById('eff-qty');
+  const effKcalInput = document.getElementById('eff-kcal');
+  const effProtInput = document.getElementById('eff-prot');
+  const effCarbInput = document.getElementById('eff-carb');
+  const effFatInput  = document.getElementById('eff-fat');
+
+  // Flag: true quando o utilizador edita manualmente um campo macro.
+  // Enquanto false, mudar a porção base recalcula automaticamente.
+  let userEditedMacros = false;
+
+  effQtyInput.addEventListener('input', () => {
+    if (userEditedMacros) return;
+    const q = parseFloat(effQtyInput.value);
+    if (!q || q <= 0 || isNaN(q)) return;
+    const scl = (v) => v != null ? Math.round(v * q / 100 * 10) / 10 : 0;
+    effKcalInput.value = scl(foodData.per100.kcal);
+    effProtInput.value = scl(foodData.per100.prot);
+    effCarbInput.value = scl(foodData.per100.carb);
+    effFatInput.value  = scl(foodData.per100.fat);
+  });
+
+  [effKcalInput, effProtInput, effCarbInput, effFatInput].forEach(inp => {
+    inp.addEventListener('input', () => { userEditedMacros = true; });
+  });
+
   document.getElementById('edit-food-form').addEventListener('submit', (e) => {
     e.preventDefault();
 
