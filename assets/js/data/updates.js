@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-06-28',
+    type: 'Nova funcionalidade',
+    title: 'Receitas aplicáveis ao plano',
+    description:
+      'Agora é possível escolher receitas prontas, como omelete de frango anabólica, panqueca de banana com whey ou arroz com frango, e aplicar diretamente numa refeição do plano. A app ajusta automaticamente as quantidades para encaixar melhor nas calorias da refeição, mostra uma pré-visualização com os macros antes de aplicar e permite voltar à refeição original quando quiser.',
+    tags: ['Receitas', 'Plano alimentar', 'Praticidade'],
+    highlight: true,
+  },
+  {
     date: '2026-06-26',
     type: 'Nova funcionalidade',
     title: 'Lista de compras com copiar e PDF',
