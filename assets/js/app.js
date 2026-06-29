@@ -15,8 +15,9 @@ import { renderRotinaPage } from './pages/rotina.js';
 import { renderResultadosPage } from './pages/resultados.js';
 import { renderPlanoPage } from './pages/plano-14-dias.js';
 import { renderPrivacyPage, renderTermsPage, renderContactPage } from './pages/legal.js';
-import { renderUpdatesPage } from './pages/updates.js';
-import { renderFaqPage }     from './pages/faq.js';
+import { renderUpdatesPage }        from './pages/updates.js';
+import { renderFaqPage }            from './pages/faq.js';
+import { renderBarcodeScannerPage } from './pages/barcode-scanner.js';
 
 const mount = () => document.getElementById('app-mount');
 
@@ -51,7 +52,8 @@ function onRouteChange(page, path) {
     case 'terms':    renderTermsPage(el); break;
     case 'contact':  renderContactPage(el); break;
     case 'updates':  renderUpdatesPage(el); break;
-    case 'faq':      renderFaqPage(el);     break;
+    case 'faq':      renderFaqPage(el);              break;
+    case 'barcode':  renderBarcodeScannerPage(el);  break;
     default:         renderDadosFisicosPage(el);
   }
 

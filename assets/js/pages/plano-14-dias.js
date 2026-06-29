@@ -96,6 +96,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
       <div class="plan-toolbar no-print">
         <button type="button" class="btn btn-secondary" id="btn-back-results">${icons.arrowLeft(16)} Voltar aos Resultados</button>
         <div class="plan-toolbar-right">
+          <button type="button" class="btn btn-ghost" id="btn-barcode-plan">${icons.barcode(16)} Consultar alimento</button>
           <button type="button" class="btn btn-ghost" id="btn-print-compact">${icons.print(16)} PDF Compacto</button>
           <button type="button" class="btn btn-primary" id="btn-print">${icons.print(16)} Imprimir Plano Completo</button>
         </div>
@@ -237,6 +238,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
 
   // ---------- Handlers ----------
   document.getElementById('btn-back-results').addEventListener('click', () => navigate('/resultados'));
+  document.getElementById('btn-barcode-plan').addEventListener('click', () => navigate('/consultar-alimento'));
   document.getElementById('btn-print-compact').addEventListener('click', () => exportCompactPlanPDF(plan, results));
   document.getElementById('btn-print').addEventListener('click', () => exportFullPlanPDF(plan, results));
 
