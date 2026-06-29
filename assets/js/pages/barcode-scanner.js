@@ -17,7 +17,8 @@ import { navigate } from '../modules/router.js';
 import { icons }    from '../modules/icons.js';
 
 // ── Instância do leitor (módulo) — necessário para cleanup ao navegar ────────
-let codeReader = null;
+let codeReader   = null;
+let lastBarcode  = '';   // guarda o último código lido para o botão "Guardar"
 
 const ZXING_CDN = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
 
@@ -88,9 +89,14 @@ export function renderBarcodeScannerPage(mount) {
             <div class="scanner-result-name" id="result-name"></div>
             <div class="scanner-result-brand" id="result-brand"></div>
           </div>
-          <button type="button" class="btn btn-ghost btn-sm" id="btn-scan-again">
-            ${icons.refresh(14)} Consultar outro
-          </button>
+          <div class="scanner-result-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-save-library">
+              Guardar na biblioteca
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-scan-again">
+              ${icons.refresh(14)} Consultar outro
+            </button>
+          </div>
         </div>
 
         <div class="scanner-macros-block">
@@ -256,12 +262,12 @@ export function renderBarcodeScannerPage(mount) {
         video,
         async (result, err) => {
           if (!result) return;
-          const barcode = result.getText();
+          lastBarcode = result.getText();
           stopReader();
           showState('loading');
           try {
             const res  = await fetch(
-              `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
+              `https://world.openfoodfacts.org/api/v0/product/${lastBarcode}.json`
             );
             const data = await res.json();
             if (data.status === 1 && data.product?.product_name) {
@@ -296,6 +302,48 @@ export function renderBarcodeScannerPage(mount) {
   });
 
   document.getElementById('btn-start-scan').addEventListener('click', startScanner);
+
+  document.getElementById('btn-save-library').addEventListener('click', () => {
+    const btn  = document.getElementById('btn-save-library');
+    const name = document.getElementById('result-name').textContent.trim() || 'Produto';
+    const key  = `Código de barras: ${lastBarcode}`;
+
+    const customs = JSON.parse(localStorage.getItem('hg:custom_foods') || '[]');
+    const exists  = customs.some(c => c.notes === key);
+
+    const showFeedback = (text) => {
+      btn.textContent      = text;
+      btn.style.background = 'var(--success-soft)';
+      btn.style.color      = 'var(--success-dark)';
+      btn.style.border     = '1px solid var(--success)';
+      setTimeout(() => {
+        btn.textContent      = 'Guardar na biblioteca';
+        btn.style.background = '';
+        btn.style.color      = '';
+        btn.style.border     = '';
+      }, 3000);
+    };
+
+    if (exists) { showFeedback('✓ Já está na biblioteca!'); return; }
+
+    customs.push({
+      id:            `custom_${Date.now()}`,
+      name,
+      category:      'extra',
+      per100:        { kcal: macros100.kcal, prot: macros100.prot, carb: macros100.carb, fat: macros100.fat },
+      units:         [{ label: 'g', grams: 100 }],
+      digestibility: 'leve',
+      substitutes:   [],
+      source:        'barcode',
+      baseQuantity:  100,
+      baseUnit:      'g',
+      micronutrients:{},
+      notes:         key,
+      createdAt:     new Date().toISOString(),
+    });
+    localStorage.setItem('hg:custom_foods', JSON.stringify(customs));
+    showFeedback('✓ Guardado na biblioteca!');
+  });
 
   document.getElementById('btn-scan-again').addEventListener('click', () => {
     showState('idle');

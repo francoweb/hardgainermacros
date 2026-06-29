@@ -529,12 +529,6 @@ export function renderResultadosPage(mount) {
       </div>
 
       <div class="btn-row btn-row-center">
-        <button type="button" class="btn-barcode-scan" id="btn-barcode">
-          ${icons.barcode(16)} Consultar alimento por código de barras
-        </button>
-      </div>
-
-      <div class="btn-row btn-row-center">
         <button type="button" class="btn btn-ghost" id="btn-back-bottom">← Voltar e ajustar rotina</button>
       </div>
     </div>
@@ -553,9 +547,6 @@ export function renderResultadosPage(mount) {
   // Back buttons
   document.getElementById('btn-back-top').addEventListener('click', () => navigate('/rotina'));
   document.getElementById('btn-back-bottom').addEventListener('click', () => navigate('/rotina'));
-
-  // Barcode scanner
-  document.getElementById('btn-barcode').addEventListener('click', () => navigate('/consultar-alimento'));
 
   // Generate plan and go
   document.getElementById('btn-plan').addEventListener('click', () => {

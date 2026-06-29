@@ -2961,6 +2961,33 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
     return 100;
   }
 
+  // ── Os Meus Produtos (custom foods de barcode ou criados pelo utilizador) ──
+  const myFoods = JSON.parse(localStorage.getItem('hg:custom_foods') || '[]')
+    .filter(f => f.source === 'barcode' || f.source === 'custom');
+
+  const myFoodsHtml = myFoods.length === 0 ? '' : `
+    <div class="lib-my-products">
+      <div class="lib-my-products-title">Os Meus Produtos <span class="sub-cat-count">(${myFoods.length})</span></div>
+      <ul class="sub-cat-items">
+        ${myFoods.map((cf, idx) => {
+          const m = cf.per100 || {};
+          const r1 = (v) => Math.round((v || 0) * 10) / 10;
+          return `
+            <li class="lib-food-item">
+              <div class="lib-food-info">
+                <div class="lib-food-name">${escapeHtml(cf.name)}</div>
+                <div class="lib-food-qty">100 g</div>
+                <div class="lib-food-macros">${Math.round(m.kcal || 0)} kcal · P:${r1(m.prot)}g · C:${r1(m.carb)}g · G:${r1(m.fat)}g</div>
+              </div>
+              <button type="button" class="btn btn-primary lib-add-btn lib-add-custom-btn"
+                      data-custom-idx="${idx}"
+                      aria-label="Adicionar ${escapeHtml(cf.name)}">Adicionar</button>
+            </li>`;
+        }).join('')}
+      </ul>
+    </div>
+  `;
+
   // Agrupar FOODS por categoria
   const grouped = {};
   Object.entries(FOODS).forEach(([id, food]) => {
@@ -3005,6 +3032,7 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
     </div>
     <div class="modal-body">
       <p style="margin: 0 0 12px; font-size: 12.5px; color: var(--ink-muted);">Clique em <strong>Adicionar</strong> para incluir o alimento com a porção padrão. Os macros são recalculados automaticamente.</p>
+      ${myFoodsHtml}
       <div class="sub-options">${catGroupsHtml}</div>
       <div class="btn-row" style="margin-top: 16px;">
         <button type="button" class="btn btn-secondary" data-modal-close>Fechar</button>
@@ -3025,8 +3053,8 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
     });
   });
 
-  // Botões Adicionar
-  document.querySelectorAll('.lib-add-btn').forEach(btn => {
+  // Botões Adicionar — biblioteca estática
+  document.querySelectorAll('.lib-add-btn:not(.lib-add-custom-btn)').forEach(btn => {
     btn.addEventListener('click', () => {
       const foodId = btn.dataset.libId;
       const grams  = Number(btn.dataset.libGrams);
@@ -3046,6 +3074,35 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
           per100:   food.per100,
           category: food.category,
           source:   'library',
+        },
+      });
+      saveAdditions(additions);
+      close();
+      rebuildAndRender(mount);
+    });
+  });
+
+  // Botões Adicionar — Os Meus Produtos (custom foods)
+  document.querySelectorAll('.lib-add-custom-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.customIdx);
+      const cf  = myFoods[idx];
+      if (!cf) return;
+
+      const additions = loadAdditions();
+      const addKey    = `${dayIdx}:${mealIdx}`;
+      if (!additions[addKey]) additions[addKey] = [];
+      additions[addKey].push({
+        id:       `addition_${Date.now()}`,
+        food:     cf.id,
+        grams:    100,
+        unit:     'g',
+        snapshot: {
+          name:           cf.name,
+          per100:         cf.per100,
+          category:       cf.category,
+          source:         cf.source,
+          micronutrients: {},
         },
       });
       saveAdditions(additions);
