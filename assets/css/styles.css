@@ -2590,3 +2590,44 @@ body { max-width: 100%; overflow-x: hidden; }
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Home SEO sections ---------- */
+.home-seo { margin-top: 48px; padding-bottom: 32px; }
+.home-seo-section { padding-bottom: 32px; margin-bottom: 32px; border-bottom: 1px solid var(--border); }
+.home-seo-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.home-seo-title { font-size: 19px; font-weight: 700; color: var(--ink); margin-bottom: 12px; line-height: 1.35; }
+.home-seo-text { font-size: 14.5px; color: var(--ink-soft); line-height: 1.75; margin: 0; }
+.home-seo-text + .home-seo-text { margin-top: 10px; }
+.home-seo-note { margin-top: 12px; }
+/* Steps */
+.home-seo-steps { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 16px; }
+.home-seo-step { display: flex; gap: 14px; align-items: flex-start; }
+.home-seo-step-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; margin-top: 1px; }
+.home-seo-step-body { display: flex; flex-direction: column; gap: 3px; }
+.home-seo-step-body strong { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.home-seo-step-body span { font-size: 14px; color: var(--ink-soft); line-height: 1.65; }
+/* List */
+.home-seo-list { padding-left: 20px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.home-seo-list li { font-size: 14.5px; color: var(--ink-soft); line-height: 1.65; }
+/* FAQ */
+.home-seo-faq { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.home-seo-faq-item { border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
+.home-seo-faq-item > summary { padding: 13px 16px; cursor: pointer; font-size: 14.5px; font-weight: 600; color: var(--ink); list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; user-select: none; }
+.home-seo-faq-item > summary::-webkit-details-marker { display: none; }
+.home-seo-faq-item > summary::after { content: '+'; font-size: 18px; line-height: 1; color: var(--ink-muted); flex-shrink: 0; }
+.home-seo-faq-item[open] > summary { border-bottom: 1px solid var(--border); }
+.home-seo-faq-item[open] > summary::after { content: '\2212'; }
+.home-seo-faq-answer { padding: 12px 16px; font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+.home-seo-faq-more { display: inline-block; margin-top: 14px; font-size: 14px; font-weight: 600; color: var(--accent); }
+.home-seo-faq-more:hover { color: var(--accent-hover); }
+/* CTA */
+.home-seo-cta { text-align: center; padding: 28px 20px; background: var(--bg-soft); border-radius: var(--r-lg); border: 1px solid var(--border); margin-top: 40px; }
+.home-seo-cta-title { font-size: 19px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.home-seo-cta-text { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 20px; line-height: 1.6; }
+.home-seo-cta-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; font: 600 15px var(--font-body); padding: 11px 28px; border-radius: var(--r-pill); border: none; cursor: pointer; transition: background var(--t-fast); }
+.home-seo-cta-btn:hover { background: var(--accent-hover); }
+@media (max-width: 480px) {
+  .home-seo { margin-top: 36px; }
+  .home-seo-title { font-size: 17px; }
+  .home-seo-cta { padding: 22px 16px; }
+}

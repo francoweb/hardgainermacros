@@ -39,7 +39,7 @@ export function renderDadosFisicosPage(mount) {
         </p>
       </div>
 
-      <div class="card">
+      <div class="card" id="calculadora">
         <div class="card-head">
           <h2 class="card-title">Seus Dados Físicos</h2>
           <p class="card-sub">Precisamos conhecer você para calcular suas necessidades calóricas</p>
@@ -106,6 +106,110 @@ export function renderDadosFisicosPage(mount) {
           </div>
         </form>
       </div>
+
+      <!-- ═══ Conteúdo SEO ══════════════════════════════════════════════ -->
+      <div class="home-seo">
+
+        <!-- Secção 1 — O que é a ferramenta -->
+        <section class="home-seo-section">
+          <h2 class="home-seo-title">Calculadora de macros para ganhar massa muscular</h2>
+          <p class="home-seo-text">Se você tem dificuldade em ganhar peso, a primeira coisa que precisa saber é quantas calorias, proteína, carboidratos e gorduras o seu corpo precisa por dia.</p>
+          <p class="home-seo-text">O Hardgainer Macros calcula os seus macros com base nos seus dados físicos e gera um plano alimentar de 14 dias adaptado ao seu perfil. É gratuito, não exige cadastro e funciona direto no navegador.</p>
+        </section>
+
+        <!-- Secção 2 — Como funciona -->
+        <section class="home-seo-section">
+          <h2 class="home-seo-title">Como funciona o Hardgainer Macros</h2>
+          <ol class="home-seo-steps">
+            <li class="home-seo-step">
+              <span class="home-seo-step-num" aria-hidden="true">1</span>
+              <span class="home-seo-step-body">
+                <strong>Você preenche os seus dados</strong>
+                <span>Informe peso, altura, idade, sexo e rotina de refeições. O processo é rápido e simples.</span>
+              </span>
+            </li>
+            <li class="home-seo-step">
+              <span class="home-seo-step-num" aria-hidden="true">2</span>
+              <span class="home-seo-step-body">
+                <strong>Você recebe os seus macros e um plano de 14 dias</strong>
+                <span>A calculadora estima as suas calorias diárias, distribui por proteína, carboidratos e gorduras, e gera um plano alimentar completo com alimentos práticos.</span>
+              </span>
+            </li>
+            <li class="home-seo-step">
+              <span class="home-seo-step-num" aria-hidden="true">3</span>
+              <span class="home-seo-step-body">
+                <strong>Você ajusta ao seu gosto</strong>
+                <span>Você pode alterar quantidades, trocar alimentos, remover o que não quer, adicionar novos alimentos e guardar o plano em PDF.</span>
+              </span>
+            </li>
+          </ol>
+        </section>
+
+        <!-- Secção 3 — Para quem é -->
+        <section class="home-seo-section">
+          <h2 class="home-seo-title">Para quem é esta ferramenta</h2>
+          <p class="home-seo-text">Esta calculadora foi criada para quem:</p>
+          <ul class="home-seo-list">
+            <li>come bastante, mas continua com dificuldade em ganhar peso;</li>
+            <li>quer um plano alimentar concreto, não apenas uma estimativa solta de calorias;</li>
+            <li>precisa organizar melhor proteína, carboidratos e gorduras;</li>
+            <li>procura uma ferramenta gratuita, sem criar conta e sem instalar nada;</li>
+            <li>treina musculação e quer ganhar massa muscular com mais consistência.</li>
+          </ul>
+          <p class="home-seo-text home-seo-note">Não é uma app genérica de contagem de calorias. É uma calculadora de macros focada em hardgainers, ectomorfos e pessoas que precisam comer mais para ganhar peso.</p>
+        </section>
+
+        <!-- Secção 4 — Por que hardgainers não conseguem ganhar peso -->
+        <section class="home-seo-section">
+          <h2 class="home-seo-title">Por que muitos hardgainers não conseguem ganhar peso</h2>
+          <p class="home-seo-text">Um hardgainer é alguém que tem dificuldade em ganhar peso e massa muscular, mesmo treinando e tentando comer mais. Muitas vezes, isso está associado a metabolismo acelerado, pouco apetite, dias muito ativos ou dificuldade em manter consistência alimentar.</p>
+          <p class="home-seo-text">O problema nem sempre é falta de esforço. Muitas vezes, é falta de uma referência clara: quantas calorias comer, quanta proteína atingir e como distribuir os macros ao longo do dia.</p>
+          <p class="home-seo-text">Sem esse ponto de partida, é fácil achar que está comendo muito quando, na prática, ainda está abaixo das calorias necessárias para ganhar peso.</p>
+        </section>
+
+        <!-- Secção 5 — Como usar no dia a dia -->
+        <section class="home-seo-section">
+          <h2 class="home-seo-title">Como usar o plano alimentar no dia a dia</h2>
+          <p class="home-seo-text">O plano alimentar gerado deve ser usado como ponto de partida, não como uma regra rígida.</p>
+          <p class="home-seo-text">Use o plano para entender volumes, horários e combinações de alimentos. Mais importante do que seguir tudo ao detalhe é entender o que representa uma refeição com boas calorias, proteína suficiente e carboidratos adequados ao seu objetivo.</p>
+          <p class="home-seo-text">Depois, ajuste ao seu gosto. Você pode trocar alimentos, alterar quantidades, adicionar opções que já usa no dia a dia e remover o que não funciona para você. Um plano alimentar só é útil se conseguir realmente seguir.</p>
+          <p class="home-seo-text">Também é possível guardar o plano em PDF para consultar no celular, imprimir ou usar como referência nas compras.</p>
+        </section>
+
+        <!-- Secção 6 — Mini FAQ -->
+        <section class="home-seo-section">
+          <h2 class="home-seo-title">Perguntas frequentes</h2>
+          <div class="home-seo-faq">
+            <details class="home-seo-faq-item">
+              <summary>O que é um hardgainer?</summary>
+              <div class="home-seo-faq-answer">É uma pessoa que tem dificuldade em ganhar peso e massa muscular, mesmo quando sente que já come bastante. Normalmente precisa de mais consistência, mais calorias e uma melhor organização das refeições.</div>
+            </details>
+            <details class="home-seo-faq-item">
+              <summary>Como é calculado o meu plano alimentar?</summary>
+              <div class="home-seo-faq-answer">A calculadora usa dados como peso, altura, idade, sexo e rotina para estimar as suas calorias diárias. Depois distribui essas calorias por proteína, carboidratos e gorduras, criando um plano alimentar de 14 dias.</div>
+            </details>
+            <details class="home-seo-faq-item">
+              <summary>A ferramenta é gratuita?</summary>
+              <div class="home-seo-faq-answer">Sim. A calculadora é gratuita, pode ser usada sem criar conta, sem instalar nada e sem pagamento.</div>
+            </details>
+            <details class="home-seo-faq-item">
+              <summary>Esta calculadora serve para ectomorfos?</summary>
+              <div class="home-seo-faq-answer">Sim. A ferramenta é especialmente útil para ectomorfos e pessoas com dificuldade em ganhar peso, porque ajuda a transformar o objetivo em calorias, macros e refeições práticas.</div>
+            </details>
+          </div>
+          <a href="/faq" data-route class="home-seo-faq-more">Ver todas as perguntas frequentes →</a>
+        </section>
+
+        <!-- CTA final -->
+        <div class="home-seo-cta">
+          <div class="home-seo-cta-title">Pronto para calcular seus macros?</div>
+          <p class="home-seo-cta-text">Preencha seus dados no formulário acima e receba seu plano alimentar de 14 dias em poucos minutos.</p>
+          <button type="button" class="home-seo-cta-btn" id="btn-seo-cta">Começar agora ↑</button>
+        </div>
+
+      </div>
+      <!-- ═══ Fim conteúdo SEO ══════════════════════════════════════════ -->
+
     </div>
   `;
 
@@ -176,4 +280,13 @@ export function renderDadosFisicosPage(mount) {
     markProgress(K.STEP1_DONE);
     navigate('/perfil');
   });
+
+  // CTA final SEO — scroll suave de volta à calculadora
+  const btnSeoCta   = document.getElementById('btn-seo-cta');
+  const calcAnchor  = document.getElementById('calculadora');
+  if (btnSeoCta && calcAnchor) {
+    btnSeoCta.addEventListener('click', () => {
+      calcAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 }
