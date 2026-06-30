@@ -14,6 +14,15 @@
 export const UPDATES = [
   {
     date: '2026-06-30',
+    type: 'Melhoria',
+    title: 'Mais detalhes nutricionais no código de barras',
+    description:
+      'A consulta de alimentos por código de barras agora também traz informações nutricionais extras quando o produto declara isso na embalagem, como fibras, açúcares, gorduras detalhadas, sal, sódio, vitaminas e minerais. Esses valores já chegam preenchidos automaticamente nos campos opcionais ao adicionar o alimento ao plano, sem precisar digitar nada.',
+    tags: ['Código de barras', 'Informação nutricional'],
+    highlight: false,
+  },
+  {
+    date: '2026-06-30',
     type: 'Nova funcionalidade',
     title: 'Consultar alimentos por código de barras',
     description:
