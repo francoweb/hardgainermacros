@@ -14,6 +14,15 @@
 export const UPDATES = [
   {
     date: '2026-06-30',
+    type: 'Correção',
+    title: 'Mensagem mais clara quando um produto não é encontrado pelo código de barras',
+    description:
+      'A mensagem que aparece quando um produto não é encontrado na base de dados foi ajustada para ser mais clara e encorajadora, sem referências desnecessárias a marcas ou regiões específicas.',
+    tags: ['Código de barras'],
+    highlight: false,
+  },
+  {
+    date: '2026-06-30',
     type: 'Melhoria',
     title: 'Adicionar produto manualmente quando o código de barras não é reconhecido',
     description:

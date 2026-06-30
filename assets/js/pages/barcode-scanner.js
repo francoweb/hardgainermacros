@@ -426,7 +426,7 @@ export function renderBarcodeScannerPage(mount) {
             // Ambas falharam — mostrar erro encorajador com opção manual
             lastManualName = partialName;
             errorMsg.textContent =
-              'Não encontrámos este produto na nossa base de dados. Isto é comum com marcas portuguesas mais pequenas. Podes adicioná-lo manualmente lendo os valores da embalagem — ficará guardado para a próxima vez.';
+              'Não encontramos este produto na nossa base de dados. Isso é comum com marcas locais ou produtos mais recentes. Você pode adicioná-lo manualmente lendo os valores da embalagem — ele ficará salvo para a próxima vez.';
             showState('error');
           } catch {
             errorMsg.textContent =

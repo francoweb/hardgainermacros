@@ -18,3 +18,9 @@ Preferências de trabalho:
 - uma tarefa de cada vez
 - nada de várias mudanças no mesmo turno
 - foco em estabilidade, UX e manutenção segura
+
+Idioma e localização:
+- todo o texto visível ao usuário na app deve ser escrito em português do Brasil (PT-BR) global e neutro
+- evitar expressões, gírias ou referências regionais específicas do Brasil, de Portugal ou de qualquer país lusófono — o texto deve soar natural para qualquer falante de português, em qualquer lugar do mundo
+- nunca mencionar países, marcas regionais ou contextos geográficos específicos em textos da interface, mensagens de erro, ou exemplos — a app é usada globalmente
+- ao revisar texto existente em PT-PT, normalizar para PT-BR (ex: 'telemóvel' → 'celular', 'autocarro' → 'ônibus', 'pequeno-almoço' → 'café da manhã', conjugações de 'tu' → 'você') sempre que esse texto for tocado por alguma alteração
