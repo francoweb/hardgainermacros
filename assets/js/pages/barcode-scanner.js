@@ -69,6 +69,13 @@ export function renderBarcodeScannerPage(mount) {
         <div class="scanner-laser" id="scanner-laser" style="display:none;"></div>
       </div>
 
+      <!-- Botão "Voltar ao plano" — sempre visível, independente do estado (POSIÇÃO 1) -->
+      <div class="scanner-back-row">
+        <button type="button" class="btn btn-secondary" id="btn-back-plan-top">
+          ${icons.arrowLeft(16)} Voltar ao plano
+        </button>
+      </div>
+
       <!-- Estado: idle — botão ligar -->
       <div id="scanner-actions" class="scanner-actions">
         <button type="button" class="btn btn-primary" id="btn-start-scan">
@@ -142,10 +149,13 @@ export function renderBarcodeScannerPage(mount) {
           </div>
         </div>
 
-        <!-- Botões de acção — abaixo de "Para esta quantidade" -->
+        <!-- Botões de acção — abaixo de "Para esta quantidade" (POSIÇÃO 2) -->
         <div class="scanner-result-btn-row">
           <button type="button" class="btn btn-secondary" id="btn-save-library">
             Guardar na biblioteca
+          </button>
+          <button type="button" class="btn btn-ghost" id="btn-back-plan-result">
+            ${icons.arrowLeft(16)} Voltar ao plano
           </button>
           <button type="button" class="btn btn-ghost" id="btn-scan-again">
             ${icons.refresh(14)} Consultar outro
@@ -296,10 +306,20 @@ export function renderBarcodeScannerPage(mount) {
   }
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
-  document.getElementById('btn-scanner-back').addEventListener('click', () => {
+
+  /** Para a câmara e volta à página anterior (ou ao plano se não houver histórico). */
+  function goBackToPlano() {
     stopReader();
-    history.back(); // popstate → router resolve a página anterior
-  });
+    if (window.history.length > 1) {
+      history.back();
+    } else {
+      navigate('/plano-14-dias');
+    }
+  }
+
+  document.getElementById('btn-scanner-back').addEventListener('click', goBackToPlano);
+  document.getElementById('btn-back-plan-top').addEventListener('click', goBackToPlano);
+  document.getElementById('btn-back-plan-result').addEventListener('click', goBackToPlano);
 
   document.getElementById('btn-start-scan').addEventListener('click', startScanner);
 

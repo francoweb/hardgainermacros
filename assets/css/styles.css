@@ -2673,6 +2673,8 @@ body { max-width: 100%; overflow-x: hidden; }
 .scanner-result-brand { font-size: 13px; color: var(--ink-muted); }
 /* Linha de botões abaixo de "Para esta quantidade" */
 .scanner-result-btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding-top: 4px; }
+/* Botão "Voltar ao plano" — sempre visível (POSIÇÃO 1) */
+.scanner-back-row { margin-bottom: 12px; }
 
 /* Macro grid */
 .scanner-macros-block { display: flex; flex-direction: column; gap: 10px; }
