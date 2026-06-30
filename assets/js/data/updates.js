@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-06-30',
+    type: 'Nova funcionalidade',
+    title: 'Consultar alimentos por código de barras',
+    description:
+      'Agora é possível apontar a câmara do celular para o código de barras de qualquer produto e ver instantaneamente as calorias, proteína, carboidratos e gordura. Você pode ajustar a quantidade para ver os macros recalculados em tempo real e salvar o produto numa biblioteca pessoal, ficando disponível para adicionar a qualquer refeição do plano alimentar de 14 dias.',
+    tags: ['Código de barras', 'Plano alimentar', 'Praticidade'],
+    highlight: true,
+  },
+  {
     date: '2026-06-28',
     type: 'Nova funcionalidade',
     title: 'Receitas aplicáveis ao plano',
