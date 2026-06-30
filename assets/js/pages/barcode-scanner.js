@@ -17,8 +17,9 @@ import { navigate } from '../modules/router.js';
 import { icons }    from '../modules/icons.js';
 
 // ── Instância do leitor (módulo) — necessário para cleanup ao navegar ────────
-let codeReader   = null;
-let lastBarcode  = '';   // guarda o último código lido para o botão "Guardar"
+let codeReader      = null;
+let lastBarcode     = '';  // guarda o último código lido para o botão "Guardar"
+let lastNutriments  = {};  // guarda os nutriments da API para extrair micronutrientes
 
 const ZXING_CDN = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
 
@@ -32,6 +33,62 @@ function loadZXing() {
     s.onerror = () => reject(new Error('Falha ao carregar ZXing'));
     document.head.appendChild(s);
   });
+}
+
+/**
+ * Extrai micronutrientes de data.product.nutriments (Open Food Facts) e converte
+ * para as unidades internas da app (ver NUTRI_LABELS em plano-14-dias.js).
+ *
+ * Conversões necessárias:
+ *  - g → mg  (×1000): sodium, cholesterol, calcium, iron, magnesium,
+ *                      potassium, zinc, phosphorus
+ *  - já em g         : saturated, mono, poly, trans, sugar, fiber, salt
+ *  - já em mg        : vitC, vitE, vitB1, vitB2, vitB3, vitB6
+ *  - já em µg        : vitA, vitD, vitK, vitB12, folate, selenium, iodine
+ *
+ * Valores ausentes ou inválidos → null (a app filtra null em buildNutriDetailsHtml).
+ */
+function extractMicronutrients(n) {
+  const asIs  = (key) => { const v = n[key]; return (typeof v === 'number' && isFinite(v)) ? Math.round(v * 1000) / 1000 : null; };
+  const gToMg = (key) => { const v = n[key]; return (typeof v === 'number' && isFinite(v)) ? Math.round(v * 1e6) / 1000 : null; };
+
+  return {
+    // Gorduras detalhadas (g → g)
+    saturated:   asIs('saturated-fat_100g'),
+    mono:        asIs('monounsaturated-fat_100g'),
+    poly:        asIs('polyunsaturated-fat_100g'),
+    trans:       asIs('trans-fat_100g'),
+    // Carboidratos detalhados (g → g)
+    sugar:       asIs('sugars_100g'),
+    fiber:       asIs('fiber_100g'),
+    // Sal / sódio / colesterol
+    salt:        asIs('salt_100g'),          // g → g
+    sodium:      gToMg('sodium_100g'),       // g → mg
+    cholesterol: gToMg('cholesterol_100g'),  // g → mg
+    // Vitaminas já em mg (app espera mg)
+    vitC:  asIs('vitamin-c_100g'),
+    vitE:  asIs('vitamin-e_100g'),
+    vitB1: asIs('vitamin-b1_100g'),
+    vitB2: asIs('vitamin-b2_100g'),
+    vitB3: asIs('vitamin-pp_100g'),  // niacina/B3 em OFF = vitamin-pp
+    vitB6: asIs('vitamin-b6_100g'),
+    // Vitaminas já em µg (app espera µg)
+    vitA:   asIs('vitamin-a_100g'),
+    vitD:   asIs('vitamin-d_100g'),
+    vitK:   asIs('vitamin-k_100g'),
+    vitB12: asIs('vitamin-b12_100g'),
+    folate: asIs('folates_100g'),
+    // Minerais em g → mg
+    calcium:    gToMg('calcium_100g'),
+    iron:       gToMg('iron_100g'),
+    magnesium:  gToMg('magnesium_100g'),
+    potassium:  gToMg('potassium_100g'),
+    zinc:       gToMg('zinc_100g'),
+    phosphorus: gToMg('phosphorus_100g'),
+    // Oligoelementos já em µg (app espera µg)
+    selenium: asIs('selenium_100g'),
+    iodine:   asIs('iodine_100g'),
+  };
 }
 
 // ── Renderer principal ────────────────────────────────────────────────────────
@@ -235,6 +292,7 @@ export function renderBarcodeScannerPage(mount) {
   function showResult(data) {
     const p = data.product;
     const n = p.nutriments || {};
+    lastNutriments = n;  // guardado para usar no botão "Guardar na biblioteca"
 
     macros100 = {
       kcal: n['energy-kcal_100g'] ?? (n['energy_100g'] ? n['energy_100g'] / 4.184 : 0),
@@ -357,7 +415,7 @@ export function renderBarcodeScannerPage(mount) {
       source:        'barcode',
       baseQuantity:  100,
       baseUnit:      'g',
-      micronutrients:{},
+      micronutrients: extractMicronutrients(lastNutriments),
       notes:         key,
       createdAt:     new Date().toISOString(),
     });
