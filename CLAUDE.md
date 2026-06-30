@@ -7,6 +7,7 @@ Regras permanentes:
 - não fazer refactors desnecessários
 - mudar só o necessário
 - antes de editar, analisar os ficheiros reais envolvidos
+- sempre que uma alteração for visível para o utilizador (nova funcionalidade, melhoria ou correção de bug), adicionar uma entrada correspondente no array UPDATES em assets/js/data/updates.js, no mesmo commit da alteração — seguindo o formato e tom já documentado no cabeçalho desse ficheiro
 - no final, informar:
   - ficheiros alterados
   - o que mudou
