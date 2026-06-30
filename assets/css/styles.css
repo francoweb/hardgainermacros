@@ -2668,9 +2668,11 @@ body { max-width: 100%; overflow-x: hidden; }
 
 /* Resultado */
 .scanner-result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; display: flex; flex-direction: column; gap: 18px; }
-.scanner-result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.scanner-result-header { display: flex; flex-direction: column; gap: 2px; }
 .scanner-result-name { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.35; }
-.scanner-result-brand { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+.scanner-result-brand { font-size: 13px; color: var(--ink-muted); }
+/* Linha de botões abaixo de "Para esta quantidade" */
+.scanner-result-btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding-top: 4px; }
 
 /* Macro grid */
 .scanner-macros-block { display: flex; flex-direction: column; gap: 10px; }
@@ -2699,8 +2701,6 @@ body { max-width: 100%; overflow-x: hidden; }
 /* Botão barcode (resultados page) */
 .btn-barcode-scan { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--ink-soft); font: 500 14px var(--font-body); cursor: pointer; transition: background var(--t-fast), border-color var(--t-fast); }
 .btn-barcode-scan:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-/* Botões de acção do resultado do scanner */
-.scanner-result-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; flex-shrink: 0; }
 /* Secção "Os Meus Produtos" no modal da biblioteca */
 .lib-my-products { margin-bottom: 14px; }
 .lib-my-products-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }

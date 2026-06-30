@@ -85,18 +85,8 @@ export function renderBarcodeScannerPage(mount) {
       <!-- Estado: resultado -->
       <div id="scanner-result" class="scanner-result-card" style="display:none;">
         <div class="scanner-result-header">
-          <div class="scanner-result-info">
-            <div class="scanner-result-name" id="result-name"></div>
-            <div class="scanner-result-brand" id="result-brand"></div>
-          </div>
-          <div class="scanner-result-actions">
-            <button type="button" class="btn btn-secondary btn-sm" id="btn-save-library">
-              Guardar na biblioteca
-            </button>
-            <button type="button" class="btn btn-ghost btn-sm" id="btn-scan-again">
-              ${icons.refresh(14)} Consultar outro
-            </button>
-          </div>
+          <div class="scanner-result-name" id="result-name"></div>
+          <div class="scanner-result-brand" id="result-brand"></div>
         </div>
 
         <div class="scanner-macros-block">
@@ -150,6 +140,16 @@ export function renderBarcodeScannerPage(mount) {
               <span class="scanner-macro-lbl">Gorduras</span>
             </div>
           </div>
+        </div>
+
+        <!-- Botões de acção — abaixo de "Para esta quantidade" -->
+        <div class="scanner-result-btn-row">
+          <button type="button" class="btn btn-secondary" id="btn-save-library">
+            Guardar na biblioteca
+          </button>
+          <button type="button" class="btn btn-ghost" id="btn-scan-again">
+            ${icons.refresh(14)} Consultar outro
+          </button>
         </div>
       </div>
 
