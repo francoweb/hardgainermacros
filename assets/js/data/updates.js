@@ -15,6 +15,15 @@ export const UPDATES = [
   {
     date: '2026-06-30',
     type: 'Melhoria',
+    title: 'Adicionar produto manualmente quando o código de barras não é reconhecido',
+    description:
+      'Quando a app não encontra um produto pelo código de barras — o que acontece com algumas marcas portuguesas menos conhecidas —, agora é possível adicioná-lo manualmente preenchendo o nome e os macros da embalagem. O produto fica guardado na biblioteca pessoal para ser usado em qualquer refeição do plano.',
+    tags: ['Código de barras', 'Praticidade'],
+    highlight: false,
+  },
+  {
+    date: '2026-06-30',
+    type: 'Melhoria',
     title: 'Mais detalhes nutricionais no código de barras',
     description:
       'A consulta de alimentos por código de barras agora também traz informações nutricionais extras quando o produto declara isso na embalagem, como fibras, açúcares, gorduras detalhadas, sal, sódio, vitaminas e minerais. Esses valores já chegam preenchidos automaticamente nos campos opcionais ao adicionar o alimento ao plano, sem precisar digitar nada.',

@@ -2703,6 +2703,16 @@ body { max-width: 100%; overflow-x: hidden; }
 /* Botão barcode (resultados page) */
 .btn-barcode-scan { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--ink-soft); font: 500 14px var(--font-body); cursor: pointer; transition: background var(--t-fast), border-color var(--t-fast); }
 .btn-barcode-scan:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+/* Botões de acção no estado de erro do scanner */
+.scanner-error-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+/* Formulário de adição manual */
+.scanner-manual-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+.scanner-manual-hint { font-size: 13px; color: var(--ink-muted); margin: 0; line-height: 1.5; }
+.scanner-manual-field { display: flex; flex-direction: column; gap: 5px; }
+.scanner-manual-input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--r-md); font: inherit; font-size: 15px; color: var(--ink); background: var(--surface); box-sizing: border-box; }
+.scanner-manual-input:focus { outline: none; border-color: var(--accent); }
+.scanner-macro-input { width: 100%; padding: 8px 6px; border: 1px solid var(--border); border-radius: var(--r-md); font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); text-align: center; box-sizing: border-box; }
+.scanner-macro-input:focus { outline: none; border-color: var(--accent); }
 /* Secção "Os Meus Produtos" no modal da biblioteca */
 .lib-my-products { margin-bottom: 14px; }
 .lib-my-products-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }

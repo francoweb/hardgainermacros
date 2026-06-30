@@ -20,6 +20,7 @@ import { icons }    from '../modules/icons.js';
 let codeReader      = null;
 let lastBarcode     = '';  // guarda o último código lido para o botão "Guardar"
 let lastNutriments  = {};  // guarda os nutriments da API para extrair micronutrientes
+let lastManualName  = '';  // nome parcial da API para pré-preencher formulário manual
 
 const ZXING_CDN = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
 
@@ -223,8 +224,55 @@ export function renderBarcodeScannerPage(mount) {
       <!-- Estado: erro -->
       <div id="scanner-error" class="scanner-error" style="display:none;">
         <span class="scanner-error-icon">⚠️</span>
-        <p id="scanner-error-msg">Produto não encontrado na base de dados. Experimenta introduzir manualmente.</p>
-        <button type="button" class="btn btn-secondary" id="btn-retry">Tentar novamente</button>
+        <p id="scanner-error-msg"></p>
+        <div class="scanner-error-actions">
+          <button type="button" class="btn btn-secondary" id="btn-add-manual">
+            + Adicionar manualmente
+          </button>
+          <button type="button" class="btn btn-ghost" id="btn-retry">
+            ${icons.refresh(14)} Tentar novamente
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado: manual — adição quando produto não é encontrado na base de dados -->
+      <div id="scanner-manual" class="scanner-result-card" style="display:none;">
+        <div class="scanner-manual-title">Adicionar produto manualmente</div>
+        <p class="scanner-manual-hint">Lê os valores da embalagem e preenche os campos abaixo. O produto ficará guardado para a próxima vez.</p>
+
+        <div class="scanner-manual-field">
+          <label class="scanner-macros-label" for="manual-name">Nome do produto</label>
+          <input type="text" id="manual-name" class="scanner-manual-input" maxlength="80" autocomplete="off" placeholder="Ex: Iogurte natural">
+        </div>
+
+        <div class="scanner-macros-block">
+          <div class="scanner-macros-label">Macros por 100 g</div>
+          <div class="scanner-macro-grid">
+            <div class="scanner-macro-item">
+              <input type="number" id="manual-kcal" class="scanner-macro-input" inputmode="decimal" placeholder="—">
+              <span class="scanner-macro-lbl">kcal</span>
+            </div>
+            <div class="scanner-macro-item">
+              <input type="number" id="manual-prot" class="scanner-macro-input" inputmode="decimal" placeholder="0">
+              <span class="scanner-macro-lbl">Proteína (g)</span>
+            </div>
+            <div class="scanner-macro-item">
+              <input type="number" id="manual-carb" class="scanner-macro-input" inputmode="decimal" placeholder="0">
+              <span class="scanner-macro-lbl">Carboidratos (g)</span>
+            </div>
+            <div class="scanner-macro-item">
+              <input type="number" id="manual-fat" class="scanner-macro-input" inputmode="decimal" placeholder="0">
+              <span class="scanner-macro-lbl">Gorduras (g)</span>
+            </div>
+          </div>
+        </div>
+
+        <p id="manual-error-msg" style="display:none; color:var(--accent); font-size:13px; margin:0;"></p>
+
+        <div class="scanner-result-btn-row">
+          <button type="button" class="btn btn-secondary" id="btn-manual-save">Guardar na biblioteca</button>
+          <button type="button" class="btn btn-ghost" id="btn-manual-cancel">Cancelar</button>
+        </div>
       </div>
 
     </div>
@@ -247,6 +295,7 @@ export function renderBarcodeScannerPage(mount) {
   const resultEl   = document.getElementById('scanner-result');
   const errorEl    = document.getElementById('scanner-error');
   const errorMsg   = document.getElementById('scanner-error-msg');
+  const manualEl   = document.getElementById('scanner-manual');
   const proCta     = document.getElementById('pro-cta-bar');
   const qtyInput   = document.getElementById('scanner-qty');
 
@@ -284,9 +333,23 @@ export function renderBarcodeScannerPage(mount) {
     loadingEl.style.display = state === 'loading'  ? 'flex'  : 'none';
     resultEl.style.display  = state === 'result'   ? 'block' : 'none';
     errorEl.style.display   = state === 'error'    ? 'flex'  : 'none';
+    manualEl.style.display  = state === 'manual'   ? 'block' : 'none';
     proCta.style.display    = state === 'result'   ? 'block' : 'none';
     laser.style.display     = state === 'scanning' ? 'block' : 'none';
     if (state !== 'scanning') stopReader();
+  }
+
+  /** Pré-preenche e mostra o formulário de adição manual. */
+  function showManualForm(prefillName) {
+    document.getElementById('manual-name').value = prefillName || '';
+    document.getElementById('manual-kcal').value = '';
+    document.getElementById('manual-prot').value = '';
+    document.getElementById('manual-carb').value = '';
+    document.getElementById('manual-fat').value  = '';
+    const errEl = document.getElementById('manual-error-msg');
+    errEl.style.display = 'none';
+    errEl.textContent   = '';
+    showState('manual');
   }
 
   function showResult(data) {
@@ -334,17 +397,37 @@ export function renderBarcodeScannerPage(mount) {
           stopReader();
           showState('loading');
           try {
-            const res  = await fetch(
+            let partialName = '';
+
+            // Tentativa 1: API v0 (base de dados principal)
+            const res0  = await fetch(
               `https://world.openfoodfacts.org/api/v0/product/${lastBarcode}.json`
             );
-            const data = await res.json();
-            if (data.status === 1 && data.product?.product_name) {
-              showResult(data);
-            } else {
-              errorMsg.textContent =
-                'Produto não encontrado na base de dados. Experimenta introduzir manualmente.';
-              showState('error');
+            const data0 = await res0.json();
+            if (data0.status === 1 && data0.product?.product_name) {
+              showResult(data0);
+              return;
             }
+            partialName = data0.product?.product_name || '';
+
+            // Tentativa 2: API v2 (produtos mais recentes e migrações)
+            try {
+              const res2  = await fetch(
+                `https://world.openfoodfacts.org/api/v2/product/${lastBarcode}.json?fields=product_name,brands,nutriments`
+              );
+              const data2 = await res2.json();
+              if (data2.status === 1 && data2.product?.product_name) {
+                showResult(data2);
+                return;
+              }
+              partialName = data2.product?.product_name || partialName;
+            } catch {}
+
+            // Ambas falharam — mostrar erro encorajador com opção manual
+            lastManualName = partialName;
+            errorMsg.textContent =
+              'Não encontrámos este produto na nossa base de dados. Isto é comum com marcas portuguesas mais pequenas. Podes adicioná-lo manualmente lendo os valores da embalagem — ficará guardado para a próxima vez.';
+            showState('error');
           } catch {
             errorMsg.textContent =
               'Erro de rede. Verifica a ligação à internet e tenta novamente.';
@@ -429,6 +512,69 @@ export function renderBarcodeScannerPage(mount) {
   });
 
   document.getElementById('btn-retry').addEventListener('click', () => {
+    showState('idle');
+    startScanner();
+  });
+
+  document.getElementById('btn-add-manual').addEventListener('click', () => {
+    showManualForm(lastManualName);
+  });
+
+  document.getElementById('btn-manual-save').addEventListener('click', () => {
+    const saveBtn = document.getElementById('btn-manual-save');
+    const errEl   = document.getElementById('manual-error-msg');
+    const name    = (document.getElementById('manual-name').value || '').trim();
+    const kcal    = parseFloat(document.getElementById('manual-kcal').value);
+    const prot    = parseFloat(document.getElementById('manual-prot').value) || 0;
+    const carb    = parseFloat(document.getElementById('manual-carb').value) || 0;
+    const fat     = parseFloat(document.getElementById('manual-fat').value)  || 0;
+
+    if (!name) {
+      errEl.textContent   = 'O nome do produto é obrigatório.';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (!kcal || kcal <= 0 || isNaN(kcal)) {
+      errEl.textContent   = 'Preenche as calorias por 100 g.';
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+
+    const key     = `Código de barras: ${lastBarcode}`;
+    const customs = JSON.parse(localStorage.getItem('hg:custom_foods') || '[]');
+
+    if (customs.some(c => c.notes === key)) {
+      errEl.textContent   = 'Este produto já está na tua biblioteca.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    customs.push({
+      id:            `custom_${Date.now()}`,
+      name,
+      category:      'extra',
+      per100:        { kcal, prot, carb, fat },
+      units:         [{ label: 'g', grams: 100 }],
+      digestibility: 'leve',
+      substitutes:   [],
+      source:        'barcode',
+      baseQuantity:  100,
+      baseUnit:      'g',
+      micronutrients:{},
+      notes:         key,
+      createdAt:     new Date().toISOString(),
+    });
+    localStorage.setItem('hg:custom_foods', JSON.stringify(customs));
+
+    saveBtn.textContent      = '✓ Guardado!';
+    saveBtn.style.background = 'var(--success-soft)';
+    saveBtn.style.color      = 'var(--success-dark)';
+    saveBtn.style.border     = '1px solid var(--success)';
+    setTimeout(() => { showState('idle'); }, 1500);
+  });
+
+  document.getElementById('btn-manual-cancel').addEventListener('click', () => {
     showState('idle');
     startScanner();
   });
