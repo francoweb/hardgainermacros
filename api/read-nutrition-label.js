@@ -45,6 +45,12 @@ function respond(res, status, body) {
 }
 
 module.exports = async function handler(req, res) {
+  // ── Debug temporário — remover após diagnóstico ─────────────────────────────
+  console.log('GEMINI_DEBUG: função chamada, método:', req.method);
+  console.log('GEMINI_DEBUG: GEMINI_API_KEY presente:', !!process.env.GEMINI_API_KEY);
+  console.log('GEMINI_DEBUG: body keys:', Object.keys(req.body || {}));
+  // ────────────────────────────────────────────────────────────────────────────
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
     Object.entries(CORS_HEADERS).forEach(([k, v]) => res.setHeader(k, v));
