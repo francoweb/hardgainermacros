@@ -85,9 +85,9 @@ module.exports = async function handler(req, res) {
   // Chamar Gemini Vision
   let geminiRes;
   try {
-    geminiRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
+    geminiRes = await fetch(GEMINI_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({
         contents: [
           {
