@@ -2789,3 +2789,15 @@ body { max-width: 100%; overflow-x: hidden; }
 .blog-related-card { display: flex; flex-direction: column; gap: 6px; padding: 20px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); text-decoration: none; color: inherit; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
 .blog-related-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
 .blog-related-card-title { font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.35; }
+
+/* ── CTA blog ───────────────────────────────────────────────────────────────── */
+.blog-cta { margin-top: 48px; }
+.blog-cta-inner { background: var(--accent); border-radius: var(--r-xl); padding: 40px 36px; text-align: center; }
+.blog-cta-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.75); margin: 0 0 10px; }
+.blog-cta-title { font-size: clamp(20px, 3.5vw, 26px); font-weight: 800; color: #fff; margin: 0 0 12px; line-height: 1.25; }
+.blog-cta-sub { font-size: 15px; color: rgba(255,255,255,.85); margin: 0 0 24px; line-height: 1.6; }
+.blog-cta-btn { display: inline-block; padding: 13px 28px; background: #fff; color: var(--accent); border-radius: var(--r-pill); text-decoration: none; font: 700 15px var(--font-body); transition: opacity var(--t-fast), transform var(--t-fast); }
+.blog-cta-btn:hover { opacity: .9; transform: translateY(-1px); }
+@media (max-width: 480px) {
+  .blog-cta-inner { padding: 28px 20px; }
+}

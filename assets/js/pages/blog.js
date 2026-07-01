@@ -198,6 +198,21 @@ function renderRelated(posts) {
   `;
 }
 
+// ─── CTA — calculadora de macros ──────────────────────────────────────────────
+
+function renderCTA() {
+  return `
+    <div class="blog-cta">
+      <div class="blog-cta-inner">
+        <p class="blog-cta-label">Ferramenta gratuita</p>
+        <h2 class="blog-cta-title">Descobre os teus macros ideais para ganhar massa</h2>
+        <p class="blog-cta-sub">Calculadora personalizada para hardgainers e ectomorfos. Plano de 14 dias incluído.</p>
+        <a href="/" data-route class="blog-cta-btn">Calcular os meus macros →</a>
+      </div>
+    </div>
+  `;
+}
+
 // ─── Página de artigo individual (/blog/:slug) ─────────────────────────────────
 
 export function renderBlogPostPage(mount) {
@@ -238,6 +253,8 @@ export function renderBlogPostPage(mount) {
         <div class="blog-post-content">
           ${post.content}
         </div>
+
+        ${renderCTA()}
 
         ${renderRelated(getRelatedPosts(post))}
 
