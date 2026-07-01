@@ -2801,3 +2801,15 @@ body { max-width: 100%; overflow-x: hidden; }
 @media (max-width: 480px) {
   .blog-cta-inner { padding: 28px 20px; }
 }
+
+/* ── Secção blog na home ────────────────────────────────────────────────────── */
+.home-blog-section { max-width: 860px; margin: 48px auto 0; padding: 0 0 64px; }
+.home-blog-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.home-blog-title { font-size: 20px; font-weight: 700; color: var(--ink); margin: 0; }
+.home-blog-ver-todos { font-size: 14px; color: var(--accent); text-decoration: none; font-weight: 600; }
+.home-blog-ver-todos:hover { text-decoration: underline; }
+.home-blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.home-blog-card { display: flex; flex-direction: column; gap: 6px; padding: 20px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); text-decoration: none; color: inherit; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+.home-blog-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.home-blog-card-title { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+.home-blog-card-excerpt { font-size: 13px; color: var(--ink-soft); line-height: 1.5; flex: 1; }

@@ -15,6 +15,29 @@ import { renderStepper } from '../components/ui.js';
 import { icons } from '../modules/icons.js';
 import { navigate, markProgress } from '../modules/router.js';
 import { saveFormData, loadFormData, K, local } from '../modules/storage.js';
+import { BLOG_POSTS } from '../data/blog-posts.js';
+
+function renderHomeBlogSection() {
+  const recent = BLOG_POSTS.slice(0, 3);
+  return `
+    <section class="home-blog-section">
+      <div class="home-blog-header">
+        <h2 class="home-blog-title">Guias para Hardgainers</h2>
+        <a href="/blog" data-route class="home-blog-ver-todos">Ver todos os artigos →</a>
+      </div>
+      <div class="home-blog-grid">
+        ${recent.map(p => `
+          <a href="/blog/${p.slug}" data-route class="home-blog-card">
+            <span class="blog-card-cat">${p.category}</span>
+            <span class="home-blog-card-title">${p.title}</span>
+            <span class="home-blog-card-excerpt">${p.excerpt}</span>
+            <span class="blog-card-read">${p.readTime} min de leitura</span>
+          </a>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
 
 export function renderDadosFisicosPage(mount) {
   const existing = loadFormData() || {
@@ -209,6 +232,8 @@ export function renderDadosFisicosPage(mount) {
 
       </div>
       <!-- ═══ Fim conteúdo SEO ══════════════════════════════════════════ -->
+
+      ${renderHomeBlogSection()}
 
     </div>
   `;
