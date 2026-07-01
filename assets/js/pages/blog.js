@@ -171,6 +171,33 @@ function updateSEOMeta(post) {
   });
 }
 
+// ─── Artigos relacionados ──────────────────────────────────────────────────────
+
+function getRelatedPosts(current, count = 3) {
+  const sameCat = BLOG_POSTS.filter(p => p.slug !== current.slug && p.category === current.category);
+  const others  = BLOG_POSTS.filter(p => p.slug !== current.slug && p.category !== current.category);
+  const pool    = [...sameCat, ...others];
+  return pool.slice(0, count);
+}
+
+function renderRelated(posts) {
+  if (!posts.length) return '';
+  return `
+    <aside class="blog-related">
+      <h2 class="blog-related-title">Artigos relacionados</h2>
+      <div class="blog-related-grid">
+        ${posts.map(p => `
+          <a href="/blog/${p.slug}" data-route class="blog-related-card">
+            <span class="blog-card-cat">${p.category}</span>
+            <span class="blog-related-card-title">${p.title}</span>
+            <span class="blog-card-read">${p.readTime} min de leitura</span>
+          </a>
+        `).join('')}
+      </div>
+    </aside>
+  `;
+}
+
 // ─── Página de artigo individual (/blog/:slug) ─────────────────────────────────
 
 export function renderBlogPostPage(mount) {
@@ -211,6 +238,9 @@ export function renderBlogPostPage(mount) {
         <div class="blog-post-content">
           ${post.content}
         </div>
+
+        ${renderRelated(getRelatedPosts(post))}
+
         <footer class="blog-post-footer">
           <a href="/blog" data-route class="btn btn-secondary">← Ver todos os artigos</a>
         </footer>
