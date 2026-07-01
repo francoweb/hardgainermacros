@@ -1961,6 +1961,690 @@ export const BLOG_POSTS = [
     <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
   </div>
 </article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 16
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'sono-recuperacao-ganho-massa',
+    title: 'Por que o Sono é Essencial para o Hardgainer Ganhar Massa',
+    metaDescription: 'Entenda por que o sono é fundamental para hardgainers ganharem massa muscular: GH, testosterona, recuperação e dicas práticas para melhorar a qualidade do sono.',
+    metaKeywords: ['sono ganho massa', 'recuperação muscular', 'dormir ganhar músculo', 'descanso ectomorfo', 'hormônio do crescimento sono'],
+    category: 'Lifestyle',
+    readTime: 8,
+    publishDate: '2026-07-29',
+    excerpt: 'O músculo não cresce na academia — cresce enquanto você dorme. Para hardgainers, negligenciar o sono é sabotar o próprio esforço. Entenda a fisiologia e melhore o descanso.',
+    content: `<article class="blog-article">
+  <p class="article-intro">Hardgainers dedicam muito tempo pensando em dieta e treino. Rastrear calorias, calcular macros, escolher os exercícios certos. Mas existe um pilar que costuma ser ignorado e que pode ser tão importante quanto os outros dois: o sono. A verdade inconveniente é que você pode comer perfeitamente e treinar com perfeição — e ainda assim crescer muito menos do que poderia se estiver dormindo mal.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#o-que-acontece">O que acontece no corpo durante o sono</a></li>
+      <li><a href="#gh">Hormônio do crescimento e sono profundo</a></li>
+      <li><a href="#testosterona">Testosterona e privação de sono</a></li>
+      <li><a href="#cortisol">Cortisol: o inimigo do hardgainer que não dorme</a></li>
+      <li><a href="#sintese">Síntese proteica muscular durante o sono</a></li>
+      <li><a href="#quanto">Quanto sono um hardgainer precisa</a></li>
+      <li><a href="#dicas">10 estratégias para melhorar a qualidade do sono</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="o-que-acontece">O que acontece no corpo durante o sono</h2>
+  <p>O sono não é um estado passivo de "descanso". É um processo ativo e altamente organizado, dividido em ciclos de aproximadamente 90 minutos que alternam entre fases de sono leve, sono profundo (NREM 3 e 4) e sono REM.</p>
+  <p>Para quem treina com objetivo de ganho de massa, as fases de interesse são especialmente o <strong>sono profundo (NREM 3 e 4)</strong>, que ocorre predominantemente nas primeiras horas da noite, e o <strong>sono REM</strong>, que aumenta nas últimas horas.</p>
+  <p>Durante o sono profundo:</p>
+  <ul>
+    <li>O hormônio do crescimento (GH) é secretado em pulsos — representando 70 a 80% de toda a secreção diária</li>
+    <li>A frequência cardíaca e a pressão arterial caem — o sistema cardiovascular descansa</li>
+    <li>O fluxo sanguíneo para os músculos aumenta — facilitando a entrega de nutrientes e a remoção de resíduos metabólicos</li>
+    <li>A síntese proteica muscular atinge o seu pico</li>
+  </ul>
+
+  <h2 id="gh">Hormônio do crescimento e sono profundo</h2>
+  <p>O GH (Growth Hormone) é o hormônio mais anabólico do corpo humano — mais até do que a testosterona em termos de impacto direto no crescimento muscular e na mobilização de gordura. E a sua liberação é quase inteiramente dependente do sono profundo.</p>
+  <p>A matemática é simples e impactante:</p>
+  <ul>
+    <li>8 horas de sono de qualidade → 70 a 80% da secreção diária de GH durante o sono</li>
+    <li>6 horas de sono → secreção de GH pode cair 20 a 30%</li>
+    <li>5 horas ou menos → queda de até 50% na secreção de GH</li>
+  </ul>
+  <p>Para um hardgainer que já tem naturalmente mais dificuldade de criar músculo, reduzir a secreção de GH à metade é um golpe enorme no potencial de crescimento. É como treinar com metade da intensidade.</p>
+  <p>O sono profundo ocorre principalmente nas primeiras 3 a 4 horas da noite — por isso dormir cedo é mais importante do que dormir tarde para compensar. Ir para a cama às 23h e acordar às 7h dá muito mais sono profundo do que ir às 2h e acordar às 10h, mesmo com 8 horas totais.</p>
+
+  <h2 id="testosterona">Testosterona e privação de sono</h2>
+  <p>Um estudo publicado no JAMA Internal Medicine mostrou que homens jovens saudáveis que dormiram apenas 5 horas por noite durante uma semana tiveram redução de 10 a 15% nos níveis de testosterona — equivalente ao envelhecimento de 10 a 15 anos.</p>
+  <p>A testosterona é fundamental para hipertrofia muscular: estimula a síntese proteica, aumenta o recrutamento de células satélite (responsáveis pelo reparo e crescimento muscular) e melhora a recuperação.</p>
+  <p>Para hardgainers, que muitas vezes têm naturalmente níveis de testosterona no limite inferior da faixa normal, essa redução adicional causada pelo sono ruim pode ser especialmente prejudicial.</p>
+
+  <div class="article-cta-inline">
+    <p>Treino e sono certos — mas a nutrição também precisa estar alinhada</p>
+    <a href="/" class="btn-cta-inline">Calcular os meus macros grátis →</a>
+  </div>
+
+  <h2 id="cortisol">Cortisol: o inimigo do hardgainer que não dorme</h2>
+  <p>O cortisol é o hormônio do estresse — e é catabólico, ou seja, promove a quebra de tecido muscular (entre outros efeitos). Em condições normais, o cortisol é alto pela manhã (para acordar o corpo) e baixa ao longo do dia.</p>
+  <p>Com privação de sono, os níveis de cortisol ficam cronicamente elevados. O resultado para hardgainers é especialmente ruim:</p>
+  <ul>
+    <li>Maior catabolismo muscular — o corpo quebra músculo para usar como energia</li>
+    <li>Maior acúmulo de gordura abdominal</li>
+    <li>Piora da sensibilidade à insulina — o corpo usa carboidrato com menos eficiência</li>
+    <li>Redução da síntese proteica muscular — anabolismo e catabolismo competem, e o cortisol eleva o catabólico</li>
+  </ul>
+  <p>Em prática: um hardgainer que dorme 5 horas por noite pode estar comendo e treinando certo mas perdendo músculo durante o sono em vez de ganhando — porque o cortisol elevado supera o anabolismo do GH reduzido.</p>
+
+  <h2 id="sintese">Síntese proteica muscular durante o sono</h2>
+  <p>A síntese proteica muscular (SPM) — o processo de construção de novo tecido muscular — não para durante o sono. Na verdade, é durante as horas de sono que grande parte do crescimento real acontece, usando os aminoácidos das refeições do dia.</p>
+  <p>Um estudo relevante mostrou que consumir 40g de proteína de caseína antes de dormir aumentou a SPM durante a noite em 22% comparado com não consumir proteína. Para hardgainers, isso é significativo.</p>
+  <p>A janela noturna de 7 a 9 horas é uma oportunidade anabólica longa — mas só se o sono for de qualidade e houver aminoácidos disponíveis (daí a importância da refeição antes de dormir com proteína).</p>
+
+  <h2 id="quanto">Quanto sono um hardgainer precisa</h2>
+  <p>A recomendação geral para adultos é 7 a 9 horas de sono por noite. Para hardgainers em fase ativa de ganho de massa:</p>
+  <ul>
+    <li><strong>Mínimo:</strong> 7 horas de sono por noite de forma consistente</li>
+    <li><strong>Ideal:</strong> 8 a 9 horas</li>
+    <li><strong>Qualidade sobre quantidade:</strong> 7 horas de sono profundo e contínuo valem mais do que 9 horas fragmentadas</li>
+  </ul>
+  <p>Sinais de que você não está dormindo o suficiente para o objetivo de ganho de massa:</p>
+  <ul>
+    <li>Acordar cansado mesmo depois de 7+ horas</li>
+    <li>Força no treino estagnada ou caindo</li>
+    <li>Apetite muito baixo ou muito alto</li>
+    <li>Dificuldade de concentração e humor instável</li>
+    <li>Músculos sempre "pesados" ou doloridos</li>
+  </ul>
+
+  <h2 id="dicas">10 estratégias para melhorar a qualidade do sono</h2>
+
+  <h3>Ambiente</h3>
+  <ul>
+    <li><strong>Quarto completamente escuro:</strong> qualquer luz (inclusive de dispositivos em standby) interfere na produção de melatonina. Use cortinas blackout ou máscara de dormir.</li>
+    <li><strong>Temperatura entre 18°C e 20°C:</strong> o corpo precisa baixar a temperatura central para entrar em sono profundo. Quarto quente dificulta isso.</li>
+    <li><strong>Silêncio ou ruído branco:</strong> sons intermitentes (trânsito, conversas) perturbam o sono. Ruído branco constante (ventilador, aplicativo) mascara esses sons.</li>
+  </ul>
+
+  <h3>Comportamento</h3>
+  <ul>
+    <li><strong>Horário fixo de dormir e acordar:</strong> o ritmo circadiano adora consistência. Dormir e acordar no mesmo horário todos os dias (incluindo fins de semana) melhora a qualidade do sono de forma significativa.</li>
+    <li><strong>Sem tela 30 a 60 minutos antes de dormir:</strong> a luz azul de celular e computador suprime a melatonina. Use modo noturno ou óculos com filtro se não conseguir evitar.</li>
+    <li><strong>Sem cafeína após 14h:</strong> a cafeína tem meia-vida de 5 a 6 horas. Um café às 16h ainda tem 50% do efeito estimulante às 22h.</li>
+    <li><strong>Sem treino intenso nas 2 horas antes de dormir:</strong> o treino eleva a temperatura corporal e o cortisol — o oposto do que o corpo precisa para dormir.</li>
+  </ul>
+
+  <h3>Nutrição para o sono</h3>
+  <ul>
+    <li><strong>Proteína antes de dormir:</strong> 25 a 40g de proteína de digestão lenta (iogurte grego, queijo cottage, caseína) 30 a 60 minutos antes de dormir.</li>
+    <li><strong>Carboidrato leve à noite:</strong> carboidrato estimula a produção de serotonina (precursora da melatonina). Um lanche leve com carb antes de dormir pode facilitar o adormecer.</li>
+    <li><strong>Magnésio:</strong> 200 a 400mg de glicinato ou malato de magnésio antes de dormir — mineral envolvido na produção de melatonina e relaxamento muscular.</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>O sono não é onde você descansa do esforço de crescer — é onde o crescimento de fato acontece. Para hardgainers, que já têm uma batalha mais difícil por causa do metabolismo e da genética, comprometer o sono é desperdiçar parte do trabalho feito na academia e na cozinha.</p>
+  <p>8 horas de sono de qualidade, horário consistente, quarto escuro e fresco, e proteína antes de dormir — esses são os ajustes de sono mais impactantes para quem quer ganhar massa.</p>
+  <p>Junto com um sono bem estruturado, a nutrição precisa estar alinhada. A calculadora abaixo garante que as suas calorias e macros estejam no ponto certo.</p>
+
+  <div class="article-cta-final">
+    <h3>Alinhe todos os pilares</h3>
+    <p>Treino, sono e nutrição juntos. Calcule os seus macros e garanta que a alimentação está suportando o crescimento.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 17
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'rastrear-macros-por-que-importante',
+    title: 'Por que Rastrear Macros é Essencial para o Hardgainer',
+    metaDescription: 'Entenda por que rastrear macros é fundamental para hardgainers: como começar, quais ferramentas usar e como o tracking transforma resultados no ganho de massa muscular.',
+    metaKeywords: ['rastrear macros', 'contar macros', 'diário alimentar hardgainer', 'tracking nutrição', 'aplicativo rastrear calorias'],
+    category: 'Ferramentas',
+    readTime: 8,
+    publishDate: '2026-08-05',
+    excerpt: 'Hardgainers que não rastreiam os macros estão essencialmente voando no escuro. Veja por que o tracking é a ferramenta mais poderosa para quem quer ganhar massa — e como fazê-lo sem enlouquecer.',
+    content: `<article class="blog-article">
+  <p class="article-intro">A maioria dos hardgainers que não consegue crescer tem um problema em comum: não sabe o que está realmente comendo. Não de forma precisa. Eles têm uma ideia geral — "como bastante", "acho que bato a proteína" — mas sem dados concretos, é impossível identificar onde está o problema e corrigir. Rastrear macros muda isso completamente.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#por-que">Por que hardgainers precisam rastrear mais do que ninguém</a></li>
+      <li><a href="#o-que-descobrir">O que você vai descobrir quando começar a rastrear</a></li>
+      <li><a href="#como-comecar">Como começar a rastrear: passo a passo</a></li>
+      <li><a href="#ferramentas">Ferramentas para rastrear</a></li>
+      <li><a href="#por-quanto-tempo">Por quanto tempo rastrear</a></li>
+      <li><a href="#sem-enlouquecer">Como rastrear sem enlouquecer</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="por-que">Por que hardgainers precisam rastrear mais do que ninguém</h2>
+  <p>Para alguém com tendência a ganhar peso facilmente, errar 200 kcal para baixo num dia não faz grande diferença — o corpo ainda fica em superávit. Para um hardgainer com metabolismo acelerado, esses 200 kcal podem ser a diferença entre superávit e manutenção.</p>
+  <p>Além disso, a percepção do quanto se come é notoriamente imprecisa. Estudos mostram que pessoas sistematicamente subestimam a ingestão calórica em 20 a 50% quando estimam "no olho". Para um hardgainer que precisa de 3200 kcal, uma subestimativa de 30% significa que está comendo apenas 2240 kcal — 960 kcal abaixo da meta sem saber.</p>
+  <p>Rastrear elimina essa imprecisão. Você sabe exatamente o que está comendo — e pode ajustar com base em dados reais, não em suposições.</p>
+
+  <h2 id="o-que-descobrir">O que você vai descobrir quando começar a rastrear</h2>
+  <p>Hardgainers que começam a rastrear pela primeira vez quase sempre têm surpresas. As mais comuns:</p>
+  <ul>
+    <li><strong>"Estou comendo muito menos do que pensava":</strong> o caso mais frequente. A meta era 3000 kcal, mas o rastreamento mostra 2200 a 2400 kcal reais.</li>
+    <li><strong>"Minha proteína está muito abaixo":</strong> achava que comia 150g de proteína, mas a contagem real mostra 90 a 110g.</li>
+    <li><strong>"Estou comendo muito pouco carboidrato":</strong> evitava "excesso de carb" mas está com 180g/dia quando deveria ter 300g+.</li>
+    <li><strong>"Os fins de semana estragam tudo":</strong> de segunda a sexta estava em superávit, mas sábado e domingo jogavam o balanço semanal para zero ou negativo.</li>
+    <li><strong>"Algumas refeições têm muito mais calorias do que outras":</strong> o café da manhã tem 400 kcal e o jantar tem 1000 — distribuição desequilibrada que dificulta bater a proteína de forma otimizada.</li>
+  </ul>
+  <p>Cada uma dessas descobertas tem uma correção direta e simples — mas sem rastrear, você nunca encontra o problema.</p>
+
+  <h2 id="como-comecar">Como começar a rastrear: passo a passo</h2>
+
+  <h3>Passo 1: Saiba as suas metas</h3>
+  <p>Antes de rastrear, você precisa saber o que está rastreando em relação a quê. Calcule o seu TDEE e defina as metas de calorias, proteína, carboidrato e gordura. Sem isso, os números que você registra não têm referência.</p>
+
+  <h3>Passo 2: Tenha uma balança de cozinha</h3>
+  <p>Estimar porções "no olho" tem uma margem de erro grande. Uma colher de pasta de amendoim "generosa" pode ser 25g ou 50g — 140 kcal de diferença. Uma balança de cozinha digital custa pouco e elimina essa variável.</p>
+  <p>Dica: pese os alimentos crus quando possível — os valores nutricionais nas tabelas geralmente se referem ao peso cru.</p>
+
+  <h3>Passo 3: Registre tudo</h3>
+  <p>Tudo mesmo: o azeite que jogou no arroz, o cafezinho com açúcar, a colherzinha de manteiga no pão, o gole de suco. Essas calorias "invisíveis" somam 200 a 400 kcal por dia para muitas pessoas sem que percebam.</p>
+
+  <h3>Passo 4: Registre no momento, não de memória</h3>
+  <p>Tentar lembrar o que comeu no almoço às 22h para registrar no aplicativo é impreciso. Registre logo depois de comer — ou até antes, se tiver o hábito de planejar as refeições.</p>
+
+  <h3>Passo 5: Revise semanalmente</h3>
+  <p>Uma vez por semana, olhe para os dados acumulados. A média calórica bateu a meta? A proteína esteve consistente? Houve dias da semana consistentemente abaixo? Essas análises semanais são onde o rastreamento gera mais valor.</p>
+
+  <div class="article-cta-inline">
+    <p>Antes de rastrear, você precisa das metas certas — calcule aqui</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="ferramentas">Ferramentas para rastrear</h2>
+
+  <h3>Aplicativos (mais populares)</h3>
+  <ul>
+    <li><strong>MyFitnessPal:</strong> o banco de dados de alimentos mais completo disponível. Permite escanear código de barras. Gratuito na versão básica.</li>
+    <li><strong>Cronometer:</strong> mais preciso em micronutrientes. Boa opção para quem quer acompanhar além de calorias e macros.</li>
+    <li><strong>FatSecret:</strong> alternativa gratuita simples e funcional.</li>
+  </ul>
+
+  <h3>Planilha manual</h3>
+  <p>Para quem prefere não usar aplicativo, uma planilha simples (Google Sheets ou similar) com colunas para alimento, quantidade, kcal, proteína, carb e gordura funciona perfeitamente. Mais trabalhoso de configurar, mas total controle.</p>
+
+  <h3>Rótulos e tabelas nutricionais</h3>
+  <p>Para alimentos sem rótulo (carnes, ovos, vegetais), use tabelas de composição nutricional disponíveis gratuitamente online. Com o tempo, você memoriza os valores dos alimentos que usa com mais frequência — o rastreamento fica mais rápido.</p>
+
+  <h2 id="por-quanto-tempo">Por quanto tempo rastrear</h2>
+  <p>Rastrear indefinidamente não é o objetivo — é uma ferramenta temporária para construir consciência nutricional. A progressão típica:</p>
+  <ul>
+    <li><strong>Primeiras 4 a 8 semanas:</strong> rastreamento rigoroso de tudo, pesando os alimentos. O objetivo é descobrir onde estão os problemas e calibrar a percepção das porções.</li>
+    <li><strong>Meses 2 a 6:</strong> rastreamento mais relaxado. Você já conhece os valores dos seus alimentos habituais, pesa apenas o que tem mais dúvida, estima o resto com precisão razoável.</li>
+    <li><strong>Depois de 6 meses:</strong> muitos hardgainers conseguem "intuir" a alimentação com razoável precisão e rastreiam apenas quando sentem que algo está fora. Voltam ao rastreamento rigoroso quando o progresso estagna.</li>
+  </ul>
+
+  <h2 id="sem-enlouquecer">Como rastrear sem enlouquecer</h2>
+  <p>O rastreamento não deve virar obsessão. Algumas estratégias para manter o equilíbrio:</p>
+  <ul>
+    <li><strong>Tenha refeições-padrão:</strong> almoço quase sempre é frango + arroz + feijão. Registre uma vez, salve como refeição no app e use diariamente. Você só precisa ajustar as gramas.</li>
+    <li><strong>Não busque perfeição:</strong> se uma refeição foi em restaurante e você não tem os valores exatos, estime por similaridade. Uma estimativa próxima é melhor do que não registrar nada.</li>
+    <li><strong>Use a função de planejamento:</strong> muitos apps permitem planejar o dia alimentar de manhã. Planejando antes de comer, você evita surpresas ao final do dia.</li>
+    <li><strong>Aceite variação de ±100 kcal:</strong> a meta é 3200 kcal? Entre 3100 e 3300 kcal é um excelente resultado. Não passe horas tentando ajustar para chegar exatamente em 3200.</li>
+    <li><strong>Registre os erros também:</strong> o dia que comeu mal, o fim de semana que fugiu da dieta — registre. É exatamente nesses momentos que os dados são mais úteis para identificar padrões.</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>Rastrear macros é a ferramenta mais poderosa que um hardgainer tem para identificar e corrigir o que está impedindo o crescimento. Sem dados, você está tentando resolver um problema sem saber onde ele está.</p>
+  <p>Não precisa ser para sempre — mas nas primeiras semanas e sempre que o progresso estagna, o rastreamento é indispensável. E para ter as metas certas para rastrear em relação a elas, a calculadora abaixo define isso em minutos.</p>
+
+  <div class="article-cta-final">
+    <h3>Defina as suas metas antes de rastrear</h3>
+    <p>Calcule as suas calorias e macros ideais — depois use um aplicativo para acompanhar se está atingindo esses valores diariamente.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 18
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'ajustar-calorias-sem-resultado',
+    title: 'Hardgainer sem Resultado? Como Ajustar Calorias e Macros',
+    metaDescription: 'Se você é hardgainer e não está crescendo, aprenda como diagnosticar o problema e ajustar calorias, proteína e macros para sair do platô e voltar a ganhar massa.',
+    metaKeywords: ['sem resultado ganho massa', 'ajustar dieta hardgainer', 'platô ganho muscular', 'hardgainer estagnado', 'como sair do platô'],
+    category: 'Nutrição',
+    readTime: 9,
+    publishDate: '2026-08-12',
+    excerpt: 'Treinando há semanas, comendo direito, mas o peso não sobe e o músculo não aparece? Antes de desistir, leia isso — há um protocolo de diagnóstico e ajuste que resolve a maioria dos casos.',
+    content: `<article class="blog-article">
+  <p class="article-intro">Você calculou as calorias, montou a dieta, treina com consistência — mas o peso está estagnado há 3, 4 semanas e a balança não se mexe. Para um hardgainer, esse platô é especialmente frustrante porque a progressão já é mais lenta do que para a maioria. Mas antes de concluir que "é genética" ou "não funciona para mim", existe um protocolo de diagnóstico que resolve a esmagadora maioria dos casos de estagnação.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#diagnostico">Diagnóstico: por que o progresso parou</a></li>
+      <li><a href="#verificar">O que verificar primeiro</a></li>
+      <li><a href="#ajustar-calorias">Como ajustar as calorias</a></li>
+      <li><a href="#ajustar-proteina">Como ajustar a proteína</a></li>
+      <li><a href="#ajustar-timing">Ajustes de timing e distribuição</a></li>
+      <li><a href="#treino">Verificar o treino</a></li>
+      <li><a href="#protocolo">Protocolo de ajuste semana a semana</a></li>
+      <li><a href="#quando-esperar">Quando esperar vs quando agir</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="diagnostico">Diagnóstico: por que o progresso parou</h2>
+  <p>O platô de ganho de massa em hardgainers tem causas bem definidas, e quase todas são corrigíveis. As mais comuns:</p>
+  <ol>
+    <li><strong>Calorias insuficientes:</strong> o cálculo inicial estava correto, mas com o ganho de peso o TDEE aumentou — e o superávit original virou manutenção</li>
+    <li><strong>Inconsistência alimentar:</strong> bom de segunda a sexta, ruim no fim de semana — o balanço semanal real está em zero</li>
+    <li><strong>Adaptação metabólica:</strong> o corpo se adaptou ao superávit e aumentou o NEAT, diminuindo o excedente efetivo</li>
+    <li><strong>Stagnação no treino:</strong> não está progressando nas cargas — sem novo estímulo, não há novo crescimento</li>
+    <li><strong>Sono insuficiente:</strong> sabota o GH e a testosterona, limitando o anabolismo</li>
+    <li><strong>Estresse crônico:</strong> cortisol elevado compete com o ambiente anabólico necessário para crescer</li>
+  </ol>
+  <p>O diagnóstico começa com dados. Se você não está rastreando, começa aí.</p>
+
+  <h2 id="verificar">O que verificar primeiro</h2>
+  <p>Antes de mudar qualquer coisa, colete dados por 1 semana:</p>
+  <ul>
+    <li><strong>Pese-se diariamente</strong> pela manhã, em jejum, depois de ir ao banheiro. Registre todos os valores.</li>
+    <li><strong>Rastreie as calorias</strong> com honestidade total — tudo que vai à boca, incluindo fins de semana.</li>
+    <li><strong>Registre os treinos:</strong> cargas e repetições de cada exercício.</li>
+    <li><strong>Avalie o sono:</strong> está dormindo consistentemente 7+ horas? Vai para a cama em horário regular?</li>
+  </ul>
+  <p>Com esses dados em mão, a causa do platô geralmente fica evidente.</p>
+
+  <h2 id="ajustar-calorias">Como ajustar as calorias</h2>
+  <p>Se a média semanal de peso não subiu por 2 semanas consecutivas com rastreamento honesto, o primeiro ajuste é calórico:</p>
+
+  <h3>Ajuste gradual (recomendado)</h3>
+  <ul>
+    <li>Adicione <strong>+200 kcal por dia</strong> à meta atual</li>
+    <li>Mantenha por 2 semanas e observe</li>
+    <li>Se o peso ainda não subiu, adicione mais +200 kcal</li>
+    <li>Repita até o peso começar a subir 200 a 400g por semana</li>
+  </ul>
+
+  <h3>Por que não aumentar mais de uma vez?</h3>
+  <p>Aumentos grandes de calorias de uma vez causam três problemas: desconforto digestivo, aumento rápido de gordura se o aumento foi além do necessário, e dificuldade de identificar o ponto exato onde o superávit voltou a ser real. Aumentos de 200 kcal a cada 2 semanas são precisos e confortáveis.</p>
+
+  <h3>Recalcule o TDEE quando ganhar peso</h3>
+  <p>A cada 3 a 5kg de ganho, o seu TDEE aumentou — você pesa mais, então queima mais em repouso e em atividade. Recalcule o TDEE e ajuste a meta calórica. Muitos hardgainers estão em platô simplesmente porque não ajustaram as calorias após ganhar peso.</p>
+
+  <div class="article-cta-inline">
+    <p>Recalcule as suas calorias com o peso atual para sair do platô</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="ajustar-proteina">Como ajustar a proteína</h2>
+  <p>Se o rastreamento revela que a proteína está abaixo de 1,8g/kg, esse pode ser um fator limitante — mesmo que as calorias estejam corretas. Aumente a proteína para 2,0 a 2,2g/kg antes de mexer nas calorias totais.</p>
+  <p>Como adicionar proteína sem mudar muito o resto:</p>
+  <ul>
+    <li>Adicionar 1 dose de whey protein (30g de proteína, ~130 kcal)</li>
+    <li>Substituir um lanche de carboidrato por iogurte grego + fruta</li>
+    <li>Adicionar 2 ovos ao café da manhã</li>
+    <li>Aumentar a porção de frango ou carne no almoço em 50g</li>
+  </ul>
+
+  <h2 id="ajustar-timing">Ajustes de timing e distribuição</h2>
+  <p>Se as calorias e proteína totais estão corretas mas a distribuição é muito irregular, ajustar o timing pode ajudar:</p>
+  <ul>
+    <li><strong>Proteína no café da manhã:</strong> muitos hardgainers tomam café da manhã leve (pão, fruta) e acumulam toda a proteína no almoço e jantar. Adicionar 25 a 30g de proteína no café da manhã distribui melhor o estímulo de síntese proteica.</li>
+    <li><strong>Pós-treino consistente:</strong> se o pós-treino está sendo ignorado ou atrasado por mais de 2 horas, corrija isso — especialmente se o treino é em jejum ou depois de um longo intervalo desde a última refeição.</li>
+    <li><strong>Proteína antes de dormir:</strong> se ainda não está fazendo isso, adicione 25 a 40g de caseína ou iogurte grego antes de dormir.</li>
+  </ul>
+
+  <h2 id="treino">Verificar o treino</h2>
+  <p>Se a nutrição está certa mas o treino está estagnado, o músculo não tem razão para crescer. Verifique:</p>
+  <ul>
+    <li><strong>Está progredindo nas cargas?</strong> Se não fez nenhuma progressão de peso ou repetições nos últimos 3 a 4 treinos do mesmo exercício, o programa precisa de ajuste.</li>
+    <li><strong>Está chegando perto da falha?</strong> Séries muito conservadoras (5 repetições quando conseguiria 15) não criam estímulo suficiente para hipertrofia.</li>
+    <li><strong>Há muita variedade de exercícios?</strong> Trocar exercícios toda semana impede a progressão. Estabilize o programa por pelo menos 8 semanas.</li>
+  </ul>
+
+  <h2 id="protocolo">Protocolo de ajuste semana a semana</h2>
+  <p>Um protocolo prático para sair do platô:</p>
+  <ul>
+    <li><strong>Semana 1:</strong> rastrear com honestidade total. Verificar se as calorias e proteína reais estão batendo a meta.</li>
+    <li><strong>Semana 2:</strong> se não bateu a meta, corrigir primeiro a execução antes de mudar os números. Bater a meta atual de forma consistente.</li>
+    <li><strong>Semana 3:</strong> se bateu a meta e o peso ainda não subiu, adicionar +200 kcal.</li>
+    <li><strong>Semana 4 e 5:</strong> manter as +200 kcal e monitorar. Se o peso subiu 200 a 400g na semana 4 ou 5, está funcionando — manter.</li>
+    <li><strong>Semana 6:</strong> se ainda sem progresso, adicionar mais +200 kcal e repetir o ciclo.</li>
+  </ul>
+
+  <h2 id="quando-esperar">Quando esperar vs quando agir</h2>
+  <p>Um erro comum é ajustar muito rapidamente. O peso flutua diariamente por causa de água, glicogênio e conteúdo intestinal — variações de 1 a 2kg num dia são normais e não significam nada sobre o progresso real.</p>
+  <p>A regra: use sempre a <strong>média semanal de peso</strong> (soma dos pesos dos 7 dias ÷ 7). Só tome decisão de ajuste baseado nessa média.</p>
+  <ul>
+    <li><strong>Espere:</strong> se a média semanal subiu, mesmo que pouco — ainda está funcionando</li>
+    <li><strong>Ajuste:</strong> se a média semanal ficou estagnada por 2 semanas consecutivas com rastreamento honesto</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>Platô de ganho de massa em hardgainers quase sempre tem causa identificável e solução direta. O protocolo é simples: coletar dados, identificar onde está o problema (calorias, proteína, treino ou sono) e corrigir um fator de cada vez, dando tempo suficiente para observar o resultado.</p>
+  <p>O primeiro ajuste, na grande maioria dos casos, é calórico — mais calorias. Para saber qual deveria ser a sua meta atual com o peso que você está agora, recalcule abaixo.</p>
+
+  <div class="article-cta-final">
+    <h3>Recalcule com o seu peso atual</h3>
+    <p>Se ganhou peso desde a última vez que calculou, o seu TDEE mudou — calcule novamente para ajustar a meta.</p>
+    <a href="/" class="btn-cta-final">Recalcular as minhas calorias →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 19
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'cardapio-economico-hardgainer',
+    title: 'Cardápio Barato para Hardgainer: Ganhar Massa sem Gastar Muito',
+    metaDescription: 'Cardápio econômico para hardgainer ganhar massa: os alimentos mais baratos e calóricos, estratégias de compra e exemplo de cardápio semanal com custo reduzido.',
+    metaKeywords: ['dieta barata hardgainer', 'ganhar massa economia', 'alimentação barata ectomorfo', 'cardápio econômico musculação', 'proteína barata'],
+    category: 'Nutrição',
+    readTime: 8,
+    publishDate: '2026-08-19',
+    excerpt: 'Ganhar massa sendo hardgainer já é difícil — não precisa ser caro. Veja os alimentos mais baratos e calóricos, como planejar as compras e um cardápio semanal econômico mas eficaz.',
+    content: `<article class="blog-article">
+  <p class="article-intro">Um dos mitos mais persistentes no mundo do fitness é que comer bem para ganhar massa custa muito dinheiro. Frango orgânico, suplementos caros, proteínas exóticas. A realidade é que os alimentos mais eficazes para hardgainers ganhar massa estão entre os mais acessíveis nos mercados — e com planejamento, dá para montar uma dieta de 3000+ kcal com custo muito razoável.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#principios">Princípios de alimentação econômica para hardgainers</a></li>
+      <li><a href="#proteinas-baratas">As proteínas mais baratas</a></li>
+      <li><a href="#carboidratos-baratos">Os carboidratos mais baratos</a></li>
+      <li><a href="#gorduras-baratas">As gorduras mais baratas</a></li>
+      <li><a href="#lista-compras">Lista de compras semanal econômica</a></li>
+      <li><a href="#cardapio">Exemplo de cardápio semanal econômico</a></li>
+      <li><a href="#dicas-economia">Dicas para economizar mais</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="principios">Princípios de alimentação econômica para hardgainers</h2>
+  <p>Antes da lista de alimentos, alguns princípios que definem uma alimentação econômica eficaz:</p>
+  <ul>
+    <li><strong>Custo por grama de proteína:</strong> a métrica mais útil. Alimentos caros por quilo mas ricos em proteína podem ser mais econômicos do que alimentos baratos por quilo mas com pouca proteína.</li>
+    <li><strong>Custo por 100 kcal:</strong> para hardgainers que precisam de muito volume calórico, o custo por caloria importa.</li>
+    <li><strong>Versatilidade:</strong> alimentos que funcionam em muitos pratos diferentes reduzem o desperdício.</li>
+    <li><strong>Vida útil:</strong> feijão seco, arroz, aveia e lentilha duram meses — comprar em quantidade reduz o custo unitário.</li>
+    <li><strong>Cozinhar em lote:</strong> preparar proteína e carboidrato para 3 a 4 dias de uma vez economiza tempo e dinheiro.</li>
+  </ul>
+
+  <h2 id="proteinas-baratas">As proteínas mais baratas</h2>
+
+  <h3>Ovo inteiro — custo-benefício imbatível</h3>
+  <p>O ovo é a proteína de melhor custo-benefício disponível — não existe nada parecido. Uma dúzia de ovos fornece 72g de proteína de altíssimo valor biológico. É versátil (mexido, cozido, omelete, shake), tem gordura boa na gema, e é rápido de preparar.</p>
+  <p>Meta: 3 a 4 ovos por dia como base da proteína.</p>
+
+  <h3>Atum em lata</h3>
+  <p>Uma lata de atum (130g) fornece 28 a 32g de proteína, praticamente sem gordura, e não precisa de preparo. É mais barato por grama de proteína do que a maioria das carnes frescas e tem vida de prateleira longa.</p>
+
+  <h3>Frango (coxa e sobrecoxa)</h3>
+  <p>O peito de frango é mais caro e mais seco. Coxa e sobrecoxa sem pele são quase tão proteicas, mais saborosas, mais suculentas e significativamente mais baratas. 100g de coxa de frango tem 25g de proteína.</p>
+
+  <h3>Feijão e lentilha</h3>
+  <p>Leguminosas são a proteína vegetal mais barata e nutritiva. Feijão cozido tem 8g de proteína por 100g — e quando combinado com arroz forma proteína completa (com todos os aminoácidos essenciais). A lentilha cozinha mais rápido que o feijão e tem sabor neutro.</p>
+
+  <h3>Leite integral</h3>
+  <p>1 litro de leite integral tem 32g de proteína, cálcio, vitamina D e 610 kcal. É uma das fontes de proteína mais baratas por grama quando se calcula o custo total.</p>
+
+  <h3>Sardinha em lata</h3>
+  <p>Frequentemente mais barata que o atum, com proteína similar (25g por 100g) e mais gordura ômega-3. Excelente para hardgainers que precisam de calorias e proteína ao mesmo tempo.</p>
+
+  <h2 id="carboidratos-baratos">Os carboidratos mais baratos</h2>
+  <ul>
+    <li><strong>Arroz branco:</strong> caloria mais barata disponível. Fácil de cozinhar em lote. Neutro em sabor — combina com tudo.</li>
+    <li><strong>Macarrão:</strong> cozinha em 10 minutos, alto em carboidrato, versátil e muito barato por porção.</li>
+    <li><strong>Aveia:</strong> barata em embalagem grande, rica em carboidrato de digestão moderada e com alguma proteína (12g por 100g). Base do café da manhã de qualquer hardgainer econômico.</li>
+    <li><strong>Batata inglesa:</strong> mais barata que batata-doce, igualmente funcional. 100g cozida = 87 kcal de carboidrato.</li>
+    <li><strong>Pão francês ou de forma:</strong> prático, barato e alto em carboidrato. Bom para lanches rápidos.</li>
+    <li><strong>Banana:</strong> a fruta mais barata por caloria na maioria dos mercados. Rica em potássio e carboidrato rápido — perfeita para shakes.</li>
+  </ul>
+
+  <h2 id="gorduras-baratas">As gorduras mais baratas</h2>
+  <ul>
+    <li><strong>Ovos inteiros:</strong> já na lista de proteínas, mas a gema fornece gordura excelente.</li>
+    <li><strong>Amendoim e pasta de amendoim:</strong> muito mais barato que outras oleaginosas, com boa gordura e alguma proteína.</li>
+    <li><strong>Azeite de soja ou canola:</strong> para cozinhar e enriquecer refeições caloricamentes, são mais baratos que azeite de oliva com função similar em termos calóricos.</li>
+    <li><strong>Azeite de oliva (embalagem grande):</strong> comprado em galão de 5 litros, o custo por 100ml cai significativamente.</li>
+  </ul>
+
+  <div class="article-cta-inline">
+    <p>Calcule exatamente quanto de cada macro você precisa antes de planejar as compras</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="lista-compras">Lista de compras semanal econômica</h2>
+  <p>Para um hardgainer de 70kg com meta de ~3000 kcal/dia, uma semana de compras pode incluir:</p>
+  <ul>
+    <li>2 dúzias de ovos</li>
+    <li>4 latas de atum (130g cada)</li>
+    <li>1kg de coxa de frango</li>
+    <li>500g de feijão carioca seco (rende muito)</li>
+    <li>2kg de arroz branco</li>
+    <li>500g de aveia</li>
+    <li>1kg de macarrão</li>
+    <li>1,5kg de batata inglesa</li>
+    <li>1 cacho de banana</li>
+    <li>2 litros de leite integral</li>
+    <li>500g de iogurte grego (se o orçamento permitir)</li>
+    <li>200g de amendoim (ou pasta de amendoim)</li>
+    <li>Azeite (reabastecer conforme necessário)</li>
+    <li>Legumes para salada e refogado: cenoura, chuchu, couve</li>
+  </ul>
+  <p>Com essa lista básica você tem proteína suficiente para a semana, carboidrato em abundância, gordura de qualidade e variedade suficiente para não enjoar.</p>
+
+  <h2 id="cardapio">Exemplo de cardápio semanal econômico</h2>
+  <p>Todos os dias seguem uma estrutura similar com pequenas variações:</p>
+
+  <h3>Café da manhã (todos os dias)</h3>
+  <p>80g de aveia + 300ml de leite + 2 ovos mexidos + 1 banana (± 700 kcal)</p>
+
+  <h3>Almoço (alternando)</h3>
+  <ul>
+    <li>Dias 1, 3, 5: frango refogado + arroz + feijão + legumes (±850 kcal)</li>
+    <li>Dias 2, 4, 6: atum com macarrão + azeite + salada (±800 kcal)</li>
+    <li>Dia 7: omelete de 4 ovos + arroz + feijão + legumes (±750 kcal)</li>
+  </ul>
+
+  <h3>Lanches (todos os dias)</h3>
+  <p>Manhã: 200ml de leite + 30g de amendoim (±250 kcal)<br>
+  Tarde: 2 ovos cozidos + 1 banana (±230 kcal)</p>
+
+  <h3>Jantar (todos os dias)</h3>
+  <p>3 ovos + arroz ou macarrão + salada com azeite (±600 kcal)</p>
+
+  <p>Total aproximado: 2630 a 2880 kcal/dia. Para chegar a 3000+ kcal, adicione um shake com leite + aveia + amendoim após o treino (~450 kcal).</p>
+
+  <h2 id="dicas-economia">Dicas para economizar mais</h2>
+  <ul>
+    <li><strong>Compre ovos em quantidade:</strong> caixa com 30 ovos costuma ser mais barata por unidade do que dúzias</li>
+    <li><strong>Feijão e arroz a granel ou em embalagem grande:</strong> o custo por kg cai muito</li>
+    <li><strong>Cozinhe em lote:</strong> frango, arroz e feijão para 3 a 4 dias poupam tempo e energia de gás</li>
+    <li><strong>Atum em promoção:</strong> estocar quando está em oferta — tem validade longa</li>
+    <li><strong>Evite produtos processados "fitness":</strong> barras de proteína, shakes prontos e alimentos "especiais para ganho de massa" têm custo por grama de proteína muito maior do que ovos e atum</li>
+    <li><strong>Frutas da época:</strong> banana é quase sempre barata, mas outras frutas têm preço muito variável — compre o que está em época</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>Ganhar massa como hardgainer não exige orçamento grande. Com ovo, atum, frango, feijão, arroz, aveia, leite e amendoim, você tem todos os macronutrientes necessários para crescer — a um custo acessível.</p>
+  <p>O investimento que realmente faz diferença não é em alimentos caros ou suplementos sofisticados — é no conhecimento de quanto você precisa comer. E isso a calculadora abaixo resolve gratuitamente.</p>
+
+  <div class="article-cta-final">
+    <h3>Calcule o quanto você precisa</h3>
+    <p>Descubra as suas calorias e macros ideais — depois monte o seu cardápio econômico com base nesses valores.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 20
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'sistema-hibrido-hardgainer-explicado',
+    title: 'Sistema Híbrido para Hardgainers: O Método das 3 Refeições + 3 Shakes',
+    metaDescription: 'Conheça o sistema híbrido para hardgainers: 3 refeições sólidas + 3 shakes estratégicos. Como estruturar, calcular e executar este método para ganhar massa com mais facilidade.',
+    metaKeywords: ['sistema híbrido hardgainer', '3 refeições 3 shakes', 'método hardgainer macros', 'sistema alimentar ectomorfo', 'refeições e shakes ganho massa'],
+    category: 'Nutrição',
+    readTime: 10,
+    publishDate: '2026-08-26',
+    excerpt: 'O sistema híbrido de 3 refeições sólidas + 3 shakes estratégicos pode ser a solução para hardgainers que têm dificuldade de bater as calorias apenas com comida. Veja como estruturar do zero.',
+    content: `<article class="blog-article">
+  <p class="article-intro">Para hardgainers que lutam para atingir 3000, 3500 ou 4000 kcal por dia apenas com refeições sólidas, existe uma abordagem que resolve grande parte do problema: o sistema híbrido de 3 refeições principais sólidas combinadas com 3 shakes estratégicos ao longo do dia. É o método mais prático para quem tem apetite limitado, rotina agitada ou simplesmente não consegue comer o suficiente em refeições tradicionais.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#o-que-e">O que é o sistema híbrido</a></li>
+      <li><a href="#por-que-funciona">Por que funciona para hardgainers</a></li>
+      <li><a href="#estrutura">A estrutura do sistema: 3+3</a></li>
+      <li><a href="#refeicoes-solidas">As 3 refeições sólidas</a></li>
+      <li><a href="#tres-shakes">Os 3 shakes estratégicos</a></li>
+      <li><a href="#exemplo-completo">Exemplo completo para 3200 kcal</a></li>
+      <li><a href="#como-calcular">Como calcular o sistema para o seu peso</a></li>
+      <li><a href="#ajustes">Ajustes e variações</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="o-que-e">O que é o sistema híbrido</h2>
+  <p>O sistema híbrido é uma estrutura alimentar que combina refeições sólidas tradicionais com shakes hipercalóricos de forma estratégica. Em vez de tentar comer 5 ou 6 refeições sólidas grandes — o que para hardgainers com apetite baixo costuma ser impraticável — você tem:</p>
+  <ul>
+    <li><strong>3 refeições sólidas</strong> nos horários principais do dia (café da manhã, almoço, jantar)</li>
+    <li><strong>3 shakes</strong> estrategicamente posicionados nos intervalos e no momento mais crítico do dia (pós-treino)</li>
+  </ul>
+  <p>O resultado é 6 momentos de ingestão ao longo do dia, com os shakes funcionando como pontes calóricas e proteicas entre as refeições sólidas — sem sobrecarregar o estômago em nenhum momento.</p>
+
+  <h2 id="por-que-funciona">Por que funciona para hardgainers</h2>
+  <p>O sistema híbrido resolve os dois problemas centrais do hardgainer de uma vez:</p>
+
+  <h3>Problema 1: Volume de comida</h3>
+  <p>Atingir 3200 kcal em 3 refeições sólidas exige comer 1067 kcal por refeição em média. Para um hardgainer com estômago pequeno ou apetite baixo, isso é genuinamente difícil. Os shakes complementam o total sem exigir mais volume sólido.</p>
+
+  <h3>Problema 2: Frequência de proteína</h3>
+  <p>Para maximizar a síntese proteica muscular, é ideal ter pelo menos 4 a 5 momentos de ingestão de proteína ao longo do dia, com 25 a 40g cada. Com apenas 3 refeições, é difícil distribuir 150g+ de proteína de forma otimizada. Os 3 shakes adicionam 3 momentos extras de proteína — resolvendo isso completamente.</p>
+
+  <h2 id="estrutura">A estrutura do sistema: 3+3</h2>
+  <p>O sistema é organizado em 6 momentos ao longo do dia, alternando refeição sólida e shake:</p>
+  <ol>
+    <li><strong>07h00 — Refeição 1 (sólida):</strong> café da manhã completo</li>
+    <li><strong>10h00 — Shake 1:</strong> lanche da manhã líquido</li>
+    <li><strong>13h00 — Refeição 2 (sólida):</strong> almoço completo</li>
+    <li><strong>16h00 — Shake 2:</strong> pré ou pós-treino (ou lanche da tarde)</li>
+    <li><strong>19h00 — Refeição 3 (sólida):</strong> jantar completo</li>
+    <li><strong>21h30 — Shake 3:</strong> shake noturno antes de dormir</li>
+  </ol>
+  <p>Os horários são flexíveis — o que importa é manter o espaçamento de aproximadamente 2,5 a 3 horas entre cada momento de ingestão.</p>
+
+  <h2 id="refeicoes-solidas">As 3 refeições sólidas</h2>
+  <p>As refeições sólidas são a base do sistema — devem ser completas, nutritivas e conter proteína + carboidrato + gordura.</p>
+
+  <h3>Refeição 1 — Café da manhã (objetivo: 600 a 700 kcal)</h3>
+  <p>Exemplo: 3 ovos mexidos + 80g de aveia com leite + 1 banana. Esta refeição deve ter pelo menos 30g de proteína para "quebrar" o jejum noturno de forma anabólica.</p>
+
+  <h3>Refeição 2 — Almoço (objetivo: 800 a 950 kcal)</h3>
+  <p>A maior refeição do dia, geralmente a que tem mais apetite. Exemplo: 180g de frango ou carne + 200g de arroz cozido + feijão + salada com azeite. Esta refeição deve ter 35 a 45g de proteína.</p>
+
+  <h3>Refeição 3 — Jantar (objetivo: 650 a 750 kcal)</h3>
+  <p>Exemplo: 200g de peixe ou atum + 180g de arroz ou macarrão + legumes refogados com azeite. Pelo menos 30g de proteína.</p>
+
+  <p>Total das 3 refeições sólidas: 2050 a 2400 kcal | 95 a 115g de proteína</p>
+
+  <div class="article-cta-inline">
+    <p>Calcule as suas calorias totais e distribua entre refeições e shakes</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="tres-shakes">Os 3 shakes estratégicos</h2>
+  <p>Os shakes não são todos iguais — cada um tem uma função específica dependendo do horário e do objetivo.</p>
+
+  <h3>Shake 1 — Lanche da manhã (10h00) — Energético</h3>
+  <p><strong>Objetivo:</strong> manter o aporte calórico e proteico entre o café da manhã e o almoço.</p>
+  <p><strong>Composição:</strong> 300ml de leite integral + 30g de whey protein + 1 banana + 30g de aveia</p>
+  <p><strong>Macros:</strong> ~550 kcal | 42g proteína | 65g carb | 10g gordura</p>
+  <p>Este shake é relativamente leve para não comprometer o apetite para o almoço.</p>
+
+  <h3>Shake 2 — Pós-treino (horário do treino) — Anabólico</h3>
+  <p><strong>Objetivo:</strong> maximizar a recuperação e síntese proteica no momento mais importante do dia.</p>
+  <p><strong>Composição:</strong> 350ml de leite integral + 40g de whey protein + 1 banana grande + 20g de aveia + 1 colher de pasta de amendoim</p>
+  <p><strong>Macros:</strong> ~700 kcal | 52g proteína | 75g carb | 18g gordura</p>
+  <p>Este é o shake mais importante do sistema. A combinação de whey (rápida absorção) + leite (caseína, lenta absorção) + carboidrato de rápida digestão otimiza a janela anabólica pós-treino.</p>
+  <p>Se o treino é de manhã, este shake vira o Shake 2 às 10h e o Shake 1 às 16h. O importante é que o shake mais completo seja sempre o pós-treino.</p>
+
+  <h3>Shake 3 — Antes de dormir (21h30-22h00) — Noturno</h3>
+  <p><strong>Objetivo:</strong> fornecer proteína de digestão lenta para sustentar a síntese proteica muscular durante as 7 a 9 horas de sono.</p>
+  <p><strong>Composição:</strong> 200ml de leite integral + 200g de iogurte grego integral + 1 colher de pasta de amendoim + 1 colher de cacau em pó</p>
+  <p><strong>Macros:</strong> ~430 kcal | 32g proteína | 25g carb | 20g gordura</p>
+  <p>O iogurte grego é rico em caseína — proteína que digere lentamente e libera aminoácidos de forma gradual durante horas. Ideal para a janela noturna.</p>
+
+  <p>Total dos 3 shakes: 1680 kcal | 126g proteína</p>
+
+  <h2 id="exemplo-completo">Exemplo completo para 3200 kcal</h2>
+  <p>Hardgainer de 72kg, meta de 3200 kcal e 150g de proteína diária:</p>
+
+  <h3>07h00 — Café da manhã</h3>
+  <p>3 ovos mexidos + 80g de aveia com 250ml de leite + 1 banana<br>
+  <strong>680 kcal | 38g proteína | 80g carb | 18g gordura</strong></p>
+
+  <h3>10h00 — Shake 1</h3>
+  <p>300ml de leite + 30g de whey + 1 banana + 30g de aveia<br>
+  <strong>550 kcal | 42g proteína | 65g carb | 10g gordura</strong></p>
+
+  <h3>13h00 — Almoço</h3>
+  <p>180g de frango + 200g de arroz cozido + 100g de feijão + salada + azeite<br>
+  <strong>880 kcal | 48g proteína | 105g carb | 18g gordura</strong></p>
+
+  <h3>17h00 — Shake 2 (pós-treino)</h3>
+  <p>350ml de leite + 40g de whey + 1 banana + 20g de aveia + pasta de amendoim<br>
+  <strong>700 kcal | 52g proteína | 75g carb | 18g gordura</strong></p>
+
+  <h3>20h00 — Jantar</h3>
+  <p>180g de atum + 180g de macarrão + azeite + tomate<br>
+  <strong>720 kcal | 46g proteína | 90g carb | 15g gordura</strong></p>
+
+  <h3>22h00 — Shake 3 (noturno)</h3>
+  <p>200ml de leite + 200g de iogurte grego + pasta de amendoim + cacau<br>
+  <strong>430 kcal | 32g proteína | 25g carb | 20g gordura</strong></p>
+
+  <p><strong>Total do dia: 3960 kcal | 258g proteína | 440g carb | 99g gordura</strong></p>
+
+  <p>Este exemplo está um pouco acima de 3200 kcal — ajuste as porções proporcionalmente para o seu alvo exato.</p>
+
+  <h2 id="como-calcular">Como calcular o sistema para o seu peso</h2>
+  <p>Para adaptar o sistema ao seu perfil:</p>
+  <ol>
+    <li>Calcule a sua meta calórica total (TDEE + superávit de 400 kcal)</li>
+    <li>Distribua 60 a 65% entre as 3 refeições sólidas e 35 a 40% entre os 3 shakes</li>
+    <li>Garanta pelo menos 25g de proteína em cada um dos 6 momentos</li>
+    <li>O shake pós-treino deve ter a maior quantidade de proteína e carboidrato</li>
+    <li>O shake noturno deve ser rico em proteína de digestão lenta e moderado em carboidrato</li>
+  </ol>
+  <p>A calculadora abaixo define o seu ponto de partida — a meta calórica e de macros que vai distribuir entre as 6 janelas do sistema.</p>
+
+  <h2 id="ajustes">Ajustes e variações</h2>
+  <ul>
+    <li><strong>Não tem whey protein:</strong> substitua por mais leite + ovos no shake. A textura muda, mas os macros podem ser mantidos.</li>
+    <li><strong>Treino pela manhã:</strong> mova o Shake 2 (anabólico) para logo após o treino matinal e distribua o restante ao longo do dia.</li>
+    <li><strong>Não gosta de shakes:</strong> substitua qualquer shake por um lanche sólido equivalente em calorias e proteína — iogurte grego + granola + banana é um bom substituto para o Shake 1.</li>
+    <li><strong>Estômago desconfortável com leite:</strong> substitua por leite sem lactose ou bebida vegetal com proteína adicionada.</li>
+    <li><strong>Precisa de mais calorias:</strong> aumente o Shake 2 adicionando mais pasta de amendoim ou aveia — é o mais flexível para escalar.</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>O sistema híbrido 3+3 é possivelmente a abordagem mais prática e eficaz para hardgainers que lutam com volume de comida, apetite baixo ou rotina agitada. Combina a qualidade nutricional das refeições sólidas com a praticidade e versatilidade dos shakes — em 6 momentos ao longo do dia que garantem proteína consistente e calorias distribuídas de forma otimizada.</p>
+  <p>A chave para implementar bem é começar pelo cálculo correto das suas metas. Sem saber a sua meta calórica, você pode estar estruturando o sistema todo em cima do número errado.</p>
+
+  <div class="article-cta-final">
+    <h3>Calcule a sua meta antes de começar</h3>
+    <p>Use a calculadora da Hardgainer Macros para descobrir as suas calorias e macros exatos — depois aplique o sistema híbrido para atingi-los com mais facilidade.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
   }
 
 ];
