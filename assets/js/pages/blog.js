@@ -48,6 +48,15 @@ function renderCard(post) {
 // ─── Renderer ──────────────────────────────────────────────────────────────────
 
 export function renderBlogPage(mount) {
+  // Reset de SEO para a página de listagem
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
+  canonical.href = 'https://hardgainermacros.com/blog';
+
+  document.title = 'Blog Hardgainer | Nutrição e Treino para Ectomorfos';
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute('content', 'Guias práticos sobre nutrição, treino e estratégias para hardgainers e ectomorfos ganharem massa muscular de verdade.');
+
   const categories = [...new Set(BLOG_POSTS.map(p => p.category))];
 
   const filtersHtml = categories.map((cat, i) => `
@@ -118,6 +127,50 @@ export function renderBlogPage(mount) {
   });
 }
 
+// ─── SEO meta dinâmico (OG + Twitter Card + Schema.org + canonical) ───────────
+
+function updateSEOMeta(post) {
+  const base = 'https://hardgainermacros.com';
+  const url = base + '/blog/' + post.slug;
+
+  const setMeta = (sel, attr, val) => {
+    let el = document.querySelector(sel);
+    if (!el) { el = document.createElement('meta'); document.head.appendChild(el); }
+    el.setAttribute(attr, val);
+  };
+
+  // Open Graph
+  setMeta('meta[property="og:title"]',       'property', post.title);
+  setMeta('meta[property="og:description"]', 'property', post.metaDescription);
+  setMeta('meta[property="og:url"]',         'property', url);
+  setMeta('meta[property="og:type"]',        'property', 'article');
+  setMeta('meta[property="og:site_name"]',   'property', 'Hardgainer Macros');
+
+  // Twitter Card
+  setMeta('meta[name="twitter:card"]',        'name', 'summary');
+  setMeta('meta[name="twitter:title"]',       'name', post.title);
+  setMeta('meta[name="twitter:description"]', 'name', post.metaDescription);
+
+  // Canonical dinâmico
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
+  canonical.href = url;
+
+  // Schema.org Article
+  let schema = document.getElementById('schema-article');
+  if (!schema) { schema = document.createElement('script'); schema.id = 'schema-article'; schema.type = 'application/ld+json'; document.head.appendChild(schema); }
+  schema.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.metaDescription,
+    url: url,
+    datePublished: post.publishDate,
+    author: { '@type': 'Organization', name: 'Hardgainer Macros' },
+    publisher: { '@type': 'Organization', name: 'Hardgainer Macros', url: base }
+  });
+}
+
 // ─── Página de artigo individual (/blog/:slug) ─────────────────────────────────
 
 export function renderBlogPostPage(mount) {
@@ -139,6 +192,7 @@ export function renderBlogPostPage(mount) {
   document.title = post.title + ' | Hardgainer Macros';
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.setAttribute('content', post.metaDescription);
+  updateSEOMeta(post);
 
   mount.innerHTML = `
     <div class="container">
