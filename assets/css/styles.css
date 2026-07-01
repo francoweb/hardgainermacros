@@ -2737,6 +2737,11 @@ body { max-width: 100%; overflow-x: hidden; }
   .scanner-macro-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ── Header nav ────────────────────────────────────────────────────────────── */
+.header-nav { display: flex; align-items: center; gap: 4px; }
+.nav-link { font: 500 13px var(--font-body); color: var(--ink-soft); text-decoration: none; padding: 6px 10px; border-radius: var(--r-sm); transition: color var(--t-fast), background var(--t-fast); }
+.nav-link:hover { color: var(--accent); background: var(--accent-softer); }
+
 /* ── Blog ──────────────────────────────────────────────────────────────────── */
 .blog-listing { max-width: 860px; margin: 0 auto; padding: 40px 0 80px; }
 .blog-header { margin-bottom: 32px; }

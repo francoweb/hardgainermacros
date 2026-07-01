@@ -23,6 +23,9 @@ export function renderHeader({ showEdit = false, onEdit, onReset } = {}) {
             <p>Calculadora especializada para ectomorfos</p>
           </div>
         </a>
+        <nav class="header-nav">
+          <a href="/blog" data-route class="nav-link">Blog</a>
+        </nav>
         <div class="header-actions">
           ${actions.join('')}
         </div>
@@ -88,6 +91,8 @@ export function renderFooter() {
           <a href="/atualizacoes" data-route>Atualizações</a>
           <span class="footer-sep">•</span>
           <a href="/faq" data-route>FAQ</a>
+          <span class="footer-sep">•</span>
+          <a href="/blog" data-route>Blog</a>
         </div>
         <div class="footer-meta">
           © ${year} Todos os direitos reservados<br>

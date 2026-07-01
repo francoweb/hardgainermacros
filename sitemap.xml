@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Páginas principais -->
+  <url><loc>https://hardgainermacros.com/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://hardgainermacros.com/blog</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://hardgainermacros.com/faq</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/atualizacoes</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://hardgainermacros.com/contato</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://hardgainermacros.com/politica-de-privacidade</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://hardgainermacros.com/termos-de-uso</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+
+  <!-- Artigos do blog -->
+  <url><loc>https://hardgainermacros.com/blog/o-que-e-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/calcular-calorias-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/macros-para-ectomorfo</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/superavit-calorico-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/plano-alimentar-14-dias-ectomorfo</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/alimentos-hipercaloricos-saudaveis</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/batido-hipercalorico-receitas</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/proteina-diaria-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/treino-ectomorfo-ganhar-massa</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/erros-hardgainer-nao-ganha-massa</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/metabolismo-acelerado-como-lidar</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/bulk-limpo-vs-dirty-bulk</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/suplementos-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/como-comer-mais-sem-apetite</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/frequencia-refeicoes-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/sono-recuperacao-ganho-massa</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/rastrear-macros-por-que-importante</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/ajustar-calorias-sem-resultado</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/cardapio-economico-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hardgainermacros.com/blog/sistema-hibrido-hardgainer-explicado</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
+
+</urlset>
