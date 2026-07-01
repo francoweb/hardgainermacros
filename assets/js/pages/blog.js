@@ -57,6 +57,19 @@ export function renderBlogPage(mount) {
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.setAttribute('content', 'Guias práticos sobre nutrição, treino e estratégias para hardgainers e ectomorfos ganharem massa muscular de verdade.');
 
+  const setMeta = (sel, attr, val) => {
+    let el = document.querySelector(sel);
+    if (!el) { el = document.createElement('meta'); document.head.appendChild(el); }
+    el.setAttribute(attr, val);
+  };
+  setMeta('meta[property="og:title"]',       'property', 'Blog Hardgainer | Nutrição e Treino para Ectomorfos');
+  setMeta('meta[property="og:description"]', 'property', 'Guias práticos sobre nutrição, treino e estratégias para hardgainers e ectomorfos ganharem massa muscular de verdade.');
+  setMeta('meta[property="og:url"]',         'property', 'https://hardgainermacros.com/blog');
+  setMeta('meta[property="og:type"]',        'property', 'website');
+
+  const oldSchema = document.getElementById('schema-article');
+  if (oldSchema) oldSchema.remove();
+
   const categories = [...new Set(BLOG_POSTS.map(p => p.category))];
 
   const filtersHtml = categories.map((cat, i) => `
