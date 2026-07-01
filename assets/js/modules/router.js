@@ -29,6 +29,8 @@ const ROUTES = {
   '/atualizacoes':            { page: 'updates',  protected: false },
   '/faq':                     { page: 'faq',      protected: false },
   '/consultar-alimento':      { page: 'barcode',  protected: false },
+  '/blog':                    { page: 'blog',     protected: false },
+  '/blog/:slug':              { page: 'blog-post', protected: false },
 };
 
 let handler = null;
@@ -38,6 +40,9 @@ let handler = null;
  * Retorna o nome da página a renderizar.
  */
 function resolve(path) {
+  if (path.startsWith('/blog/') && path.length > 6) {
+    return 'blog-post';
+  }
   const route = ROUTES[path];
   if (!route) {
     // rota desconhecida -> home
@@ -61,7 +66,8 @@ function resolve(path) {
 export function navigate(path, { replace = false } = {}) {
   const page = resolve(path);
   // atualiza URL se ainda não está lá
-  if (location.pathname !== path && ROUTES[path] && !replace) {
+  const knownRoute = ROUTES[path] || path.startsWith('/blog/');
+  if (location.pathname !== path && knownRoute && !replace) {
     history.pushState({}, '', path);
   }
   render(page);

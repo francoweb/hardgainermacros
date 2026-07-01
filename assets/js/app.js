@@ -18,6 +18,7 @@ import { renderPrivacyPage, renderTermsPage, renderContactPage } from './pages/l
 import { renderUpdatesPage }        from './pages/updates.js';
 import { renderFaqPage }            from './pages/faq.js';
 import { renderBarcodeScannerPage } from './pages/barcode-scanner.js';
+import { renderBlogPage, renderBlogPostPage } from './pages/blog.js';
 
 const mount = () => document.getElementById('app-mount');
 
@@ -53,8 +54,10 @@ function onRouteChange(page, path) {
     case 'contact':  renderContactPage(el); break;
     case 'updates':  renderUpdatesPage(el); break;
     case 'faq':      renderFaqPage(el);              break;
-    case 'barcode':  renderBarcodeScannerPage(el);  break;
-    default:         renderDadosFisicosPage(el);
+    case 'barcode':   renderBarcodeScannerPage(el);  break;
+    case 'blog':      renderBlogPage(el);            break;
+    case 'blog-post': renderBlogPostPage(el);        break;
+    default:          renderDadosFisicosPage(el);
   }
 
   // Tornar tooltips acessíveis via teclado e tap (adicionado após render síncrono)

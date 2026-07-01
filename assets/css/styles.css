@@ -2736,3 +2736,43 @@ body { max-width: 100%; overflow-x: hidden; }
 @media (max-width: 400px) {
   .scanner-macro-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── Blog ──────────────────────────────────────────────────────────────────── */
+.blog-listing { max-width: 860px; margin: 0 auto; padding: 40px 0 80px; }
+.blog-header { margin-bottom: 32px; }
+.blog-back { font-size: 14px; color: var(--ink-soft); text-decoration: none; display: inline-block; margin-bottom: 20px; }
+.blog-back:hover { color: var(--accent); }
+.blog-hero-title { font-size: clamp(28px, 5vw, 42px); color: var(--ink); margin: 0 0 12px; }
+.blog-hero-sub { font-size: 16px; color: var(--ink-soft); max-width: 560px; line-height: 1.6; margin: 0; }
+.blog-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+.blog-filter-btn { padding: 7px 16px; border-radius: var(--r-pill); border: 1.5px solid var(--border); background: var(--surface); color: var(--ink-soft); font: 500 13px var(--font-body); cursor: pointer; transition: all var(--t-fast); }
+.blog-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.blog-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.blog-card { display: flex; flex-direction: column; gap: 8px; padding: 24px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); text-decoration: none; color: inherit; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+.blog-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.blog-card-cat { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.blog-card-title { font-size: 17px; font-weight: 700; color: var(--ink); line-height: 1.35; margin: 0; }
+.blog-card-excerpt { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; flex: 1; }
+.blog-card-meta { display: flex; gap: 12px; font-size: 12px; color: var(--ink-muted); margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
+.blog-no-results { text-align: center; color: var(--ink-soft); padding: 40px 0; }
+.blog-post-wrapper { max-width: 720px; margin: 0 auto; padding: 40px 0 80px; }
+.blog-post-nav { margin-bottom: 24px; }
+.blog-post-header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.blog-post-title { font-size: clamp(24px, 4vw, 36px); color: var(--ink); margin: 10px 0 0; line-height: 1.25; }
+.blog-post-content { font-size: 16px; line-height: 1.8; color: var(--ink); }
+.blog-post-content h2 { font-size: 22px; margin: 36px 0 14px; color: var(--ink); }
+.blog-post-content h3 { font-size: 18px; margin: 28px 0 10px; color: var(--ink); }
+.blog-post-content p { margin: 0 0 18px; }
+.blog-post-content ul, .blog-post-content ol { padding-left: 22px; margin: 0 0 18px; }
+.blog-post-content li { margin-bottom: 8px; }
+.blog-post-content strong { color: var(--ink); }
+.blog-post-content .article-toc { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 20px 24px; margin: 0 0 28px; }
+.blog-post-content .toc-title { font-weight: 700; margin: 0 0 10px; }
+.blog-post-content .article-toc a { color: var(--accent); text-decoration: none; font-size: 14px; }
+.blog-post-content .article-toc a:hover { text-decoration: underline; }
+.blog-post-footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+.article-cta-inline { background: var(--accent-softer); border: 1.5px solid var(--accent-soft); border-radius: var(--r-md); padding: 20px 24px; margin: 28px 0; text-align: center; }
+.article-cta-inline p { margin: 0 0 12px; font-size: 15px; font-weight: 600; color: var(--ink); }
+.btn-cta-inline { display: inline-block; padding: 10px 22px; background: var(--accent); color: #fff; border-radius: var(--r-pill); text-decoration: none; font: 600 14px var(--font-body); transition: background var(--t-fast); }
+.btn-cta-inline:hover { background: var(--accent-hover); }
