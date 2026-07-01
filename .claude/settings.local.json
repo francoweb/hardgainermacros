@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(git -C \"c:\\\\Users\\\\Utilizador\\\\Desktop\\\\hardgainer-macros\" add assets/js/modules/day-schedule.js assets/js/pages/resultados.js)",
+      "PowerShell(git -C \"c:\\\\Users\\\\Utilizador\\\\Desktop\\\\hardgainer-macros\" commit -m \"fix: prevent training labels without active workout\")"
+    ]
+  }
+}
