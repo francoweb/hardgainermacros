@@ -720,6 +720,662 @@ export const BLOG_POSTS = [
     <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
   </div>
 </article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 6
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'alimentos-hipercaloricos-saudaveis',
+    title: '15 Alimentos Hipercalóricos Saudáveis para Hardgainers',
+    metaDescription: 'Descubra os 15 melhores alimentos hipercalóricos e saudáveis para hardgainers ganharem massa: opções densas em calorias e nutrientes para facilitar o superávit diário.',
+    metaKeywords: ['alimentos hipercalóricos', 'comida para ganhar massa', 'alimentos ectomorfo', 'caloria densa', 'alimentos saudáveis hardgainer'],
+    category: 'Nutrição',
+    readTime: 8,
+    publishDate: '2026-05-20',
+    excerpt: 'O maior problema do hardgainer não é a vontade de comer — é o volume. Estes 15 alimentos têm muitas calorias em pouco espaço, o que torna o superávit muito mais fácil de atingir.',
+    content: `<article class="blog-article">
+  <p class="article-intro">Para um hardgainer, comer bastante vai muito além de quantidade. O problema real é o volume de comida necessário para atingir 3000, 3500 ou 4000 kcal por dia — o estômago tem limites. A solução está nos alimentos com alta densidade calórica: muitas calorias em pouca quantidade de comida. Estes 15 alimentos são os melhores aliados de quem quer ganhar massa sem precisar comer o dia inteiro.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#o-que-e-densidade">O que é densidade calórica e por que importa</a></li>
+      <li><a href="#lista">Os 15 alimentos hipercalóricos saudáveis</a></li>
+      <li><a href="#como-usar">Como usar esses alimentos no dia a dia</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="o-que-e-densidade">O que é densidade calórica e por que importa</h2>
+  <p>Densidade calórica é a quantidade de calorias por unidade de peso ou volume de um alimento. Alimentos com alta densidade calórica fornecem muita energia em pequenas porções — o oposto de vegetais e sopas, que têm muito volume mas poucas calorias.</p>
+  <p>Para um hardgainer que precisa de muito superávit calórico mas tem apetite limitado, priorizar alimentos de alta densidade é estratégico. Com os alimentos certos, você pode adicionar 500 kcal extras à dieta sem praticamente aumentar o volume de comida.</p>
+  <p>A ressalva importante: alta densidade calórica não significa qualquer coisa. Biscoito recheado e salgadinho são hipercalóricos, mas oferecem quase zero em termos de nutrientes úteis. Os 15 alimentos abaixo são hipercalóricos <strong>e</strong> nutricionalmente valiosos.</p>
+
+  <h2 id="lista">Os 15 alimentos hipercalóricos saudáveis</h2>
+
+  <h3>1. Pasta de amendoim — 590 kcal por 100g</h3>
+  <p>Altíssima em calorias, rica em gordura boa (monoinsaturada), proteína e magnésio. Duas colheres de sopa (32g) somam quase 190 kcal e 8g de proteína. Vai bem no shake, no pão, no iogurte ou comida direto na colher. Evite versões com adição de açúcar — procure a que tem só amendoim e sal.</p>
+
+  <h3>2. Abacate — 160 kcal por 100g</h3>
+  <p>Fruta com gordura monoinsaturada de alta qualidade. Meio abacate médio (100g) soma 160 kcal com gordura boa, potássio e vitaminas do complexo B. Vai bem no café da manhã, em saladas ou em shakes para dar cremosidade e calorias extras sem sabor forte.</p>
+
+  <h3>3. Ovos inteiros — 155 kcal por 100g (≈ 75 kcal por ovo)</h3>
+  <p>Um dos melhores alimentos do planeta para hardgainers. O ovo inteiro combina proteína de alto valor biológico (clara) com gordura e colesterol (gema) — que na prática é necessário para a produção de testosterona. 3 ovos inteiros somam cerca de 225 kcal e 18g de proteína. Versátil, barato, prático.</p>
+
+  <h3>4. Banana — 89 kcal por 100g</h3>
+  <p>A melhor fruta para hardgainer. Rica em carboidrato de fácil digestão, potássio e vitamina B6. Uma banana grande (130g) tem quase 120 kcal. É a base ideal de qualquer shake de ganho de massa e um pré-treino natural prático. Compra e come — sem complicação.</p>
+
+  <h3>5. Oleaginosas (castanha, amêndoa, nozes) — 600-700 kcal por 100g</h3>
+  <p>Nenhum alimento tem uma densidade calórica tão alta combinada com tanto valor nutricional. 30g de castanha-do-pará, amêndoa ou nozes somam entre 170 e 210 kcal, com gordura boa, proteína, magnésio, selênio e zinco. Um punhado pequeno no lanche da tarde faz uma diferença calórica real.</p>
+
+  <h3>6. Azeite de oliva — 884 kcal por 100ml</h3>
+  <p>Pura gordura monoinsaturada. Uma colher de sopa (15ml) adiciona 135 kcal sem nenhum volume de comida. Jogar azeite nas refeições é a forma mais fácil e rápida de aumentar as calorias totais sem comer mais. Use no arroz, na salada, na batata, nos legumes — em qualquer coisa.</p>
+
+  <h3>7. Leite integral — 61 kcal por 100ml</h3>
+  <p>300ml de leite integral somam 183 kcal com 10g de proteína, cálcio e vitamina D. A vantagem é que é líquido — não ocupa muito espaço no estômago. Usar leite em vez de água nos shakes de proteína praticamente dobra as calorias da bebida.</p>
+
+  <h3>8. Queijo (mussarela, prato, coalho) — 280-320 kcal por 100g</h3>
+  <p>Rico em proteína e gordura, o queijo é uma fonte calórica prática que vai bem em qualquer refeição. 30g de queijo mussarela somam cerca de 90 kcal e 6g de proteína. Coloca no ovo mexido, no pão, na batata, no frango — onde quiser.</p>
+
+  <h3>9. Arroz branco — 130 kcal por 100g cozido</h3>
+  <p>O arroz é o carboidrato base da dieta de ganho de massa por uma razão: tem alta densidade calórica para um alimento cozido, baixo custo, fácil digestão e praticamente zero gordura. 200g de arroz cozido somam 260 kcal de carboidrato puro. É o melhor combustível para o treino de um hardgainer.</p>
+
+  <h3>10. Batata-doce — 86 kcal por 100g cozida</h3>
+  <p>Excelente fonte de carboidrato de digestão moderada, com vitamina A, potássio e fibras. 200g de batata-doce assada somam 172 kcal e são saciantes sem ocupar muito espaço. Ótima antes do treino.</p>
+
+  <h3>11. Aveia — 389 kcal por 100g (seca)</h3>
+  <p>80g de aveia seca somam mais de 300 kcal com carboidrato de digestão lenta, beta-glucanas (fibra solúvel) e proteína (13g por 100g). É o café da manhã ideal de qualquer hardgainer. Misture com leite, frutas, whey e pasta de amendoim para um café da manhã de 700+ kcal.</p>
+
+  <h3>12. Feijão e leguminosas — 130-145 kcal por 100g cozidos</h3>
+  <p>Feijão, lentilha e grão-de-bico têm uma combinação rara: carboidrato + proteína no mesmo alimento. 200g de feijão cozido somam 260 kcal, com 16g de proteína e muito ferro. Versáteis, baratos e nutritivos — um dos pilares da dieta de ganho de massa.</p>
+
+  <h3>13. Iogurte grego integral — 97 kcal por 100g</h3>
+  <p>200g de iogurte grego integral somam quase 200 kcal com 16 a 20g de proteína de alto valor biológico. É cremoso, prático, não precisa de preparo e vai bem em qualquer horário. Um dos melhores lanches rápidos para hardgainer.</p>
+
+  <h3>14. Macarrão (massa) — 130 kcal por 100g cozido</h3>
+  <p>Outro carboidrato clássico de alta densidade e fácil digestão. 200g de macarrão cozido somam 260 kcal. Combine com proteína (atum, frango, carne) e azeite para uma refeição completa de 600+ kcal sem muito volume.</p>
+
+  <h3>15. Chocolate amargo (70%+) — 570 kcal por 100g</h3>
+  <p>Um dos poucos "doces" que entra na lista por boas razões: chocolate amargo de 70%+ é rico em gordura boa, magnésio, ferro e antioxidantes (flavonoides). 30g somam 170 kcal. Uma ou duas quadradinhas no lanche ou pós-jantar é uma forma gostosa de somar calorias sem culpa.</p>
+
+  <div class="article-cta-inline">
+    <p>Calcule quantas calorias diárias você precisa para ganhar massa como hardgainer</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="como-usar">Como usar esses alimentos no dia a dia</h2>
+  <p>A estratégia mais eficaz é usar os alimentos de alta densidade calórica como complemento, não como base. A base continua sendo proteína magra + carboidrato complexo. Os alimentos hipercalóricos entram para "enriquecer" as refeições e fechar o total calórico.</p>
+  <p>Exemplos práticos:</p>
+  <ul>
+    <li>Jogar <strong>azeite</strong> no arroz, na batata e na salada: +100 a 200 kcal por refeição sem perceber</li>
+    <li>Usar <strong>leite integral</strong> em vez de água no shake de proteína: +120 kcal por 200ml</li>
+    <li>Adicionar <strong>pasta de amendoim</strong> na aveia ou no shake: +190 kcal por 2 colheres</li>
+    <li>Colocar <strong>queijo</strong> em qualquer refeição salgada: +90 kcal por fatia</li>
+    <li>Ter um punhado de <strong>castanhas</strong> no lanche da tarde: +200 kcal por 30g</li>
+  </ul>
+  <p>Com esses pequenos ajustes, você pode facilmente adicionar 500 a 700 kcal ao dia sem praticamente aumentar o volume de comida percebido.</p>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>O segredo para o hardgainer atingir o superávit calórico diário não é comer mais vezes ou pratos maiores — é escolher alimentos mais densos em calorias. Com pasta de amendoim, azeite, ovos, aveia, oleaginosas e leite integral como aliados, bater 3000 ou 3500 kcal por dia se torna muito mais viável.</p>
+  <p>E para saber exatamente qual é o seu alvo calórico, a calculadora abaixo te diz em menos de 2 minutos.</p>
+
+  <div class="article-cta-final">
+    <h3>Pronto para montar a sua dieta?</h3>
+    <p>Calcule as suas calorias e macros ideais para ganhar massa e saiba quanto de cada macro você precisa por dia.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 7
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'batido-hipercalorico-receitas',
+    title: '10 Receitas de Batido Hipercalórico para Hardgainer',
+    metaDescription: '10 receitas de batido hipercalórico para hardgainer ganhar massa: shakes com 500 a 900 kcal, ricos em proteína e carboidrato, práticos e saborosos.',
+    metaKeywords: ['batido hipercalórico', 'shake ganhar massa', 'receita shake ectomorfo', 'shake hipercalórico caseiro', 'smoothie hardgainer'],
+    category: 'Receitas',
+    readTime: 7,
+    publishDate: '2026-05-27',
+    excerpt: '10 receitas de shake hipercalórico prontas para usar. Cada uma com calorias e macros calculados, ingredientes simples e preparo rápido — a solução quando você não consegue comer o suficiente.',
+    content: `<article class="blog-article">
+  <p class="article-intro">Tem dias em que comer o suficiente em refeições sólidas é impossível: falta tempo, falta apetite, ou você simplesmente não consegue mais mastigar nada depois do almoço. Para esses momentos — e para qualquer horário do dia — um shake hipercalórico bem feito é a resposta. Em 5 minutos e um copo, você adiciona 500 a 900 kcal à dieta de forma prática e relativamente saborosa.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#por-que-shakes">Por que shakes são essenciais para hardgainers</a></li>
+      <li><a href="#receitas">10 receitas de shake hipercalórico</a></li>
+      <li><a href="#dicas">Dicas para fazer o shake perfeito</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="por-que-shakes">Por que shakes são essenciais para hardgainers</h2>
+  <p>A vantagem dos shakes para hardgainers é simples: líquido não ocupa tanto espaço no estômago quanto comida sólida. Você consegue ingerir 600 kcal num copo em 5 minutos, enquanto comer 600 kcal em comida sólida pode levar 20 a 30 minutos e deixar você satisfeito por horas.</p>
+  <p>Isso não significa viver de shakes — as refeições sólidas continuam sendo a base. Mas 1 ou 2 shakes por dia podem fazer uma diferença enorme no total calórico diário de um hardgainer que luta para bater as metas.</p>
+  <p>Nas receitas abaixo, os valores nutricionais são estimativas. Use ingredientes na versão integral sempre que possível — leite integral, pasta de amendoim sem açúcar adicionado, iogurte grego integral.</p>
+
+  <h2 id="receitas">10 receitas de shake hipercalórico</h2>
+
+  <h3>1. Shake Clássico de Banana e Amendoim — 720 kcal</h3>
+  <ul>
+    <li>300ml de leite integral</li>
+    <li>1 banana grande</li>
+    <li>40g de whey protein (baunilha ou natural)</li>
+    <li>2 colheres de sopa de pasta de amendoim (32g)</li>
+    <li>30g de aveia</li>
+    <li>Gelo a gosto</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 720 kcal | 55g proteína | 75g carb | 22g gordura</p>
+  <p>O clássico dos clássicos. Funciona como café da manhã, pós-treino ou lanche da tarde. Se quiser mais calorias, adicione mais uma colher de pasta de amendoim (+95 kcal).</p>
+
+  <h3>2. Shake de Manga e Coco — 650 kcal</h3>
+  <ul>
+    <li>250ml de leite de coco integral</li>
+    <li>1 manga média (180g)</li>
+    <li>40g de whey protein</li>
+    <li>50g de aveia</li>
+    <li>1 colher de sopa de mel (15g)</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 650 kcal | 43g proteína | 90g carb | 12g gordura</p>
+  <p>Alto em carboidrato — ótimo para pré-treino ou pós-treino. O leite de coco dá cremosidade e calorias extras. Manga pode ser substituída por mamão ou abacaxi.</p>
+
+  <h3>3. Shake de Chocolate e Abacate — 680 kcal</h3>
+  <ul>
+    <li>300ml de leite integral</li>
+    <li>½ abacate maduro (100g)</li>
+    <li>40g de whey protein de chocolate</li>
+    <li>1 colher de cacau em pó (10g)</li>
+    <li>1 banana</li>
+    <li>10g de mel</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 680 kcal | 48g proteína | 60g carb | 24g gordura</p>
+  <p>O abacate dá uma cremosidade incrível ao shake e adiciona gordura boa. O sabor é de mousse de chocolate — difícil acreditar que é saudável. Bom para qualquer horário, especialmente antes de dormir.</p>
+
+  <h3>4. Shake de Morango e Iogurte — 580 kcal</h3>
+  <ul>
+    <li>200g de iogurte grego integral</li>
+    <li>150ml de leite integral</li>
+    <li>150g de morango (fresco ou congelado)</li>
+    <li>30g de whey protein</li>
+    <li>30g de aveia</li>
+    <li>15g de mel</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 580 kcal | 52g proteína | 65g carb | 12g gordura</p>
+  <p>Mais leve em calorias mas muito rico em proteína. Perfeito para pós-treino. O iogurte grego adiciona proteína de digestão lenta (caseína) além da whey.</p>
+
+  <h3>5. Shake de Amendoim e Aveia Puro — 800 kcal</h3>
+  <ul>
+    <li>400ml de leite integral</li>
+    <li>80g de aveia</li>
+    <li>3 colheres de sopa de pasta de amendoim (48g)</li>
+    <li>30g de whey protein</li>
+    <li>1 banana</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 800 kcal | 52g proteína | 95g carb | 26g gordura</p>
+  <p>O shake mais calórico da lista. Ideal para hardgainers que precisam de muito superávit. Pode ser dividido em dois copos menores ao longo do dia se ficar muito para tomar de uma vez.</p>
+
+  <h3>6. Shake de Café com Whey — 520 kcal</h3>
+  <ul>
+    <li>300ml de leite integral</li>
+    <li>1 dose de café expresso (ou 200ml de café forte)</li>
+    <li>40g de whey protein de baunilha</li>
+    <li>30g de aveia</li>
+    <li>1 colher de pasta de amendoim (16g)</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 520 kcal | 44g proteína | 50g carb | 14g gordura</p>
+  <p>Para quem não abre mão do café da manhã. A cafeína dá energia para o treino e o whey garante a proteína. Servir gelado com gelo é ainda melhor no calor.</p>
+
+  <h3>7. Shake Tropical de Abacaxi e Coco — 590 kcal</h3>
+  <ul>
+    <li>200ml de leite de coco integral</li>
+    <li>150ml de leite integral</li>
+    <li>150g de abacaxi</li>
+    <li>40g de whey protein</li>
+    <li>40g de aveia</li>
+    <li>1 banana</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 590 kcal | 44g proteína | 80g carb | 11g gordura</p>
+  <p>Alto em carboidrato e com sabor refrescante. Ótimo como pré-treino ou lanche da tarde. Abacaxi contém bromelina, que pode ajudar na digestão da proteína.</p>
+
+  <h3>8. Shake de Massa (sem whey) — 650 kcal</h3>
+  <ul>
+    <li>400ml de leite integral</li>
+    <li>80g de aveia</li>
+    <li>2 ovos crus inteiros</li>
+    <li>2 colheres de pasta de amendoim (32g)</li>
+    <li>1 banana</li>
+    <li>10g de mel</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 650 kcal | 35g proteína | 80g carb | 22g gordura</p>
+  <p>Para quem não usa whey. Os ovos crus são seguros quando frescos e de boa procedência — se preferir, use claras pasteurizadas. A textura fica mais grossa por causa da aveia; bata bem no liquidificador.</p>
+
+  <h3>9. Shake Noturno de Caseína e Amendoim — 540 kcal</h3>
+  <ul>
+    <li>300ml de leite integral</li>
+    <li>200g de iogurte grego integral</li>
+    <li>2 colheres de pasta de amendoim (32g)</li>
+    <li>20g de whey protein</li>
+    <li>1 colher de cacau em pó</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 540 kcal | 45g proteína | 30g carb | 24g gordura</p>
+  <p>Ideal antes de dormir. Rico em proteína de digestão lenta (caseína do iogurte grego e do leite), que vai alimentar os músculos ao longo da noite. Baixo em carboidrato e alto em gordura boa.</p>
+
+  <h3>10. Shake Hipercalórico de Emergência — 900 kcal</h3>
+  <ul>
+    <li>400ml de leite integral</li>
+    <li>1 banana grande</li>
+    <li>40g de whey protein</li>
+    <li>80g de aveia</li>
+    <li>3 colheres de pasta de amendoim (48g)</li>
+    <li>15g de mel</li>
+    <li>1 colher de azeite (15ml)</li>
+  </ul>
+  <p><strong>Macros aproximados:</strong> 900 kcal | 58g proteína | 105g carb | 28g gordura</p>
+  <p>Para quando você está muito atrasado nas calorias do dia e precisa fechar o total de forma rápida. Pode parecer muito, mas beber em 15 a 20 minutos é perfeitamente possível. Bata bastante para homogeneizar o azeite.</p>
+
+  <div class="article-cta-inline">
+    <p>Calcule a sua meta calórica e veja quantos shakes você precisa por dia</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="dicas">Dicas para fazer o shake perfeito</h2>
+  <ul>
+    <li><strong>Use um liquidificador de boa potência:</strong> aveia e pasta de amendoim ficam com textura estranha se não forem bem batidos</li>
+    <li><strong>Bata a aveia seca primeiro:</strong> vire farinha antes de adicionar os líquidos — fica mais cremoso e fácil de beber</li>
+    <li><strong>Gelo deixa tudo mais fácil:</strong> shakes frios são muito mais agradáveis do que mornos — especialmente quando o sabor não é o melhor</li>
+    <li><strong>Congelar banana madura:</strong> banana congelada deixa o shake com textura de sorvete e adoça naturalmente sem precisar de açúcar</li>
+    <li><strong>Prepare os ingredientes com antecedência:</strong> deixe os ingredientes secos separados em potinhos — na hora é só bater</li>
+    <li><strong>Varie as frutas:</strong> não fique preso na banana todos os dias. Manga, abacaxi, morango, maracujá — cada fruta muda completamente o perfil do shake</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>Shakes hipercalóricos são uma das ferramentas mais práticas e eficientes para hardgainers atingirem o superávit calórico diário. São rápidos, versáteis e podem ser completamente personalizados para o seu gosto e necessidade.</p>
+  <p>Use 1 ou 2 dessas receitas por dia como complemento às refeições sólidas — não como substituição. E antes de escolher qual receita usar, saiba exatamente quantas calorias você precisa adicionar à dieta.</p>
+
+  <div class="article-cta-final">
+    <h3>Saiba o quanto você precisa comer</h3>
+    <p>Calcule as suas calorias e macros ideais para descobrir quantos shakes por dia fazem sentido para o seu objetivo.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 8
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'proteina-diaria-hardgainer',
+    title: 'Quantos Gramas de Proteína por Dia para Hardgainer?',
+    metaDescription: 'Descubra quantos gramas de proteína por dia um hardgainer precisa para ganhar massa: valores por kg de peso, melhores fontes e como distribuir ao longo do dia.',
+    metaKeywords: ['proteína diária hardgainer', 'quanto de proteína ganhar massa', 'gramas proteína kg', 'proteína ectomorfo', 'fontes de proteína'],
+    category: 'Nutrição',
+    readTime: 8,
+    publishDate: '2026-06-03',
+    excerpt: 'Proteína é o macro mais importante para construção muscular. Mas quanto exatamente um hardgainer precisa por dia? A resposta tem números concretos — e é mais simples do que parece.',
+    content: `<article class="blog-article">
+  <p class="article-intro">A proteína é o tijolo da construção muscular. Sem ela, não existe hipertrofia significativa — não importa quanto você treina ou quantas calorias come. Mas a quantidade certa é fundamental: pouca proteína e o crescimento fica limitado; proteína demais é desperdício de dinheiro e de capacidade digestiva que poderia ser usada em carboidratos. Vamos aos números.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#por-que-importa">Por que a proteína é tão importante para hardgainers</a></li>
+      <li><a href="#quanto">Quanto de proteína por dia</a></li>
+      <li><a href="#exemplos">Exemplos por peso corporal</a></li>
+      <li><a href="#fontes">As melhores fontes de proteína</a></li>
+      <li><a href="#distribuicao">Como distribuir a proteína ao longo do dia</a></li>
+      <li><a href="#timing">O timing da proteína importa?</a></li>
+      <li><a href="#mitos">Mitos comuns sobre proteína</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="por-que-importa">Por que a proteína é tão importante para hardgainers</h2>
+  <p>Durante o treino de força, as fibras musculares sofrem microlesões. A recuperação e o crescimento acontecem depois — e a proteína fornece os aminoácidos necessários para reparar e construir novo tecido muscular.</p>
+  <p>Para hardgainers, que têm metabolismo mais acelerado, o corpo pode usar parte da proteína como fonte de energia (gluconeogênese) — especialmente quando as calorias totais não estão suficientemente altas. Isso significa que um hardgainer em superávit calórico adequado aproveita muito mais a proteína para construção muscular do que alguém em restrição calórica.</p>
+  <p>Em outras palavras: primeiro garanta as calorias totais, depois distribua bem a proteína. As duas coisas juntas é o que faz o hardgainer crescer.</p>
+
+  <h2 id="quanto">Quanto de proteína por dia</h2>
+  <p>A evidência científica atual aponta para estas faixas para pessoas que treinam com objetivo de hipertrofia:</p>
+  <ul>
+    <li><strong>Mínimo eficaz:</strong> 1,6g por kg de peso corporal por dia</li>
+    <li><strong>Faixa ideal para hardgainers:</strong> 2,0 a 2,5g por kg de peso corporal por dia</li>
+    <li><strong>Limite de retorno:</strong> acima de 3,0g/kg, estudos não mostram benefício adicional para ganho muscular</li>
+  </ul>
+  <p>Para hardgainers, recomendo ficar na faixa de <strong>2,0 a 2,2g/kg</strong> como padrão. Isso é o suficiente para maximizar a síntese proteica muscular sem "desperdiçar" calorias em proteína que poderiam vir de carboidrato (que tem função energética importante).</p>
+
+  <h2 id="exemplos">Exemplos por peso corporal</h2>
+  <ul>
+    <li><strong>55kg:</strong> 110 a 121g de proteína por dia</li>
+    <li><strong>60kg:</strong> 120 a 132g de proteína por dia</li>
+    <li><strong>65kg:</strong> 130 a 143g de proteína por dia</li>
+    <li><strong>70kg:</strong> 140 a 154g de proteína por dia</li>
+    <li><strong>75kg:</strong> 150 a 165g de proteína por dia</li>
+    <li><strong>80kg:</strong> 160 a 176g de proteína por dia</li>
+    <li><strong>85kg:</strong> 170 a 187g de proteína por dia</li>
+  </ul>
+  <p>Para um hardgainer de 70kg, a meta de 150g de proteína por dia é um bom ponto de partida — prático e eficaz.</p>
+
+  <div class="article-cta-inline">
+    <p>Calcule automaticamente a sua meta de proteína com base no seu peso</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="fontes">As melhores fontes de proteína</h2>
+  <p>Nem toda proteína é igual. A qualidade da proteína é medida pelo seu perfil de aminoácidos e pela biodisponibilidade (quanto o corpo consegue absorver e usar). As melhores fontes para hardgainers:</p>
+
+  <h3>Fontes animais (proteína completa, alto valor biológico)</h3>
+  <ul>
+    <li><strong>Frango (peito):</strong> 31g de proteína por 100g — a fonte mais prática e versátil</li>
+    <li><strong>Atum em lata:</strong> 26g por 100g — prático, barato, sem necessidade de preparo</li>
+    <li><strong>Ovos inteiros:</strong> 6g por ovo — proteína de referência mundial em qualidade</li>
+    <li><strong>Carne bovina (patinho, alcatra):</strong> 26-28g por 100g — rica em creatina e zinco</li>
+    <li><strong>Salmão:</strong> 25g por 100g + gordura ômega-3</li>
+    <li><strong>Whey protein:</strong> 20-25g por dose de 30g — prático para fechar a meta diária</li>
+    <li><strong>Iogurte grego integral:</strong> 8-10g por 100g + caseína (digestão lenta)</li>
+    <li><strong>Queijo cottage:</strong> 11-13g por 100g — rico em caseína</li>
+  </ul>
+
+  <h3>Fontes vegetais (combinações são importantes)</h3>
+  <ul>
+    <li><strong>Feijão:</strong> 8g por 100g cozido — combine com arroz para proteína completa</li>
+    <li><strong>Lentilha:</strong> 9g por 100g cozida — digestão fácil e muito versátil</li>
+    <li><strong>Grão-de-bico:</strong> 9g por 100g cozido</li>
+    <li><strong>Tofu:</strong> 8g por 100g</li>
+    <li><strong>Amendoim:</strong> 25g por 100g — alta em gordura também</li>
+  </ul>
+
+  <h2 id="distribuicao">Como distribuir a proteína ao longo do dia</h2>
+  <p>A síntese proteica muscular (o processo de construção muscular) é estimulada por cada dose de proteína, mas tem um limite por refeição. Estudos sugerem que doses entre <strong>25 e 40g de proteína por refeição</strong> maximizam a síntese proteica — acima disso, o excesso não contribui adicionalmente para a mesma refeição.</p>
+  <p>Isso significa que distribuir 150g de proteína em 4 a 5 refeições é muito mais eficaz do que comer 80g no almoço e 70g no jantar.</p>
+  <p>Exemplo de distribuição para um hardgainer de 70kg com meta de 150g de proteína:</p>
+  <ul>
+    <li><strong>Café da manhã:</strong> 30g — 3 ovos + 20g de whey no shake de aveia</li>
+    <li><strong>Lanche 1:</strong> 25g — 200g de iogurte grego + queijo cottage</li>
+    <li><strong>Almoço:</strong> 40g — 140g de frango + feijão</li>
+    <li><strong>Pós-treino:</strong> 30g — 30g de whey + leite</li>
+    <li><strong>Jantar:</strong> 25g — 100g de atum + 2 ovos</li>
+  </ul>
+  <p>Total: 150g distribuídos em 5 momentos ao longo do dia. Simples e eficaz.</p>
+
+  <h2 id="timing">O timing da proteína importa?</h2>
+  <p>A "janela anabólica" pós-treino existe, mas não é tão estreita quanto costumava ser ensinado. A evidência atual diz:</p>
+  <ul>
+    <li>Consumir 25-40g de proteína <strong>nas 2 horas após o treino</strong> é bom, mas não crítico se você já comeu proteína nas 2 horas antes</li>
+    <li>O total diário de proteína é mais importante do que o timing exato</li>
+    <li>Proteína antes de dormir (caseína) pode ser útil — estudos mostram que 30-40g antes de dormir melhora a recuperação muscular noturna</li>
+    <li>Não pule o café da manhã — sair de 8h de jejum sem proteína não é ideal para hardgainers em fase de crescimento</li>
+  </ul>
+
+  <h2 id="mitos">Mitos comuns sobre proteína</h2>
+  <ul>
+    <li><strong>"O corpo só absorve 30g de proteína por refeição":</strong> falso. O corpo absorve toda a proteína ingerida — o que tem limite é a taxa de síntese proteica muscular por refeição, não a absorção.</li>
+    <li><strong>"Proteína demais faz mal aos rins":</strong> em pessoas saudáveis sem doença renal pré-existente, ingestões de até 3g/kg não apresentam evidência de dano renal.</li>
+    <li><strong>"Whey é obrigatório":</strong> não. Whey é prático e eficaz, mas você consegue bater a meta de proteína perfeitamente com alimentos naturais se preferir.</li>
+    <li><strong>"Proteína vegetal não constrói músculo":</strong> constrói, mas você precisa variar as fontes para garantir todos os aminoácidos essenciais.</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>A meta de proteína para hardgainers é clara: <strong>2,0 a 2,2g por kg de peso corporal por dia</strong>, distribuídos em 4 a 5 refeições com 25 a 40g cada. Priorize fontes de alto valor biológico (frango, ovos, atum, whey, iogurte grego) e garanta que o total calórico diário também está no superávit — proteína sem calorias suficientes não constrói músculo de forma otimizada.</p>
+  <p>A calculadora abaixo calcula a sua meta de proteína personalizada em segundos.</p>
+
+  <div class="article-cta-final">
+    <h3>Calcule a sua meta de proteína</h3>
+    <p>A calculadora da Hardgainer Macros define os seus gramas de proteína diária com base no peso e objetivo.</p>
+    <a href="/" class="btn-cta-final">Calcular a minha proteína grátis →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 9
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'treino-ectomorfo-ganhar-massa',
+    title: 'Treino para Ectomorfo: O Método que Realmente Funciona',
+    metaDescription: 'Descubra como deve ser o treino para ectomorfo ganhar massa: volume, frequência, exercícios compostos, progressão de carga e os erros a evitar na musculação.',
+    metaKeywords: ['treino ectomorfo', 'musculação hardgainer', 'exercício ganhar massa ectomorfo', 'treino hardgainer', 'progressão de carga'],
+    category: 'Treino',
+    readTime: 10,
+    publishDate: '2026-06-10',
+    excerpt: 'O treino de um ectomorfo não pode ser igual ao de qualquer pessoa. Volume, frequência e exercícios precisam ser calibrados para o metabolismo acelerado e recuperação específica do hardgainer.',
+    content: `<article class="blog-article">
+  <p class="article-intro">Hardgainers cometem um erro clássico na academia: seguem o mesmo programa de treinamento de quem tem facilidade de ganhar massa e depois se frustram quando os resultados não aparecem. A verdade é que o ectomorfo precisa de uma abordagem diferente — não radicalmente diferente, mas diferente o suficiente para trabalhar a favor do seu metabolismo e não contra ele.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#principios">Os princípios básicos do treino para hipertrofia</a></li>
+      <li><a href="#volume">Volume de treino ideal para ectomorfos</a></li>
+      <li><a href="#frequencia">Frequência semanal</a></li>
+      <li><a href="#exercicios">Exercícios compostos são a base</a></li>
+      <li><a href="#progressao">Progressão de carga: o fator mais importante</a></li>
+      <li><a href="#exemplo-treino">Exemplo de programa semanal</a></li>
+      <li><a href="#recuperacao">Recuperação: onde o ectomorfo mais erra</a></li>
+      <li><a href="#erros">Erros de treino mais comuns em hardgainers</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="principios">Os princípios básicos do treino para hipertrofia</h2>
+  <p>Independentemente do biotipo, hipertrofia muscular exige três coisas:</p>
+  <ol>
+    <li><strong>Tensão mecânica:</strong> levantar cargas pesadas o suficiente para desafiar o músculo</li>
+    <li><strong>Dano muscular:</strong> microlesões nas fibras que estimulam a reparação e o crescimento</li>
+    <li><strong>Estresse metabólico:</strong> a sensação de "bomba" e ardência nos músculos durante séries de repetições moderadas</li>
+  </ol>
+  <p>O treino de força tradicional com pesos livres e equipamentos de musculação atende os três pontos quando bem programado. Para ectomorfos, o ponto crítico é calibrar o volume e a intensidade de forma que o estímulo seja suficiente sem que o gasto calórico adicional do treino comprometa o superávit.</p>
+
+  <h2 id="volume">Volume de treino ideal para ectomorfos</h2>
+  <p>Volume de treino é medido em séries por grupo muscular por semana. A literatura científica atual aponta que a faixa eficaz para hipertrofia fica entre 10 e 20 séries por grupo muscular por semana.</p>
+  <p>Para hardgainers, a recomendação é:</p>
+  <ul>
+    <li><strong>Iniciantes (menos de 1 ano de treino consistente):</strong> 8 a 12 séries por grupo muscular por semana — mais do que isso não adiciona resultados e aumenta o gasto calórico desnecessariamente</li>
+    <li><strong>Intermediários (1 a 3 anos):</strong> 12 a 16 séries por grupo por semana</li>
+    <li><strong>Avançados (3+ anos):</strong> 14 a 20 séries por grupo por semana, com periodização</li>
+  </ul>
+  <p>Um erro muito comum de hardgainers é treinar em excesso achando que "mais é melhor". Excesso de volume gera gasto calórico alto que vai corroer o superávit, além de comprometer a recuperação muscular. Menos séries, mais intensas e com progressão, é mais eficaz.</p>
+
+  <h2 id="frequencia">Frequência semanal</h2>
+  <p>Quantas vezes por semana treinar cada grupo muscular? A evidência atual aponta que treinar cada músculo <strong>2 vezes por semana</strong> é superior a 1 vez por semana para hipertrofia na maioria das pessoas.</p>
+  <p>Para hardgainers, as melhores estruturas de treino são:</p>
+
+  <h3>Treino A/B (4 dias por semana) — recomendado para a maioria</h3>
+  <ul>
+    <li>Segunda e quinta: Treino A (peito, costas, bíceps)</li>
+    <li>Terça e sexta: Treino B (pernas, ombros, tríceps)</li>
+    <li>Quarta, sábado e domingo: descanso</li>
+  </ul>
+
+  <h3>Full body (3 dias por semana) — ótimo para iniciantes</h3>
+  <ul>
+    <li>Segunda, quarta e sexta: treino full body</li>
+    <li>Terça, quinta, sábado e domingo: descanso</li>
+  </ul>
+  <p>O treino full body 3x por semana é especialmente bom para iniciantes porque maximiza a frequência de estímulo muscular com muito tempo de recuperação entre as sessões — ideal para quem está começando e precisa adaptar as estruturas articulares e nervosas.</p>
+
+  <h2 id="exercicios">Exercícios compostos são a base</h2>
+  <p>Para hardgainers, os exercícios compostos (que envolvem múltiplas articulações e grupos musculares) devem representar 70 a 80% do volume total de treino. Os isoladores existem, mas são secundários.</p>
+  <p>Os exercícios compostos fundamentais para hardgainers:</p>
+  <ul>
+    <li><strong>Agachamento livre:</strong> o rei dos exercícios. Trabalha quadríceps, glúteos, posterior de coxa, core e costas. Nenhum exercício estimula mais massa muscular de uma vez.</li>
+    <li><strong>Levantamento terra:</strong> posterior de coxa, glúteos, costas, trapézio, braços. Uma das melhores ferramentas para construção de massa total.</li>
+    <li><strong>Supino reto (barra ou halteres):</strong> peito, tríceps, ombro anterior. A base para o desenvolvimento do peito.</li>
+    <li><strong>Remada curvada:</strong> costas médias, bíceps, romboides. Essencial para espessura de costas.</li>
+    <li><strong>Desenvolvimento (press) de ombros:</strong> deltóide medial e anterior, tríceps.</li>
+    <li><strong>Pull-up / barra fixa:</strong> o melhor exercício de costas para largura. Se não consegue fazer ainda, use o lat pulldown.</li>
+    <li><strong>Leg press:</strong> alternativa ao agachamento quando a técnica ainda está sendo desenvolvida.</li>
+  </ul>
+
+  <div class="article-cta-inline">
+    <p>O treino funciona quando a nutrição está certa — calcule os seus macros ideais</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="progressao">Progressão de carga: o fator mais importante</h2>
+  <p>Se existe um único fator que determina o progresso em musculação a longo prazo, é a <strong>progressão de carga</strong>. O músculo só cresce quando é exposto a um estímulo maior do que ao qual já se adaptou.</p>
+  <p>Na prática, isso significa: a cada semana, tente fazer uma das seguintes coisas em relação à semana anterior:</p>
+  <ul>
+    <li>Adicionar 2,5kg ao exercício (ou 1kg em exercícios de isolamento)</li>
+    <li>Fazer 1 repetição a mais com o mesmo peso</li>
+    <li>Fazer a mesma carga e repetições com melhor técnica e controle</li>
+  </ul>
+  <p>Para um hardgainer iniciante, é normal progredir de carga semana a semana durante os primeiros 6 a 12 meses — esse período é chamado de "fase novato" e é quando os ganhos são mais rápidos. Aproveite ao máximo focando em progressão consistente.</p>
+  <p>Registre os treinos. Anote o exercício, o peso e as repetições de cada série. Sem registro, você não sabe se está progredindo ou estagnado.</p>
+
+  <h2 id="exemplo-treino">Exemplo de programa semanal (intermediário, A/B)</h2>
+
+  <h3>Treino A — Peito, Costas, Bíceps</h3>
+  <ul>
+    <li>Supino reto com barra: 4 × 6-8 repetições</li>
+    <li>Remada curvada com barra: 4 × 6-8</li>
+    <li>Supino inclinado com halteres: 3 × 8-10</li>
+    <li>Pull-up ou lat pulldown: 3 × 8-10</li>
+    <li>Rosca direta com barra: 3 × 10-12</li>
+    <li>Crucifixo com halteres: 2 × 12</li>
+  </ul>
+
+  <h3>Treino B — Pernas, Ombros, Tríceps</h3>
+  <ul>
+    <li>Agachamento livre: 4 × 5-8 repetições</li>
+    <li>Desenvolvimento com barra ou halteres: 4 × 6-8</li>
+    <li>Leg press: 3 × 10-12</li>
+    <li>Elevação lateral com halteres: 3 × 12-15</li>
+    <li>Tríceps francês ou pulley: 3 × 10-12</li>
+    <li>Cadeira extensora: 2 × 12-15</li>
+    <li>Panturrilha em pé: 3 × 15-20</li>
+  </ul>
+
+  <h2 id="recuperacao">Recuperação: onde o ectomorfo mais erra</h2>
+  <p>O músculo não cresce durante o treino — cresce durante a recuperação. E a recuperação depende de três fatores que muitos hardgainers subestimam:</p>
+  <ul>
+    <li><strong>Sono:</strong> 7 a 9 horas por noite. É durante o sono profundo que o GH (hormônio do crescimento) é liberado em maior quantidade.</li>
+    <li><strong>Nutrição pós-treino:</strong> janela de recuperação real — proteína + carboidrato nas 2 horas após o treino acelera a resíntese de glicogênio e a síntese proteica.</li>
+    <li><strong>Dias de descanso:</strong> músculos crescem em dias sem treino. Treinar todos os dias sem rotação prejudica a recuperação — e para hardgainers, que já têm recuperação mais lenta, é um risco maior.</li>
+  </ul>
+
+  <h2 id="erros">Erros de treino mais comuns em hardgainers</h2>
+  <ul>
+    <li><strong>Treinar demais:</strong> mais de 5 dias por semana sem periodização adequada gera overtraining e impede o crescimento</li>
+    <li><strong>Mudar o programa frequentemente:</strong> trocar de exercícios toda semana impede a progressão de carga e dificulta medir o progresso</li>
+    <li><strong>Focar em isoladores antes de dominar compostos:</strong> fazer rosca direta em vez de agachamento não vai construir muita massa</li>
+    <li><strong>Séries longas demais com muito cardio:</strong> cardio excessivo queima calorias que o hardgainer precisa para crescer — limite a 2 a 3 sessões de cardio leve por semana no máximo</li>
+    <li><strong>Não registrar os treinos:</strong> sem dados, você não sabe se está progredindo</li>
+    <li><strong>Técnica ruim com carga pesada:</strong> lesão é o pior inimigo do progresso — aprenda a técnica certa nos primeiros meses com carga leve</li>
+  </ul>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>O treino ideal para ectomorfo é baseado em exercícios compostos pesados, volume moderado (não excessivo), progressão de carga consistente e recuperação respeitada. Não existe programa mágico — o que existe é consistência em aplicar esses princípios ao longo de meses e anos.</p>
+  <p>E por mais importante que o treino seja, ele não funciona sem a nutrição certa. Um ectomorfo que treina bem mas não come o suficiente vai girar em falso indefinidamente.</p>
+
+  <div class="article-cta-final">
+    <h3>Alinhe o treino com a nutrição</h3>
+    <p>Calcule as suas calorias e macros ideais para garantir que a alimentação está sustentando o crescimento muscular.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ARTIGO 10
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    slug: 'erros-hardgainer-nao-ganha-massa',
+    title: '8 Erros que Impedem o Hardgainer de Ganhar Massa Muscular',
+    metaDescription: 'Os 8 erros mais comuns que impedem o hardgainer de ganhar massa muscular — e como corrigir cada um. Identifique o que está travando o seu progresso e resolva agora.',
+    metaKeywords: ['por que não consigo ganhar massa', 'erros hardgainer', 'dificuldade ganhar músculo', 'hardgainer sem resultado', 'erros musculação ectomorfo'],
+    category: 'Fundamentos',
+    readTime: 9,
+    publishDate: '2026-06-17',
+    excerpt: 'Se você é hardgainer e não está crescendo, é quase certo que está cometendo um ou mais desses 8 erros. Identifique qual é o seu e corrija — os resultados vêm depois disso.',
+    content: `<article class="blog-article">
+  <p class="article-intro">A maioria dos hardgainers que não consegue crescer não tem um problema de genética impossível. Tem um problema de execução — está cometendo erros específicos que impedem o progresso, sem saber. Depois de anos vendo hardgainers estagnados, os mesmos 8 erros aparecem repetidamente. Se você se identificar com algum deles, a boa notícia é que todos têm solução clara.</p>
+
+  <nav class="article-toc">
+    <p class="toc-title">Neste artigo:</p>
+    <ul>
+      <li><a href="#erro1">Erro 1: Subestimar as próprias calorias</a></li>
+      <li><a href="#erro2">Erro 2: Inconsistência nos fins de semana</a></li>
+      <li><a href="#erro3">Erro 3: Proteína insuficiente</a></li>
+      <li><a href="#erro4">Erro 4: Não progredir na carga</a></li>
+      <li><a href="#erro5">Erro 5: Dormir mal</a></li>
+      <li><a href="#erro6">Erro 6: Mudar de programa frequentemente</a></li>
+      <li><a href="#erro7">Erro 7: Cardio em excesso</a></li>
+      <li><a href="#erro8">Erro 8: Impaciência — não dar tempo suficiente</a></li>
+      <li><a href="#conclusao">Conclusão</a></li>
+    </ul>
+  </nav>
+
+  <h2 id="erro1">Erro 1: Subestimar as próprias calorias</h2>
+  <p>Este é o erro número um, e afeta a esmagadora maioria dos hardgainers que diz "eu como muito mas não engordo". A realidade, quando as calorias são rastreadas de verdade, é quase sempre diferente da percepção.</p>
+  <p>O problema tem duas faces:</p>
+  <ul>
+    <li><strong>Subestimar porções:</strong> aquela "colher de pasta de amendoim" pode ter 200 kcal se for generosa. O "punhado de castanhas" pode ter 300 kcal. Sem medir, você simplesmente não sabe.</li>
+    <li><strong>Esquecer o que comeu:</strong> aquele cafezinho com açúcar, o suco, a bolachinha — tudo soma. E quando não se registra, essas calorias "invisíveis" ficam de fora do cálculo.</li>
+  </ul>
+  <p><strong>Solução:</strong> rastreie as calorias por pelo menos 2 semanas usando um aplicativo. Pese os alimentos. Meça os líquidos. A maioria das pessoas descobre que come 300 a 600 kcal a menos do que pensava.</p>
+
+  <h2 id="erro2">Erro 2: Inconsistência nos fins de semana</h2>
+  <p>De segunda a sexta, tudo certo: bate as calorias, come a proteína, treina. Chega o sábado — come menos, sai, bebe, esquece do shake pós-treino. Domingo: almoço maior mas pula duas refeições.</p>
+  <p>O problema: o balanço calórico que importa é semanal, não diário. Se você tem superávit de +400 kcal de segunda a sexta (total: +2000 kcal) mas deficit de −500 kcal no sábado e domingo (total: −1000 kcal), o seu superávit semanal real é de apenas +1000 kcal — a metade do planejado.</p>
+  <p><strong>Solução:</strong> o fim de semana não precisa ser perfeito, mas não pode ser um vácuo calórico. Ter pelo menos 2 refeições sólidas com proteína e carboidrato no sábado e domingo já salva boa parte do progresso.</p>
+
+  <h2 id="erro3">Erro 3: Proteína insuficiente</h2>
+  <p>Muitos hardgainers comem calorias suficientes mas não chegam perto da meta de proteína. Enchem o prato de arroz, batata e gordura, mas ficam com 80 a 100g de proteína num dia em que precisariam de 150g.</p>
+  <p>Sem proteína suficiente, mesmo com excedente calórico, o crescimento muscular fica muito limitado. O corpo tem os recursos energéticos mas não os blocos de construção.</p>
+  <p><strong>Solução:</strong> calcule a sua meta de proteína (2g/kg de peso) e garanta pelo menos uma fonte de proteína em cada refeição. Frango, ovo, atum, whey e iogurte grego devem estar sempre à mão.</p>
+
+  <div class="article-cta-inline">
+    <p>Calcule a sua meta de calorias e proteína personalizada para hardgainer</p>
+    <a href="/" class="btn-cta-inline">Usar a calculadora gratuita →</a>
+  </div>
+
+  <h2 id="erro4">Erro 4: Não progredir na carga</h2>
+  <p>O músculo se adapta ao estímulo que recebe. Se você levanta o mesmo peso, nas mesmas repetições, semana após semana, o corpo não tem razão para crescer — já está adaptado.</p>
+  <p>Muitos hardgainers entram na academia e fazem os mesmos exercícios com a mesma carga por meses, sem progredir. Isso é um beco sem saída.</p>
+  <p><strong>Solução:</strong> registre todos os treinos. A cada semana, tente adicionar 2,5kg na barra ou fazer uma repetição a mais do que na semana anterior. Progresso constante, mesmo que pequeno, é o único caminho para crescimento real.</p>
+
+  <h2 id="erro5">Erro 5: Dormir mal</h2>
+  <p>O sono não é opcional para quem quer ganhar massa. É durante o sono profundo (fases 3 e 4 do sono NREM) que o hormônio do crescimento (GH) é liberado em maior concentração. Reduzir o sono de 8 para 6 horas pode reduzir a liberação de GH em até 50%.</p>
+  <p>Hardgainers com metabolismo acelerado precisam ainda mais de descanso adequado — o corpo usa o sono para recuperar, reparar e crescer.</p>
+  <p><strong>Solução:</strong> priorize 7 a 9 horas de sono por noite. Mesma hora de dormir e acordar todos os dias. Quarto escuro e fresco. Sem tela nos 30 minutos antes de dormir. Parece básico porque é — e funciona.</p>
+
+  <h2 id="erro6">Erro 6: Mudar de programa frequentemente</h2>
+  <p>"Ouvi que o treino X é melhor. Vou mudar." Dois meses depois: "esse aqui é ainda melhor." Um mês depois: "encontrei um método novo."</p>
+  <p>Mudar de programa frequentemente impede dois processos fundamentais: a progressão de carga (você nunca fica tempo suficiente num exercício para saber o seu potencial real) e a adaptação neuromuscular (o sistema nervoso precisa de tempo para aprender a recrutar as fibras musculares de forma eficiente).</p>
+  <p><strong>Solução:</strong> escolha um programa bem estruturado e siga por pelo menos 3 meses antes de avaliar os resultados. Mudanças de programa devem ser baseadas em dados (progresso estagnado por mais de 4 semanas com tudo mais certo) — não em novidade ou curiosidade.</p>
+
+  <h2 id="erro7">Erro 7: Cardio em excesso</h2>
+  <p>Hardgainers frequentemente fazem cardio demais — seja por hábito, por saúde cardiovascular ou por achar que vai ajudar na composição corporal. O problema: cardio queima calorias, e essas calorias são exatamente o que o hardgainer precisa para crescer.</p>
+  <p>Uma corrida de 45 minutos pode queimar 400 a 600 kcal — metade ou mais do superávit que você construiu na dieta. Fazer isso 4 ou 5 vezes por semana praticamente elimina qualquer superávit calórico.</p>
+  <p><strong>Solução:</strong> limite o cardio a 2 sessões por semana de baixa a moderada intensidade (caminhada rápida, bicicleta leve, 20 a 30 minutos). Se fizer cardio, adicione calorias proporcionais para compensar o gasto. Saúde cardiovascular é importante, mas o volume de cardio precisa ser compatível com o objetivo de ganho de massa.</p>
+
+  <h2 id="erro8">Erro 8: Impaciência — não dar tempo suficiente</h2>
+  <p>Este é talvez o erro mais subestimado. Hardgainers esperam resultados rápidos, ficam 2 meses seguindo um protocolo, não veem a transformação que esperavam e desistem ou mudam tudo.</p>
+  <p>A realidade do ganho de massa para ectomorfos com tudo certo:</p>
+  <ul>
+    <li>Mês 1-2: adaptação neuromuscular — força aumenta mas a massa visível muda pouco</li>
+    <li>Mês 3-6: primeiros ganhos musculares visíveis, força progredindo consistentemente</li>
+    <li>Mês 6-12: diferença clara na composição corporal</li>
+    <li>Ano 2-3: transformação significativa</li>
+  </ul>
+  <p>Ganho muscular de qualidade para hardgainers é medido em anos, não em meses. 5 a 10kg de músculo por ano, fazendo tudo certo, é um resultado excelente e realista.</p>
+  <p><strong>Solução:</strong> tire fotos mensais e foque em métricas de progresso (carga no treino, medidas, fotos) em vez de transformações semanais na balança. Confie no processo e mantenha a consistência.</p>
+
+  <h2 id="conclusao">Conclusão</h2>
+  <p>Esses 8 erros explicam a grande maioria dos casos de hardgainers que não conseguem crescer. A boa notícia: todos são corrigíveis. Nenhum exige genética especial ou suplementos caros — apenas ajustes na abordagem e consistência de execução.</p>
+  <p>Se você está estagnado, volte a essa lista e seja honesto consigo mesmo: qual desses erros você está cometendo? Corrija um por vez e observe os resultados em 4 a 6 semanas.</p>
+  <p>E se o problema for as calorias — o erro número 1 — a calculadora abaixo resolve isso agora.</p>
+
+  <div class="article-cta-final">
+    <h3>Corrija o erro número 1 agora</h3>
+    <p>Calcule exatamente quantas calorias e gramas de proteína você precisa por dia para parar de adivinhar e começar a crescer.</p>
+    <a href="/" class="btn-cta-final">Calcular os meus macros grátis →</a>
+  </div>
+</article>`
   }
 
 ];
