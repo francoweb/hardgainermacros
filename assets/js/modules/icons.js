@@ -44,4 +44,5 @@ export const icons = {
   target: (s) => ICON('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', s),
   trash:  (s) => ICON('<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>', s),
   barcode: (s) => ICON('<rect x="2" y="4" width="2" height="16" fill="currentColor" stroke="none"/><rect x="6" y="4" width="1" height="16" fill="currentColor" stroke="none"/><rect x="9" y="4" width="2" height="16" fill="currentColor" stroke="none"/><rect x="13" y="4" width="3" height="16" fill="currentColor" stroke="none"/><rect x="18" y="4" width="1" height="16" fill="currentColor" stroke="none"/><rect x="21" y="4" width="1" height="16" fill="currentColor" stroke="none"/>', s),
+  camera: (s) => ICON('<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>', s),
 };

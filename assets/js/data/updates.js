@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-07-01',
+    type: 'Nova funcionalidade',
+    title: 'Preencher valores nutricionais com foto do rótulo',
+    description:
+      'Agora é possível fotografar a tabela nutricional de qualquer produto e os campos de calorias, proteína, carboidratos e gordura são preenchidos automaticamente. Todos os valores ficam editáveis para você confirmar antes de salvar — a leitura é feita por inteligência artificial e pode ser ajustada se necessário.',
+    tags: ['Rótulo nutricional', 'Foto', 'Praticidade'],
+    highlight: true,
+  },
+  {
     date: '2026-06-30',
     type: 'Correção',
     title: 'Mensagem mais clara quando um produto não é encontrado pelo código de barras',

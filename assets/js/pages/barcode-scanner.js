@@ -17,10 +17,11 @@ import { navigate } from '../modules/router.js';
 import { icons }    from '../modules/icons.js';
 
 // ── Instância do leitor (módulo) — necessário para cleanup ao navegar ────────
-let codeReader      = null;
-let lastBarcode     = '';  // guarda o último código lido para o botão "Guardar"
-let lastNutriments  = {};  // guarda os nutriments da API para extrair micronutrientes
-let lastManualName  = '';  // nome parcial da API para pré-preencher formulário manual
+let codeReader             = null;
+let lastBarcode            = '';    // guarda o último código lido para o botão "Guardar"
+let lastNutriments         = {};    // guarda os nutriments da OFF para extrair micronutrientes
+let lastManualName         = '';    // nome parcial da API para pré-preencher formulário manual
+let lastLabelMicronutrients = null; // micronutrientes pré-preenchidos pela foto do rótulo
 
 const ZXING_CDN = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
 
@@ -134,11 +135,16 @@ export function renderBarcodeScannerPage(mount) {
         </button>
       </div>
 
-      <!-- Estado: idle — botão ligar -->
+      <!-- Estado: idle — botão ligar câmara + opção foto -->
       <div id="scanner-actions" class="scanner-actions">
         <button type="button" class="btn btn-primary" id="btn-start-scan">
           ${icons.barcode(16)} Ligar câmara
         </button>
+        <div class="scanner-divider">— ou —</div>
+        <button type="button" class="btn btn-secondary" id="btn-photo-label">
+          ${icons.camera(16)} Fotografar tabela nutricional
+        </button>
+        <p class="scanner-photo-hint">Para produtos que a câmara não reconhece pelo código</p>
       </div>
 
       <!-- Estado: loading -->
@@ -235,10 +241,26 @@ export function renderBarcodeScannerPage(mount) {
         </div>
       </div>
 
+      <!-- Estado: label-loading — a ler rótulo via Gemini Vision -->
+      <div id="scanner-label-loading" class="scanner-loading" style="display:none;">
+        <div class="scanner-spinner"></div>
+        <p>A ler o rótulo nutricional...</p>
+        <p class="scanner-macros-label">Isso pode demorar alguns segundos</p>
+        <button type="button" class="btn btn-ghost" id="btn-cancel-label">Cancelar</button>
+      </div>
+
       <!-- Estado: manual — adição quando produto não é encontrado na base de dados -->
       <div id="scanner-manual" class="scanner-result-card" style="display:none;">
         <div class="scanner-manual-title">Adicionar produto manualmente</div>
-        <p class="scanner-manual-hint">Lê os valores da embalagem e preenche os campos abaixo. O produto ficará guardado para a próxima vez.</p>
+        <p class="scanner-manual-hint">Preencha os campos abaixo com os valores da embalagem. O produto ficará salvo para a próxima vez.</p>
+
+        <!-- Botão discreto para usar foto do rótulo a partir do formulário manual -->
+        <button type="button" class="btn btn-ghost scanner-manual-photo-btn" id="btn-photo-in-manual">
+          ${icons.camera(14)} Preencher com foto do rótulo
+        </button>
+
+        <!-- Aviso de confiança da leitura por IA (oculto por padrão) -->
+        <div id="manual-confidence-msg" style="display:none;"></div>
 
         <div class="scanner-manual-field">
           <label class="scanner-macros-label" for="manual-name">Nome do produto</label>
@@ -288,19 +310,22 @@ export function renderBarcodeScannerPage(mount) {
   `;
 
   // ── Referências DOM ─────────────────────────────────────────────────────────
-  const video      = document.getElementById('hg-scanner-video');
-  const laser      = document.getElementById('scanner-laser');
-  const actionsEl  = document.getElementById('scanner-actions');
-  const loadingEl  = document.getElementById('scanner-loading');
-  const resultEl   = document.getElementById('scanner-result');
-  const errorEl    = document.getElementById('scanner-error');
-  const errorMsg   = document.getElementById('scanner-error-msg');
-  const manualEl   = document.getElementById('scanner-manual');
-  const proCta     = document.getElementById('pro-cta-bar');
-  const qtyInput   = document.getElementById('scanner-qty');
+  const video           = document.getElementById('hg-scanner-video');
+  const laser           = document.getElementById('scanner-laser');
+  const actionsEl       = document.getElementById('scanner-actions');
+  const loadingEl       = document.getElementById('scanner-loading');
+  const labelLoadingEl  = document.getElementById('scanner-label-loading');
+  const resultEl        = document.getElementById('scanner-result');
+  const errorEl         = document.getElementById('scanner-error');
+  const errorMsg        = document.getElementById('scanner-error-msg');
+  const manualEl        = document.getElementById('scanner-manual');
+  const proCta          = document.getElementById('pro-cta-bar');
+  const qtyInput        = document.getElementById('scanner-qty');
 
-  // Macros per 100g guardados para recalcular ao mudar a quantidade
-  let macros100 = { kcal: 0, prot: 0, carb: 0, fat: 0 };
+  // Estado local por render
+  let macros100      = { kcal: 0, prot: 0, carb: 0, fat: 0 };
+  let labelErrorMode = false;   // true quando o erro veio de leitura de foto
+  let labelAbortCtrl = null;    // AbortController activo durante fetch do Gemini
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   function round1(v) { return Math.round((v ?? 0) * 10) / 10; }
@@ -329,27 +354,171 @@ export function renderBarcodeScannerPage(mount) {
   }
 
   function showState(state) {
-    actionsEl.style.display = state === 'idle'     ? 'block' : 'none';
-    loadingEl.style.display = state === 'loading'  ? 'flex'  : 'none';
-    resultEl.style.display  = state === 'result'   ? 'block' : 'none';
-    errorEl.style.display   = state === 'error'    ? 'flex'  : 'none';
-    manualEl.style.display  = state === 'manual'   ? 'block' : 'none';
-    proCta.style.display    = state === 'result'   ? 'block' : 'none';
-    laser.style.display     = state === 'scanning' ? 'block' : 'none';
+    actionsEl.style.display      = state === 'idle'          ? 'block' : 'none';
+    loadingEl.style.display      = state === 'loading'       ? 'flex'  : 'none';
+    labelLoadingEl.style.display = state === 'label-loading' ? 'flex'  : 'none';
+    resultEl.style.display       = state === 'result'        ? 'block' : 'none';
+    errorEl.style.display        = state === 'error'         ? 'flex'  : 'none';
+    manualEl.style.display       = state === 'manual'        ? 'block' : 'none';
+    proCta.style.display         = state === 'result'        ? 'block' : 'none';
+    laser.style.display          = state === 'scanning'      ? 'block' : 'none';
     if (state !== 'scanning') stopReader();
+    if (state !== 'label-loading' && labelAbortCtrl) {
+      labelAbortCtrl.abort(); labelAbortCtrl = null;
+    }
   }
 
-  /** Pré-preenche e mostra o formulário de adição manual. */
-  function showManualForm(prefillName) {
+  /**
+   * Pré-preenche e mostra o formulário de adição manual.
+   * opts: { kcal, prot, carb, fat, confidence, micronutrients }
+   * Todos opcionais — sem opts equivale ao fluxo "não encontrado" (campos vazios).
+   */
+  function showManualForm(prefillName, opts = {}) {
     document.getElementById('manual-name').value = prefillName || '';
-    document.getElementById('manual-kcal').value = '';
-    document.getElementById('manual-prot').value = '';
-    document.getElementById('manual-carb').value = '';
-    document.getElementById('manual-fat').value  = '';
+    const setV = (id, v) => { document.getElementById(id).value = (v != null && isFinite(v)) ? v : ''; };
+    setV('manual-kcal', opts.kcal);
+    setV('manual-prot', opts.prot);
+    setV('manual-carb', opts.carb);
+    setV('manual-fat',  opts.fat);
+
+    // Micronutrientes da foto (null se não há leitura por IA)
+    lastLabelMicronutrients = opts.micronutrients || null;
+
+    // Aviso de confiança
+    const confEl = document.getElementById('manual-confidence-msg');
+    if (opts.confidence === 'baixa') {
+      confEl.textContent   = '⚠️ A leitura pode não estar totalmente precisa — confira os valores na embalagem antes de salvar.';
+      confEl.className     = 'scanner-confidence-low';
+      confEl.style.display = 'block';
+    } else if (opts.confidence === 'media') {
+      confEl.textContent   = 'Confira os valores antes de salvar.';
+      confEl.className     = 'scanner-confidence-medium';
+      confEl.style.display = 'block';
+    } else {
+      confEl.style.display = 'none';
+    }
+
     const errEl = document.getElementById('manual-error-msg');
     errEl.style.display = 'none';
     errEl.textContent   = '';
+
     showState('manual');
+
+    // Foco no campo certo
+    setTimeout(() => {
+      if (!prefillName) {
+        document.getElementById('manual-name').focus();
+      } else if (opts.kcal == null) {
+        document.getElementById('manual-kcal').focus();
+      }
+    }, 100);
+  }
+
+  /**
+   * Comprime uma imagem File para JPEG via Canvas.
+   * maxPx: lado máximo em px; quality: 0-1.
+   * Retorna base64 puro (sem prefixo data:...).
+   */
+  function compressImage(file, maxPx, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale  = Math.min(1, maxPx / Math.max(img.width, img.height));
+          const w = Math.round(img.width  * scale);
+          const h = Math.round(img.height * scale);
+          const canvas = document.createElement('canvas');
+          canvas.width  = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const base64 = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+          resolve(base64);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /** Mostra erro de leitura de foto e configura o modo de retry correcto. */
+  function showLabelError(message) {
+    labelErrorMode = true;
+    errorMsg.textContent = message;
+    showState('error');
+  }
+
+  /**
+   * Abre o selector de ficheiro/câmara, comprime, envia para a API Gemini
+   * e transita para o formulário manual pré-preenchido.
+   */
+  function triggerLabelPhoto() {
+    stopReader(); // garante que o scanner de barcode está parado
+
+    const input   = document.createElement('input');
+    input.type    = 'file';
+    input.accept  = 'image/*';
+    input.capture = 'environment'; // câmara traseira em mobile
+
+    input.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      showState('label-loading');
+
+      // Comprimir antes de enviar (máx 1024px, JPEG 0.85)
+      let base64;
+      try {
+        base64 = await compressImage(file, 1024, 0.85);
+      } catch {
+        showLabelError('Não foi possível processar a imagem. Tente novamente com outra foto.');
+        return;
+      }
+
+      labelAbortCtrl = new AbortController();
+      const timeoutId = setTimeout(() => { if (labelAbortCtrl) labelAbortCtrl.abort(); }, 20000);
+
+      let resp, data;
+      try {
+        resp = await fetch('/api/read-nutrition-label', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ image: base64 }),
+          signal:  labelAbortCtrl.signal,
+        });
+        clearTimeout(timeoutId);
+        labelAbortCtrl = null;
+        data = await resp.json();
+      } catch (fetchErr) {
+        clearTimeout(timeoutId);
+        labelAbortCtrl = null;
+        const timedOut = fetchErr?.name === 'AbortError';
+        showLabelError(timedOut
+          ? 'A leitura demorou muito. Tente novamente com uma foto mais nítida.'
+          : 'Não foi possível ler o rótulo. Certifique-se de que a foto está nítida e a tabela nutricional visível, ou preencha os valores manualmente.');
+        return;
+      }
+
+      if (!resp.ok || data?.error || !data?.per100g) {
+        showLabelError('Não foi possível ler o rótulo. Certifique-se de que a foto está nítida e a tabela nutricional visível, ou preencha os valores manualmente.');
+        return;
+      }
+
+      // Sucesso — pré-preencher formulário manual com dados da IA
+      const p = data.per100g;
+      showManualForm(data.produto_nome || '', {
+        kcal:          p.kcal,
+        prot:          p.prot,
+        carb:          p.carb,
+        fat:           p.fat,
+        confidence:    data.confidence,
+        micronutrients: p,
+      });
+    };
+
+    input.click();
   }
 
   function showResult(data) {
@@ -513,11 +682,26 @@ export function renderBarcodeScannerPage(mount) {
 
   document.getElementById('btn-retry').addEventListener('click', () => {
     showState('idle');
-    startScanner();
+    if (labelErrorMode) {
+      labelErrorMode = false;
+      triggerLabelPhoto();
+    } else {
+      startScanner();
+    }
   });
 
   document.getElementById('btn-add-manual').addEventListener('click', () => {
+    lastLabelMicronutrients = null; // sem micros de IA neste caminho
     showManualForm(lastManualName);
+  });
+
+  document.getElementById('btn-photo-label').addEventListener('click', triggerLabelPhoto);
+
+  document.getElementById('btn-photo-in-manual').addEventListener('click', triggerLabelPhoto);
+
+  document.getElementById('btn-cancel-label').addEventListener('click', () => {
+    if (labelAbortCtrl) { labelAbortCtrl.abort(); labelAbortCtrl = null; }
+    showState('idle');
   });
 
   document.getElementById('btn-manual-save').addEventListener('click', () => {
@@ -561,7 +745,7 @@ export function renderBarcodeScannerPage(mount) {
       source:        'barcode',
       baseQuantity:  100,
       baseUnit:      'g',
-      micronutrients:{},
+      micronutrients: lastLabelMicronutrients || {},
       notes:         key,
       createdAt:     new Date().toISOString(),
     });
