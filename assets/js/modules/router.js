@@ -77,7 +77,7 @@ export function navigate(path, { replace = false } = {}) {
  * Chama o handler com a página resolvida.
  */
 function render(page) {
-  if (handler) handler(page, location.pathname);
+  if (handler) handler(page, location.pathname).catch(err => console.error('Route error:', err));
   // scroll to top suavemente
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
