@@ -44,7 +44,7 @@ export const BLOG_POSTS = [
   <p>A boa notícia é que dá para virar esse jogo. Não é fácil e não acontece da noite para o dia, mas é completamente possível. O segredo está em entender exatamente por que o seu corpo resiste tanto e atacar esse ponto com uma estratégia específica para o seu perfil.</p>
 
   <h2 id="ectomorfo">Ectomorfo: o biotipo por trás do termo</h2>
-  <p>Na década de 1940, o psicólogo William Sheldon desenvolveu uma classificação de biotipos corporais chamada somatotipos. Os três tipos são: <strong>ectomorfo</strong>, mesomorfo e endomorfo. O ectomorfo é o biotipo naturalmente mais magro, e é exatamente o perfil mais associado ao hardgainer.</p>
+  <p>Na década de 1940, o psicólogo William Sheldon desenvolveu uma classificação de <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3648560/" target="_blank" rel="noopener noreferrer">biotipos corporais chamada somatotipos</a>. Os três tipos são: <strong>ectomorfo</strong>, mesomorfo e endomorfo. O ectomorfo é o biotipo naturalmente mais magro, e é exatamente o perfil mais associado ao hardgainer.</p>
   <p>As características típicas de um ectomorfo:</p>
   <ul>
     <li>Corpo naturalmente magro e comprido, com ossos finos</li>
@@ -77,7 +77,7 @@ export const BLOG_POSTS = [
   <p>Ser hardgainer não é só uma questão estética. Envolve desafios práticos e psicológicos que precisam ser entendidos para serem superados.</p>
 
   <h3>Metabolismo acelerado</h3>
-  <p>O seu corpo queima calorias com muito mais eficiência do que a média. Isso pode parecer uma bênção para quem quer emagrecer, mas para quem quer ganhar massa é uma batalha constante. Um hardgainer típico de 70kg pode gastar 300 a 500 kcal por dia a mais do que uma pessoa com metabolismo médio e mesmo peso — o que significa que precisa comer muito mais só para manter o peso, antes mesmo de pensar em crescer.</p>
+  <p>O seu corpo queima calorias com muito mais eficiência do que a média. Isso pode parecer uma bênção para quem quer emagrecer, mas para quem quer ganhar massa é uma batalha constante. Um hardgainer típico de 70kg pode gastar 300 a 500 kcal por dia a mais do que uma pessoa com <a href="/blog/metabolismo-acelerado-como-lidar" data-route>metabolismo médio</a> e mesmo peso — o que significa que precisa comer muito mais só para manter o peso, antes mesmo de pensar em crescer.</p>
 
   <h3>Pouco apetite</h3>
   <p>Uma das queixas mais comuns entre hardgainers é a sensação de estar sempre cheio. Comer 3000, 3500 ou até 4000 calorias por dia quando você naturalmente não sente fome é genuinamente difícil. Não é frescura — é uma realidade fisiológica. O hormônio da saciedade (leptina) muitas vezes sinaliza "chega" muito antes de o hardgainer ter comido o suficiente.</p>
@@ -100,7 +100,7 @@ export const BLOG_POSTS = [
     <li><strong>Superávit calórico real e consistente</strong> — saber o seu gasto calórico e comer consistentemente acima disso. Para a maioria dos hardgainers, são 300 a 500 kcal acima do TDEE todos os dias.</li>
     <li><strong>Proteína adequada</strong> — entre 1,8 e 2,5g por kg de peso corporal. Para um hardgainer de 70kg, são pelo menos 126g de proteína por dia.</li>
     <li><strong>Carboidratos como aliados</strong> — não como inimigos. Carboidrato é o combustível do treino e ajuda a preservar a proteína para construção muscular.</li>
-    <li><strong>Treino com progressão de carga</strong> — aumentar o estímulo progressivamente. Sem progressão, não há adaptação muscular significativa.</li>
+    <li><strong><a href="/blog/treino-ectomorfo-ganhar-massa" data-route>Treino com progressão de carga</a></strong> — aumentar o estímulo progressivamente. Sem progressão, não há adaptação muscular significativa.</li>
     <li><strong>Sono de qualidade</strong> — é durante o sono que o músculo se reconstrói e cresce. 7 a 9 horas é o mínimo para um hardgainer em fase de ganho.</li>
     <li><strong>Consistência de meses, não de dias</strong> — o hardgainer que para de comer bem num final de semana perde progresso real. Consistência é o diferencial.</li>
   </ol>
@@ -108,7 +108,7 @@ export const BLOG_POSTS = [
   <h2 id="conclusao">Conclusão</h2>
   <p>Ser hardgainer é real. As dificuldades são reais. Mas não é uma sentença — é um ponto de partida para uma abordagem mais inteligente e personalizada.</p>
   <p>A maioria dos hardgainers que não consegue resultados está errando em algo básico: não come calorias suficientes, não distribui os macros corretamente, ou não mantém a consistência por tempo suficiente. Quando esses pontos são corrigidos, os resultados aparecem — e você passa a entender exatamente como o seu corpo funciona.</p>
-  <p>O primeiro passo é saber exatamente quanto você precisa comer. Para isso existe a calculadora abaixo.</p>
+  <p>O primeiro passo é saber exatamente <a href="/blog/calcular-calorias-hardgainer" data-route>quanto você precisa comer</a>. Para isso existe a calculadora abaixo.</p>
 
   <div class="article-cta-final">
     <h3>Pronto para começar?</h3>
@@ -150,7 +150,7 @@ export const BLOG_POSTS = [
 
   <h2 id="por-que-importa">Por que as calorias importam tanto</h2>
   <p>O corpo funciona como uma equação energética. Para ganhar massa muscular, você precisa fornecer mais energia do que gasta — o chamado superávit calórico. Sem isso, por mais que você treine, o seu corpo não tem a matéria-prima energética necessária para construir novo tecido muscular.</p>
-  <p>Para um hardgainer, isso é ainda mais crítico. O metabolismo acelerado significa que o gasto calórico diário é alto. Muita gente acha que come bastante, mas quando rastreia de verdade descobre que estava 500 ou até 800 kcal abaixo do necessário todos os dias.</p>
+  <p>Para um hardgainer, isso é ainda mais crítico. O <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3943438/" target="_blank" rel="noopener noreferrer">metabolismo acelerado</a> significa que o gasto calórico diário é alto. Muita gente acha que come bastante, mas quando rastreia de verdade descobre que estava 500 ou até 800 kcal abaixo do necessário todos os dias.</p>
   <p>Na prática: se você gasta 3200 kcal por dia e come 2700, está em déficit de 500 kcal. Não importa o quanto você treina — você não vai crescer de forma significativa nesse cenário.</p>
 
   <h2 id="bmr">Passo 1: calcular o metabolismo basal (BMR)</h2>
@@ -185,7 +185,7 @@ export const BLOG_POSTS = [
 
   <h2 id="superavit">Passo 3: adicionar o superávit calórico</h2>
   <p>Para ganhar massa, você precisa comer acima do TDEE. A questão é: quanto acima?</p>
-  <p>Para a maioria das pessoas, um superávit de 200 a 300 kcal já é suficiente. Mas <strong>hardgainers geralmente precisam de 300 a 500 kcal acima do TDEE</strong>, e em alguns casos até mais, especialmente no início quando o metabolismo está muito acelerado.</p>
+  <p>Para a maioria das pessoas, um superávit de 200 a 300 kcal já é suficiente. Mas <strong>hardgainers geralmente precisam de <a href="/blog/superavit-calorico-hardgainer" data-route>300 a 500 kcal acima do TDEE</a></strong>, e em alguns casos até mais, especialmente no início quando o metabolismo está muito acelerado.</p>
   <p>Por que mais do que a média? Dois motivos principais:</p>
   <ol>
     <li><strong>Adaptação termogênica</strong> — quando você come mais, o corpo aumenta a termogênese (calor gerado pela digestão e pelo metabolismo). O hardgainer tem uma resposta termogênica mais intensa, o que "desperdiça" parte do superávit.</li>
@@ -233,7 +233,7 @@ export const BLOG_POSTS = [
   <h2 id="erros">Os erros mais comuns no cálculo</h2>
   <ul>
     <li><strong>Subestimar o gasto calórico:</strong> usar fator de sedentário quando na verdade treina 4 vezes por semana</li>
-    <li><strong>Não rastrear de verdade:</strong> estimar as porções "no olho" — um colher de pasta de amendoim pode ter 100 kcal, não 50</li>
+    <li><strong><a href="/blog/rastrear-macros-por-que-importante" data-route>Não rastrear de verdade</a>:</strong> estimar as porções "no olho" — um colher de pasta de amendoim pode ter 100 kcal, não 50</li>
     <li><strong>Inconsistência nos fins de semana:</strong> comer bem de segunda a sexta e largar tudo no sábado e domingo. O déficit do final de semana apaga o superávit da semana</li>
     <li><strong>Não ajustar quando o peso fica estagnado:</strong> o TDEE aumenta quando você ganha peso — o cálculo precisa ser refeito a cada 3-5kg de ganho</li>
     <li><strong>Esperar muito para ajustar:</strong> se não teve progresso em 3 semanas, ajuste. Não espere 2 meses achando que "o resultado vai chegar"</li>
@@ -242,7 +242,7 @@ export const BLOG_POSTS = [
   <h2 id="conclusao">Conclusão</h2>
   <p>Calcular as suas calorias com precisão é o ato mais estratégico que um hardgainer pode fazer antes de começar qualquer dieta. Sem esse número, você está basicamente no escuro — pode estar comendo demais ou de menos sem saber.</p>
   <p>O processo é simples: calcule o BMR, multiplique pelo fator de atividade para chegar ao TDEE, adicione 400 kcal e comece. Monitore o peso por 2 semanas e ajuste. Repita.</p>
-  <p>A calculadora abaixo faz esse processo inteiro automaticamente — incluindo os macros ideais para o seu perfil.</p>
+  <p>A calculadora abaixo faz esse processo inteiro automaticamente — incluindo os <a href="/blog/macros-para-ectomorfo" data-route>macros ideais</a> para o seu perfil.</p>
 
   <div class="article-cta-final">
     <h3>Pronto para calcular as suas calorias?</h3>
@@ -292,7 +292,7 @@ export const BLOG_POSTS = [
   <p>Para um hardgainer, a meta calórica total é o teto — os macros são como você distribui esse total de forma inteligente. Não é qualquer combinação que funciona da mesma forma.</p>
 
   <h2 id="proteina">Proteína: a base da construção muscular</h2>
-  <p>A proteína é o macro mais importante para ganho de massa. Sem proteína suficiente, o corpo não tem os aminoácidos necessários para construir novo tecido muscular — e todo o treino do mundo não resolve isso.</p>
+  <p>A <a href="/blog/proteina-diaria-hardgainer" data-route>proteína</a> é o macro mais importante para ganho de massa. Sem proteína suficiente, o corpo não tem os aminoácidos necessários para construir novo tecido muscular — e todo o treino do mundo não resolve isso.</p>
   <p>Para hardgainers, a recomendação é:</p>
   <ul>
     <li><strong>Mínimo:</strong> 1,6g de proteína por kg de peso corporal por dia</li>
@@ -310,7 +310,7 @@ export const BLOG_POSTS = [
     <li>Whey protein (prático para bater a meta diária)</li>
     <li>Leguminosas: feijão, lentilha, grão-de-bico (proteína + carboidrato)</li>
   </ul>
-  <p>Uma coisa que muitos hardgainers fazem errado: consomem toda a proteína de uma vez ou em duas refeições muito grandes. <strong>Distribuir 30 a 40g de proteína por refeição, ao longo de 4 a 5 refeições</strong>, melhora a síntese proteica muscular de forma significativa.</p>
+  <p>Uma coisa que muitos hardgainers fazem errado: consomem toda a proteína de uma vez ou em duas refeições muito grandes. <strong>Distribuir 30 a 40g de proteína por refeição, ao longo de 4 a 5 refeições</strong>, melhora a <a href="https://pubmed.ncbi.nlm.nih.gov/28698222/" target="_blank" rel="noopener noreferrer">síntese proteica muscular</a> de forma significativa.</p>
 
   <h2 id="carboidrato">Carboidrato: o combustível que o ectomorfo subestima</h2>
   <p>O ectomorfo tem uma relação especial com o carboidrato. Por ser naturalmente magro e com metabolismo acelerado, o corpo de um hardgainer usa o carboidrato de forma muito eficiente — raramente vai virar gordura, especialmente quando associado ao treino.</p>
@@ -367,7 +367,7 @@ export const BLOG_POSTS = [
   <p>Note que o carboidrato ocupa a maior fatia — e isso é intencional para ectomorfos. O carboidrato é o macro que mais vai ajudar a sustentar treinos intensos e a criar o ambiente anabólico que o hardgainer precisa.</p>
 
   <h2 id="exemplo-pratico">Exemplo prático para um hardgainer de 70kg</h2>
-  <p>Meta calórica: 3000 kcal/dia (TDEE de 2600 + superávit de 400)</p>
+  <p>Meta calórica: 3000 kcal/dia (<a href="/blog/calcular-calorias-hardgainer" data-route>TDEE</a> de 2600 + superávit de 400)</p>
   <ul>
     <li><strong>Proteína (28%):</strong> 840 kcal ÷ 4 = <strong>210g de proteína</strong></li>
     <li><strong>Carboidrato (50%):</strong> 1500 kcal ÷ 4 = <strong>375g de carboidrato</strong></li>
@@ -452,7 +452,7 @@ export const BLOG_POSTS = [
     <li><strong>Superávit de 300 a 500 kcal por dia acima do TDEE</strong></li>
     <li>Ponto inicial recomendado: <strong>+400 kcal</strong></li>
   </ul>
-  <p>Exemplo concreto: se o seu TDEE é 2700 kcal/dia, a sua meta de ganho de massa é <strong>3100 kcal/dia</strong>.</p>
+  <p>Exemplo concreto: se o seu <a href="/blog/calcular-calorias-hardgainer" data-route>TDEE</a> é 2700 kcal/dia, a sua meta de ganho de massa é <strong>3100 kcal/dia</strong>.</p>
   <p>Com esse superávit e uma boa distribuição de macros, um hardgainer pode esperar ganhar de <strong>200g a 400g de peso por semana</strong>. Parece pouco, mas ao longo de um ano isso representa 10 a 20kg — muito mais do que a maioria consegue na prática.</p>
 
   <div class="article-cta-inline">
@@ -480,7 +480,7 @@ export const BLOG_POSTS = [
     <li>Risco: acumular gordura desnecessária que vai precisar ser perdida depois</li>
   </ul>
 
-  <p>Para a maioria dos hardgainers, o bulk limpo é a melhor estratégia. O argumento de "é hardgainer, pode comer tudo" tem um limite — acima de 500 kcal de superávit consistente, a proporção de gordura ganha começa a aumentar de forma significativa mesmo para ectomorfos.</p>
+  <p>Para a maioria dos hardgainers, o bulk limpo é a melhor estratégia. O argumento de "é hardgainer, pode comer tudo" tem um limite — acima de 500 kcal de <a href="https://pubmed.ncbi.nlm.nih.gov/31247944/" target="_blank" rel="noopener noreferrer">superávit consistente, a proporção de gordura ganha</a> começa a aumentar de forma significativa mesmo para ectomorfos.</p>
   <p>A exceção: se você está muito magro (abaixo de 60kg com altura normal), um período curto de bulk mais agressivo pode ajudar a chegar num ponto de partida melhor antes de estabilizar no bulk limpo.</p>
 
   <h2 id="sinais">Como saber se o superávit está certo</h2>
@@ -495,7 +495,7 @@ export const BLOG_POSTS = [
   <h2 id="ajustar">Como ajustar quando não está funcionando</h2>
   <p>A regra de ouro para ajuste:</p>
   <ul>
-    <li><strong>Sem ganho em 2 semanas:</strong> adicione +200 kcal/dia e monitore por mais 2 semanas</li>
+    <li><strong>Sem ganho em 2 semanas:</strong> <a href="/blog/ajustar-calorias-sem-resultado" data-route>adicione +200 kcal/dia</a> e monitore por mais 2 semanas</li>
     <li><strong>Ganhando mais de 500g/semana com gordura visível:</strong> reduza -150 a 200 kcal/dia</li>
     <li><strong>Ganhou 3 a 5kg:</strong> recalcule o TDEE — com o novo peso, o gasto calórico aumentou e o superávit pode ter diminuído</li>
   </ul>
@@ -511,7 +511,7 @@ export const BLOG_POSTS = [
 
   <h2 id="conclusao">Conclusão</h2>
   <p>O superávit calórico ideal para hardgainers fica na faixa de 300 a 500 kcal acima do TDEE. Começa com +400 kcal, monitora o progresso por 2 semanas e ajusta conforme necessário.</p>
-  <p>Mais importante do que acertar o número perfeito de cara é ser consistente com o superávit ao longo do tempo. Dias de superávit intermitentes não constroem músculo de verdade — o processo precisa de semanas e meses de balanço positivo consistente.</p>
+  <p>Mais importante do que acertar o número perfeito de cara é ser consistente com o superávit ao longo do tempo. <a href="/blog/erros-hardgainer-nao-ganha-massa" data-route>Dias de superávit intermitentes não constroem músculo de verdade</a> — o processo precisa de semanas e meses de balanço positivo consistente.</p>
   <p>Para calcular o seu TDEE e a meta calórica exata, use a calculadora abaixo.</p>
 
   <div class="article-cta-final">
@@ -551,7 +551,7 @@ export const BLOG_POSTS = [
   </nav>
 
   <h2 id="como-usar">Como usar este plano</h2>
-  <p>Este cardápio é um modelo para um hardgainer de 70kg com meta de <strong>3000 kcal/dia</strong>, distribuídas em 5 refeições. Os macros alvo são aproximadamente:</p>
+  <p>Este cardápio é um modelo para um hardgainer de 70kg com meta de <strong>3000 kcal/dia</strong>, distribuídas em 5 refeições. Os <a href="/blog/macros-para-ectomorfo" data-route>macros alvo</a> são aproximadamente:</p>
   <ul>
     <li>Proteína: 180g (720 kcal)</li>
     <li>Carboidrato: 360g (1440 kcal)</li>
@@ -698,7 +698,7 @@ export const BLOG_POSTS = [
   <h2 id="substituicoes">Substituições práticas</h2>
   <p>Não gosta de algum alimento ou não tem disponibilidade? Aqui estão substituições equivalentes:</p>
   <ul>
-    <li>Frango → Peru, atum, tilápia, ovo (2 ovos ≈ 80g de frango em proteína)</li>
+    <li>Frango → Peru, <a href="/blog/cardapio-economico-hardgainer" data-route>atum</a>, tilápia, ovo (2 ovos ≈ 80g de frango em proteína)</li>
     <li>Arroz → Macarrão, batata, mandioca, batata-doce, pão</li>
     <li>Feijão → Lentilha, grão-de-bico, ervilha</li>
     <li>Whey protein → Mais ovos, queijo cottage, atum (com ajuste de volume)</li>
@@ -711,7 +711,7 @@ export const BLOG_POSTS = [
     <li><strong>Prepare as refeições com antecedência:</strong> cozinhar arroz, frango e batata para 2 a 3 dias de uma vez facilita muito</li>
     <li><strong>Tenha sempre lanches prontos:</strong> frutas, iogurte, castanhas e ovos cozidos são os mais práticos</li>
     <li><strong>Não pule o pós-treino:</strong> é o momento mais importante para proteína e carboidrato</li>
-    <li><strong>Shakes são seus amigos:</strong> quando não consegue bater as calorias nas refeições sólidas, complete com shake hipercalórico</li>
+    <li><strong>Shakes são seus amigos:</strong> quando não consegue bater as calorias nas refeições sólidas, complete com <a href="/blog/batido-hipercalorico-receitas" data-route>shake hipercalórico</a></li>
     <li><strong>Rastreie as primeiras 2 semanas:</strong> use um aplicativo para confirmar que está batendo a meta calórica real — muita gente descobre que come menos do que acha</li>
   </ul>
 
@@ -755,7 +755,7 @@ export const BLOG_POSTS = [
 
   <h2 id="o-que-e-densidade">O que é densidade calórica e por que importa</h2>
   <p>Densidade calórica é a quantidade de calorias por unidade de peso ou volume de um alimento. Alimentos com alta densidade calórica fornecem muita energia em pequenas porções — o oposto de vegetais e sopas, que têm muito volume mas poucas calorias.</p>
-  <p>Para um hardgainer que precisa de muito superávit calórico mas tem apetite limitado, priorizar alimentos de alta densidade é estratégico. Com os alimentos certos, você pode adicionar 500 kcal extras à dieta sem praticamente aumentar o volume de comida.</p>
+  <p>Para um hardgainer que precisa de muito <a href="/blog/superavit-calorico-hardgainer" data-route>superávit calórico</a> mas tem apetite limitado, priorizar alimentos de alta densidade é estratégico. Com os alimentos certos, você pode adicionar 500 kcal extras à dieta sem praticamente aumentar o volume de comida.</p>
   <p>A ressalva importante: alta densidade calórica não significa qualquer coisa. Biscoito recheado e salgadinho são hipercalóricos, mas oferecem quase zero em termos de nutrientes úteis. Os 15 alimentos abaixo são hipercalóricos <strong>e</strong> nutricionalmente valiosos.</p>
 
   <h2 id="lista">Os 15 alimentos hipercalóricos saudáveis</h2>
@@ -764,7 +764,7 @@ export const BLOG_POSTS = [
   <p>Altíssima em calorias, rica em gordura boa (monoinsaturada), proteína e magnésio. Duas colheres de sopa (32g) somam quase 190 kcal e 8g de proteína. Vai bem no shake, no pão, no iogurte ou comida direto na colher. Evite versões com adição de açúcar — procure a que tem só amendoim e sal.</p>
 
   <h3>2. Abacate — 160 kcal por 100g</h3>
-  <p>Fruta com gordura monoinsaturada de alta qualidade. Meio abacate médio (100g) soma 160 kcal com gordura boa, potássio e vitaminas do complexo B. Vai bem no café da manhã, em saladas ou em shakes para dar cremosidade e calorias extras sem sabor forte.</p>
+  <p>Fruta com gordura monoinsaturada de alta qualidade. Meio abacate médio (100g) soma 160 kcal com gordura boa, potássio e vitaminas do complexo B. Vai bem no café da manhã, em saladas ou em <a href="/blog/batido-hipercalorico-receitas" data-route>shakes</a> para dar cremosidade e calorias extras sem sabor forte.</p>
 
   <h3>3. Ovos inteiros — 155 kcal por 100g (≈ 75 kcal por ovo)</h3>
   <p>Um dos melhores alimentos do planeta para hardgainers. O ovo inteiro combina proteína de alto valor biológico (clara) com gordura e colesterol (gema) — que na prática é necessário para a produção de testosterona. 3 ovos inteiros somam cerca de 225 kcal e 18g de proteína. Versátil, barato, prático.</p>
@@ -785,7 +785,7 @@ export const BLOG_POSTS = [
   <p>Rico em proteína e gordura, o queijo é uma fonte calórica prática que vai bem em qualquer refeição. 30g de queijo mussarela somam cerca de 90 kcal e 6g de proteína. Coloca no ovo mexido, no pão, na batata, no frango — onde quiser.</p>
 
   <h3>9. Arroz branco — 130 kcal por 100g cozido</h3>
-  <p>O arroz é o carboidrato base da dieta de ganho de massa por uma razão: tem alta densidade calórica para um alimento cozido, baixo custo, fácil digestão e praticamente zero gordura. 200g de arroz cozido somam 260 kcal de carboidrato puro. É o melhor combustível para o treino de um hardgainer.</p>
+  <p>O arroz é o carboidrato base da dieta de ganho de massa por uma razão: tem alta densidade calórica para um alimento cozido, baixo custo, fácil digestão e praticamente zero gordura. 200g de arroz cozido somam 260 kcal de carboidrato puro. É o melhor <a href="https://pubmed.ncbi.nlm.nih.gov/28919842/" target="_blank" rel="noopener noreferrer">combustível para o treino</a> de um hardgainer.</p>
 
   <h3>10. Batata-doce — 86 kcal por 100g cozida</h3>
   <p>Excelente fonte de carboidrato de digestão moderada, com vitamina A, potássio e fibras. 200g de batata-doce assada somam 172 kcal e são saciantes sem ocupar muito espaço. Ótima antes do treino.</p>
@@ -823,7 +823,7 @@ export const BLOG_POSTS = [
   <p>Com esses pequenos ajustes, você pode facilmente adicionar 500 a 700 kcal ao dia sem praticamente aumentar o volume de comida percebido.</p>
 
   <h2 id="conclusao">Conclusão</h2>
-  <p>O segredo para o hardgainer atingir o superávit calórico diário não é comer mais vezes ou pratos maiores — é escolher alimentos mais densos em calorias. Com pasta de amendoim, azeite, ovos, aveia, oleaginosas e leite integral como aliados, bater 3000 ou 3500 kcal por dia se torna muito mais viável.</p>
+  <p>O segredo para o hardgainer atingir o superávit calórico diário não é comer mais vezes ou pratos maiores — é escolher <a href="/blog/cardapio-economico-hardgainer" data-route>alimentos mais densos em calorias</a>. Com pasta de amendoim, azeite, ovos, aveia, oleaginosas e leite integral como aliados, bater 3000 ou 3500 kcal por dia se torna muito mais viável.</p>
   <p>E para saber exatamente qual é o seu alvo calórico, a calculadora abaixo te diz em menos de 2 minutos.</p>
 
   <div class="article-cta-final">
@@ -861,7 +861,7 @@ export const BLOG_POSTS = [
   </nav>
 
   <h2 id="por-que-shakes">Por que shakes são essenciais para hardgainers</h2>
-  <p>A vantagem dos shakes para hardgainers é simples: líquido não ocupa tanto espaço no estômago quanto comida sólida. Você consegue ingerir 600 kcal num copo em 5 minutos, enquanto comer 600 kcal em comida sólida pode levar 20 a 30 minutos e deixar você satisfeito por horas.</p>
+  <p>A vantagem dos shakes para hardgainers é simples: líquido não ocupa tanto espaço no estômago quanto comida sólida. Você consegue ingerir 600 kcal num copo em 5 minutos, enquanto <a href="/blog/como-comer-mais-sem-apetite" data-route>comer 600 kcal em comida sólida</a> pode levar 20 a 30 minutos e deixar você satisfeito por horas.</p>
   <p>Isso não significa viver de shakes — as refeições sólidas continuam sendo a base. Mas 1 ou 2 shakes por dia podem fazer uma diferença enorme no total calórico diário de um hardgainer que luta para bater as metas.</p>
   <p>Nas receitas abaixo, os valores nutricionais são estimativas. Use ingredientes na versão integral sempre que possível — leite integral, pasta de amendoim sem açúcar adicionado, iogurte grego integral.</p>
 
@@ -912,7 +912,7 @@ export const BLOG_POSTS = [
     <li>15g de mel</li>
   </ul>
   <p><strong>Macros aproximados:</strong> 580 kcal | 52g proteína | 65g carb | 12g gordura</p>
-  <p>Mais leve em calorias mas muito rico em proteína. Perfeito para pós-treino. O iogurte grego adiciona proteína de digestão lenta (caseína) além da whey.</p>
+  <p>Mais leve em calorias mas muito rico em <a href="/blog/proteina-diaria-hardgainer" data-route>proteína</a>. Perfeito para pós-treino. O iogurte grego adiciona proteína de digestão lenta (caseína) além da whey.</p>
 
   <h3>5. Shake de Amendoim e Aveia Puro — 800 kcal</h3>
   <ul>
@@ -958,7 +958,7 @@ export const BLOG_POSTS = [
     <li>10g de mel</li>
   </ul>
   <p><strong>Macros aproximados:</strong> 650 kcal | 35g proteína | 80g carb | 22g gordura</p>
-  <p>Para quem não usa whey. Os ovos crus são seguros quando frescos e de boa procedência — se preferir, use claras pasteurizadas. A textura fica mais grossa por causa da aveia; bata bem no liquidificador.</p>
+  <p>Para quem não usa <a href="/blog/suplementos-hardgainer" data-route>whey</a>. Os ovos crus são seguros quando frescos e de boa procedência — se preferir, use claras pasteurizadas. A textura fica mais grossa por causa da aveia; bata bem no liquidificador.</p>
 
   <h3>9. Shake Noturno de Caseína e Amendoim — 540 kcal</h3>
   <ul>
@@ -969,7 +969,7 @@ export const BLOG_POSTS = [
     <li>1 colher de cacau em pó</li>
   </ul>
   <p><strong>Macros aproximados:</strong> 540 kcal | 45g proteína | 30g carb | 24g gordura</p>
-  <p>Ideal antes de dormir. Rico em proteína de digestão lenta (caseína do iogurte grego e do leite), que vai alimentar os músculos ao longo da noite. Baixo em carboidrato e alto em gordura boa.</p>
+  <p>Ideal antes de dormir. Rico em <a href="https://pubmed.ncbi.nlm.nih.gov/22289570/" target="_blank" rel="noopener noreferrer">proteína de digestão lenta</a> (caseína do iogurte grego e do leite), que vai alimentar os músculos ao longo da noite. Baixo em carboidrato e alto em gordura boa.</p>
 
   <h3>10. Shake Hipercalórico de Emergência — 900 kcal</h3>
   <ul>
@@ -1047,13 +1047,13 @@ export const BLOG_POSTS = [
   <p>Em outras palavras: primeiro garanta as calorias totais, depois distribua bem a proteína. As duas coisas juntas é o que faz o hardgainer crescer.</p>
 
   <h2 id="quanto">Quanto de proteína por dia</h2>
-  <p>A evidência científica atual aponta para estas faixas para pessoas que treinam com objetivo de hipertrofia:</p>
+  <p>A <a href="https://examine.com/topics/protein-intake/" target="_blank" rel="noopener noreferrer">evidência científica atual</a> aponta para estas faixas para pessoas que treinam com objetivo de hipertrofia:</p>
   <ul>
     <li><strong>Mínimo eficaz:</strong> 1,6g por kg de peso corporal por dia</li>
     <li><strong>Faixa ideal para hardgainers:</strong> 2,0 a 2,5g por kg de peso corporal por dia</li>
     <li><strong>Limite de retorno:</strong> acima de 3,0g/kg, estudos não mostram benefício adicional para ganho muscular</li>
   </ul>
-  <p>Para hardgainers, recomendo ficar na faixa de <strong>2,0 a 2,2g/kg</strong> como padrão. Isso é o suficiente para maximizar a síntese proteica muscular sem "desperdiçar" calorias em proteína que poderiam vir de carboidrato (que tem função energética importante).</p>
+  <p>Para hardgainers, recomendo ficar na faixa de <strong>2,0 a 2,2g/kg</strong> como padrão. Isso é o suficiente para maximizar a síntese proteica muscular sem "desperdiçar" calorias em proteína que poderiam vir de <a href="/blog/macros-para-ectomorfo" data-route>carboidrato</a> (que tem função energética importante).</p>
 
   <h2 id="exemplos">Exemplos por peso corporal</h2>
   <ul>
@@ -1082,7 +1082,7 @@ export const BLOG_POSTS = [
     <li><strong>Ovos inteiros:</strong> 6g por ovo — proteína de referência mundial em qualidade</li>
     <li><strong>Carne bovina (patinho, alcatra):</strong> 26-28g por 100g — rica em creatina e zinco</li>
     <li><strong>Salmão:</strong> 25g por 100g + gordura ômega-3</li>
-    <li><strong>Whey protein:</strong> 20-25g por dose de 30g — prático para fechar a meta diária</li>
+    <li><strong><a href="/blog/suplementos-hardgainer" data-route>Whey protein</a>:</strong> 20-25g por dose de 30g — prático para fechar a meta diária</li>
     <li><strong>Iogurte grego integral:</strong> 8-10g por 100g + caseína (digestão lenta)</li>
     <li><strong>Queijo cottage:</strong> 11-13g por 100g — rico em caseína</li>
   </ul>
@@ -1127,7 +1127,7 @@ export const BLOG_POSTS = [
   </ul>
 
   <h2 id="conclusao">Conclusão</h2>
-  <p>A meta de proteína para hardgainers é clara: <strong>2,0 a 2,2g por kg de peso corporal por dia</strong>, distribuídos em 4 a 5 refeições com 25 a 40g cada. Priorize fontes de alto valor biológico (frango, ovos, atum, whey, iogurte grego) e garanta que o total calórico diário também está no superávit — proteína sem calorias suficientes não constrói músculo de forma otimizada.</p>
+  <p>A meta de proteína para hardgainers é clara: <strong>2,0 a 2,2g por kg de peso corporal por dia</strong>, distribuídos em 4 a 5 refeições com 25 a 40g cada. Priorize fontes de alto valor biológico (frango, ovos, atum, whey, iogurte grego) e garanta que o total calórico diário também está no superávit — proteína sem calorias suficientes não <a href="/blog/treino-ectomorfo-ganhar-massa" data-route>constrói músculo</a> de forma otimizada.</p>
   <p>A calculadora abaixo calcula a sua meta de proteína personalizada em segundos.</p>
 
   <div class="article-cta-final">
@@ -1346,7 +1346,7 @@ export const BLOG_POSTS = [
   <h2 id="erro4">Erro 4: Não progredir na carga</h2>
   <p>O músculo se adapta ao estímulo que recebe. Se você levanta o mesmo peso, nas mesmas repetições, semana após semana, o corpo não tem razão para crescer — já está adaptado.</p>
   <p>Muitos hardgainers entram na academia e fazem os mesmos exercícios com a mesma carga por meses, sem progredir. Isso é um beco sem saída.</p>
-  <p><strong>Solução:</strong> registre todos os treinos. A cada semana, tente adicionar 2,5kg na barra ou fazer uma repetição a mais do que na semana anterior. Progresso constante, mesmo que pequeno, é o único caminho para crescimento real.</p>
+  <p><strong>Solução:</strong> registre todos os treinos. A cada semana, tente adicionar 2,5kg na barra ou fazer uma repetição a mais do que na semana anterior. Progresso constante, mesmo que pequeno, é o único caminho para <a href="/blog/treino-ectomorfo-ganhar-massa" data-route>crescimento real</a>.</p>
 
   <h2 id="erro5">Erro 5: Dormir mal</h2>
   <p>O sono não é opcional para quem quer ganhar massa. É durante o sono profundo (fases 3 e 4 do sono NREM) que o hormônio do crescimento (GH) é liberado em maior concentração. Reduzir o sono de 8 para 6 horas pode reduzir a liberação de GH em até 50%.</p>
@@ -1460,13 +1460,13 @@ export const BLOG_POSTS = [
   <p>Não comece com +200 kcal. Comece com +400 a +500 kcal acima do TDEE calculado. Isso cria margem para as adaptações metabólicas e ainda deixa superávit real suficiente para crescimento. Se após 2 semanas o peso não subiu, adicione mais +200 kcal.</p>
 
   <h3>2. Priorize alimentos de alta densidade calórica</h3>
-  <p>Quanto mais volume de comida você precisar para bater as calorias, mais difícil fica para o sistema digestivo processar tudo — e mais desconfortável. Alimentos hipercalóricos (pasta de amendoim, azeite, oleaginosas, abacate, ovos, leite integral) permitem atingir o total calórico sem um volume absurdo de comida.</p>
+  <p>Quanto mais volume de comida você precisar para bater as calorias, mais difícil fica para o sistema digestivo processar tudo — e mais desconfortável. Alimentos hipercalóricos (pasta de amendoim, azeite, oleaginosas, abacate, ovos, leite integral) permitem <a href="/blog/como-comer-mais-sem-apetite" data-route>atingir o total calórico sem um volume absurdo de comida</a>.</p>
 
   <h3>3. Minimize o cardio desnecessário</h3>
   <p>Cada sessão de cardio que você faz queima calorias que poderiam estar no superávit. Hardgainers com metabolismo acelerado devem limitar o cardio ao mínimo necessário para saúde cardiovascular — 2 sessões de 20 a 30 minutos de baixa intensidade por semana é suficiente. Se fizer mais, compense com calorias adicionais.</p>
 
   <h3>4. Concentre a maior parte das calorias nas refeições sólidas</h3>
-  <p>Shakes são úteis, mas alimentos sólidos têm maior efeito térmico dos alimentos (TEF) — o que na prática significa que uma parte das calorias é "gasta" na digestão. Para hardgainers, isso não é necessariamente ruim, mas convém ter a maioria das calorias em refeições sólidas estruturadas e reservar os shakes para complementar.</p>
+  <p>Shakes são úteis, mas alimentos sólidos têm maior efeito térmico dos alimentos (TEF) — o que na prática significa que uma parte das calorias é "gasta" na digestão. Para hardgainers, isso não é necessariamente ruim, mas convém ter a maioria das calorias em <a href="/blog/frequencia-refeicoes-hardgainer" data-route>refeições sólidas estruturadas</a> e reservar os shakes para complementar.</p>
 
   <h3>5. Rastreie o peso e ajuste sem hesitar</h3>
   <p>Metabolismo acelerado significa que os ajustes calóricos precisam acontecer com mais frequência do que para pessoas com metabolismo normal. Se o peso não subiu após 2 semanas, aumente as calorias. Sem rastreamento, você não tem dados para decidir quando ajustar.</p>
@@ -1581,7 +1581,7 @@ export const BLOG_POSTS = [
   <h2 id="para-hardgainer">O que funciona melhor para hardgainers</h2>
   <p>O argumento clássico a favor do dirty bulk para hardgainers é: "ele tem tanta dificuldade de ganhar que precisa comer tudo o que encontrar". Há uma lógica nisso — mas é parcialmente incorreta.</p>
   <p>A verdade é que <strong>o músculo só cresce a uma certa taxa máxima</strong>, independentemente do superávit. Pesquisas sugerem que um iniciante avançado pode ganhar no máximo 1 a 2kg de músculo puro por mês — e para hardgainers, frequentemente a taxa máxima é a metade disso.</p>
-  <p>Isso significa que um superávit de 1200 kcal não vai fazer você crescer mais músculo do que um superávit de 400 kcal — vai apenas garantir que você acumule muito mais gordura junto. O excedente de calorias acima do necessário para a síntese proteica máxima vai para a gordura, não para o músculo.</p>
+  <p>Isso significa que um <a href="/blog/superavit-calorico-hardgainer" data-route>superávit de 1200 kcal não vai fazer você crescer mais músculo do que um superávit de 400 kcal</a> — vai apenas garantir que você acumule muito mais gordura junto. O excedente de calorias acima do necessário para a síntese proteica máxima vai para a gordura, não para o músculo.</p>
   <p>Para hardgainers, o bulk limpo é a estratégia superior na grande maioria dos casos.</p>
 
   <h2 id="hibrido">A abordagem híbrida: o melhor dos dois mundos</h2>
@@ -1589,7 +1589,7 @@ export const BLOG_POSTS = [
   <ul>
     <li><strong>Base de bulk limpo:</strong> superávit de 400 a 500 kcal, alimentos de qualidade como base</li>
     <li><strong>Flexibilidade calórica:</strong> sem paranoia com refeições fora do padrão — um jantar especial ou um lanche diferente não arruína o progresso</li>
-    <li><strong>Foco na qualidade da proteína:</strong> mesmo que as calorias venham de fontes variadas, garantir os 2g/kg de proteína é inegociável</li>
+    <li><strong>Foco na qualidade da proteína:</strong> mesmo que as calorias venham de fontes variadas, garantir os <a href="/blog/macros-para-ectomorfo" data-route>2g/kg de proteína</a> é inegociável</li>
     <li><strong>Ajuste rápido quando necessário:</strong> se o peso estagnado por 2 semanas, adicione 200 kcal extras de onde for conveniente — incluindo alimentos menos "limpos" se necessário</li>
   </ul>
   <p>Essa abordagem dá ao hardgainer a disciplina do bulk limpo com a praticidade de não precisar ser perfeito em cada refeição.</p>
@@ -1621,7 +1621,7 @@ export const BLOG_POSTS = [
     <li>Necessidade de cutting: 4 a 6 meses para chegar na mesma composição corporal do bulk limpo</li>
   </ul>
 
-  <p>A conclusão é clara: o ganho muscular real é praticamente o mesmo. A diferença é apenas quanto de gordura você acumula junto — e quanto tempo vai precisar de cutting depois para tirar essa gordura.</p>
+  <p>A conclusão é clara: o <a href="https://pubmed.ncbi.nlm.nih.gov/31247944/" target="_blank" rel="noopener noreferrer">ganho muscular real é praticamente o mesmo</a>. A diferença é apenas quanto de gordura você acumula junto — e quanto tempo vai precisar de cutting depois para tirar essa gordura.</p>
 
   <h2 id="conclusao">Conclusão</h2>
   <p>Para hardgainers, o bulk limpo com superávit de 400 a 500 kcal é a estratégia superior na grande maioria dos casos. O dirty bulk ganha na balança mas não ganha em músculo real — e cria um problema (gordura acumulada) que vai exigir meses de cutting para resolver.</p>
@@ -1691,7 +1691,7 @@ export const BLOG_POSTS = [
   <p>Importante: whey é proteína concentrada, não "anabolizante". O músculo que vai crescer vem do treino e do superávit calórico total — o whey é só uma fonte prática de proteína.</p>
 
   <h3>Creatina monoidratada</h3>
-  <p>A creatina é o suplemento mais estudado da história da nutrição esportiva, com centenas de estudos confirmando a sua eficácia. Para hardgainers especificamente, pode ser ainda mais valiosa do que para pessoas com maior facilidade de ganhar massa.</p>
+  <p>A creatina é o <a href="https://pubmed.ncbi.nlm.nih.gov/28615996/" target="_blank" rel="noopener noreferrer">suplemento mais estudado da história da nutrição esportiva</a>, com centenas de estudos confirmando a sua eficácia. Para hardgainers especificamente, pode ser ainda mais valiosa do que para pessoas com maior facilidade de ganhar massa.</p>
   <p>Como funciona: a creatina aumenta os estoques de fosfocreatina muscular, que é o substrato energético usado nos primeiros segundos de esforço máximo (as repetições mais pesadas de uma série). Com mais fosfocreatina disponível, você consegue fazer mais repetições na zona de alta intensidade.</p>
   <p>Resultados típicos com creatina:</p>
   <ul>
@@ -1935,7 +1935,7 @@ export const BLOG_POSTS = [
   <h2 id="5-refeicoes">A abordagem de 5 a 6 refeições</h2>
   <p>Para quem tem rotina que permite e naturalmente se adapta a comer mais vezes:</p>
   <ul>
-    <li><strong>Café da manhã (600 kcal):</strong> 07h00</li>
+    <li><strong><a href="/blog/plano-alimentar-14-dias-ectomorfo" data-route>Café da manhã</a> (600 kcal):</strong> 07h00</li>
     <li><strong>Lanche 1 (400 kcal):</strong> 10h00</li>
     <li><strong>Almoço (800 kcal):</strong> 13h00</li>
     <li><strong>Lanche pré-treino (350 kcal):</strong> 16h00</li>
@@ -1968,7 +1968,7 @@ export const BLOG_POSTS = [
 
   <h2 id="conclusao">Conclusão</h2>
   <p>Para hardgainers, a frequência ideal de refeições é de <strong>4 a 5 por dia</strong> — incluindo shakes e lanches como refeições. Isso facilita bater o total calórico diário sem sobrecarregar o estômago em cada momento, e distribui a proteína de forma otimizada para máxima síntese proteica muscular.</p>
-  <p>O mais importante continua sendo o total diário de calorias e proteína — a frequência é um meio para atingir esse total de forma mais confortável e eficaz. E para saber qual é o seu total diário, a calculadora abaixo resolve isso em minutos.</p>
+  <p>O mais importante continua sendo o <a href="/blog/rastrear-macros-por-que-importante" data-route>total diário de calorias e proteína</a> — a frequência é um meio para atingir esse total de forma mais confortável e eficaz. E para saber qual é o seu total diário, a calculadora abaixo resolve isso em minutos.</p>
 
   <div class="article-cta-final">
     <h3>Calcule as suas calorias e distribua nas refeições</h3>
@@ -2031,7 +2031,7 @@ export const BLOG_POSTS = [
   <p>O sono profundo ocorre principalmente nas primeiras 3 a 4 horas da noite — por isso dormir cedo é mais importante do que dormir tarde para compensar. Ir para a cama às 23h e acordar às 7h dá muito mais sono profundo do que ir às 2h e acordar às 10h, mesmo com 8 horas totais.</p>
 
   <h2 id="testosterona">Testosterona e privação de sono</h2>
-  <p>Um estudo publicado no JAMA Internal Medicine mostrou que homens jovens saudáveis que dormiram apenas 5 horas por noite durante uma semana tiveram redução de 10 a 15% nos níveis de testosterona — equivalente ao envelhecimento de 10 a 15 anos.</p>
+  <p>Um <a href="https://pubmed.ncbi.nlm.nih.gov/24235903/" target="_blank" rel="noopener noreferrer">estudo publicado no JAMA Internal Medicine</a> mostrou que homens jovens saudáveis que dormiram apenas 5 horas por noite durante uma semana tiveram redução de 10 a 15% nos níveis de testosterona — equivalente ao envelhecimento de 10 a 15 anos.</p>
   <p>A testosterona é fundamental para hipertrofia muscular: estimula a síntese proteica, aumenta o recrutamento de células satélite (responsáveis pelo reparo e crescimento muscular) e melhora a recuperação.</p>
   <p>Para hardgainers, que muitas vezes têm naturalmente níveis de testosterona no limite inferior da faixa normal, essa redução adicional causada pelo sono ruim pode ser especialmente prejudicial.</p>
 
@@ -2049,11 +2049,11 @@ export const BLOG_POSTS = [
     <li>Piora da sensibilidade à insulina — o corpo usa carboidrato com menos eficiência</li>
     <li>Redução da síntese proteica muscular — anabolismo e catabolismo competem, e o cortisol eleva o catabólico</li>
   </ul>
-  <p>Em prática: um hardgainer que dorme 5 horas por noite pode estar comendo e treinando certo mas perdendo músculo durante o sono em vez de ganhando — porque o cortisol elevado supera o anabolismo do GH reduzido.</p>
+  <p>Em prática: um hardgainer que dorme 5 horas por noite pode estar <a href="/blog/erros-hardgainer-nao-ganha-massa" data-route>comendo e treinando certo mas perdendo músculo</a> durante o sono em vez de ganhando — porque o cortisol elevado supera o anabolismo do GH reduzido.</p>
 
   <h2 id="sintese">Síntese proteica muscular durante o sono</h2>
   <p>A síntese proteica muscular (SPM) — o processo de construção de novo tecido muscular — não para durante o sono. Na verdade, é durante as horas de sono que grande parte do crescimento real acontece, usando os aminoácidos das refeições do dia.</p>
-  <p>Um estudo relevante mostrou que consumir 40g de proteína de caseína antes de dormir aumentou a SPM durante a noite em 22% comparado com não consumir proteína. Para hardgainers, isso é significativo.</p>
+  <p>Um estudo relevante mostrou que consumir 40g de <a href="/blog/proteina-diaria-hardgainer" data-route>proteína de caseína</a> antes de dormir aumentou a SPM durante a noite em 22% comparado com não consumir proteína. Para hardgainers, isso é significativo.</p>
   <p>A janela noturna de 7 a 9 horas é uma oportunidade anabólica longa — mas só se o sono for de qualidade e houver aminoácidos disponíveis (daí a importância da refeição antes de dormir com proteína).</p>
 
   <h2 id="quanto">Quanto sono um hardgainer precisa</h2>
@@ -2140,7 +2140,7 @@ export const BLOG_POSTS = [
 
   <h2 id="por-que">Por que hardgainers precisam rastrear mais do que ninguém</h2>
   <p>Para alguém com tendência a ganhar peso facilmente, errar 200 kcal para baixo num dia não faz grande diferença — o corpo ainda fica em superávit. Para um hardgainer com metabolismo acelerado, esses 200 kcal podem ser a diferença entre superávit e manutenção.</p>
-  <p>Além disso, a percepção do quanto se come é notoriamente imprecisa. Estudos mostram que pessoas sistematicamente subestimam a ingestão calórica em 20 a 50% quando estimam "no olho". Para um hardgainer que precisa de 3200 kcal, uma subestimativa de 30% significa que está comendo apenas 2240 kcal — 960 kcal abaixo da meta sem saber.</p>
+  <p>Além disso, a percepção do quanto se come é notoriamente imprecisa. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3943438/" target="_blank" rel="noopener noreferrer">Estudos mostram que pessoas sistematicamente subestimam a ingestão calórica</a> em 20 a 50% quando estimam "no olho". Para um hardgainer que precisa de 3200 kcal, uma subestimativa de 30% significa que está comendo apenas 2240 kcal — 960 kcal abaixo da meta sem saber.</p>
   <p>Rastrear elimina essa imprecisão. Você sabe exatamente o que está comendo — e pode ajustar com base em dados reais, não em suposições.</p>
 
   <h2 id="o-que-descobrir">O que você vai descobrir quando começar a rastrear</h2>
@@ -2197,7 +2197,7 @@ export const BLOG_POSTS = [
   <ul>
     <li><strong>Primeiras 4 a 8 semanas:</strong> rastreamento rigoroso de tudo, pesando os alimentos. O objetivo é descobrir onde estão os problemas e calibrar a percepção das porções.</li>
     <li><strong>Meses 2 a 6:</strong> rastreamento mais relaxado. Você já conhece os valores dos seus alimentos habituais, pesa apenas o que tem mais dúvida, estima o resto com precisão razoável.</li>
-    <li><strong>Depois de 6 meses:</strong> muitos hardgainers conseguem "intuir" a alimentação com razoável precisão e rastreiam apenas quando sentem que algo está fora. Voltam ao rastreamento rigoroso quando o progresso estagna.</li>
+    <li><strong>Depois de 6 meses:</strong> muitos hardgainers conseguem "intuir" a alimentação com razoável precisão e rastreiam apenas quando sentem que algo está fora. Voltam ao rastreamento rigoroso quando <a href="/blog/ajustar-calorias-sem-resultado" data-route>o progresso estagna</a>.</li>
   </ul>
 
   <h2 id="sem-enlouquecer">Como rastrear sem enlouquecer</h2>
@@ -2211,7 +2211,7 @@ export const BLOG_POSTS = [
   </ul>
 
   <h2 id="conclusao">Conclusão</h2>
-  <p>Rastrear macros é a ferramenta mais poderosa que um hardgainer tem para identificar e corrigir o que está impedindo o crescimento. Sem dados, você está tentando resolver um problema sem saber onde ele está.</p>
+  <p>Rastrear <a href="/blog/macros-para-ectomorfo" data-route>macros</a> é a ferramenta mais poderosa que um hardgainer tem para identificar e corrigir o que está impedindo o crescimento. Sem dados, você está tentando resolver um problema sem saber onde ele está.</p>
   <p>Não precisa ser para sempre — mas nas primeiras semanas e sempre que o progresso estagna, o rastreamento é indispensável. E para ter as metas certas para rastrear em relação a elas, a calculadora abaixo define isso em minutos.</p>
 
   <div class="article-cta-final">
@@ -2263,7 +2263,7 @@ export const BLOG_POSTS = [
     <li><strong>Sono insuficiente:</strong> sabota o GH e a testosterona, limitando o anabolismo</li>
     <li><strong>Estresse crônico:</strong> cortisol elevado compete com o ambiente anabólico necessário para crescer</li>
   </ol>
-  <p>O diagnóstico começa com dados. Se você não está rastreando, começa aí.</p>
+  <p>O diagnóstico começa com dados. Se você não está <a href="/blog/rastrear-macros-por-que-importante" data-route>rastreando</a>, começa aí.</p>
 
   <h2 id="verificar">O que verificar primeiro</h2>
   <p>Antes de mudar qualquer coisa, colete dados por 1 semana:</p>
@@ -2290,7 +2290,7 @@ export const BLOG_POSTS = [
   <p>Aumentos grandes de calorias de uma vez causam três problemas: desconforto digestivo, aumento rápido de gordura se o aumento foi além do necessário, e dificuldade de identificar o ponto exato onde o superávit voltou a ser real. Aumentos de 200 kcal a cada 2 semanas são precisos e confortáveis.</p>
 
   <h3>Recalcule o TDEE quando ganhar peso</h3>
-  <p>A cada 3 a 5kg de ganho, o seu TDEE aumentou — você pesa mais, então queima mais em repouso e em atividade. Recalcule o TDEE e ajuste a meta calórica. Muitos hardgainers estão em platô simplesmente porque não ajustaram as calorias após ganhar peso.</p>
+  <p>A cada 3 a 5kg de ganho, o seu TDEE aumentou — você pesa mais, então queima mais em repouso e em atividade. Recalcule o TDEE e ajuste a <a href="/blog/superavit-calorico-hardgainer" data-route>meta calórica</a>. Muitos hardgainers estão em platô simplesmente porque não ajustaram as calorias após ganhar peso.</p>
 
   <div class="article-cta-inline">
     <p>Recalcule as suas calorias com o peso atual para sair do platô</p>
@@ -2342,7 +2342,7 @@ export const BLOG_POSTS = [
   </ul>
 
   <h2 id="conclusao">Conclusão</h2>
-  <p>Platô de ganho de massa em hardgainers quase sempre tem causa identificável e solução direta. O protocolo é simples: coletar dados, identificar onde está o problema (calorias, proteína, treino ou sono) e corrigir um fator de cada vez, dando tempo suficiente para observar o resultado.</p>
+  <p>Platô de ganho de massa em hardgainers quase sempre tem causa identificável e solução direta. O protocolo é simples: coletar dados, identificar onde está o <a href="/blog/erros-hardgainer-nao-ganha-massa" data-route>problema</a> (calorias, proteína, treino ou sono) e corrigir um fator de cada vez, dando tempo suficiente para observar o resultado.</p>
   <p>O primeiro ajuste, na grande maioria dos casos, é calórico — mais calorias. Para saber qual deveria ser a sua meta atual com o peso que você está agora, recalcule abaixo.</p>
 
   <div class="article-cta-final">
@@ -2367,7 +2367,7 @@ export const BLOG_POSTS = [
     publishDate: '2026-08-19',
     excerpt: 'Ganhar massa sendo hardgainer já é difícil — não precisa ser caro. Veja os alimentos mais baratos e calóricos, como planejar as compras e um cardápio semanal econômico mas eficaz.',
     content: `<article class="blog-article">
-  <p class="article-intro">Um dos mitos mais persistentes no mundo do fitness é que comer bem para ganhar massa custa muito dinheiro. Frango orgânico, suplementos caros, proteínas exóticas. A realidade é que os alimentos mais eficazes para hardgainers ganhar massa estão entre os mais acessíveis nos mercados — e com planejamento, dá para montar uma dieta de 3000+ kcal com custo muito razoável.</p>
+  <p class="article-intro">Um dos mitos mais persistentes no mundo do fitness é que comer bem para ganhar massa custa muito dinheiro. Frango orgânico, suplementos caros, proteínas exóticas. A realidade é que os <a href="/blog/alimentos-hipercaloricos-saudaveis" data-route>alimentos mais eficazes para hardgainers ganhar massa</a> estão entre os mais acessíveis nos mercados — e com planejamento, dá para montar uma dieta de 3000+ kcal com custo muito razoável.</p>
 
   <nav class="article-toc">
     <p class="toc-title">Neste artigo:</p>
@@ -2396,7 +2396,7 @@ export const BLOG_POSTS = [
   <h2 id="proteinas-baratas">As proteínas mais baratas</h2>
 
   <h3>Ovo inteiro — custo-benefício imbatível</h3>
-  <p>O ovo é a proteína de melhor custo-benefício disponível — não existe nada parecido. Uma dúzia de ovos fornece 72g de proteína de altíssimo valor biológico. É versátil (mexido, cozido, omelete, shake), tem gordura boa na gema, e é rápido de preparar.</p>
+  <p>O ovo é a proteína de melhor custo-benefício disponível — não existe nada parecido. Uma dúzia de ovos fornece 72g de <a href="https://examine.com/topics/protein-intake/" target="_blank" rel="noopener noreferrer">proteína de altíssimo valor biológico</a>. É versátil (mexido, cozido, omelete, shake), tem gordura boa na gema, e é rápido de preparar.</p>
   <p>Meta: 3 a 4 ovos por dia como base da proteína.</p>
 
   <h3>Atum em lata</h3>
@@ -2477,7 +2477,7 @@ export const BLOG_POSTS = [
   <h3>Jantar (todos os dias)</h3>
   <p>3 ovos + arroz ou macarrão + salada com azeite (±600 kcal)</p>
 
-  <p>Total aproximado: 2630 a 2880 kcal/dia. Para chegar a 3000+ kcal, adicione um shake com leite + aveia + amendoim após o treino (~450 kcal).</p>
+  <p>Total aproximado: 2630 a 2880 kcal/dia. Para chegar a 3000+ kcal, adicione um <a href="/blog/batido-hipercalorico-receitas" data-route>shake com leite + aveia + amendoim</a> após o treino (~450 kcal).</p>
 
   <h2 id="dicas-economia">Dicas para economizar mais</h2>
   <ul>
@@ -2547,7 +2547,7 @@ export const BLOG_POSTS = [
   <p>Atingir 3200 kcal em 3 refeições sólidas exige comer 1067 kcal por refeição em média. Para um hardgainer com estômago pequeno ou apetite baixo, isso é genuinamente difícil. Os shakes complementam o total sem exigir mais volume sólido.</p>
 
   <h3>Problema 2: Frequência de proteína</h3>
-  <p>Para maximizar a síntese proteica muscular, é ideal ter pelo menos 4 a 5 momentos de ingestão de proteína ao longo do dia, com 25 a 40g cada. Com apenas 3 refeições, é difícil distribuir 150g+ de proteína de forma otimizada. Os 3 shakes adicionam 3 momentos extras de proteína — resolvendo isso completamente.</p>
+  <p>Para maximizar a síntese proteica muscular, é ideal ter pelo menos <a href="/blog/frequencia-refeicoes-hardgainer" data-route>4 a 5 momentos de ingestão de proteína ao longo do dia</a>, com 25 a 40g cada. Com apenas 3 refeições, é difícil distribuir 150g+ de proteína de forma otimizada. Os 3 shakes adicionam 3 momentos extras de proteína — resolvendo isso completamente.</p>
 
   <h2 id="estrutura">A estrutura do sistema: 3+3</h2>
   <p>O sistema é organizado em 6 momentos ao longo do dia, alternando refeição sólida e shake:</p>
@@ -2593,14 +2593,14 @@ export const BLOG_POSTS = [
   <p><strong>Objetivo:</strong> maximizar a recuperação e síntese proteica no momento mais importante do dia.</p>
   <p><strong>Composição:</strong> 350ml de leite integral + 40g de whey protein + 1 banana grande + 20g de aveia + 1 colher de pasta de amendoim</p>
   <p><strong>Macros:</strong> ~700 kcal | 52g proteína | 75g carb | 18g gordura</p>
-  <p>Este é o shake mais importante do sistema. A combinação de whey (rápida absorção) + leite (caseína, lenta absorção) + carboidrato de rápida digestão otimiza a janela anabólica pós-treino.</p>
+  <p>Este é o shake mais importante do sistema. A combinação de whey (rápida absorção) + leite (caseína, lenta absorção) + carboidrato de rápida digestão otimiza a <a href="/blog/batido-hipercalorico-receitas" data-route>janela anabólica pós-treino</a>.</p>
   <p>Se o treino é de manhã, este shake vira o Shake 2 às 10h e o Shake 1 às 16h. O importante é que o shake mais completo seja sempre o pós-treino.</p>
 
   <h3>Shake 3 — Antes de dormir (21h30-22h00) — Noturno</h3>
   <p><strong>Objetivo:</strong> fornecer proteína de digestão lenta para sustentar a síntese proteica muscular durante as 7 a 9 horas de sono.</p>
   <p><strong>Composição:</strong> 200ml de leite integral + 200g de iogurte grego integral + 1 colher de pasta de amendoim + 1 colher de cacau em pó</p>
   <p><strong>Macros:</strong> ~430 kcal | 32g proteína | 25g carb | 20g gordura</p>
-  <p>O iogurte grego é rico em caseína — proteína que digere lentamente e libera aminoácidos de forma gradual durante horas. Ideal para a janela noturna.</p>
+  <p>O iogurte grego é rico em <a href="https://pubmed.ncbi.nlm.nih.gov/22289570/" target="_blank" rel="noopener noreferrer">caseína — proteína que digere lentamente</a> e libera aminoácidos de forma gradual durante horas. Ideal para a janela noturna.</p>
 
   <p>Total dos 3 shakes: 1680 kcal | 126g proteína</p>
 
