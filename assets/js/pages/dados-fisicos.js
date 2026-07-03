@@ -28,6 +28,9 @@ function renderHomeBlogSection() {
       <div class="home-blog-grid">
         ${recent.map(p => `
           <a href="/blog/${p.slug}" data-route class="home-blog-card">
+            <div class="home-blog-card-thumb">
+              <img src="${p.heroImage}" alt="${p.title}" loading="lazy" width="400" height="225" />
+            </div>
             <span class="blog-card-cat">${p.category}</span>
             <span class="home-blog-card-title">${p.title}</span>
             <span class="home-blog-card-excerpt">${p.excerpt}</span>

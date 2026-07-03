@@ -34,6 +34,9 @@ function formatDate(iso) {
 function renderCard(post) {
   return `
     <a href="/blog/${post.slug}" data-route class="blog-card" data-category="${post.category}">
+      <div class="blog-card-thumb">
+        <img src="${post.heroImage}" alt="${post.title}" loading="lazy" width="400" height="225" />
+      </div>
       <span class="blog-card-cat">${post.category}</span>
       <h2 class="blog-card-title">${post.title}</h2>
       <p class="blog-card-excerpt">${post.excerpt}</p>
@@ -263,6 +266,9 @@ export function renderBlogPostPage(mount) {
             <span class="blog-card-read">${post.readTime} min de leitura</span>
           </div>
         </header>
+        <div class="blog-post-hero">
+          <img src="${post.heroImage}" alt="${post.title}" loading="lazy" width="1200" height="675" />
+        </div>
         <div class="blog-post-content">
           ${post.content}
         </div>

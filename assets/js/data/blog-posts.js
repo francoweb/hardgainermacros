@@ -14,6 +14,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'o-que-e-hardgainer',
+    heroImage: '/assets/images/blog/hero-o-que-e-hardgainer.webp',
     title: 'O que é Hardgainer? Guia Completo para Ectomorfos',
     metaDescription: 'Descubra o que é ser hardgainer e ectomorfo: características, desafios e como superar a dificuldade de ganhar massa muscular com nutrição e treino adequados.',
     metaKeywords: ['hardgainer', 'ectomorfo', 'dificuldade ganhar massa', 'biotipo ectomorfo', 'ganhar músculo'],
@@ -122,6 +123,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'calcular-calorias-hardgainer',
+    heroImage: '/assets/images/blog/hero-calcular-calorias-hardgainer.webp',
     title: 'Como Calcular as Calorias Ideais para Hardgainer',
     metaDescription: 'Aprenda a calcular as calorias ideais para hardgainer ganhar massa: TDEE, superávit calórico e exemplos práticos com números reais para ectomorfos.',
     metaKeywords: ['calorias hardgainer', 'calculadora calorias ectomorfo', 'quantas calorias ganhar massa', 'TDEE hardgainer', 'superávit calórico'],
@@ -255,6 +257,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'macros-para-ectomorfo',
+    heroImage: '/assets/images/blog/hero-macros-para-ectomorfo.webp',
     title: 'Macros para Ectomorfo: Proteína, Carboidrato e Gordura Ideais',
     metaDescription: 'Descubra os macros ideais para ectomorfo ganhar massa: quanto de proteína, carboidrato e gordura consumir por dia, com exemplos práticos e distribuição nas refeições.',
     metaKeywords: ['macros ectomorfo', 'proteína hardgainer', 'carboidrato ganho massa', 'macronutrientes', 'distribuição macros'],
@@ -401,6 +404,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'superavit-calorico-hardgainer',
+    heroImage: '/assets/images/blog/hero-superavit-calorico-hardgainer.webp',
     title: 'Superávit Calórico para Hardgainer: Quanto é Ideal?',
     metaDescription: 'Descubra quanto de superávit calórico o hardgainer precisa para ganhar massa sem acumular gordura excessiva. Bulk limpo com números reais e estratégia prática.',
     metaKeywords: ['superávit calórico', 'bulk limpo', 'quantas calorias a mais', 'ganhar massa sem gordura', 'bulk hardgainer'],
@@ -523,6 +527,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'plano-alimentar-14-dias-ectomorfo',
+    heroImage: '/assets/images/blog/hero-plano-alimentar-14-dias-ectomorfo.webp',
     title: 'Plano Alimentar de 14 Dias para Ectomorfo: Exemplo Completo',
     metaDescription: 'Plano alimentar completo de 14 dias para ectomorfo ganhar massa: refeições diárias com calorias, proteína, carboidrato e gordura. Cardápio prático e variado.',
     metaKeywords: ['plano alimentar ectomorfo', 'dieta hardgainer', 'cardápio 14 dias ganho massa', 'exemplo alimentação hardgainer', 'refeições ectomorfo'],
@@ -727,6 +732,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'alimentos-hipercaloricos-saudaveis',
+    heroImage: '/assets/images/blog/hero-alimentos-hipercaloricos-saudaveis.webp',
     title: '15 Alimentos Hipercalóricos Saudáveis para Hardgainers',
     metaDescription: 'Descubra os 15 melhores alimentos hipercalóricos e saudáveis para hardgainers ganharem massa: opções densas em calorias e nutrientes para facilitar o superávit diário.',
     metaKeywords: ['alimentos hipercalóricos', 'comida para ganhar massa', 'alimentos ectomorfo', 'caloria densa', 'alimentos saudáveis hardgainer'],
@@ -833,6 +839,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'batido-hipercalorico-receitas',
+    heroImage: '/assets/images/blog/hero-batido-hipercalorico-receitas.webp',
     title: '10 Receitas de Batido Hipercalórico para Hardgainer',
     metaDescription: '10 receitas de batido hipercalórico para hardgainer ganhar massa: shakes com 500 a 900 kcal, ricos em proteína e carboidrato, práticos e saborosos.',
     metaKeywords: ['batido hipercalórico', 'shake ganhar massa', 'receita shake ectomorfo', 'shake hipercalórico caseiro', 'smoothie hardgainer'],
@@ -1009,6 +1016,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'proteina-diaria-hardgainer',
+    heroImage: '/assets/images/blog/hero-proteina-diaria-hardgainer.webp',
     title: 'Quantos Gramas de Proteína por Dia para Hardgainer?',
     metaDescription: 'Descubra quantos gramas de proteína por dia um hardgainer precisa para ganhar massa: valores por kg de peso, melhores fontes e como distribuir ao longo do dia.',
     metaKeywords: ['proteína diária hardgainer', 'quanto de proteína ganhar massa', 'gramas proteína kg', 'proteína ectomorfo', 'fontes de proteína'],
@@ -1135,6 +1143,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'treino-ectomorfo-ganhar-massa',
+    heroImage: '/assets/images/blog/hero-treino-ectomorfo-ganhar-massa.webp',
     title: 'Treino para Ectomorfo: O Método que Realmente Funciona',
     metaDescription: 'Descubra como deve ser o treino para ectomorfo ganhar massa: volume, frequência, exercícios compostos, progressão de carga e os erros a evitar na musculação.',
     metaKeywords: ['treino ectomorfo', 'musculação hardgainer', 'exercício ganhar massa ectomorfo', 'treino hardgainer', 'progressão de carga'],
@@ -1284,6 +1293,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'erros-hardgainer-nao-ganha-massa',
+    heroImage: '/assets/images/blog/hero-erros-hardgainer-nao-ganha-massa.webp',
     title: '8 Erros que Impedem o Hardgainer de Ganhar Massa Muscular',
     metaDescription: 'Os 8 erros mais comuns que impedem o hardgainer de ganhar massa muscular — e como corrigir cada um. Identifique o que está travando o seu progresso e resolva agora.',
     metaKeywords: ['por que não consigo ganhar massa', 'erros hardgainer', 'dificuldade ganhar músculo', 'hardgainer sem resultado', 'erros musculação ectomorfo'],
@@ -1383,6 +1393,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'metabolismo-acelerado-como-lidar',
+    heroImage: '/assets/images/blog/hero-metabolismo-acelerado-como-lidar.webp',
     title: 'Metabolismo Acelerado: Como o Ectomorfo Pode Vencer a Genética',
     metaDescription: 'Entenda por que o ectomorfo tem metabolismo acelerado e como usar estratégias práticas de nutrição e estilo de vida para vencer a genética e ganhar massa muscular.',
     metaKeywords: ['metabolismo acelerado', 'ectomorfo metabolismo', 'como engordar metabolismo rápido', 'vencer genética hardgainer', 'metabolismo basal'],
@@ -1490,6 +1501,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'bulk-limpo-vs-dirty-bulk',
+    heroImage: '/assets/images/blog/hero-bulk-limpo-vs-dirty-bulk.webp',
     title: 'Bulk Limpo vs Dirty Bulk: Qual é Melhor para Hardgainers?',
     metaDescription: 'Bulk limpo ou dirty bulk para hardgainer? Compare as duas abordagens com prós, contras e números reais. Descubra qual estratégia funciona melhor para ectomorfos.',
     metaKeywords: ['bulk limpo', 'dirty bulk', 'bulk ectomorfo', 'ganhar massa sem barriga', 'bulk hardgainer'],
@@ -1628,6 +1640,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'suplementos-hardgainer',
+    heroImage: '/assets/images/blog/hero-suplementos-hardgainer.webp',
     title: 'Suplementos para Hardgainer: O que Funciona de Verdade?',
     metaDescription: 'Guia completo de suplementos para hardgainer: o que a ciência comprova, o que é marketing e o que você realmente precisa para ganhar massa como ectomorfo.',
     metaKeywords: ['suplementos hardgainer', 'whey protein ectomorfo', 'creatina ganho massa', 'hipercalórico', 'suplementos musculação'],
@@ -1751,6 +1764,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'como-comer-mais-sem-apetite',
+    heroImage: '/assets/images/blog/hero-como-comer-mais-sem-apetite.webp',
     title: 'Como Comer Mais Sendo Hardgainer Sem Apetite',
     metaDescription: 'Estratégias práticas para hardgainers comerem mais calorias mesmo sem apetite: técnicas de aumento gradual, alimentos certos, timing e truques que realmente funcionam.',
     metaKeywords: ['como comer mais', 'falta de apetite hardgainer', 'truques comer mais calorias', 'aumentar apetite', 'hardgainer sem fome'],
@@ -1861,6 +1875,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'frequencia-refeicoes-hardgainer',
+    heroImage: '/assets/images/blog/hero-frequencia-refeicoes-hardgainer.webp',
     title: 'Quantas Refeições por Dia para Hardgainer?',
     metaDescription: 'Descubra quantas refeições por dia um hardgainer precisa para ganhar massa: 3 ou 6 refeições, o que a ciência diz e como estruturar o timing ideal para ectomorfos.',
     metaKeywords: ['frequência refeições', 'quantas vezes comer', 'refeições ectomorfo', 'horário refeições hardgainer', 'meal frequency'],
@@ -1968,6 +1983,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'sono-recuperacao-ganho-massa',
+    heroImage: '/assets/images/blog/hero-sono-recuperacao-ganho-massa.webp',
     title: 'Por que o Sono é Essencial para o Hardgainer Ganhar Massa',
     metaDescription: 'Entenda por que o sono é fundamental para hardgainers ganharem massa muscular: GH, testosterona, recuperação e dicas práticas para melhorar a qualidade do sono.',
     metaKeywords: ['sono ganho massa', 'recuperação muscular', 'dormir ganhar músculo', 'descanso ectomorfo', 'hormônio do crescimento sono'],
@@ -2098,6 +2114,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'rastrear-macros-por-que-importante',
+    heroImage: '/assets/images/blog/hero-rastrear-macros-por-que-importante.webp',
     title: 'Por que Rastrear Macros é Essencial para o Hardgainer',
     metaDescription: 'Entenda por que rastrear macros é fundamental para hardgainers: como começar, quais ferramentas usar e como o tracking transforma resultados no ganho de massa muscular.',
     metaKeywords: ['rastrear macros', 'contar macros', 'diário alimentar hardgainer', 'tracking nutrição', 'aplicativo rastrear calorias'],
@@ -2210,6 +2227,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'ajustar-calorias-sem-resultado',
+    heroImage: '/assets/images/blog/hero-ajustar-calorias-sem-resultado.webp',
     title: 'Hardgainer sem Resultado? Como Ajustar Calorias e Macros',
     metaDescription: 'Se você é hardgainer e não está crescendo, aprenda como diagnosticar o problema e ajustar calorias, proteína e macros para sair do platô e voltar a ganhar massa.',
     metaKeywords: ['sem resultado ganho massa', 'ajustar dieta hardgainer', 'platô ganho muscular', 'hardgainer estagnado', 'como sair do platô'],
@@ -2340,6 +2358,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'cardapio-economico-hardgainer',
+    heroImage: '/assets/images/blog/hero-cardapio-economico-hardgainer.webp',
     title: 'Cardápio Barato para Hardgainer: Ganhar Massa sem Gastar Muito',
     metaDescription: 'Cardápio econômico para hardgainer ganhar massa: os alimentos mais baratos e calóricos, estratégias de compra e exemplo de cardápio semanal com custo reduzido.',
     metaKeywords: ['dieta barata hardgainer', 'ganhar massa economia', 'alimentação barata ectomorfo', 'cardápio econômico musculação', 'proteína barata'],
@@ -2487,6 +2506,7 @@ export const BLOG_POSTS = [
   // ─────────────────────────────────────────────────────────────────────────
   {
     slug: 'sistema-hibrido-hardgainer-explicado',
+    heroImage: '/assets/images/blog/hero-sistema-hibrido-hardgainer-explicado.webp',
     title: 'Sistema Híbrido para Hardgainers: O Método das 3 Refeições + 3 Shakes',
     metaDescription: 'Conheça o sistema híbrido para hardgainers: 3 refeições sólidas + 3 shakes estratégicos. Como estruturar, calcular e executar este método para ganhar massa com mais facilidade.',
     metaKeywords: ['sistema híbrido hardgainer', '3 refeições 3 shakes', 'método hardgainer macros', 'sistema alimentar ectomorfo', 'refeições e shakes ganho massa'],
