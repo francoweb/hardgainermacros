@@ -23,7 +23,7 @@ export function renderHeader() {
   nav.innerHTML = `
     <div class="header-inner">
       <a href="/" data-route class="header-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="header-logo-img" width="24" height="24" aria-label="Hardgainer Macros">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="header-logo-img" width="36" height="36" aria-label="Hardgainer Macros">
           <rect width="24" height="24" rx="6" fill="#c26d5a"/>
           <g fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14.4 14.4 9.6 9.6"/>
