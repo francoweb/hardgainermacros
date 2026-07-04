@@ -75,11 +75,13 @@ export function renderBlogPage(mount) {
 
   const categories = [...new Set(BLOG_POSTS.map(p => p.category))];
 
-  const filtersHtml = categories.map((cat, i) => `
-    <button class="blog-filter-btn${i === 0 ? ' active' : ''}" data-cat="${cat}">${cat}</button>
+  const filtersHtml = categories.map(cat => `
+    <button class="blog-filter-btn" data-cat="${cat}">${cat}</button>
   `).join('');
 
-  const cardsHtml = BLOG_POSTS.map(renderCard).join('');
+  let currentPage = 1;
+  const POSTS_PER_PAGE = 10;
+  let activeFilter = 'Todos';
 
   mount.innerHTML = `
     <div class="container">
@@ -95,52 +97,73 @@ export function renderBlogPage(mount) {
         </header>
 
         <div class="blog-filters" role="group" aria-label="Filtrar por categoria">
-          <button class="blog-filter-btn active" data-cat="__all__">Todos</button>
+          <button class="blog-filter-btn active" data-cat="Todos">Todos</button>
           ${filtersHtml}
         </div>
 
-        <div id="blog-grid" class="blog-grid">
-          ${cardsHtml}
-        </div>
-
-        <p id="blog-no-results" class="blog-no-results" style="display:none;">
-          Nenhum artigo encontrado nesta categoria.
-        </p>
+        <div class="blog-grid"></div>
+        <nav class="blog-pagination"></nav>
 
       </div>
     </div>
   `;
 
-  // ── Filtros ───────────────────────────────────────────────────────────────
-  const filterBtns = mount.querySelectorAll('.blog-filter-btn');
-  const cards      = mount.querySelectorAll('.blog-card');
-  const noResults  = document.getElementById('blog-no-results');
+  function renderGrid(filter, page) {
+    const filtered = filter === 'Todos'
+      ? BLOG_POSTS
+      : BLOG_POSTS.filter(p => p.category === filter);
 
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    const totalPages = Math.ceil(filtered.length / POSTS_PER_PAGE);
+    const start = (page - 1) * POSTS_PER_PAGE;
+    const paginated = filtered.slice(start, start + POSTS_PER_PAGE);
 
-      const cat = btn.dataset.cat;
-      let any = false;
-      cards.forEach(card => {
-        const match = cat === '__all__' || card.dataset.category === cat;
-        card.style.display = match ? '' : 'none';
-        if (match) any = true;
+    const grid = mount.querySelector('.blog-grid');
+    const paginationEl = mount.querySelector('.blog-pagination');
+
+    grid.innerHTML = paginated.length
+      ? paginated.map(p => `
+          <a href="/blog/${p.slug}" data-route class="blog-card">
+            ${p.heroImage ? `<div class="blog-card-thumb"><img src="${p.heroImage}" alt="${p.title}" loading="lazy" width="400" height="225" /></div>` : ''}
+            <span class="blog-card-cat">${p.category}</span>
+            <p class="blog-card-title">${p.title}</p>
+            <p class="blog-card-excerpt">${p.excerpt}</p>
+            <div class="blog-card-meta">
+              <span class="blog-card-date">${formatDate(p.publishDate)}</span>
+              <span class="blog-card-read">${p.readTime} min de leitura</span>
+            </div>
+          </a>
+        `).join('')
+      : `<p class="blog-no-results">Nenhum artigo encontrado nesta categoria.</p>`;
+
+    paginationEl.innerHTML = totalPages <= 1 ? '' : `
+      <button class="blog-page-btn" data-page="${page - 1}" ${page === 1 ? 'disabled' : ''}>← Anterior</button>
+      ${Array.from({ length: totalPages }, (_, i) => i + 1).map(n => `
+        <button class="blog-page-btn ${n === page ? 'active' : ''}" data-page="${n}">${n}</button>
+      `).join('')}
+      <button class="blog-page-btn" data-page="${page + 1}" ${page === totalPages ? 'disabled' : ''}>Próxima →</button>
+    `;
+
+    paginationEl.querySelectorAll('.blog-page-btn:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentPage = parseInt(btn.dataset.page);
+        renderGrid(activeFilter, currentPage);
+        mount.querySelector('.blog-listing').scrollIntoView({ behavior: 'smooth' });
       });
-      noResults.style.display = any ? 'none' : '';
+    });
+  }
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  mount.querySelectorAll('.blog-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.dataset.cat;
+      currentPage = 1;
+      mount.querySelectorAll('.blog-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid(activeFilter, currentPage);
     });
   });
 
-  // ── Navegação SPA nos cards ──────────────────────────────────────────────
-  // (o handler global do router já captura clicks em a[data-route],
-  //  mas garantimos que slugs com "/" também são tratados)
-  mount.querySelectorAll('.blog-card[data-route]').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      navigate(link.getAttribute('href'));
-    });
-  });
+  renderGrid(activeFilter, currentPage);
 }
 
 // ─── SEO meta dinâmico (OG + Twitter Card + Schema.org + canonical) ───────────

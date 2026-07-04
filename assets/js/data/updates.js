@@ -15,6 +15,15 @@ export const UPDATES = [
   {
     date: '2026-07-04',
     type: 'Melhoria',
+    title: 'Paginação na listagem do blog',
+    description:
+      'A página do blog agora mostra 10 artigos por vez, com botões de navegação entre páginas. Os filtros por categoria continuam funcionando e repõem automaticamente para a primeira página.',
+    tags: ['Blog', 'Navegação'],
+    highlight: false,
+  },
+  {
+    date: '2026-07-04',
+    type: 'Melhoria',
     title: 'Artigos relacionados com imagem e mais sugestões',
     description:
       'Cada artigo do blog agora exibe 4 sugestões de artigos relacionados (em vez de 3) e cada sugestão inclui a imagem de capa para facilitar a navegação. A página inicial também passou a mostrar 4 artigos recentes do blog.',

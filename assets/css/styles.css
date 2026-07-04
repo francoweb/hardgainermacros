@@ -2827,3 +2827,9 @@ body { max-width: 100%; overflow-x: hidden; }
 .blog-related-thumb { width: calc(100% + 40px); margin: -20px -20px 12px; aspect-ratio: 16/9; overflow: hidden; border-radius: var(--r-md) var(--r-md) 0 0; }
 .blog-related-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
 .blog-related-card:hover .blog-related-thumb img { transform: scale(1.04); }
+
+.blog-pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap; }
+.blog-page-btn { min-width: 40px; height: 40px; padding: 0 14px; border-radius: var(--r-pill); border: 1.5px solid var(--border); background: var(--surface); color: var(--ink-soft); font: 500 14px var(--font-body); cursor: pointer; transition: all var(--t-fast); }
+.blog-page-btn:hover:not([disabled]) { border-color: var(--accent); color: var(--accent); }
+.blog-page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.blog-page-btn[disabled] { opacity: 0.35; cursor: not-allowed; }
