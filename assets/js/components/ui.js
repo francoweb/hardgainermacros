@@ -38,7 +38,7 @@ export function renderHeader() {
         <a href="/" data-route class="nav-link">Início</a>
         <a href="/blog" data-route class="nav-link">Blog</a>
         <a href="/faq" data-route class="nav-link">FAQ</a>
-        <a href="/updates" data-route class="nav-link">Novidades</a>
+        <a href="/atualizacoes" data-route class="nav-link">Novidades</a>
       </nav>
 
       <button class="header-reset-btn" id="header-reset" aria-label="Resetar dados" title="Apagar dados e recomeçar">
