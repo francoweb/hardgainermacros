@@ -72,7 +72,7 @@ function resolve(path) {
 export function navigate(path, { replace = false } = {}) {
   const page = resolve(path);
   // atualiza URL se ainda não está lá
-  const knownRoute = ROUTES[path] || path.startsWith('/blog/');
+  const knownRoute = ROUTES[path] || path.startsWith('/blog/') || path.startsWith('/calcular-alimento/');
   if (location.pathname !== path && knownRoute && !replace) {
     history.pushState({}, '', path);
   }
