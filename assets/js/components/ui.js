@@ -6,69 +6,72 @@ import { icons } from '../modules/icons.js';
 import { session, K, resetAll } from '../modules/storage.js';
 
 /* ---------- HEADER ---------- */
-export function renderHeader({ showEdit = false, onEdit, onReset } = {}) {
-  const actions = [];
-  if (showEdit) {
-    actions.push(`<button class="btn-header" id="hdr-edit">${icons.edit(14)} Editar</button>`);
+export function renderHeader() {
+  // Se o header já existe, apenas actualiza o link activo e sai
+  const existing = document.querySelector('.site-header');
+  if (existing) {
+    const path = location.pathname;
+    existing.querySelectorAll('.nav-link').forEach(link => {
+      const href = link.getAttribute('href');
+      link.classList.toggle('active', href === path || (href !== '/' && path.startsWith(href)));
+    });
+    return;
   }
-  actions.push(`<button class="btn-icon" id="hdr-reset" aria-label="Reiniciar">${icons.refresh(18)}</button>`);
 
-  const html = `
-    <header class="header">
-      <div class="header-inner">
-        <a href="/" data-route class="brand" aria-label="Hardgainer Macros — início">
-          <div class="brand-icon">${icons.dumbbell(22)}</div>
-          <div class="brand-text">
-            <h1>Hardgainer Macros</h1>
-            <p>Calculadora especializada para ectomorfos</p>
-          </div>
-        </a>
-        <nav class="header-nav">
-          <a href="/blog" data-route class="nav-link">Blog</a>
-        </nav>
-        <div class="header-actions">
-          ${actions.join('')}
+  const nav = document.createElement('header');
+  nav.className = 'site-header';
+  nav.innerHTML = `
+    <div class="header-inner">
+      <a href="/" data-route class="header-logo">
+        <img src="/assets/images/logo.png" alt="Hardgainer Macros" class="header-logo-img" onerror="this.style.display='none'" />
+        <div class="header-logo-text">
+          <span class="header-logo-name">Hardgainer Macros</span>
+          <span class="header-logo-sub">Calculadora especializada para ectomorfos</span>
         </div>
-      </div>
-    </header>
+      </a>
+
+      <button class="header-hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="header-nav" id="header-nav">
+        <a href="/" data-route class="nav-link">Início</a>
+        <a href="/blog" data-route class="nav-link">Blog</a>
+        <a href="/faq" data-route class="nav-link">FAQ</a>
+        <a href="/updates" data-route class="nav-link">Novidades</a>
+      </nav>
+    </div>
   `;
+  document.body.prepend(nav);
 
-  // Inserir no DOM
-  const mount = document.getElementById('header-mount');
-  if (mount) mount.innerHTML = html;
+  // Hamburger toggle
+  const hamburger = nav.querySelector('#hamburger');
+  const headerNav = nav.querySelector('#header-nav');
+  hamburger.addEventListener('click', () => {
+    const open = headerNav.classList.toggle('open');
+    hamburger.classList.toggle('open', open);
+    hamburger.setAttribute('aria-expanded', open);
+  });
 
-  // Event listeners
-  const editBtn = document.getElementById('hdr-edit');
-  if (editBtn && onEdit) editBtn.addEventListener('click', onEdit);
+  // Fechar menu ao clicar num link
+  headerNav.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      headerNav.classList.remove('open');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', false);
+    });
+  });
 
-  const resetBtn = document.getElementById('hdr-reset');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      if (onReset) { onReset(); return; }
-      openModal(`
-        <div class="modal-head">
-          <div>
-            <div class="modal-title">⚠️ Resetar a app</div>
-          </div>
-          <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
-        </div>
-        <div class="modal-body">
-          <p style="margin:0 0 10px;font-size:14px;font-weight:600;color:var(--ink);">Tem certeza que deseja resetar a app?</p>
-          <p style="margin:0 0 20px;font-size:13px;color:var(--ink-muted);line-height:1.6;">
-            Isto vai apagar os dados guardados neste navegador, incluindo <strong>perfil, plano gerado, substituições, alimentos adicionados e alimentos personalizados</strong>.
-          </p>
-          <div class="btn-row" style="flex-wrap:wrap;">
-            <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
-            <button type="button" class="btn btn-danger" id="btn-confirm-reset" data-testid="btn-confirm-reset">Sim, apagar tudo</button>
-          </div>
-        </div>
-      `);
-      document.getElementById('btn-confirm-reset')?.addEventListener('click', () => {
-        resetAll();
-        location.href = '/';
-      });
+  // Marcar link activo
+  function setActive() {
+    const path = location.pathname;
+    headerNav.querySelectorAll('.nav-link').forEach(link => {
+      const href = link.getAttribute('href');
+      link.classList.toggle('active', href === path || (href !== '/' && path.startsWith(href)));
     });
   }
+  setActive();
+  window.addEventListener('popstate', setActive);
 }
 
 /* ---------- FOOTER ---------- */

@@ -15,6 +15,15 @@ export const UPDATES = [
   {
     date: '2026-07-04',
     type: 'Melhoria',
+    title: 'Navegação completa no cabeçalho',
+    description:
+      'O cabeçalho foi redesenhado com links para Início, Blog, FAQ e Novidades. No celular, a navegação colapsa num menu hambúrguer. O link da página actual é destacado automaticamente.',
+    tags: ['Navegação', 'Mobile'],
+    highlight: false,
+  },
+  {
+    date: '2026-07-04',
+    type: 'Melhoria',
     title: 'Paginação na listagem do blog',
     description:
       'A página do blog agora mostra 10 artigos por vez, com botões de navegação entre páginas. Os filtros por categoria continuam funcionando e repõem automaticamente para a primeira página.',
