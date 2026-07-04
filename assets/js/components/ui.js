@@ -123,8 +123,10 @@ export function renderFooter() {
     <footer class="footer">
       <div class="footer-inner">
         <div class="footer-brand">
-          <span class="brand-icon">${icons.dumbbell(18)}</span>
-          <span>HardgainerMacros.com</span>
+          <a href="/" data-route class="footer-logo-link">
+            <img src="/assets/images/logo.png" alt="Hardgainer Macros" class="footer-logo-img" onerror="this.style.display='none'" />
+            <span class="footer-logo-name">HardgainerMacros.com</span>
+          </a>
         </div>
         <div class="footer-links">
           <a href="/politica-de-privacidade" data-route>Política de Privacidade</a>

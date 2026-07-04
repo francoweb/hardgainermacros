@@ -2871,3 +2871,7 @@ body { max-width: 100%; overflow-x: hidden; }
 .reset-modal-cancel:hover { border-color: var(--ink-soft); color: var(--ink); }
 .reset-modal-confirm { padding: 10px 20px; border-radius: var(--r-pill); border: none; background: var(--accent); color: #fff; font: 700 14px var(--font-body); cursor: pointer; transition: opacity var(--t-fast); }
 .reset-modal-confirm:hover { opacity: .85; }
+
+.footer-logo-link { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.footer-logo-link:hover .footer-logo-name { color: var(--accent); }
+.footer-logo-name { font-size: 18px; font-weight: 700; color: var(--ink); transition: color var(--t-fast); }
