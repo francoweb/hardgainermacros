@@ -55,11 +55,34 @@ export function renderHeader() {
   const resetBtn = nav.querySelector('#header-reset');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      if (confirm('Tens a certeza que queres apagar todos os dados e recomeçar?')) {
+      const overlay = document.createElement('div');
+      overlay.className = 'reset-modal-overlay';
+      overlay.innerHTML = `
+        <div class="reset-modal">
+          <h3 class="reset-modal-title">Resetar dados?</h3>
+          <p class="reset-modal-text">Todos os teus dados serão apagados e voltarás ao início. Esta acção não pode ser desfeita.</p>
+          <div class="reset-modal-actions">
+            <button class="reset-modal-cancel">Cancelar</button>
+            <button class="reset-modal-confirm">Sim, resetar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+      });
+
+      overlay.querySelector('.reset-modal-cancel').addEventListener('click', () => {
+        overlay.remove();
+      });
+
+      overlay.querySelector('.reset-modal-confirm').addEventListener('click', () => {
+        overlay.remove();
         localStorage.clear();
         sessionStorage.clear();
         window.location.href = '/';
-      }
+      });
     });
   }
 
