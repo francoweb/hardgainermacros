@@ -2741,7 +2741,7 @@ body { max-width: 100%; overflow-x: hidden; }
 .site-header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); }
 .header-inner { max-width: 1080px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .header-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
-.header-logo-img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
+.header-logo-img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
 .header-logo-text { display: flex; flex-direction: column; }
 .header-logo-name { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.2; }
 .header-logo-sub { font-size: 11px; color: var(--ink-soft); line-height: 1.2; }
