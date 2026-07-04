@@ -45,6 +45,7 @@ export function renderHeader() {
 
       <nav class="header-nav" id="header-nav">
         <a href="/" data-route class="nav-link">Início</a>
+        <a href="/calcular-alimento" data-route class="nav-link">Calcular</a>
         <a href="/blog" data-route class="nav-link">Blog</a>
         <a href="/faq" data-route class="nav-link">FAQ</a>
         <a href="/atualizacoes" data-route class="nav-link">Novidades</a>
@@ -152,6 +153,8 @@ export function renderFooter() {
           <a href="/termos-de-uso" data-route>Termos de Uso</a>
           <span class="footer-sep">•</span>
           <a href="/contato" data-route>Contato</a>
+          <span class="footer-sep">•</span>
+          <a href="/calcular-alimento" data-route>Calcular Alimento</a>
           <span class="footer-sep">•</span>
           <a href="/atualizacoes" data-route>Atualizações</a>
           <span class="footer-sep">•</span>

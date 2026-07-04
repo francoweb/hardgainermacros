@@ -93,6 +93,16 @@ async function onRouteChange(page, path) {
       renderBlogPostPage(el);
       break;
     }
+    case 'calcular-alimento': {
+      const { renderCalcularAlimentoPage } = await import('./pages/calcular-alimento.js');
+      renderCalcularAlimentoPage(el);
+      break;
+    }
+    case 'calcular-alimento-item': {
+      const { renderCalcularAlimentoItemPage } = await import('./pages/calcular-alimento.js');
+      renderCalcularAlimentoItemPage(el);
+      break;
+    }
     default: {
       const { renderDadosFisicosPage } = await import('./pages/dados-fisicos.js');
       renderDadosFisicosPage(el);

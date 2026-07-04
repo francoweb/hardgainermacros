@@ -32,6 +32,8 @@ const ROUTES = {
   '/consultar-alimento':      { page: 'barcode',  protected: false },
   '/blog':                    { page: 'blog',     protected: false },
   '/blog/:slug':              { page: 'blog-post', protected: false },
+  '/calcular-alimento':       { page: 'calcular-alimento',      protected: false },
+  '/calcular-alimento/:slug': { page: 'calcular-alimento-item', protected: false },
 };
 
 let handler = null;
@@ -43,6 +45,9 @@ let handler = null;
 function resolve(path) {
   if (path.startsWith('/blog/') && path.length > 6) {
     return 'blog-post';
+  }
+  if (path.startsWith('/calcular-alimento/') && path.length > 19) {
+    return 'calcular-alimento-item';
   }
   const route = ROUTES[path];
   if (!route) {
