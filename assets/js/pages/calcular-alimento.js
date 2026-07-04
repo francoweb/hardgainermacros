@@ -191,6 +191,15 @@ export function renderCalcularAlimentoItemPage(mount) {
     </div>
   `;
 
+  mount.querySelectorAll('.calc-alimento-item-card[data-route]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const href = link.getAttribute('href');
+      history.pushState({}, '', href);
+      renderCalcularAlimentoItemPage(mount);
+    });
+  });
+
   const qtyInput = mount.querySelector('#food-qty');
   qtyInput.addEventListener('input', () => {
     const qty = parseFloat(qtyInput.value) || 100;
