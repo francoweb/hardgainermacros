@@ -18,7 +18,7 @@ import { saveFormData, loadFormData, K, local } from '../modules/storage.js';
 import { BLOG_POSTS } from '../data/blog-posts.js';
 
 function renderHomeBlogSection() {
-  const recent = BLOG_POSTS.slice(0, 3);
+  const recent = BLOG_POSTS.slice(0, 4);
   return `
     <section class="home-blog-section">
       <div class="home-blog-header">

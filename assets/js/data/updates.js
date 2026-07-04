@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-07-04',
+    type: 'Melhoria',
+    title: 'Artigos relacionados com imagem e mais sugestões',
+    description:
+      'Cada artigo do blog agora exibe 4 sugestões de artigos relacionados (em vez de 3) e cada sugestão inclui a imagem de capa para facilitar a navegação. A página inicial também passou a mostrar 4 artigos recentes do blog.',
+    tags: ['Blog', 'Navegação'],
+    highlight: false,
+  },
+  {
     date: '2026-07-01',
     type: 'Nova funcionalidade',
     title: 'Preencher valores nutricionais com foto do rótulo',

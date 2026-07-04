@@ -189,7 +189,7 @@ function updateSEOMeta(post) {
 
 // ─── Artigos relacionados ──────────────────────────────────────────────────────
 
-function getRelatedPosts(current, count = 3) {
+function getRelatedPosts(current, count = 4) {
   const sameCat = BLOG_POSTS.filter(p => p.slug !== current.slug && p.category === current.category);
   const others  = BLOG_POSTS.filter(p => p.slug !== current.slug && p.category !== current.category);
   const pool    = [...sameCat, ...others];
@@ -204,6 +204,7 @@ function renderRelated(posts) {
       <div class="blog-related-grid">
         ${posts.map(p => `
           <a href="/blog/${p.slug}" data-route class="blog-related-card">
+            ${p.heroImage ? `<div class="blog-related-thumb"><img src="${p.heroImage}" alt="${p.title}" loading="lazy" width="300" height="169" /></div>` : ''}
             <span class="blog-card-cat">${p.category}</span>
             <span class="blog-related-card-title">${p.title}</span>
             <span class="blog-card-read">${p.readTime} min de leitura</span>

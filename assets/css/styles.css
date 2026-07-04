@@ -2823,3 +2823,7 @@ body { max-width: 100%; overflow-x: hidden; }
 .home-blog-card-thumb { width: 100%; aspect-ratio: 16/9; overflow: hidden; border-radius: var(--r-md) var(--r-md) 0 0; margin: -20px -20px 10px; }
 .home-blog-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
 .home-blog-card:hover .home-blog-card-thumb img { transform: scale(1.04); }
+
+.blog-related-thumb { width: calc(100% + 40px); margin: -20px -20px 12px; aspect-ratio: 16/9; overflow: hidden; border-radius: var(--r-md) var(--r-md) 0 0; }
+.blog-related-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
+.blog-related-card:hover .blog-related-thumb img { transform: scale(1.04); }
