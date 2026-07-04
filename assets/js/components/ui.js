@@ -60,7 +60,7 @@ export function renderHeader() {
       overlay.innerHTML = `
         <div class="reset-modal">
           <h3 class="reset-modal-title">Resetar dados?</h3>
-          <p class="reset-modal-text">Todos os teus dados serão apagados e voltarás ao início. Esta ação não pode ser desfeita.</p>
+          <p class="reset-modal-text">Todos os seus dados serão apagados e você voltará ao início. Essa ação não pode ser desfeita.</p>
           <div class="reset-modal-actions">
             <button class="reset-modal-cancel">Cancelar</button>
             <button class="reset-modal-confirm">Sim, resetar</button>
