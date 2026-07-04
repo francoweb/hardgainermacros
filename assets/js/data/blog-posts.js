@@ -44,7 +44,7 @@ export const BLOG_POSTS = [
   <p>A boa notícia é que dá para virar esse jogo. Não é fácil e não acontece da noite para o dia, mas é completamente possível. O segredo está em entender exatamente por que o seu corpo resiste tanto e atacar esse ponto com uma estratégia específica para o seu perfil.</p>
 
   <h2 id="ectomorfo">Ectomorfo: o biotipo por trás do termo</h2>
-  <p>Na década de 1940, o psicólogo William Sheldon desenvolveu uma classificação de <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3648560/" target="_blank" rel="noopener noreferrer">biotipos corporais chamada somatotipos</a>. Os três tipos são: <strong>ectomorfo</strong>, mesomorfo e endomorfo. O ectomorfo é o biotipo naturalmente mais magro, e é exatamente o perfil mais associado ao hardgainer.</p>
+  <p>Na década de 1940, o psicólogo William Sheldon desenvolveu uma classificação de biotipos corporais chamada somatotipos. Os três tipos são: <strong>ectomorfo</strong>, mesomorfo e endomorfo. O ectomorfo é o biotipo naturalmente mais magro, e é exatamente o perfil mais associado ao hardgainer.</p>
   <p>As características típicas de um ectomorfo:</p>
   <ul>
     <li>Corpo naturalmente magro e comprido, com ossos finos</li>
@@ -150,7 +150,7 @@ export const BLOG_POSTS = [
 
   <h2 id="por-que-importa">Por que as calorias importam tanto</h2>
   <p>O corpo funciona como uma equação energética. Para ganhar massa muscular, você precisa fornecer mais energia do que gasta — o chamado superávit calórico. Sem isso, por mais que você treine, o seu corpo não tem a matéria-prima energética necessária para construir novo tecido muscular.</p>
-  <p>Para um hardgainer, isso é ainda mais crítico. O <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3943438/" target="_blank" rel="noopener noreferrer">metabolismo acelerado</a> significa que o gasto calórico diário é alto. Muita gente acha que come bastante, mas quando rastreia de verdade descobre que estava 500 ou até 800 kcal abaixo do necessário todos os dias.</p>
+  <p>Para um hardgainer, isso é ainda mais crítico. O metabolismo acelerado significa que o gasto calórico diário é alto. Muita gente acha que come bastante, mas quando rastreia de verdade descobre que estava 500 ou até 800 kcal abaixo do necessário todos os dias.</p>
   <p>Na prática: se você gasta 3200 kcal por dia e come 2700, está em déficit de 500 kcal. Não importa o quanto você treina — você não vai crescer de forma significativa nesse cenário.</p>
 
   <h2 id="bmr">Passo 1: calcular o metabolismo basal (BMR)</h2>
@@ -310,7 +310,7 @@ export const BLOG_POSTS = [
     <li>Whey protein (prático para bater a meta diária)</li>
     <li>Leguminosas: feijão, lentilha, grão-de-bico (proteína + carboidrato)</li>
   </ul>
-  <p>Uma coisa que muitos hardgainers fazem errado: consomem toda a proteína de uma vez ou em duas refeições muito grandes. <strong>Distribuir 30 a 40g de proteína por refeição, ao longo de 4 a 5 refeições</strong>, melhora a <a href="https://pubmed.ncbi.nlm.nih.gov/28698222/" target="_blank" rel="noopener noreferrer">síntese proteica muscular</a> de forma significativa.</p>
+  <p>Uma coisa que muitos hardgainers fazem errado: consomem toda a proteína de uma vez ou em duas refeições muito grandes. <strong>Distribuir 30 a 40g de proteína por refeição, ao longo de 4 a 5 refeições</strong>, melhora a síntese proteica muscular de forma significativa.</p>
 
   <h2 id="carboidrato">Carboidrato: o combustível que o ectomorfo subestima</h2>
   <p>O ectomorfo tem uma relação especial com o carboidrato. Por ser naturalmente magro e com metabolismo acelerado, o corpo de um hardgainer usa o carboidrato de forma muito eficiente — raramente vai virar gordura, especialmente quando associado ao treino.</p>
@@ -480,7 +480,7 @@ export const BLOG_POSTS = [
     <li>Risco: acumular gordura desnecessária que vai precisar ser perdida depois</li>
   </ul>
 
-  <p>Para a maioria dos hardgainers, o bulk limpo é a melhor estratégia. O argumento de "é hardgainer, pode comer tudo" tem um limite — acima de 500 kcal de <a href="https://pubmed.ncbi.nlm.nih.gov/31247944/" target="_blank" rel="noopener noreferrer">superávit consistente, a proporção de gordura ganha</a> começa a aumentar de forma significativa mesmo para ectomorfos.</p>
+  <p>Para a maioria dos hardgainers, o bulk limpo é a melhor estratégia. O argumento de "é hardgainer, pode comer tudo" tem um limite — acima de 500 kcal de superávit consistente, a proporção de gordura ganha começa a aumentar de forma significativa mesmo para ectomorfos.</p>
   <p>A exceção: se você está muito magro (abaixo de 60kg com altura normal), um período curto de bulk mais agressivo pode ajudar a chegar num ponto de partida melhor antes de estabilizar no bulk limpo.</p>
 
   <h2 id="sinais">Como saber se o superávit está certo</h2>
@@ -785,7 +785,7 @@ export const BLOG_POSTS = [
   <p>Rico em proteína e gordura, o queijo é uma fonte calórica prática que vai bem em qualquer refeição. 30g de queijo mussarela somam cerca de 90 kcal e 6g de proteína. Coloca no ovo mexido, no pão, na batata, no frango — onde quiser.</p>
 
   <h3>9. Arroz branco — 130 kcal por 100g cozido</h3>
-  <p>O arroz é o carboidrato base da dieta de ganho de massa por uma razão: tem alta densidade calórica para um alimento cozido, baixo custo, fácil digestão e praticamente zero gordura. 200g de arroz cozido somam 260 kcal de carboidrato puro. É o melhor <a href="https://pubmed.ncbi.nlm.nih.gov/28919842/" target="_blank" rel="noopener noreferrer">combustível para o treino</a> de um hardgainer.</p>
+  <p>O arroz é o carboidrato base da dieta de ganho de massa por uma razão: tem alta densidade calórica para um alimento cozido, baixo custo, fácil digestão e praticamente zero gordura. 200g de arroz cozido somam 260 kcal de carboidrato puro. É o melhor combustível para o treino de um hardgainer.</p>
 
   <h3>10. Batata-doce — 86 kcal por 100g cozida</h3>
   <p>Excelente fonte de carboidrato de digestão moderada, com vitamina A, potássio e fibras. 200g de batata-doce assada somam 172 kcal e são saciantes sem ocupar muito espaço. Ótima antes do treino.</p>
@@ -969,7 +969,7 @@ export const BLOG_POSTS = [
     <li>1 colher de cacau em pó</li>
   </ul>
   <p><strong>Macros aproximados:</strong> 540 kcal | 45g proteína | 30g carb | 24g gordura</p>
-  <p>Ideal antes de dormir. Rico em <a href="https://pubmed.ncbi.nlm.nih.gov/22289570/" target="_blank" rel="noopener noreferrer">proteína de digestão lenta</a> (caseína do iogurte grego e do leite), que vai alimentar os músculos ao longo da noite. Baixo em carboidrato e alto em gordura boa.</p>
+  <p>Ideal antes de dormir. Rico em proteína de digestão lenta (caseína do iogurte grego e do leite), que vai alimentar os músculos ao longo da noite. Baixo em carboidrato e alto em gordura boa.</p>
 
   <h3>10. Shake Hipercalórico de Emergência — 900 kcal</h3>
   <ul>
@@ -1047,7 +1047,7 @@ export const BLOG_POSTS = [
   <p>Em outras palavras: primeiro garanta as calorias totais, depois distribua bem a proteína. As duas coisas juntas é o que faz o hardgainer crescer.</p>
 
   <h2 id="quanto">Quanto de proteína por dia</h2>
-  <p>A <a href="https://examine.com/topics/protein-intake/" target="_blank" rel="noopener noreferrer">evidência científica atual</a> aponta para estas faixas para pessoas que treinam com objetivo de hipertrofia:</p>
+  <p>A evidência científica atual aponta para estas faixas para pessoas que treinam com objetivo de hipertrofia:</p>
   <ul>
     <li><strong>Mínimo eficaz:</strong> 1,6g por kg de peso corporal por dia</li>
     <li><strong>Faixa ideal para hardgainers:</strong> 2,0 a 2,5g por kg de peso corporal por dia</li>
@@ -1621,7 +1621,7 @@ export const BLOG_POSTS = [
     <li>Necessidade de cutting: 4 a 6 meses para chegar na mesma composição corporal do bulk limpo</li>
   </ul>
 
-  <p>A conclusão é clara: o <a href="https://pubmed.ncbi.nlm.nih.gov/31247944/" target="_blank" rel="noopener noreferrer">ganho muscular real é praticamente o mesmo</a>. A diferença é apenas quanto de gordura você acumula junto — e quanto tempo vai precisar de cutting depois para tirar essa gordura.</p>
+  <p>A conclusão é clara: o ganho muscular real é praticamente o mesmo. A diferença é apenas quanto de gordura você acumula junto — e quanto tempo vai precisar de cutting depois para tirar essa gordura.</p>
 
   <h2 id="conclusao">Conclusão</h2>
   <p>Para hardgainers, o bulk limpo com superávit de 400 a 500 kcal é a estratégia superior na grande maioria dos casos. O dirty bulk ganha na balança mas não ganha em músculo real — e cria um problema (gordura acumulada) que vai exigir meses de cutting para resolver.</p>
@@ -1691,7 +1691,7 @@ export const BLOG_POSTS = [
   <p>Importante: whey é proteína concentrada, não "anabolizante". O músculo que vai crescer vem do treino e do superávit calórico total — o whey é só uma fonte prática de proteína.</p>
 
   <h3>Creatina monoidratada</h3>
-  <p>A creatina é o <a href="https://pubmed.ncbi.nlm.nih.gov/28615996/" target="_blank" rel="noopener noreferrer">suplemento mais estudado da história da nutrição esportiva</a>, com centenas de estudos confirmando a sua eficácia. Para hardgainers especificamente, pode ser ainda mais valiosa do que para pessoas com maior facilidade de ganhar massa.</p>
+  <p>A creatina é o suplemento mais estudado da história da nutrição esportiva, com centenas de estudos confirmando a sua eficácia. Para hardgainers especificamente, pode ser ainda mais valiosa do que para pessoas com maior facilidade de ganhar massa.</p>
   <p>Como funciona: a creatina aumenta os estoques de fosfocreatina muscular, que é o substrato energético usado nos primeiros segundos de esforço máximo (as repetições mais pesadas de uma série). Com mais fosfocreatina disponível, você consegue fazer mais repetições na zona de alta intensidade.</p>
   <p>Resultados típicos com creatina:</p>
   <ul>
@@ -2031,7 +2031,7 @@ export const BLOG_POSTS = [
   <p>O sono profundo ocorre principalmente nas primeiras 3 a 4 horas da noite — por isso dormir cedo é mais importante do que dormir tarde para compensar. Ir para a cama às 23h e acordar às 7h dá muito mais sono profundo do que ir às 2h e acordar às 10h, mesmo com 8 horas totais.</p>
 
   <h2 id="testosterona">Testosterona e privação de sono</h2>
-  <p>Um <a href="https://pubmed.ncbi.nlm.nih.gov/24235903/" target="_blank" rel="noopener noreferrer">estudo publicado no JAMA Internal Medicine</a> mostrou que homens jovens saudáveis que dormiram apenas 5 horas por noite durante uma semana tiveram redução de 10 a 15% nos níveis de testosterona — equivalente ao envelhecimento de 10 a 15 anos.</p>
+  <p>Um estudo publicado no JAMA Internal Medicine mostrou que homens jovens saudáveis que dormiram apenas 5 horas por noite durante uma semana tiveram redução de 10 a 15% nos níveis de testosterona — equivalente ao envelhecimento de 10 a 15 anos.</p>
   <p>A testosterona é fundamental para hipertrofia muscular: estimula a síntese proteica, aumenta o recrutamento de células satélite (responsáveis pelo reparo e crescimento muscular) e melhora a recuperação.</p>
   <p>Para hardgainers, que muitas vezes têm naturalmente níveis de testosterona no limite inferior da faixa normal, essa redução adicional causada pelo sono ruim pode ser especialmente prejudicial.</p>
 
@@ -2140,7 +2140,7 @@ export const BLOG_POSTS = [
 
   <h2 id="por-que">Por que hardgainers precisam rastrear mais do que ninguém</h2>
   <p>Para alguém com tendência a ganhar peso facilmente, errar 200 kcal para baixo num dia não faz grande diferença — o corpo ainda fica em superávit. Para um hardgainer com metabolismo acelerado, esses 200 kcal podem ser a diferença entre superávit e manutenção.</p>
-  <p>Além disso, a percepção do quanto se come é notoriamente imprecisa. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3943438/" target="_blank" rel="noopener noreferrer">Estudos mostram que pessoas sistematicamente subestimam a ingestão calórica</a> em 20 a 50% quando estimam "no olho". Para um hardgainer que precisa de 3200 kcal, uma subestimativa de 30% significa que está comendo apenas 2240 kcal — 960 kcal abaixo da meta sem saber.</p>
+  <p>Além disso, a percepção do quanto se come é notoriamente imprecisa. Estudos mostram que pessoas sistematicamente subestimam a ingestão calórica em 20 a 50% quando estimam "no olho". Para um hardgainer que precisa de 3200 kcal, uma subestimativa de 30% significa que está comendo apenas 2240 kcal — 960 kcal abaixo da meta sem saber.</p>
   <p>Rastrear elimina essa imprecisão. Você sabe exatamente o que está comendo — e pode ajustar com base em dados reais, não em suposições.</p>
 
   <h2 id="o-que-descobrir">O que você vai descobrir quando começar a rastrear</h2>
@@ -2396,7 +2396,7 @@ export const BLOG_POSTS = [
   <h2 id="proteinas-baratas">As proteínas mais baratas</h2>
 
   <h3>Ovo inteiro — custo-benefício imbatível</h3>
-  <p>O ovo é a proteína de melhor custo-benefício disponível — não existe nada parecido. Uma dúzia de ovos fornece 72g de <a href="https://examine.com/topics/protein-intake/" target="_blank" rel="noopener noreferrer">proteína de altíssimo valor biológico</a>. É versátil (mexido, cozido, omelete, shake), tem gordura boa na gema, e é rápido de preparar.</p>
+  <p>O ovo é a proteína de melhor custo-benefício disponível — não existe nada parecido. Uma dúzia de ovos fornece 72g de proteína de altíssimo valor biológico. É versátil (mexido, cozido, omelete, shake), tem gordura boa na gema, e é rápido de preparar.</p>
   <p>Meta: 3 a 4 ovos por dia como base da proteína.</p>
 
   <h3>Atum em lata</h3>
@@ -2600,7 +2600,7 @@ export const BLOG_POSTS = [
   <p><strong>Objetivo:</strong> fornecer proteína de digestão lenta para sustentar a síntese proteica muscular durante as 7 a 9 horas de sono.</p>
   <p><strong>Composição:</strong> 200ml de leite integral + 200g de iogurte grego integral + 1 colher de pasta de amendoim + 1 colher de cacau em pó</p>
   <p><strong>Macros:</strong> ~430 kcal | 32g proteína | 25g carb | 20g gordura</p>
-  <p>O iogurte grego é rico em <a href="https://pubmed.ncbi.nlm.nih.gov/22289570/" target="_blank" rel="noopener noreferrer">caseína — proteína que digere lentamente</a> e libera aminoácidos de forma gradual durante horas. Ideal para a janela noturna.</p>
+  <p>O iogurte grego é rico em caseína — proteína que digere lentamente e libera aminoácidos de forma gradual durante horas. Ideal para a janela noturna.</p>
 
   <p>Total dos 3 shakes: 1680 kcal | 126g proteína</p>
 
