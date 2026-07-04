@@ -124,7 +124,12 @@ export function renderFooter() {
       <div class="footer-inner">
         <div class="footer-brand">
           <a href="/" data-route class="footer-logo-link">
-            <img src="/assets/images/logo.png" alt="Hardgainer Macros" class="footer-logo-img" onerror="this.style.display='none'" />
+            <div class="footer-logo-icon">
+              <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="10" fill="var(--accent)"/>
+                <path d="M12 20h4l3-8 4 16 3-8h4" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <span class="footer-logo-name">HardgainerMacros.com</span>
           </a>
         </div>
