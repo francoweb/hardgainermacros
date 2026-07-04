@@ -27,6 +27,7 @@ const ROUTES = {
   '/termos-de-uso':           { page: 'terms',   protected: false },
   '/contato':                 { page: 'contact', protected: false },
   '/atualizacoes':            { page: 'updates',  protected: false },
+  '/updates':                 { page: 'updates',  protected: false },
   '/faq':                     { page: 'faq',      protected: false },
   '/consultar-alimento':      { page: 'barcode',  protected: false },
   '/blog':                    { page: 'blog',     protected: false },
