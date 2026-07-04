@@ -40,9 +40,28 @@ export function renderHeader() {
         <a href="/faq" data-route class="nav-link">FAQ</a>
         <a href="/updates" data-route class="nav-link">Novidades</a>
       </nav>
+
+      <button class="header-reset-btn" id="header-reset" aria-label="Resetar dados" title="Apagar dados e recomeçar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+        </svg>
+      </button>
     </div>
   `;
   document.body.prepend(nav);
+
+  // Reset de dados
+  const resetBtn = nav.querySelector('#header-reset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (confirm('Tens a certeza que queres apagar todos os dados e recomeçar?')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/';
+      }
+    });
+  }
 
   // Hamburger toggle
   const hamburger = nav.querySelector('#hamburger');
