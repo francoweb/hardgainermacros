@@ -13,6 +13,13 @@
 
 export const UPDATES = [
   {
+    type: 'feature',
+    date: '2026-07-05',
+    title: 'Calculadora de Macros por Alimento',
+    description: 'Nova ferramenta disponível no menu "Calcular" — pesquise qualquer alimento e descubra instantaneamente as calorias, proteína, carboidratos e gordura para qualquer quantidade em gramas. Mais de 100 alimentos disponíveis organizados por categoria, com páginas individuais detalhadas para cada alimento.',
+    tags: ['Ferramenta', 'Nutrição', 'SEO'],
+  },
+  {
     date: '2026-07-04',
     type: 'Melhoria',
     title: 'Navegação completa no cabeçalho',
