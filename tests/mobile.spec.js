@@ -200,6 +200,37 @@ test.describe('Paridade Mobile / Desktop', () => {
 
 });
 
+test.describe('Plano 14 Dias no mobile - imagens dos alimentos', () => {
+  test('C-MOBILE-FOOD-IMG-1 - Mobile 390px mostra miniaturas sem overflow horizontal', async ({ page }) => {
+    await page.setViewportSize(MOBILE_390);
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await expect(page.locator('#day-body-0 .ingredient [data-food-image]').first()).toBeVisible();
+    await expect(page.locator('#day-body-0 .ingredient [data-swap]').first()).toBeVisible();
+
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW, 'Mobile 390px deve continuar sem overflow com miniaturas de ingredientes').toBeLessThanOrEqual(395);
+  });
+});
+
+test.describe('Plano 14 Dias no mobile - imagem da refeicao', () => {
+  test('C-MOBILE-MEAL-IMG-1 - Mobile 390px mostra imagem sem overflow no card', async ({ page }) => {
+    await page.setViewportSize(MOBILE_390);
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    await expect(firstMeal.locator('.meal-card-visual')).toBeVisible();
+    await expect(firstMeal.locator('[data-meal-image]')).toBeVisible();
+
+    const scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW, 'Mobile 390px deve continuar sem overflow com imagem no card').toBeLessThanOrEqual(395);
+  });
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Grupo: UX Mobile — Plano Alimentar 14 Dias
 // ─────────────────────────────────────────────────────────────────────────────

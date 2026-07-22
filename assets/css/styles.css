@@ -1067,18 +1067,64 @@ ul, ol { margin: 0; padding: 0; }
   background: #fff;
 }
 .meal-card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 6px;
+  padding: 12px 16px 10px;
   background: var(--surface-soft);
   border-bottom: 1px solid var(--border-soft);
 }
 .meal-card.solid .meal-card-head { background: #fbeee8; }
 .meal-card.shake .meal-card-head { background: #e3ebd7; }
-.meal-card-time { font-size: 12px; color: var(--ink-muted); margin-bottom: 3px; }
-.meal-card-name { font-weight: 700; font-size: 16px; color: var(--ink); font-family: var(--font-display); }
+.meal-card-head-main {
+  display: contents;
+}
+.meal-card-head-copy {
+  min-width: 0;
+  align-self: center;
+}
+.meal-card-head-badges {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: start;
+  gap: 8px;
+  min-width: max-content;
+}
+.meal-card-visual {
+  width: 96px;
+  min-width: 96px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+.meal-card-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.meal-card-visual-fallback {
+  color: var(--ink-muted);
+}
+.meal-card-visual-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  opacity: 0.8;
+}
+.meal-card-time { font-size: 12px; color: var(--ink-muted); margin-bottom: 4px; line-height: 1.3; }
+.meal-card-name { font-weight: 700; font-size: 16px; color: var(--ink); font-family: var(--font-display); line-height: 1.22; }
 .meal-card-badge {
   font-size: 11px;
   padding: 3px 10px;
@@ -1089,11 +1135,12 @@ ul, ol { margin: 0; padding: 0; }
   flex-shrink: 0;
 }
 .meal-card.shake .meal-card-badge { background: var(--success-soft); color: var(--success-dark); }
+  white-space: nowrap;
 
 .meal-totals {
-  padding: 10px 16px;
+  padding: 8px 16px 10px;
   display: flex;
-  gap: 12px;
+  gap: 10px 12px;
   flex-wrap: wrap;
   background: var(--surface-soft);
   border-bottom: 1px solid var(--border-soft);
@@ -2149,14 +2196,30 @@ details[open] > .sub-cat-label::after {
     margin: 6px 0 0 !important;
   }
   .day-body { padding: 4px 12px 16px; }
-  .meal-card-head { padding: 10px 12px; }
-  .meal-card-name { font-size: 14px; }
-  .meal-totals { padding: 8px 12px; gap: 8px 10px; font-size: 11.5px; }
+  .meal-card-head {
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    column-gap: 10px;
+    row-gap: 4px;
+    padding: 10px 12px 8px;
+  }
+  .meal-card-head-badges { align-self: start; gap: 6px; }
+  .meal-card-visual { width: 64px; min-width: 64px; border-radius: 0; }
+  .meal-card-name {
+    font-size: 14px;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+  .meal-card-badge { font-size: 10.5px; padding: 3px 9px; }
+  .meal-totals { padding: 7px 12px 9px; gap: 6px 10px; font-size: 11.5px; }
   .ingredient-label { padding: 10px 12px 4px; }
   .ingredient-list { padding: 0 12px; }
   .ingredient { padding: 8px 0; }
   .ingredient-name { font-size: 14px; }
   .ingredient-macros { font-size: 11px; }
+  .ingredient-visual { width: 42px; height: 42px; flex-basis: 42px; }
   .ing-add-row { padding: 6px 12px 10px; }
   .ingredient-sub-btn { font-size: 11px; padding: 4px 10px 4px 7px; }
   /* Day summary: layout 2+3 garantido
@@ -2327,6 +2390,8 @@ details[open] > .sub-cat-label::after {
   .meal-card { page-break-inside: avoid; }
   /* Prep sempre visível no print */
   details.prep-details > :not(summary) { display: block !important; }
+  .meal-card-visual { display: none !important; }
+  .ingredient-visual { display: none !important; }
   details.prep-details summary { display: none !important; }
 }
 
@@ -2494,6 +2559,30 @@ details[open] > .sub-cat-label::after {
 /* ---------- Contact form extras ---------- */
 .contact-form textarea { resize: vertical; min-height: 110px; font-family: inherit; line-height: 1.5; }
 .contact-form select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23585048' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.ingredient-visual {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 2px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+.ingredient-visual img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+.ingredient-visual-muted {
+  opacity: 0.5;
+  filter: saturate(0.92);
+}
 
 /* ---------- No-print helper (consolidado no bloco acima) ---------- */
 

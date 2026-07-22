@@ -15,8 +15,26 @@
  */
 
 const { test, expect } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
 const { injectState, gotoResultados, gotoPlano } = require('./helpers/inject-state');
 const { CENARIO_5, CENARIO_6, CENARIO_7, CENARIO_4, CENARIO_9 } = require('./fixtures/scenarios');
+
+const FOOD_IMAGE_IDS = new Set(
+  fs.readdirSync(path.join(__dirname, '../assets/images/foods'))
+    .filter(name => name.endsWith('.webp'))
+    .map(name => name.replace(/\.webp$/i, ''))
+);
+
+function watchImageRequests(page) {
+  const requests = [];
+  page.on('response', (response) => {
+    const url = response.url();
+    if (!/\/assets\/images\/(foods|meals)\/.+\.(webp|png)$/i.test(url)) return;
+    requests.push({ url, status: response.status() });
+  });
+  return requests;
+}
 
 // ───��─────────────────────────────────────────────────────────────────────────
 // Grupo: Plano de 14 Dias
@@ -60,6 +78,283 @@ test.describe('Plano Alimentar 14 Dias', () => {
       .toBeVisible();
   });
 
+});
+
+test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () => {
+  test('C-FOOD-IMG-1 - ingrediente original usa o WebP correspondente ao foodId real', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const row = page.locator('#day-body-0 .ingredient').filter({ has: page.locator('[data-food-image]') }).first();
+    await expect(row.locator('[data-food-image]')).toBeVisible();
+
+    const foodId = await row.getAttribute('data-food-id');
+    expect(foodId).toBeTruthy();
+    await expect(row.locator('[data-food-image]')).toHaveAttribute('src', new RegExp(`${foodId}\\.webp$`));
+  });
+
+  test('C-FOOD-IMG-2 - substituicao troca a imagem e a reversao restaura o foodId original', async ({ page }) => {
+    const imageRequests = watchImageRequests(page);
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const swapButtons = page.locator('[data-swap]');
+    const swapCount = Math.min(await swapButtons.count(), 8);
+    let targetIndex = -1;
+    const targetSubId = 'atum_agua';
+
+    for (let i = 0; i < swapCount; i += 1) {
+      await swapButtons.nth(i).click();
+      await page.waitForSelector('.sub-option', { timeout: 5_000 });
+      const hasAtum = await page.locator(`.sub-option[data-sub-id="${targetSubId}"]`).count();
+      if (hasAtum) {
+        targetIndex = i;
+        break;
+      }
+      await page.locator('[data-modal-close]').first().click();
+      await expect(page.locator('.sub-option')).toHaveCount(0);
+    }
+
+    expect(targetIndex, 'Deve existir pelo menos um modal de substituicao com atum_agua').toBeGreaterThanOrEqual(0);
+
+    const row = swapButtons.nth(targetIndex).locator('xpath=ancestor::li[contains(@class,"ingredient")]');
+    const originalFoodId = await row.getAttribute('data-food-id');
+    expect(originalFoodId).toBeTruthy();
+    expect(FOOD_IMAGE_IDS.has(originalFoodId)).toBe(true);
+
+    await page.locator(`.sub-option[data-sub-id="${targetSubId}"]`).click();
+    await expect(row).toHaveAttribute('data-food-id', targetSubId);
+    await expect(row.locator('.ingredient-visual')).toHaveCount(0);
+    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+
+    await row.locator('[data-revert]').click();
+    await expect(row).toHaveAttribute('data-food-id', originalFoodId);
+    await expect(row.locator('[data-food-image]')).toHaveAttribute('src', new RegExp(`${originalFoodId}\\.webp$`));
+  });
+
+  test('C-FOOD-IMG-3 - alimento criado manualmente nao tenta renderizar URL invalida', async ({ page }) => {
+    const imageRequests = watchImageRequests(page);
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+
+    await page.evaluate(() => {
+      localStorage.setItem('hg:custom_foods', JSON.stringify([
+        {
+          id: 'manual_creme_caseiro_teste',
+          name: 'Creme Caseiro Teste',
+          category: 'extra',
+          source: 'custom',
+          per100: { kcal: 210, prot: 12, carb: 18, fat: 9 },
+        },
+      ]));
+      localStorage.setItem('hg:additions', JSON.stringify({
+        '0:0': [
+          {
+            id: 'addition_manual_teste',
+            food: 'manual_creme_caseiro_teste',
+            grams: 120,
+            unit: 'g',
+            snapshot: {
+              name: 'Creme Caseiro Teste',
+              category: 'extra',
+              source: 'custom',
+              per100: { kcal: 210, prot: 12, carb: 18, fat: 9 },
+            },
+          },
+        ],
+      }));
+    });
+
+    await gotoPlano(page);
+
+    const row = page.locator('.ingredient-added[data-food-id="manual_creme_caseiro_teste"]').first();
+    await expect(row).toBeVisible();
+    await expect(row.locator('.ingredient-visual')).toHaveCount(0);
+    await expect(page.locator('[data-food-image][src*="manual_creme_caseiro_teste"]')).toHaveCount(0);
+    expect(
+      imageRequests.filter(r => /manual_creme_caseiro_teste|Creme%20Caseiro%20Teste|Creme Caseiro Teste/i.test(r.url))
+    ).toHaveLength(0);
+  });
+
+  test('C-FOOD-IMG-4 - alimento oficial sem WebP nao deixa miniatura quebrada visivel', async ({ page }) => {
+    const imageRequests = watchImageRequests(page);
+    expect(FOOD_IMAGE_IDS.has('atum_agua')).toBe(false);
+
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+
+    await page.evaluate(() => {
+      localStorage.setItem('hg:additions', JSON.stringify({
+        '0:0': [
+          {
+            id: 'addition_atum_teste',
+            food: 'atum_agua',
+            grams: 120,
+            unit: 'g',
+            snapshot: {
+              name: 'Atum em água',
+              category: 'protein',
+              source: 'library',
+              per100: { kcal: 116, prot: 26, carb: 0, fat: 1 },
+            },
+          },
+        ],
+      }));
+    });
+
+    await gotoPlano(page);
+
+    const row = page.locator('.ingredient-added[data-food-id="atum_agua"]').first();
+    await expect(row).toBeVisible();
+    await expect(row.locator('.ingredient-visual')).toHaveCount(0);
+    await expect(page.locator('[data-food-image][src$="atum_agua.webp"]')).toHaveCount(0);
+    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+  });
+
+  test('C-FOOD-IMG-5 - ingrediente removido preserva estado visual desativado e continua oculto no print', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const activeRow = page.locator('#day-body-0 .ingredient').filter({ has: page.locator('[data-food-image]') }).first();
+    const originalFoodId = await activeRow.getAttribute('data-food-id');
+    await activeRow.locator('[data-remove-ingredient]').click();
+
+    const ghost = page.locator('.ingredient-removed').first();
+    await expect(ghost.locator('.ingredient-visual-muted')).toBeVisible();
+    await expect(ghost).toHaveAttribute('data-food-id', originalFoodId);
+
+    await page.emulateMedia({ media: 'print' });
+    const printDisplay = await ghost.locator('.ingredient-visual').evaluate(el => getComputedStyle(el).display);
+    expect(printDisplay).toBe('none');
+    await page.emulateMedia({ media: 'screen' });
+
+    await ghost.locator('[data-restore-ingredient]').click();
+    await expect(page.locator('.ingredient-removed')).toHaveCount(0);
+    await expect(page.locator(`.ingredient[data-food-id="${originalFoodId}"]`).first().locator('[data-food-image]')).toBeVisible();
+  });
+
+  test('C-FOOD-IMG-6 - receita aplicada usa foodIds reais dos ingredientes sem quebrar o detalhamento', async ({ page }) => {
+    const imageRequests = watchImageRequests(page);
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+
+    await page.evaluate(() => {
+      localStorage.setItem('hg:recipe_meals', JSON.stringify({
+        '0:0': {
+          recipeId: 'receita-img-teste',
+          recipeName: 'Receita Visual Teste',
+          fitLabel: 'Compativel',
+          ingredients: [
+            {
+              food: 'whey',
+              label: 'Whey',
+              grams: 30,
+              display: '30g',
+              macros: { kcal: 120, prot: 24, carb: 3, fat: 2 },
+            },
+            {
+              food: 'banana_prata',
+              label: 'Banana prata',
+              grams: 80,
+              display: '1 banana pequena (~80g)',
+              macros: { kcal: 71, prot: 0.8, carb: 18.4, fat: 0.1 },
+            },
+            {
+              food: 'atum_agua',
+              label: 'Atum em água',
+              grams: 120,
+              display: '120g',
+              macros: { kcal: 139, prot: 31.2, carb: 0, fat: 1.2 },
+            },
+          ],
+          totals: { kcal: 330, prot: 56, carb: 21.4, fat: 3.3 },
+          steps: ['Misture e sirva.'],
+          note: 'Receita de teste.',
+        },
+      }));
+    });
+
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    await expect(firstMeal.locator('[data-testid="recipe-badge"]')).toBeVisible();
+    await expect(firstMeal.locator('.ingredient[data-food-id="whey"] [data-food-image]')).toHaveAttribute('src', /whey\.webp$/);
+    await expect(firstMeal.locator('.ingredient[data-food-id="banana_prata"] [data-food-image]')).toHaveAttribute('src', /banana_prata\.webp$/);
+    await expect(firstMeal.locator('.ingredient[data-food-id="atum_agua"] .ingredient-visual')).toHaveCount(0);
+    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+  });
+});
+
+test.describe('Plano Alimentar 14 Dias - imagens das refeicoes', () => {
+  test('C-MEAL-IMG-1 - refeicao original resolve imagem pelo templateId com alt acessivel', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    const templateId = await firstMeal.getAttribute('data-template-id');
+    expect(templateId).toBeTruthy();
+
+    const img = firstMeal.locator('[data-meal-image]');
+    await expect(img).toBeVisible();
+    await expect(img).toHaveAttribute('src', new RegExp(`${templateId}\\.webp$`));
+    await expect(img).toHaveAttribute('alt', /Ilustra/);
+
+    const natural = await img.evaluate(el => ({ w: el.naturalWidth, h: el.naturalHeight }));
+    expect(natural.w).toBeGreaterThan(0);
+    expect(natural.h).toBeGreaterThan(0);
+  });
+
+  test('C-MEAL-IMG-2 - receita aplicada usa fallback neutro sem imagem quebrada', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+
+    await page.evaluate(() => {
+      localStorage.setItem('hg:recipe_meals', JSON.stringify({
+        '0:0': {
+          recipeId: 'receita-teste',
+          recipeName: 'Receita Teste',
+          fitLabel: 'Compativel',
+          ingredients: [
+            {
+              food: 'whey',
+              label: 'Whey',
+              grams: 30,
+              display: '30g',
+              macros: { kcal: 120, prot: 24, carb: 3, fat: 2 },
+            },
+          ],
+          totals: { kcal: 120, prot: 24, carb: 3, fat: 2 },
+          steps: ['Misturar tudo.'],
+          note: 'Receita de teste.',
+        },
+      }));
+    });
+
+    await gotoPlano(page);
+
+    const firstMeal = page.locator('#day-body-0 .meal-card').first();
+    await expect(firstMeal.locator('[data-testid="recipe-badge"]')).toBeVisible();
+    await expect(firstMeal.locator('[data-meal-visual="fallback"]')).toBeVisible();
+    await expect(firstMeal.locator('[data-meal-image]')).toHaveCount(0);
+    await expect(firstMeal).toContainText('Receita Teste');
+  });
+
+  test('C-MEAL-IMG-3 - imagem do card fica oculta no print para preservar o PDF', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const visual = page.locator('#day-body-0 .meal-card').first().locator('.meal-card-visual');
+    await expect(visual).toBeVisible();
+
+    await page.emulateMedia({ media: 'print' });
+    const display = await visual.evaluate(el => getComputedStyle(el).display);
+    expect(display).toBe('none');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

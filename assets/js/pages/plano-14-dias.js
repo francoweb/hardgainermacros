@@ -30,6 +30,7 @@ import { formatKcal } from '../modules/calculator.js';
 import {
   FOODS, calcFoodMacros, getSubstitutes, formatQty, getFood,
 } from '../data/foods.js';
+import { hasFoodImage } from '../data/food-images.js';
 import { RECIPES } from '../data/recipes.js';                    // Sprint R4-A
 import { scaleRecipe } from '../modules/recipe-scaler.js';      // Sprint R4-B
 
@@ -72,6 +73,8 @@ const PLAN_STRATEGY_LABEL = {
   hybrid: 'Sistema Híbrido',
   practical: 'Máxima Praticidade',
 };
+
+const missingIngredientVisualIds = new Set();
 
 function render(mount, plan, results, subs, originalPlan, additions, removals, edits) {
   const strategy = results.routine?.strategy;
@@ -235,6 +238,10 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
       </div>
     </div>
   `;
+
+  enhanceMealCardVisuals(mount, plan);
+  bindMealCardVisualFallbacks(mount);
+  bindIngredientVisualFallbacks(mount);
 
   // ---------- Handlers ----------
   document.getElementById('btn-back-results').addEventListener('click', () => navigate('/resultados'));
@@ -543,13 +550,184 @@ function renderDayCard(day, idx, subs, originalDay, targetKcal, additions, remov
   `;
 }
 
+function resolveMealCardVisual(meal) {
+  if (meal?.isRecipeMeal) {
+    return {
+      kind: 'fallback',
+      reason: 'recipe',
+      label: `Receita personalizada: ${meal?.name || 'refeição'}`,
+    };
+  }
+
+  const templateId = typeof meal?.templateId === 'string' ? meal.templateId.trim() : '';
+  if (!templateId) {
+    return {
+      kind: 'fallback',
+      reason: 'missing',
+      label: `Imagem indisponível para ${meal?.name || 'refeição'}`,
+    };
+  }
+
+  return {
+    kind: 'image',
+    templateId,
+    src: `assets/images/meals/${templateId}.webp`,
+    alt: `Ilustração da refeição ${meal?.name || 'do plano'}`,
+    fallbackLabel: `Imagem indisponível para ${meal?.name || 'refeição'}`,
+  };
+}
+
+function renderMealCardVisual(meal) {
+  const visual = resolveMealCardVisual(meal);
+
+  if (visual.kind === 'image') {
+    return `
+      <div
+        class="meal-card-visual"
+        data-meal-visual="image"
+        data-template-id="${escapeHtml(visual.templateId)}"
+        data-fallback-label="${escapeHtml(visual.fallbackLabel)}"
+      >
+        <img
+          src="${escapeHtml(visual.src)}"
+          alt="${escapeHtml(visual.alt)}"
+          loading="lazy"
+          decoding="async"
+          width="84"
+          height="84"
+          data-meal-image
+        >
+      </div>
+    `;
+  }
+
+  return `
+    <div
+      class="meal-card-visual meal-card-visual-fallback"
+      data-meal-visual="fallback"
+      data-fallback-reason="${escapeHtml(visual.reason)}"
+      role="img"
+      aria-label="${escapeHtml(visual.label)}"
+    >
+      <span class="meal-card-visual-icon" aria-hidden="true">${icons.utensils(20)}</span>
+    </div>
+  `;
+}
+
+function setMealCardVisualFallback(container) {
+  if (!container || container.dataset.mealVisual === 'fallback') return;
+  const fallbackLabel = container.dataset.fallbackLabel || 'Imagem indisponível para a refeição';
+  container.dataset.mealVisual = 'fallback';
+  container.dataset.fallbackReason = 'missing';
+  container.classList.add('meal-card-visual-fallback');
+  container.removeAttribute('data-template-id');
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', fallbackLabel);
+  container.innerHTML = `<span class="meal-card-visual-icon" aria-hidden="true">${icons.utensils(20)}</span>`;
+}
+
+function htmlToElement(html) {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html.trim();
+  return tpl.content.firstElementChild;
+}
+
+function enhanceMealCardVisuals(mount, plan) {
+  plan.forEach((day, dayIdx) => {
+    const cards = Array.from(mount.querySelectorAll(`#day-body-${dayIdx} .meal-card`));
+    day.meals.forEach((meal, mealIdx) => {
+      const card = cards[mealIdx];
+      const head = card?.querySelector('.meal-card-head');
+      const lead = head?.firstElementChild;
+      if (!head || !lead || lead.classList.contains('meal-card-head-main')) return;
+
+      const copy = document.createElement('div');
+      copy.className = 'meal-card-head-copy';
+      while (lead.firstChild) copy.appendChild(lead.firstChild);
+
+      lead.classList.add('meal-card-head-main');
+      lead.appendChild(htmlToElement(renderMealCardVisual(meal)));
+      lead.appendChild(copy);
+
+      const badges = Array.from(head.children).filter(child => child !== lead);
+      if (badges.length > 0) {
+        const badgeWrap = document.createElement('div');
+        badgeWrap.className = 'meal-card-head-badges';
+        badges.forEach(child => badgeWrap.appendChild(child));
+        head.appendChild(badgeWrap);
+      }
+    });
+  });
+}
+
+function bindMealCardVisualFallbacks(mount) {
+  mount.querySelectorAll('[data-meal-image]').forEach(img => {
+    img.addEventListener('error', () => {
+      setMealCardVisualFallback(img.closest('[data-meal-visual]'));
+    }, { once: true });
+  });
+}
+
+function resolveIngredientVisual(ing, ingName) {
+  const foodId = typeof ing?.food === 'string' ? ing.food.trim() : '';
+  if (!foodId || missingIngredientVisualIds.has(foodId)) return null;
+
+  const officialFood = getFood(foodId);
+  if (!officialFood || !hasFoodImage(foodId)) return null;
+
+  return {
+    foodId,
+    src: `assets/images/foods/${foodId}.webp`,
+    alt: `IlustraÃ§Ã£o de ${ingName || officialFood.name || 'alimento'}`,
+  };
+}
+
+function renderIngredientVisual(ing, ingName, { muted = false } = {}) {
+  const visual = resolveIngredientVisual(ing, ingName);
+  if (!visual) return '';
+
+  return `
+    <div
+      class="ingredient-visual${muted ? ' ingredient-visual-muted' : ''}"
+      data-food-visual="image"
+      data-food-id="${escapeHtml(visual.foodId)}"
+    >
+      <img
+        src="${escapeHtml(visual.src)}"
+        alt="${escapeHtml(visual.alt)}"
+        loading="lazy"
+        decoding="async"
+        width="56"
+        height="56"
+        data-food-image
+      >
+    </div>
+  `;
+}
+
+function setIngredientVisualFallback(container) {
+  if (!container) return;
+  const foodId = container.dataset.foodId;
+  if (foodId) missingIngredientVisualIds.add(foodId);
+  container.closest('.ingredient')?.classList.remove('ingredient-has-visual');
+  container.remove();
+}
+
+function bindIngredientVisualFallbacks(mount) {
+  mount.querySelectorAll('[data-food-image]').forEach(img => {
+    img.addEventListener('error', () => {
+      setIngredientVisualFallback(img.closest('[data-food-visual]'));
+    }, { once: true });
+  });
+}
+
 function renderMealCard(meal, dayIdx, mealIdx, subs, removals, edits) {
   const safeSubs     = subs    || {};
   const safeRemovals = removals || {};
   const safeEdits    = edits   || {};
   const isImperial = loadFormData()?.unit === 'imperial';
   return `
-    <div class="meal-card ${meal.type}">
+    <div class="meal-card ${meal.type}" data-template-id="${escapeHtml(meal.templateId || '')}">
       <div class="meal-card-head">
         <div>
           <div style="font-size: 11px; font-weight: 700; color: #7a5235; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">Refeição ${mealIdx + 1}<span style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #8a7f75; background: #f0ede8; border-radius: 3px; padding: 1px 5px; flex-shrink: 0;">Dia ${dayIdx + 1}</span></div>
@@ -576,12 +754,15 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals, edits) {
           const isSub     = !isAdded && !isRemoved && !!(safeSubs[subKey]);
           const isEdited  = !isAdded && !isRemoved && !isSub && !!(safeEdits[subKey]);
           const ingName   = ing.label || (getFoodWithCustom(ing.food)?.name || ing.food) || '';
+          const visualHtml = renderIngredientVisual(ing, ingName, { muted: isRemoved });
+          const liBaseClass = `ingredient${visualHtml ? ' ingredient-has-visual' : ''}`;
 
           // Ghost placeholder for removed plan ingredients (no-print: invisible in PDF)
           if (isRemoved) {
             const ghostLabel = ing.removedLabel || ingName;
             return `
-              <li class="ingredient ingredient-removed no-print">
+              <li class="${liBaseClass} ingredient-removed no-print" data-food-id="${escapeHtml(ing.food || '')}">
+                ${visualHtml}
                 <div class="ingredient-main" style="opacity:0.55;font-style:italic;">
                   <div class="ingredient-name" style="color:#999;">${escapeHtml(ghostLabel)} removido</div>
                 </div>
@@ -592,9 +773,10 @@ function renderMealCard(meal, dayIdx, mealIdx, subs, removals, edits) {
               </li>`;
           }
 
-          const liClass = `ingredient${isSub ? ' ingredient-substituted' : ''}${isAdded ? ' ingredient-added' : ''}${isEdited ? ' ingredient-edited' : ''}`;
+          const liClass = `${liBaseClass}${isSub ? ' ingredient-substituted' : ''}${isAdded ? ' ingredient-added' : ''}${isEdited ? ' ingredient-edited' : ''}`;
           return `
-            <li class="${liClass}">
+            <li class="${liClass}" data-food-id="${escapeHtml(ing.food || '')}">
+              ${visualHtml}
               <div class="ingredient-main">
                 <div class="ingredient-name">
                   ${escapeHtml(ingName)}
