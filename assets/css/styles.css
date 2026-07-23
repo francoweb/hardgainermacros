@@ -1138,9 +1138,9 @@ ul, ol { margin: 0; padding: 0; }
   white-space: nowrap;
 
 .meal-totals {
-  padding: 10px 16px;
+  padding: 8px 16px 10px;
   display: flex;
-  gap: 12px;
+  gap: 10px 12px;
   flex-wrap: wrap;
   background: var(--surface-soft);
   border-bottom: 1px solid var(--border-soft);
@@ -2213,7 +2213,7 @@ details[open] > .sub-cat-label::after {
     overflow: hidden;
   }
   .meal-card-badge { font-size: 10.5px; padding: 3px 9px; }
-  .meal-totals { padding: 8px 12px; gap: 8px 10px; font-size: 11.5px; }
+  .meal-totals { padding: 7px 12px 9px; gap: 6px 10px; font-size: 11.5px; }
   .ingredient-label { padding: 10px 12px 4px; }
   .ingredient-list { padding: 0 12px; }
   .ingredient { padding: 8px 0; }
@@ -2845,8 +2845,6 @@ body { max-width: 100%; overflow-x: hidden; }
 .header-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 .header-reset-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: var(--r-md); border: 1.5px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor: pointer; transition: all var(--t-fast); flex-shrink: 0; }
 .header-reset-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,0,0,.04); }
-.header-theme-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: var(--r-md); border: 1.5px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor: pointer; transition: all var(--t-fast); flex-shrink: 0; }
-.header-theme-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,0,0,.04); }
 
 @media (max-width: 640px) {
   .header-logo-sub { display: none; }
@@ -2855,7 +2853,6 @@ body { max-width: 100%; overflow-x: hidden; }
   .header-nav.open { display: flex; }
   .nav-link { padding: 12px 16px; border-radius: var(--r-md); font-size: 15px; }
   .header-reset-btn { width: 32px; height: 32px; }
-  .header-theme-btn { width: 32px; height: 32px; }
 }
 
 /* ── Blog ──────────────────────────────────────────────────────────────────── */
@@ -3010,119 +3007,3 @@ body { max-width: 100%; overflow-x: hidden; }
 .calc-alimento-table td { padding: 12px 8px; color: var(--ink-soft); }
 .calc-alimento-table td:last-child { text-align: right; color: var(--ink); }
 @media (max-width: 600px) { .calc-alimento-cards { grid-template-columns: repeat(2, 1fr); } .calc-alimento-grid { grid-template-columns: repeat(2, 1fr); } }
-
-/* =========================================================================
-   MODO ESCURO — ativado via [data-theme="dark"] em <html>, alternado pelo
-   botão no cabeçalho (.header-theme-btn) e persistido em localStorage
-   (chave hg:theme). O modo claro (sem o atributo) permanece 100% inalterado:
-   este bloco só ADICIONA regras, nunca modifica as existentes acima.
-   ========================================================================= */
-:root[data-theme="dark"] {
-  --bg: #1b1815;
-  --bg-soft: #232019;
-  --surface: #262320;
-  --surface-soft: #2c2924;
-
-  --accent-soft: #4a2e26;
-  --accent-softer: #3a2620;
-  --accent-dark: #f0c4b4;
-
-  --ink: #f0ece3;
-  --ink-soft: #cfc7b8;
-  --ink-muted: #a89e8d;
-  --ink-faint: #766c5d;
-
-  --success-soft: #2e3a24;
-  --success-dark: #bcd9a8;
-
-  --border: #3a352c;
-  --border-soft: #322e26;
-  --border-strong: #4a4536;
-
-  --sh-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --sh-md: 0 2px 8px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --sh-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-/* ---- Componentes com fundo fixo (não usam as variáveis acima) que no
-   modo claro coincidem com branco/tons pastel e precisam de um valor
-   próprio no modo escuro para o texto (que usa var(--ink...)) continuar
-   legível ---- */
-:root[data-theme="dark"] .btn-header,
-:root[data-theme="dark"] .btn-secondary,
-:root[data-theme="dark"] .toggle-btn.active,
-:root[data-theme="dark"] .input:focus,
-:root[data-theme="dark"] .input.error,
-:root[data-theme="dark"] .option,
-:root[data-theme="dark"] .sub-option,
-:root[data-theme="dark"] .checkbox,
-:root[data-theme="dark"] .plan-hero-meta span,
-:root[data-theme="dark"] .meal-card,
-:root[data-theme="dark"] #btn-back-top,
-:root[data-theme="dark"] #btn-back-bottom {
-  background: var(--surface);
-}
-
-:root[data-theme="dark"] .meal-row.solid,
-:root[data-theme="dark"] .meal-card.solid .meal-card-head,
-:root[data-theme="dark"] .meal-card.solid .meal-totals {
-  background: var(--accent-softer);
-}
-:root[data-theme="dark"] .meal-card.shake .meal-card-head,
-:root[data-theme="dark"] .meal-card.shake .meal-totals {
-  background: var(--success-soft);
-}
-:root[data-theme="dark"] .meal-card-visual {
-  background: transparent;
-  box-shadow: none;
-}
-:root[data-theme="dark"] .ingredient-substituted { background: var(--success-soft); }
-:root[data-theme="dark"] .ingredient-edited      { background: #332b12; }
-:root[data-theme="dark"] .ingredient-added       { background: #1f2a3d; }
-:root[data-theme="dark"] .ing-edit-btn           { color: #7fb0e8; }
-:root[data-theme="dark"] .ing-edit-btn:hover     { color: #a8c8f0; }
-:root[data-theme="dark"] .ing-remove-btn         { color: #e8837d; }
-:root[data-theme="dark"] .ing-remove-btn:hover   { color: #f0a29d; }
-:root[data-theme="dark"] .ing-add-btn:hover      { background: #24361f; }
-:root[data-theme="dark"] .ing-add-btn:active     { background: #1c2c18; }
-
-:root[data-theme="dark"] .meal-note,
-:root[data-theme="dark"] .local-data-modal-note,
-:root[data-theme="dark"] .add-food-accordion > summary {
-  background: var(--surface-soft);
-}
-:root[data-theme="dark"] .add-food-accordion > summary:hover,
-:root[data-theme="dark"] .add-food-accordion[open] > summary {
-  background: #332f28;
-}
-:root[data-theme="dark"] .sub-cat-custom { color: #d4c86a; }
-
-:root[data-theme="dark"] .ing-lib-btn                    { color: #e2967d; }
-:root[data-theme="dark"] .ing-recipe-btn                 { color: #8fb4e0; }
-:root[data-theme="dark"] .ing-recipe-btn:hover            { color: #b8d0f0; }
-:root[data-theme="dark"] .ing-revert-recipe-btn           { color: #e08a95; }
-:root[data-theme="dark"] .ing-revert-recipe-btn:hover     { color: #f0aab0; }
-:root[data-theme="dark"] .meal-card-badge-recipe          { color: #b8d0f0; }
-:root[data-theme="dark"] .recipe-modal-item--selected .recipe-modal-name { color: #b8d0f0; }
-
-:root[data-theme="dark"] .help-fab-restore { color: #8fc97c; border-color: #8fc97c; }
-
-:root[data-theme="dark"] .nav-link:hover,
-:root[data-theme="dark"] .header-reset-btn:hover,
-:root[data-theme="dark"] .header-theme-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-:root[data-theme="dark"] .nav-link.active { background: rgba(255, 255, 255, 0.08); }
-
-/* Cartão "Diagnóstico Inteligente da Rotina" em /resultados — no modo
-   claro usa um gradiente quase opaco + cores de texto fixas por estado;
-   ambos precisam de um valor próprio no escuro (ver resultados.js) */
-:root[data-theme="dark"] .feedback-box { background: var(--surface) !important; }
-:root[data-theme="dark"] .feedback-box.feedback-success .feedback-headline,
-:root[data-theme="dark"] .feedback-box.feedback-success .feedback-summary { color: #4ade80 !important; }
-:root[data-theme="dark"] .feedback-box.feedback-info .feedback-headline,
-:root[data-theme="dark"] .feedback-box.feedback-info .feedback-summary { color: #7fb2ff !important; }
-:root[data-theme="dark"] .feedback-box.feedback-warning .feedback-headline,
-:root[data-theme="dark"] .feedback-box.feedback-warning .feedback-summary { color: #fbbf24 !important; }
-:root[data-theme="dark"] .feedback-box.feedback-danger .feedback-headline,
-:root[data-theme="dark"] .feedback-box.feedback-danger .feedback-summary { color: #f87171 !important; }
