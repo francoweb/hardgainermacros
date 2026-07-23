@@ -8152,5 +8152,51 @@ test.describe('Plano Alimentar 14 Dias - tema e espacamento visual', () => {
     expect(pageErrors).toEqual([]);
   });
 
+  test('C-PLAN-THEME-3 - home em modo escuro mantém contraste legivel nos controlos de unidade e sexo', async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+
+    await page.addInitScript(() => {
+      localStorage.setItem('hg:cookies', JSON.stringify('accepted'));
+      localStorage.setItem('hg:theme', JSON.stringify('dark'));
+    });
+
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.waitForSelector('[data-unit="metric"]');
+    await page.waitForSelector('[data-sex="male"]');
+
+    await page.locator('[data-sex="male"]').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('#header-theme-toggle')).toBeVisible();
+
+    const styles = await page.evaluate(() => {
+      const metric = document.querySelector('[data-unit="metric"]');
+      const imperial = document.querySelector('[data-unit="imperial"]');
+      const male = document.querySelector('[data-sex="male"]');
+      const female = document.querySelector('[data-sex="female"]');
+      const metricCs = getComputedStyle(metric);
+      const imperialCs = getComputedStyle(imperial);
+      const maleCs = getComputedStyle(male);
+      const femaleCs = getComputedStyle(female);
+      return {
+        metric: { bg: metricCs.backgroundColor, color: metricCs.color },
+        imperial: { bg: imperialCs.backgroundColor, color: imperialCs.color },
+        male: { bg: maleCs.backgroundColor, color: maleCs.color, border: maleCs.borderColor },
+        female: { bg: femaleCs.backgroundColor, color: femaleCs.color, border: femaleCs.borderColor },
+      };
+    });
+
+    expect(styles.metric.bg).not.toBe('rgb(255, 255, 255)');
+    expect(styles.metric.color).not.toBe(styles.metric.bg);
+    expect(styles.imperial.color).not.toBe('rgb(255, 255, 255)');
+    expect(styles.male.bg).not.toBe('rgb(255, 255, 255)');
+    expect(styles.male.color).not.toBe(styles.male.bg);
+    expect(styles.male.border).not.toBe('rgb(255, 255, 255)');
+    expect(styles.female.bg).not.toBe('rgb(255, 255, 255)');
+    expect(styles.female.color).not.toBe(styles.female.bg);
+    expect(pageErrors).toEqual([]);
+  });
+
 });
 

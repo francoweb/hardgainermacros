@@ -3033,6 +3033,37 @@ body { max-width: 100%; overflow-x: hidden; }
   --sh-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+:root[data-theme="dark"] .toggle-btn {
+  color: var(--ink-soft);
+}
+
+:root[data-theme="dark"] .toggle-btn.active {
+  background: var(--accent-softer);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px rgba(240, 196, 180, 0.18), var(--sh-sm);
+}
+
+:root[data-theme="dark"] .toggle-btn:not(.active):hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] .option {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .option:hover {
+  background: var(--surface-soft);
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="dark"] .option.selected {
+  background: var(--accent-softer);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(194, 109, 90, 0.16);
+}
+
 :root[data-theme="dark"] .plan-hero-meta span,
 :root[data-theme="dark"] .meal-card {
   background: var(--surface);

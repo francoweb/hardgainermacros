@@ -538,4 +538,44 @@ test.describe('Plano 14 Dias no mobile - tema e espacamento visual', () => {
     expect(layout.bodyWidth).toBeLessThanOrEqual(390);
     expect(pageErrors).toEqual([]);
   });
+
+  test('C-MOBILE-THEME-3 - home em modo escuro mantém contraste legivel dos controlos em 390px', async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+
+    await page.setViewportSize(MOBILE_390);
+    await page.addInitScript(() => {
+      localStorage.setItem('hg:cookies', JSON.stringify('accepted'));
+      localStorage.setItem('hg:theme', JSON.stringify('dark'));
+    });
+
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.waitForSelector('[data-unit="metric"]');
+    await page.waitForSelector('[data-sex="male"]');
+
+    await page.locator('[data-sex="female"]').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('#header-theme-toggle')).toBeVisible();
+
+    const styles = await page.evaluate(() => {
+      const metric = document.querySelector('[data-unit="metric"]');
+      const female = document.querySelector('[data-sex="female"]');
+      const metricCs = getComputedStyle(metric);
+      const femaleCs = getComputedStyle(female);
+      return {
+        metric: { bg: metricCs.backgroundColor, color: metricCs.color },
+        female: { bg: femaleCs.backgroundColor, color: femaleCs.color, border: femaleCs.borderColor },
+        bodyWidth: document.documentElement.scrollWidth,
+      };
+    });
+
+    expect(styles.metric.bg).not.toBe('rgb(255, 255, 255)');
+    expect(styles.metric.color).not.toBe(styles.metric.bg);
+    expect(styles.female.bg).not.toBe('rgb(255, 255, 255)');
+    expect(styles.female.color).not.toBe(styles.female.bg);
+    expect(styles.female.border).not.toBe('rgb(255, 255, 255)');
+    expect(styles.bodyWidth).toBeLessThanOrEqual(390);
+    expect(pageErrors).toEqual([]);
+  });
 });
