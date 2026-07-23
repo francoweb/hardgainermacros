@@ -8078,3 +8078,61 @@ test.describe('Lista de Compras — Quantidades Práticas', () => {
 
 });
 
+test.describe('Plano Alimentar 14 Dias - tema e espacamento visual', () => {
+  test('C-PLAN-THEME-1 - botao de tema visivel no desktop alterna claro/escuro e persiste apos reload', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const themeBtn = page.locator('#header-theme-toggle');
+    await expect(themeBtn).toBeVisible();
+    await expect(themeBtn).toHaveAttribute('aria-label', /modo escuro/i);
+    await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+
+    await themeBtn.click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(themeBtn).toHaveAttribute('aria-label', /modo claro/i);
+
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('#header-theme-toggle')).toHaveAttribute('aria-label', /modo claro/i);
+    await page.locator('#header-theme-toggle').click();
+    await expect(page.locator('html')).not.toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('#header-theme-toggle')).toHaveAttribute('aria-label', /modo escuro/i);
+  });
+
+  test('C-PLAN-THEME-2 - faixa de macros recupera padding lateral no desktop', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const totals = page.locator('#day-body-0 .meal-card .meal-totals').first();
+    await expect(totals).toBeVisible();
+
+    const layout = await totals.evaluate(el => {
+      const cs = getComputedStyle(el);
+      const first = el.querySelector('.meal-total');
+      const last = el.querySelector('.meal-total:last-child');
+      const rect = el.getBoundingClientRect();
+      const firstRect = first.getBoundingClientRect();
+      const lastRect = last.getBoundingClientRect();
+      return {
+        paddingLeft: cs.paddingLeft,
+        paddingRight: cs.paddingRight,
+        gap: cs.gap,
+        display: cs.display,
+        offsetLeft: Math.round(firstRect.left - rect.left),
+        offsetRight: Math.round(rect.right - lastRect.right),
+      };
+    });
+
+    expect(layout.display).toBe('flex');
+    expect(layout.paddingLeft).toBe('16px');
+    expect(layout.paddingRight).toBe('16px');
+    expect(layout.gap).toBe('12px');
+    expect(layout.offsetLeft).toBeGreaterThanOrEqual(16);
+    expect(layout.offsetRight).toBeGreaterThanOrEqual(16);
+  });
+});
+
