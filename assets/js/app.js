@@ -112,6 +112,12 @@ async function onRouteChange(page, path) {
   // Tornar tooltips acessíveis via teclado e tap (após render assíncrono)
   el.querySelectorAll('.label-help').forEach(tip => {
     if (!tip.hasAttribute('tabindex')) tip.setAttribute('tabindex', '0');
+    const tooltipText = tip.getAttribute('data-tooltip') || tip.getAttribute('title') || '';
+    if (tooltipText) {
+      tip.setAttribute('data-tooltip', tooltipText);
+      if (!tip.hasAttribute('aria-label')) tip.setAttribute('aria-label', tooltipText);
+      if (tip.hasAttribute('title')) tip.removeAttribute('title');
+    }
   });
 }
 

@@ -394,7 +394,7 @@ ul, ol { margin: 0; padding: 0; }
 .label-help:hover::after,
 .label-help:focus::after,
 .label-help.tooltip-open::after {
-  content: attr(title);
+  content: attr(data-tooltip);
   position: absolute;
   bottom: 24px;
   left: 50%;
@@ -3035,6 +3035,15 @@ body { max-width: 100%; overflow-x: hidden; }
 
 :root[data-theme="dark"] .toggle-btn {
   color: var(--ink-soft);
+}
+
+:root[data-theme="dark"] .label-help:hover::after,
+:root[data-theme="dark"] .label-help:focus::after,
+:root[data-theme="dark"] .label-help.tooltip-open::after {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--sh-md);
 }
 
 :root[data-theme="dark"] .toggle-btn.active {
