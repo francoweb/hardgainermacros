@@ -476,3 +476,66 @@ test.describe('UX Mobile — Plano Alimentar 14 Dias', () => {
   });
 
 });
+
+test.describe('Plano 14 Dias no mobile - tema e espacamento visual', () => {
+  test('C-MOBILE-THEME-1 - botao de tema visivel em 390px alterna e nao cria pageerror', async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+
+    await gotoPlanoMobile(page);
+
+    const themeBtn = page.locator('#header-theme-toggle');
+    await expect(themeBtn).toBeVisible();
+    await expect(themeBtn).toHaveAttribute('aria-label', /modo escuro/i);
+
+    await themeBtn.click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(themeBtn).toHaveAttribute('aria-label', /modo claro/i);
+
+    const scrollW = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(390);
+    expect(pageErrors).toEqual([]);
+  });
+
+  test('C-MOBILE-THEME-2 - persistencia do tema, macros com espacamento e imagens visiveis em 390px', async ({ page }) => {
+    const pageErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+
+    await gotoPlanoMobile(page);
+
+    await page.locator('#header-theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    await page.reload({ waitUntil: 'load' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('#header-theme-toggle')).toHaveAttribute('aria-label', /modo claro/i);
+    await expect(page.locator('#day-body-0 .meal-card').first().locator('[data-meal-image]')).toBeVisible();
+    await expect(page.locator('#day-body-0 .ingredient [data-food-image]').first()).toBeVisible();
+
+    const totals = page.locator('#day-body-0 .meal-card .meal-totals').first();
+    const layout = await totals.evaluate(el => {
+      const cs = getComputedStyle(el);
+      const first = el.querySelector('.meal-total');
+      const last = el.querySelector('.meal-total:last-child');
+      const rect = el.getBoundingClientRect();
+      const firstRect = first.getBoundingClientRect();
+      const lastRect = last.getBoundingClientRect();
+      return {
+        paddingLeft: cs.paddingLeft,
+        paddingRight: cs.paddingRight,
+        gap: cs.gap,
+        offsetLeft: Math.round(firstRect.left - rect.left),
+        offsetRight: Math.round(rect.right - lastRect.right),
+        bodyWidth: document.documentElement.scrollWidth,
+      };
+    });
+
+    expect(layout.paddingLeft).toBe('12px');
+    expect(layout.paddingRight).toBe('12px');
+    expect(layout.gap).toBe('8px 10px');
+    expect(layout.offsetLeft).toBeGreaterThanOrEqual(12);
+    expect(layout.offsetRight).toBeGreaterThanOrEqual(12);
+    expect(layout.bodyWidth).toBeLessThanOrEqual(390);
+    expect(pageErrors).toEqual([]);
+  });
+});

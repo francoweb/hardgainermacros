@@ -3,7 +3,26 @@
  */
 
 import { icons } from '../modules/icons.js';
-import { session, K, resetAll } from '../modules/storage.js';
+import { session, K, resetAll, loadTheme, saveTheme } from '../modules/storage.js';
+
+function applyTheme(theme) {
+  const next = theme === 'dark' ? 'dark' : 'light';
+  const root = document.documentElement;
+  if (next === 'dark') root.setAttribute('data-theme', 'dark');
+  else root.removeAttribute('data-theme');
+}
+
+function syncThemeButton(themeBtn) {
+  if (!themeBtn) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  themeBtn.innerHTML = isDark ? icons.moon(16) : icons.sun(16);
+  themeBtn.setAttribute('aria-label', isDark ? 'Ativar modo claro' : 'Ativar modo escuro');
+  themeBtn.setAttribute('title', isDark ? 'Ativar modo claro' : 'Ativar modo escuro');
+}
+
+if (typeof document !== 'undefined') {
+  applyTheme(loadTheme());
+}
 
 /* ---------- HEADER ---------- */
 export function renderHeader() {
@@ -15,6 +34,7 @@ export function renderHeader() {
       const href = link.getAttribute('href');
       link.classList.toggle('active', href === path || (href !== '/' && path.startsWith(href)));
     });
+    syncThemeButton(existing.querySelector('#header-theme-toggle'));
     return;
   }
 
@@ -51,6 +71,10 @@ export function renderHeader() {
         <a href="/atualizacoes" data-route class="nav-link">Novidades</a>
       </nav>
 
+      <button class="header-theme-btn" id="header-theme-toggle" aria-label="Alternar tema claro/escuro" title="Alternar tema claro/escuro">
+        ${loadTheme() === 'dark' ? icons.moon(16) : icons.sun(16)}
+      </button>
+
       <button class="header-reset-btn" id="header-reset" aria-label="Resetar dados" title="Apagar dados e recomeçar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="1 4 1 10 7 10"></polyline>
@@ -60,6 +84,16 @@ export function renderHeader() {
     </div>
   `;
   document.body.prepend(nav);
+
+  const themeBtn = nav.querySelector('#header-theme-toggle');
+  syncThemeButton(themeBtn);
+  themeBtn?.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    applyTheme(next);
+    saveTheme(next);
+    syncThemeButton(themeBtn);
+  });
 
   // Reset de dados
   const resetBtn = nav.querySelector('#header-reset');

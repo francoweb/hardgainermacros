@@ -31,6 +31,7 @@ export const K = {
   REMOVALS:      `${PREFIX}removals`,
   EDITS:         `${PREFIX}edits`,
   RECIPE_MEALS:  `${PREFIX}recipe_meals`,   // Sprint R4-C
+  THEME: `${PREFIX}theme`,
   COOKIES: `${PREFIX}cookies`,
 
   // sessionStorage (progresso de sessão)
@@ -138,6 +139,15 @@ export function loadEdits()           { return local.get(K.EDITS) || {}; }
 /** Sprint R4-C — receitas aplicadas a refeições específicas do plano. */
 export function saveRecipeMeals(data) { local.set(K.RECIPE_MEALS, data); }
 export function loadRecipeMeals()     { return local.get(K.RECIPE_MEALS) || {}; }
+
+export function saveTheme(theme) {
+  const next = theme === 'dark' ? 'dark' : 'light';
+  local.set(K.THEME, next);
+}
+
+export function loadTheme() {
+  return local.get(K.THEME) === 'dark' ? 'dark' : 'light';
+}
 
 /**
  * Reset completo (Editar / Reiniciar).
