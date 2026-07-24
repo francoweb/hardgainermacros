@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-07-24',
+    type: 'Melhoria',
+    title: 'PDFs do plano agora incluem as ilustrações das refeições e alimentos',
+    description:
+      'Os três formatos de PDF do plano alimentar passaram a mostrar a imagem completa de cada refeição e as miniaturas dos alimentos disponíveis, mantendo o layout compacto e sem criar espaços vazios quando um ingrediente não tem ilustração.',
+    tags: ['Plano alimentar', 'PDF'],
+    highlight: false,
+  },
+  {
     type: 'feature',
     date: '2026-07-05',
     title: 'Calculadora de Macros por Alimento',

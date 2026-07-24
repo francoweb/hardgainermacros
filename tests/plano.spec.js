@@ -357,6 +357,164 @@ test.describe('Plano Alimentar 14 Dias - imagens das refeicoes', () => {
   });
 });
 
+test.describe('Plano Alimentar 14 Dias - imagens nos PDFs', () => {
+  test('C-PDF-IMG-1 - PDF do dia inclui imagem da refeicao e miniatura de alimento disponivel', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const mealImage = page.locator('#day-pdf-print-area [data-pdf-meal-image]').first();
+    const foodImage = page.locator('#day-pdf-print-area [data-pdf-food-image]').first();
+    const firstMealTemplateId = await page.locator('#day-body-0 .meal-card').first().getAttribute('data-template-id');
+    const firstFoodId = await page.locator('#day-pdf-print-area [data-pdf-food-visual]').first().getAttribute('data-food-id');
+    const mealNatural = await mealImage.evaluate(el => ({ width: el.naturalWidth, height: el.naturalHeight }));
+    const foodNatural = await foodImage.evaluate(el => ({ width: el.naturalWidth, height: el.naturalHeight }));
+
+    expect(firstMealTemplateId).toBeTruthy();
+    expect(firstFoodId).toBeTruthy();
+    expect(mealNatural.width).toBeGreaterThan(0);
+    expect(mealNatural.height).toBeGreaterThan(0);
+    expect(foodNatural.width).toBeGreaterThan(0);
+    expect(foodNatural.height).toBeGreaterThan(0);
+    await expect(mealImage).toHaveAttribute('src', new RegExp(`${firstMealTemplateId}\\.webp$`));
+    await expect(foodImage).toHaveAttribute('src', new RegExp(`${firstFoodId}\\.webp$`));
+    await expect(page.locator('#day-pdf-print-area button')).toHaveCount(0);
+  });
+
+  test('C-PDF-IMG-2 - PDF do dia nao cria img nem request para alimento sem WebP ou manual', async ({ page }) => {
+    const imageRequests = watchImageRequests(page);
+    await injectState(page, CENARIO_6);
+    await page.addInitScript(() => {
+      localStorage.setItem('hg:custom_foods', JSON.stringify([
+        {
+          id: 'manual_pdf_sem_img',
+          name: 'Manual PDF Sem Imagem',
+          category: 'extra',
+          source: 'custom',
+          per100: { kcal: 180, prot: 8, carb: 14, fat: 10 },
+        },
+      ]));
+      localStorage.setItem('hg:additions', JSON.stringify({
+        '0:0': [
+          {
+            id: 'addition_pdf_atum',
+            food: 'atum_agua',
+            grams: 120,
+            unit: 'g',
+            snapshot: {
+              name: 'Atum em água',
+              category: 'protein',
+              source: 'library',
+              per100: { kcal: 116, prot: 26, carb: 0, fat: 1 },
+            },
+          },
+          {
+            id: 'addition_pdf_manual',
+            food: 'manual_pdf_sem_img',
+            grams: 90,
+            unit: 'g',
+            snapshot: {
+              name: 'Manual PDF Sem Imagem',
+              category: 'extra',
+              source: 'custom',
+              per100: { kcal: 180, prot: 8, carb: 14, fat: 10 },
+            },
+          },
+        ],
+      }));
+      localStorage.setItem('hg:recipe_meals', JSON.stringify({
+        '0:0': {
+          recipeId: 'receita-pdf-img',
+          recipeName: 'Receita PDF Visual',
+          fitLabel: 'Compatível',
+          ingredients: [
+            {
+              food: 'whey',
+              label: 'Whey',
+              grams: 30,
+              display: '30g',
+              macros: { kcal: 120, prot: 24, carb: 3, fat: 2 },
+            },
+            {
+              food: 'banana_prata',
+              label: 'Banana prata',
+              grams: 80,
+              display: '1 banana pequena (~80g)',
+              macros: { kcal: 71, prot: 0.8, carb: 18.4, fat: 0.1 },
+            },
+            {
+              food: 'atum_agua',
+              label: 'Atum em água',
+              grams: 60,
+              display: '60g',
+              macros: { kcal: 70, prot: 15, carb: 0, fat: 0.6 },
+            },
+          ],
+          totals: { kcal: 261, prot: 39.8, carb: 21.4, fat: 2.7 },
+          steps: ['Misture tudo.'],
+        },
+      }));
+    });
+
+    await gotoResultados(page);
+
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('[data-pdf-day="0"]').first().click();
+    await page.waitForSelector('#day-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const recipeMeal = page.locator('#day-pdf-print-area .meal-block').filter({ hasText: 'Receita PDF Visual' }).first();
+    await expect(recipeMeal.locator('[data-food-id="whey"] [data-pdf-food-image]')).toHaveCount(1);
+    await expect(recipeMeal.locator('[data-food-id="banana_prata"] [data-pdf-food-image]')).toHaveCount(1);
+    await expect(recipeMeal.locator('[data-food-id="atum_agua"] [data-pdf-food-image]')).toHaveCount(0);
+    await expect(recipeMeal.locator('[data-food-id="manual_pdf_sem_img"] [data-pdf-food-image]')).toHaveCount(0);
+
+    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+    expect(imageRequests.filter(r => /manual_pdf_sem_img/i.test(r.url))).toHaveLength(0);
+  });
+
+  test('C-PDF-IMG-3 - plano completo inclui imagens de refeicoes e alimentos', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => { window.print = () => {}; });
+    await page.locator('#btn-print').click();
+    await page.waitForSelector('#full-pdf-print-area', { state: 'attached', timeout: 5000 });
+
+    const mealImage = page.locator('#full-pdf-print-area [data-pdf-meal-image]').first();
+    const foodImage = page.locator('#full-pdf-print-area [data-pdf-food-image]').first();
+    const mealNatural = await mealImage.evaluate(el => ({ width: el.naturalWidth, height: el.naturalHeight }));
+    const foodNatural = await foodImage.evaluate(el => ({ width: el.naturalWidth, height: el.naturalHeight }));
+
+    expect(mealNatural.width).toBeGreaterThan(0);
+    expect(mealNatural.height).toBeGreaterThan(0);
+    expect(foodNatural.width).toBeGreaterThan(0);
+    expect(foodNatural.height).toBeGreaterThan(0);
+    await expect(page.locator('#full-pdf-print-area button')).toHaveCount(0);
+  });
+
+  test('C-PDF-IMG-4 - PDF compacto inclui imagens e preserva 14 paginas', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const html = await captureCompactPdfHtml(page);
+    const dayMatches = html.match(/class=\"c-day(?: page-break)?\"/g) || [];
+    const pageBreakMatches = html.match(/class=\"c-day page-break\"/g) || [];
+
+    expect(html).toContain('data-pdf-meal-image');
+    expect(html).toContain('data-pdf-food-image');
+    expect(dayMatches).toHaveLength(14);
+    expect(pageBreakMatches).toHaveLength(13);
+  });
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Grupo: P1 — "Princípios das Receitas" condicional por estratégia
 // ─────────────────────────────────────────────────────────────────────────────
