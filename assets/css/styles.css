@@ -3046,6 +3046,57 @@ body { max-width: 100%; overflow-x: hidden; }
   box-shadow: var(--sh-md);
 }
 
+:root[data-theme="dark"] #calculadora .input {
+  background: var(--bg-soft);
+  color: var(--ink);
+  border-color: var(--border-soft);
+  caret-color: var(--ink);
+  color-scheme: dark;
+}
+
+:root[data-theme="dark"] #calculadora .input::placeholder {
+  color: var(--ink-muted);
+  opacity: 1;
+}
+
+:root[data-theme="dark"] #calculadora .input:hover {
+  background: var(--surface-soft);
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="dark"] #calculadora .input:focus,
+:root[data-theme="dark"] #calculadora .input:focus-visible {
+  outline: none;
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(194, 109, 90, 0.18);
+}
+
+:root[data-theme="dark"] #calculadora .input.error {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--protein);
+}
+
+:root[data-theme="dark"] #calculadora .input-icon {
+  color: var(--ink-soft);
+}
+
+:root[data-theme="dark"] #calculadora .input-wrap:focus-within .input-icon {
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] #calculadora .input:-webkit-autofill,
+:root[data-theme="dark"] #calculadora .input:-webkit-autofill:hover,
+:root[data-theme="dark"] #calculadora .input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  box-shadow: 0 0 0 1000px var(--surface) inset;
+  border: 1px solid var(--accent);
+}
+
 :root[data-theme="dark"] .toggle-btn.active {
   background: var(--accent-softer);
   color: var(--ink);
