@@ -3046,6 +3046,25 @@ body { max-width: 100%; overflow-x: hidden; }
   box-shadow: var(--sh-md);
 }
 
+:root[data-theme="dark"] .btn-secondary,
+:root[data-theme="dark"] #btn-back-top,
+:root[data-theme="dark"] #btn-back-bottom {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="dark"] .btn-secondary:hover,
+:root[data-theme="dark"] .btn-secondary:focus-visible,
+:root[data-theme="dark"] #btn-back-top:hover,
+:root[data-theme="dark"] #btn-back-top:focus-visible,
+:root[data-theme="dark"] #btn-back-bottom:hover,
+:root[data-theme="dark"] #btn-back-bottom:focus-visible {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
 :root[data-theme="dark"] #calculadora .input {
   background: var(--bg-soft);
   color: var(--ink);
