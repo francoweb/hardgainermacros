@@ -227,21 +227,21 @@ test.describe('Plano 14 Dias no mobile - imagens dos alimentos', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
     await page.locator('[data-swap]').first().click();
-    await expect(page.locator('[data-testid="sub-current-visual"] [data-modal-food-image]')).toBeVisible();
+    await expect(page.locator('[data-testid="sub-current-visual"] [data-food-image]')).toBeVisible();
     let scrollW = await page.evaluate(() => document.body.scrollWidth);
     expect(scrollW).toBeLessThanOrEqual(395);
     await page.locator('[data-modal-close]').first().click();
 
     await page.locator('[data-add-library]').first().click();
-    await expect(page.locator('.lib-food-item [data-modal-food-image]').first()).toBeVisible();
+    await expect(page.locator('.lib-food-item [data-food-image]').first()).toBeVisible();
     scrollW = await page.evaluate(() => document.body.scrollWidth);
     expect(scrollW).toBeLessThanOrEqual(395);
     await page.locator('[data-modal-close]').first().click();
 
     await page.locator('[data-use-recipe]').first().click();
-    await expect(page.locator('.recipe-modal-item [data-modal-food-image]').first()).toBeVisible();
+    await expect(page.locator('.recipe-modal-item [data-food-image]').first()).toBeVisible();
     await page.locator('.recipe-modal-item').first().click();
-    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-modal-food-image]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-food-image]').first()).toBeVisible();
 
     scrollW = await page.evaluate(() => document.body.scrollWidth);
     expect(scrollW).toBeLessThanOrEqual(395);

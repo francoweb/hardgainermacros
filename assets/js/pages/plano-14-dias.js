@@ -719,16 +719,19 @@ function resolveFoodVisualById(foodId, foodName) {
   };
 }
 
-function renderModalFoodVisualById(foodId, foodName, { className = '', imageClass = '', size = 56, testId = '' } = {}) {
+function renderFoodVisualById(foodId, foodName, { className = '', size = 56, testId = '', muted = false } = {}) {
   const visual = resolveFoodVisualById(foodId, foodName);
   if (!visual) return '';
 
-  const classes = ['modal-food-visual', className].filter(Boolean).join(' ');
-  const imgClasses = ['modal-food-visual-image', imageClass].filter(Boolean).join(' ');
+  const classes = ['ingredient-visual', className, muted ? 'ingredient-visual-muted' : ''].filter(Boolean).join(' ');
   const testIdAttr = testId ? ` data-testid="${escapeHtml(testId)}"` : '';
 
   return `
-    <div class="${classes}" data-modal-food-visual data-food-id="${escapeHtml(visual.foodId)}"${testIdAttr}>
+    <div
+      class="${classes}"
+      data-food-visual="image"
+      data-food-id="${escapeHtml(visual.foodId)}"${testIdAttr}
+    >
       <img
         src="${escapeHtml(visual.src)}"
         alt="${escapeHtml(visual.alt)}"
@@ -736,15 +739,10 @@ function renderModalFoodVisualById(foodId, foodName, { className = '', imageClas
         decoding="async"
         width="${size}"
         height="${size}"
-        class="${imgClasses}"
-        data-modal-food-image
+        data-food-image
       >
     </div>
   `;
-}
-
-function renderModalFoodVisual(ing, ingName, options = {}) {
-  return renderModalFoodVisualById(ing?.food, ingName, options);
 }
 
 function getRecipeVisualItems(recipeLike, maxItems = 3) {
@@ -785,7 +783,7 @@ function renderRecipeVisual(recipeLike, { className = '', testId = '', maxItems 
   return `
     <div class="${classes}" data-recipe-visual${testIdAttr}>
       ${visuals.map((visual, idx) => `
-        <div class="recipe-visual-thumb recipe-visual-thumb-${idx + 1}" data-modal-food-visual data-food-id="${escapeHtml(visual.foodId)}">
+        <div class="recipe-visual-thumb recipe-visual-thumb-${idx + 1}" data-food-visual="image" data-food-id="${escapeHtml(visual.foodId)}">
           <img
             src="${escapeHtml(visual.src)}"
             alt="${escapeHtml(visual.alt)}"
@@ -793,7 +791,7 @@ function renderRecipeVisual(recipeLike, { className = '', testId = '', maxItems 
             decoding="async"
             width="64"
             height="64"
-            data-modal-food-image
+            data-food-image
           >
         </div>
       `).join('')}
@@ -807,26 +805,6 @@ function setIngredientVisualFallback(container) {
   if (foodId) missingIngredientVisualIds.add(foodId);
   container.closest('.ingredient')?.classList.remove('ingredient-has-visual');
   container.remove();
-}
-
-function setModalFoodVisualFallback(container) {
-  if (!container) return;
-  const foodId = container.dataset.foodId;
-  if (foodId) missingIngredientVisualIds.add(foodId);
-
-  const recipeVisual = container.closest('[data-recipe-visual]');
-  container.remove();
-  if (recipeVisual && !recipeVisual.querySelector('[data-modal-food-visual]')) {
-    recipeVisual.remove();
-  }
-}
-
-function bindModalFoodVisualFallbacks(root = document) {
-  root.querySelectorAll('[data-modal-food-image]').forEach(img => {
-    img.addEventListener('error', () => {
-      setModalFoodVisualFallback(img.closest('[data-modal-food-visual]'));
-    }, { once: true });
-  });
 }
 
 function renderPdfMealVisual(meal, { compact = false } = {}) {
@@ -1693,7 +1671,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
 
   const renderSubOpt = (opt) => {
     const sign = opt.sign !== undefined ? opt.sign : (opt.delta >= 0 ? '+' : '');
-    const optionVisual = renderModalFoodVisualById(opt.id, opt.food.name, {
+    const optionVisual = renderFoodVisualById(opt.id, opt.food.name, {
       className: 'sub-option-visual',
       size: 52,
       testId: `sub-option-visual-${opt.id}`,
@@ -1763,7 +1741,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
     </div>
     <div class="modal-body">
       <div class="sub-current">
-        ${renderModalFoodVisual(ing, ing.label || currentFood.name, { className: 'sub-current-visual', size: 64, testId: 'sub-current-visual' })}
+        ${renderFoodVisualById(ing.food, ing.label || currentFood.name, { className: 'sub-current-visual', size: 64, testId: 'sub-current-visual' })}
         <div class="sub-current-copy">
         <div class="sub-current-label">Alimento atual</div>
         <div class="sub-current-name">${ing.label || currentFood.name}</div>
@@ -1785,7 +1763,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
   `;
 
   const close = openModal(contentHtml);
-  bindModalFoodVisualFallbacks(document);
+  bindIngredientVisualFallbacks(document);
 
   // Accordion: close other categories when one opens, then scroll its summary
   // to the top of the modal (not the page) so the user sees the start of the list.
@@ -2002,7 +1980,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
     </div>
     <div class="modal-body">
       <div class="sub-current" style="margin-bottom: 12px;">
-        ${renderModalFoodVisualById(origIng.food, ingName, { className: 'sub-current-visual', size: 64, testId: 'edit-current-visual' })}
+        ${renderFoodVisualById(origIng.food, ingName, { className: 'sub-current-visual', size: 64, testId: 'edit-current-visual' })}
         <div class="sub-current-copy">
         <div class="sub-current-label">Ingrediente</div>
         <div class="sub-current-name">${escapeHtml(ingName)}</div>
@@ -2059,7 +2037,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
   `;
 
   const close = openModal(contentHtml);
-  bindModalFoodVisualFallbacks(document);
+  bindIngredientVisualFallbacks(document);
 
   const gramsInput = document.getElementById('epi-grams');
   const kcalInput  = document.getElementById('epi-kcal');
@@ -3424,7 +3402,7 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
 
   const renderItems = (items) => items.map(({ id, food, grams, macros, display }) => `
     <li class="lib-food-item">
-      ${renderModalFoodVisualById(id, food.name, { className: 'lib-food-visual', size: 52, testId: `lib-food-visual-${id}` })}
+      ${renderFoodVisualById(id, food.name, { className: 'lib-food-visual', size: 52, testId: `lib-food-visual-${id}` })}
       <div class="lib-food-info">
         <div class="lib-food-name">${escapeHtml(food.name)}</div>
         <div class="lib-food-qty">${escapeHtml(display)}</div>
@@ -3664,7 +3642,7 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
   `;
 
   const closeModal = openModal(contentHtml);  // Sprint R4-C: captura close para usar em applySelectedRecipe
-  bindModalFoodVisualFallbacks(document);
+  bindIngredientVisualFallbacks(document);
 
   // ── Handlers de clique nas receitas — após openModal reconstruir o DOM ─────
   document.querySelectorAll('.recipe-modal-item[data-recipe-id]').forEach(item => {
@@ -3689,7 +3667,7 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
       const panel = document.getElementById('recipe-preview-panel');
       if (panel) {
         panel.innerHTML = renderRecipePreview(displayResult);
-        bindModalFoodVisualFallbacks(panel);
+        bindIngredientVisualFallbacks(panel);
         panel.style.display = 'block';
         panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -3997,7 +3975,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
     </div>
     <div class="modal-body">
       <div class="sub-current" style="margin-bottom: 12px;">
-        ${renderModalFoodVisualById(addition.food, foodData.name, { className: 'sub-current-visual', size: 64, testId: 'edit-added-food-visual' })}
+        ${renderFoodVisualById(addition.food, foodData.name, { className: 'sub-current-visual', size: 64, testId: 'edit-added-food-visual' })}
         <div class="sub-current-copy">
           <div class="sub-current-label">Alimento</div>
           <div class="sub-current-name">${escapeHtml(foodData.name)}</div>
@@ -4060,8 +4038,7 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
   `;
 
   const close = openModal(contentHtml);
-  bindModalFoodVisualFallbacks(document);
-  bindModalFoodVisualFallbacks(document);
+  bindIngredientVisualFallbacks(document);
 
   // Hotfix R4-C — recalcular macros ao alterar porção base.
   // Usa foodData.per100 como baseline (mesma fórmula do pre-fill acima).

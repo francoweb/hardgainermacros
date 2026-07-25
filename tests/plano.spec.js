@@ -315,24 +315,24 @@ test.describe('Plano Alimentar 14 Dias - imagens nos modais', () => {
     });
 
     await page.locator('[data-swap]').first().click();
-    await expect(page.locator('[data-testid="sub-current-visual"] [data-modal-food-image]')).toBeVisible();
-    await expect(page.locator('.sub-option [data-modal-food-image]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="sub-current-visual"] [data-food-image]')).toBeVisible();
+    await expect(page.locator('.sub-option [data-food-image]').first()).toBeVisible();
     await page.locator('[data-modal-close]').first().click();
 
     await page.locator('[data-add-library]').first().click();
-    await expect(page.locator('.lib-food-item [data-modal-food-image]').first()).toBeVisible();
-    await expect(page.locator('.lib-my-products [data-modal-food-image]')).toHaveCount(0);
+    await expect(page.locator('.lib-food-item [data-food-image]').first()).toBeVisible();
+    await expect(page.locator('.lib-my-products [data-food-image]')).toHaveCount(0);
     await page.locator('.lib-add-btn:not(.lib-add-custom-btn)').first().click();
 
     await expect(page.locator('[data-edit-addition]').first()).toBeVisible();
     await page.locator('[data-edit-addition]').first().click();
-    await expect(page.locator('[data-testid="edit-added-food-visual"] [data-modal-food-image]')).toBeVisible();
+    await expect(page.locator('[data-testid="edit-added-food-visual"] [data-food-image]')).toBeVisible();
     await page.locator('[data-modal-close]').first().click();
 
     await page.locator('[data-use-recipe]').first().click();
-    await expect(page.locator('.recipe-modal-item [data-modal-food-image]').first()).toBeVisible();
+    await expect(page.locator('.recipe-modal-item [data-food-image]').first()).toBeVisible();
     await page.locator('.recipe-modal-item').first().click();
-    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-modal-food-image]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-food-image]').first()).toBeVisible();
 
     await page.waitForLoadState('networkidle');
 
