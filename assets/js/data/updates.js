@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-07-25',
+    type: 'Melhoria',
+    title: 'Os modais do plano agora mostram as ilustrações dos alimentos e receitas',
+    description:
+      'Os modais de substituir, editar, adicionar alimento e ver receitas passaram a exibir as ilustrações já disponíveis no plano, com fallback automático quando um item não tem imagem e sem criar espaços vazios ou links quebrados.',
+    tags: ['Plano alimentar', 'Imagens', 'Usabilidade'],
+    highlight: false,
+  },
+  {
     date: '2026-07-24',
     type: 'Melhoria',
     title: 'PDFs do plano agora incluem as ilustrações das refeições e alimentos',

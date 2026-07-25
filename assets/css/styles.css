@@ -1318,6 +1318,49 @@ ul, ol { margin: 0; padding: 0; }
 }
 .modal-close:hover { background: var(--border); }
 
+.modal-food-visual {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.modal-food-visual img,
+.modal-food-visual-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.recipe-visual {
+  position: relative;
+  width: 74px;
+  height: 62px;
+  flex: 0 0 auto;
+}
+.recipe-visual-thumb {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+}
+.recipe-visual-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.recipe-visual-thumb-1 { left: 0; bottom: 2px; }
+.recipe-visual-thumb-2 { left: 18px; top: 0; }
+.recipe-visual-thumb-3 { right: 0; bottom: 0; }
+
 .sub-option {
   border: 1px solid var(--border);
   border-radius: var(--r-md);
@@ -1328,6 +1371,15 @@ ul, ol { margin: 0; padding: 0; }
   background: #fff;
 }
 .sub-option:hover { border-color: var(--accent); background: var(--accent-softer); }
+.sub-option-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sub-option-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .sub-option-head {
   display: flex;
   align-items: center;
@@ -1346,6 +1398,17 @@ ul, ol { margin: 0; padding: 0; }
   border-radius: var(--r-md);
   padding: 10px 14px;
   margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sub-current-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sub-current-visual {
+  width: 64px;
+  height: 64px;
 }
 .sub-current-label {
   font-size: 10px;
@@ -1678,6 +1741,19 @@ details[open] > .sub-cat-label::after {
   border-bottom: 1px solid var(--border-soft);
 }
 .recipe-modal-item:last-child { border-bottom: none; }
+.recipe-modal-item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.recipe-modal-item-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.recipe-modal-visual {
+  width: 78px;
+  height: 66px;
+}
 .recipe-modal-item-head {
   display: flex;
   align-items: center;
@@ -1738,6 +1814,17 @@ details[open] > .sub-cat-label::after {
 }
 .recipe-preview { display: flex; flex-direction: column; gap: 8px; }
 .recipe-preview-head   { margin-bottom: 2px; }
+.recipe-preview-visual {
+  width: 96px;
+  height: 84px;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+.recipe-preview-visual .recipe-visual-thumb {
+  width: 54px;
+  height: 54px;
+}
+.recipe-preview-visual .recipe-visual-thumb-2 { left: 22px; }
 .recipe-preview-title  { font-size: 14px; font-weight: 700; color: var(--ink); }
 .recipe-preview-sub    { font-size: 12px; color: var(--ink-muted); }
 .recipe-preview-macros {
@@ -1813,6 +1900,10 @@ details[open] > .sub-cat-label::after {
   border-bottom: 1px solid var(--border-soft);
 }
 .lib-food-item:last-child { border-bottom: none; }
+.lib-food-visual {
+  width: 52px;
+  height: 52px;
+}
 .lib-food-info { flex: 1; min-width: 0; }
 .lib-food-name { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
 .lib-food-qty  { font-size: 12px; color: var(--ink-soft); margin-bottom: 1px; }
@@ -1889,9 +1980,57 @@ details[open] > .sub-cat-label::after {
   .add-food-grid          { grid-template-columns: 1fr; }
   .add-food-macros-grid   { grid-template-columns: 1fr 1fr; }
   .add-food-optional-grid { grid-template-columns: 1fr 1fr; }
+  .sub-option-main,
+  .sub-current,
+  .recipe-modal-item-main,
+  .lib-food-item {
+    align-items: flex-start;
+  }
 }
 @media (max-width: 420px) {
   .add-food-macros-grid   { grid-template-columns: 1fr 1fr; }
+  .sub-option {
+    padding: 12px;
+  }
+  .sub-option-main,
+  .sub-current,
+  .recipe-modal-item-main,
+  .lib-food-item {
+    gap: 10px;
+  }
+  .modal-food-visual,
+  .lib-food-visual {
+    width: 44px;
+    height: 44px;
+  }
+  .sub-current-visual {
+    width: 52px;
+    height: 52px;
+  }
+  .recipe-modal-visual {
+    width: 64px;
+    height: 56px;
+  }
+  .recipe-modal-visual .recipe-visual-thumb {
+    width: 36px;
+    height: 36px;
+  }
+  .recipe-modal-visual .recipe-visual-thumb-2 { left: 14px; }
+  .recipe-preview-visual {
+    width: 78px;
+    height: 68px;
+  }
+  .recipe-preview-visual .recipe-visual-thumb {
+    width: 44px;
+    height: 44px;
+  }
+  .recipe-preview-visual .recipe-visual-thumb-2 { left: 16px; }
+  .sub-option-head {
+    flex-wrap: wrap;
+  }
+  .lib-food-item {
+    gap: 8px;
+  }
 }
 
 /* --- Local data notice (banner no topo do plano) --- */

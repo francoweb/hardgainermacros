@@ -213,6 +213,41 @@ test.describe('Plano 14 Dias no mobile - imagens dos alimentos', () => {
     const scrollW = await page.evaluate(() => document.body.scrollWidth);
     expect(scrollW, 'Mobile 390px deve continuar sem overflow com miniaturas de ingredientes').toBeLessThanOrEqual(395);
   });
+
+  test('C-MOBILE-MODAL-IMG-1 - Mobile 390px em modo escuro mostra imagens nos modais sem overflow', async ({ page }) => {
+    const pageErrors = [];
+    const consoleErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+
+    await gotoPlanoMobile(page);
+    await page.locator('#header-theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('[data-testid="sub-current-visual"] [data-modal-food-image]')).toBeVisible();
+    let scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+    await page.locator('[data-modal-close]').first().click();
+
+    await page.locator('[data-add-library]').first().click();
+    await expect(page.locator('.lib-food-item [data-modal-food-image]').first()).toBeVisible();
+    scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+    await page.locator('[data-modal-close]').first().click();
+
+    await page.locator('[data-use-recipe]').first().click();
+    await expect(page.locator('.recipe-modal-item [data-modal-food-image]').first()).toBeVisible();
+    await page.locator('.recipe-modal-item').first().click();
+    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-modal-food-image]').first()).toBeVisible();
+
+    scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+  });
 });
 
 test.describe('Plano 14 Dias no mobile - imagem da refeicao', () => {

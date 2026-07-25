@@ -705,12 +705,128 @@ function renderIngredientVisual(ing, ingName, { muted = false } = {}) {
   `;
 }
 
+function resolveFoodVisualById(foodId, foodName) {
+  const safeId = typeof foodId === 'string' ? foodId.trim() : '';
+  if (!safeId || missingIngredientVisualIds.has(safeId)) return null;
+
+  const officialFood = getFood(safeId);
+  if (!officialFood || !hasFoodImage(safeId)) return null;
+
+  return {
+    foodId: safeId,
+    src: `assets/images/foods/${safeId}.webp`,
+    alt: `Ilustração de ${foodName || officialFood.name || 'alimento'}`,
+  };
+}
+
+function renderModalFoodVisualById(foodId, foodName, { className = '', imageClass = '', size = 56, testId = '' } = {}) {
+  const visual = resolveFoodVisualById(foodId, foodName);
+  if (!visual) return '';
+
+  const classes = ['modal-food-visual', className].filter(Boolean).join(' ');
+  const imgClasses = ['modal-food-visual-image', imageClass].filter(Boolean).join(' ');
+  const testIdAttr = testId ? ` data-testid="${escapeHtml(testId)}"` : '';
+
+  return `
+    <div class="${classes}" data-modal-food-visual data-food-id="${escapeHtml(visual.foodId)}"${testIdAttr}>
+      <img
+        src="${escapeHtml(visual.src)}"
+        alt="${escapeHtml(visual.alt)}"
+        loading="lazy"
+        decoding="async"
+        width="${size}"
+        height="${size}"
+        class="${imgClasses}"
+        data-modal-food-image
+      >
+    </div>
+  `;
+}
+
+function renderModalFoodVisual(ing, ingName, options = {}) {
+  return renderModalFoodVisualById(ing?.food, ingName, options);
+}
+
+function getRecipeVisualItems(recipeLike, maxItems = 3) {
+  const source = Array.isArray(recipeLike?.scaledIngredients)
+    ? recipeLike.scaledIngredients
+    : Array.isArray(recipeLike?.ingredients)
+      ? recipeLike.ingredients
+      : [];
+
+  const visuals = [];
+  const seen = new Set();
+
+  source.forEach(item => {
+    const foodId = typeof item?.foodId === 'string'
+      ? item.foodId.trim()
+      : typeof item?.food === 'string'
+        ? item.food.trim()
+        : '';
+    if (!foodId || seen.has(foodId)) return;
+
+    const visual = resolveFoodVisualById(foodId, item?.name || item?.label || '');
+    if (!visual) return;
+
+    seen.add(foodId);
+    visuals.push(visual);
+  });
+
+  return visuals.slice(0, maxItems);
+}
+
+function renderRecipeVisual(recipeLike, { className = '', testId = '', maxItems = 3 } = {}) {
+  const visuals = getRecipeVisualItems(recipeLike, maxItems);
+  if (!visuals.length) return '';
+
+  const classes = ['recipe-visual', className].filter(Boolean).join(' ');
+  const testIdAttr = testId ? ` data-testid="${escapeHtml(testId)}"` : '';
+
+  return `
+    <div class="${classes}" data-recipe-visual${testIdAttr}>
+      ${visuals.map((visual, idx) => `
+        <div class="recipe-visual-thumb recipe-visual-thumb-${idx + 1}" data-modal-food-visual data-food-id="${escapeHtml(visual.foodId)}">
+          <img
+            src="${escapeHtml(visual.src)}"
+            alt="${escapeHtml(visual.alt)}"
+            loading="lazy"
+            decoding="async"
+            width="64"
+            height="64"
+            data-modal-food-image
+          >
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function setIngredientVisualFallback(container) {
   if (!container) return;
   const foodId = container.dataset.foodId;
   if (foodId) missingIngredientVisualIds.add(foodId);
   container.closest('.ingredient')?.classList.remove('ingredient-has-visual');
   container.remove();
+}
+
+function setModalFoodVisualFallback(container) {
+  if (!container) return;
+  const foodId = container.dataset.foodId;
+  if (foodId) missingIngredientVisualIds.add(foodId);
+
+  const recipeVisual = container.closest('[data-recipe-visual]');
+  container.remove();
+  if (recipeVisual && !recipeVisual.querySelector('[data-modal-food-visual]')) {
+    recipeVisual.remove();
+  }
+}
+
+function bindModalFoodVisualFallbacks(root = document) {
+  root.querySelectorAll('[data-modal-food-image]').forEach(img => {
+    img.addEventListener('error', () => {
+      setModalFoodVisualFallback(img.closest('[data-modal-food-visual]'));
+    }, { once: true });
+  });
 }
 
 function renderPdfMealVisual(meal, { compact = false } = {}) {
@@ -1577,6 +1693,11 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
 
   const renderSubOpt = (opt) => {
     const sign = opt.sign !== undefined ? opt.sign : (opt.delta >= 0 ? '+' : '');
+    const optionVisual = renderModalFoodVisualById(opt.id, opt.food.name, {
+      className: 'sub-option-visual',
+      size: 52,
+      testId: `sub-option-visual-${opt.id}`,
+    });
     // Linha de projecção do total diário (apenas quando results disponível)
     let projLine = '';
     if (opt.projected && results) {
@@ -1587,6 +1708,9 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
     }
     return `
       <li class="sub-option${opt.isCustom ? ' sub-option-custom' : ''}" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}">
+        <div class="sub-option-main">
+          ${optionVisual}
+          <div class="sub-option-copy">
         <div class="sub-option-head">
           <div class="sub-option-name">${opt.food.name}</div>
           <div class="sub-option-qty">${opt.display}</div>
@@ -1597,6 +1721,8 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
         </div>
         ${projLine}
         <span class="sub-impact ${opt.impact.cls}">${opt.impact.label}</span>
+          </div>
+        </div>
       </li>
     `;
   };
@@ -1637,10 +1763,13 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
     </div>
     <div class="modal-body">
       <div class="sub-current">
+        ${renderModalFoodVisual(ing, ing.label || currentFood.name, { className: 'sub-current-visual', size: 64, testId: 'sub-current-visual' })}
+        <div class="sub-current-copy">
         <div class="sub-current-label">Alimento atual</div>
         <div class="sub-current-name">${ing.label || currentFood.name}</div>
         <div class="sub-current-qty">${ing.display}</div>
         <div class="sub-current-macros">${ing.macros.kcal} kcal • P:${ing.macros.prot}g • C:${ing.macros.carb}g • G:${ing.macros.fat}g</div>
+        </div>
       </div>
       ${options.length === 0 && customOpts.length === 0 ? `
         <p class="card-body" style="margin-top:14px;">Não há substituições equivalentes registadas para este alimento. Considere manter o original.</p>
@@ -1656,6 +1785,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
   `;
 
   const close = openModal(contentHtml);
+  bindModalFoodVisualFallbacks(document);
 
   // Accordion: close other categories when one opens, then scroll its summary
   // to the top of the modal (not the page) so the user sees the start of the list.
@@ -1872,9 +2002,12 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
     </div>
     <div class="modal-body">
       <div class="sub-current" style="margin-bottom: 12px;">
+        ${renderModalFoodVisualById(origIng.food, ingName, { className: 'sub-current-visual', size: 64, testId: 'edit-current-visual' })}
+        <div class="sub-current-copy">
         <div class="sub-current-label">Ingrediente</div>
         <div class="sub-current-name">${escapeHtml(ingName)}</div>
         <div class="sub-current-macros">Original: ${origMacros.kcal} kcal · P:${origMacros.prot}g · C:${origMacros.carb}g · G:${origMacros.fat}g (${origGrams}${editUnit})</div>
+        </div>
       </div>
 
       <!-- F2-B: UX copy — hint sobre valores -->
@@ -1926,6 +2059,7 @@ function openEditPlanIngModal(dayIdx, mealIdx, ingIdx, mount) {
   `;
 
   const close = openModal(contentHtml);
+  bindModalFoodVisualFallbacks(document);
 
   const gramsInput = document.getElementById('epi-grams');
   const kcalInput  = document.getElementById('epi-kcal');
@@ -3290,6 +3424,7 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
 
   const renderItems = (items) => items.map(({ id, food, grams, macros, display }) => `
     <li class="lib-food-item">
+      ${renderModalFoodVisualById(id, food.name, { className: 'lib-food-visual', size: 52, testId: `lib-food-visual-${id}` })}
       <div class="lib-food-info">
         <div class="lib-food-name">${escapeHtml(food.name)}</div>
         <div class="lib-food-qty">${escapeHtml(display)}</div>
@@ -3485,12 +3620,17 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
       <li class="recipe-modal-item" data-recipe-id="${r.id}"
           role="button" tabindex="0"
           aria-label="Ver pré-visualização: ${escapeHtml(r.name)}">
+        <div class="recipe-modal-item-main">
+          ${renderRecipeVisual(r, { className: 'recipe-modal-visual', testId: `recipe-modal-visual-${r.id}` })}
+          <div class="recipe-modal-item-copy">
         <div class="recipe-modal-item-head">
           <span class="recipe-modal-name">${escapeHtml(r.name)}</span>
           <span class="recipe-modal-badge ${typeCls}">${typeTxt}</span>
         </div>
         <div class="recipe-modal-desc">${escapeHtml(r.description)}</div>
         <div class="recipe-modal-meta">~${r.baseKcal} kcal &nbsp;·&nbsp; ${compatEl}</div>
+          </div>
+        </div>
       </li>`;
   }
 
@@ -3524,6 +3664,7 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
   `;
 
   const closeModal = openModal(contentHtml);  // Sprint R4-C: captura close para usar em applySelectedRecipe
+  bindModalFoodVisualFallbacks(document);
 
   // ── Handlers de clique nas receitas — após openModal reconstruir o DOM ─────
   document.querySelectorAll('.recipe-modal-item[data-recipe-id]').forEach(item => {
@@ -3548,6 +3689,7 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
       const panel = document.getElementById('recipe-preview-panel');
       if (panel) {
         panel.innerHTML = renderRecipePreview(displayResult);
+        bindModalFoodVisualFallbacks(panel);
         panel.style.display = 'block';
         panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
@@ -3653,6 +3795,7 @@ function renderRecipePreview(result) {
         <div class="recipe-preview-title">Pré-visualização</div>
         <div class="recipe-preview-sub">Ajustada para esta refeição</div>
       </div>
+      ${renderRecipeVisual(result, { className: 'recipe-preview-visual', testId: 'recipe-preview-visual' })}
       <div class="recipe-preview-macros" data-testid="recipe-preview-macros">
         <span class="recipe-preview-kcal">${result.totals.kcal} kcal</span>
         <span class="recipe-preview-macro">P: <strong>${result.totals.prot}g</strong></span>
@@ -3853,6 +3996,15 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
     </div>
     <div class="modal-body">
+      <div class="sub-current" style="margin-bottom: 12px;">
+        ${renderModalFoodVisualById(addition.food, foodData.name, { className: 'sub-current-visual', size: 64, testId: 'edit-added-food-visual' })}
+        <div class="sub-current-copy">
+          <div class="sub-current-label">Alimento</div>
+          <div class="sub-current-name">${escapeHtml(foodData.name)}</div>
+          <div class="sub-current-qty">${qty}${escapeHtml(currentUnit)}</div>
+          <div class="sub-current-macros">${Math.round(kcalP)} kcal Â· P:${protP}g Â· C:${carbP}g Â· G:${fatP}g</div>
+        </div>
+      </div>
       <form id="edit-food-form" novalidate autocomplete="off">
         <div id="edit-food-errors" class="add-food-error-box" style="display:none;"></div>
         <div class="add-food-grid">
@@ -3908,6 +4060,8 @@ function openEditFoodModal(additionId, dayIdx, mealIdx, mount) {
   `;
 
   const close = openModal(contentHtml);
+  bindModalFoodVisualFallbacks(document);
+  bindModalFoodVisualFallbacks(document);
 
   // Hotfix R4-C — recalcular macros ao alterar porção base.
   // Usa foodData.per100 como baseline (mesma fórmula do pre-fill acima).

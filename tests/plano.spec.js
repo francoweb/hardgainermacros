@@ -288,6 +288,62 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
   });
 });
 
+test.describe('Plano Alimentar 14 Dias - imagens nos modais', () => {
+  test('C-MODAL-IMG-1 - desktop mostra imagens nos modais sem 404 nem erros novos', async ({ page }) => {
+    const imageRequests = watchImageRequests(page);
+    const pageErrors = [];
+    const consoleErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.evaluate(() => {
+      localStorage.setItem('hg:custom_foods', JSON.stringify([
+        {
+          id: 'manual_modal_sem_img',
+          name: 'Manual Modal Sem Imagem',
+          category: 'extra',
+          source: 'custom',
+          per100: { kcal: 180, prot: 8, carb: 14, fat: 10 },
+        },
+      ]));
+    });
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('[data-testid="sub-current-visual"] [data-modal-food-image]')).toBeVisible();
+    await expect(page.locator('.sub-option [data-modal-food-image]').first()).toBeVisible();
+    await page.locator('[data-modal-close]').first().click();
+
+    await page.locator('[data-add-library]').first().click();
+    await expect(page.locator('.lib-food-item [data-modal-food-image]').first()).toBeVisible();
+    await expect(page.locator('.lib-my-products [data-modal-food-image]')).toHaveCount(0);
+    await page.locator('.lib-add-btn:not(.lib-add-custom-btn)').first().click();
+
+    await expect(page.locator('[data-edit-addition]').first()).toBeVisible();
+    await page.locator('[data-edit-addition]').first().click();
+    await expect(page.locator('[data-testid="edit-added-food-visual"] [data-modal-food-image]')).toBeVisible();
+    await page.locator('[data-modal-close]').first().click();
+
+    await page.locator('[data-use-recipe]').first().click();
+    await expect(page.locator('.recipe-modal-item [data-modal-food-image]').first()).toBeVisible();
+    await page.locator('.recipe-modal-item').first().click();
+    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-modal-food-image]').first()).toBeVisible();
+
+    await page.waitForLoadState('networkidle');
+
+    const failedImageRequests = imageRequests.filter(r => r.status >= 400);
+    expect(failedImageRequests).toEqual([]);
+    expect(imageRequests.some(r => /\/assets\/images\/foods\/.+\.webp$/i.test(r.url))).toBe(true);
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+  });
+});
+
 test.describe('Plano Alimentar 14 Dias - imagens das refeicoes', () => {
   test('C-MEAL-IMG-1 - refeicao original resolve imagem pelo templateId com alt acessivel', async ({ page }) => {
     await injectState(page, CENARIO_6);
