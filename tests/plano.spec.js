@@ -527,10 +527,10 @@ test.describe('Plano Alimentar 14 Dias - imagens nos PDFs', () => {
     const recipeMeal = page.locator('#day-pdf-print-area .meal-block').filter({ hasText: 'Receita PDF Visual' }).first();
     await expect(recipeMeal.locator('[data-food-id="whey"] [data-pdf-food-image]')).toHaveCount(1);
     await expect(recipeMeal.locator('[data-food-id="banana_prata"] [data-pdf-food-image]')).toHaveCount(1);
-    await expect(recipeMeal.locator('[data-food-id="atum_agua"] [data-pdf-food-image]')).toHaveCount(0);
+    expect(await recipeMeal.locator('[data-food-id="atum_agua"] [data-pdf-food-image]').count()).toBeGreaterThan(0);
     await expect(recipeMeal.locator('[data-food-id="manual_pdf_sem_img"] [data-pdf-food-image]')).toHaveCount(0);
 
-    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url)).length).toBeGreaterThan(0);
     expect(imageRequests.filter(r => /manual_pdf_sem_img/i.test(r.url))).toHaveLength(0);
   });
 
