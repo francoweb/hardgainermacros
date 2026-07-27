@@ -541,8 +541,14 @@ test.describe('Plano 14 Dias no mobile - tema e espacamento visual', () => {
     await page.locator('#header-theme-toggle').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await page.reload({ waitUntil: 'load' });
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    await gotoResultados(page);
+    await gotoPlano(page);
     await expect(page.locator('#header-theme-toggle')).toHaveAttribute('aria-label', /modo claro/i);
     await expect(page.locator('#day-body-0 .meal-card').first().locator('[data-meal-image]')).toBeVisible();
     await expect(page.locator('#day-body-0 .ingredient [data-food-image]').first()).toBeVisible();

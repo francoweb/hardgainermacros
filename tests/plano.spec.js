@@ -174,35 +174,45 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
 
   test('C-FOOD-IMG-4 - alimento oficial sem WebP nao deixa miniatura quebrada visivel', async ({ page }) => {
     const imageRequests = watchImageRequests(page);
-    const missingFoodId = 'mandioca_cozida';
+    const officialFoodIds = [
+      ...fs.readFileSync(path.join(__dirname, '../assets/js/data/foods.js'), 'utf8')
+        .matchAll(/^  ([a-z0-9_]+): \{$/gm),
+    ].map(([, foodId]) => foodId);
+    const missingFoodId = officialFoodIds
+      .filter(foodId => !FOOD_IMAGE_IDS.has(foodId))
+      .sort()[0];
+
+    expect(officialFoodIds).toContain(missingFoodId);
+    expect(missingFoodId).toBeTruthy();
     expect(FOOD_IMAGE_IDS.has(missingFoodId)).toBe(false);
 
     await injectState(page, CENARIO_6);
     await gotoResultados(page);
 
-    await page.evaluate(() => {
+    await page.evaluate(({ missingFoodId }) => {
       localStorage.setItem('hg:additions', JSON.stringify({
         '0:0': [
           {
-            id: 'addition_mandioca_teste',
-            food: 'mandioca_cozida',
+            id: `addition_${missingFoodId}_teste`,
+            food: missingFoodId,
             grams: 120,
             unit: 'g',
             snapshot: {
               name: 'Atum em água',
-              category: 'carb',
+              category: 'extra',
               source: 'library',
-              per100: { kcal: 125, prot: 1, carb: 30, fat: 0.3 },
+              per100: { kcal: 120, prot: 2, carb: 20, fat: 3 },
             },
           },
         ],
       }));
-    });
+    }, { missingFoodId });
 
     await gotoPlano(page);
 
     const row = page.locator(`.ingredient-added[data-food-id="${missingFoodId}"]`).first();
     await expect(row).toBeVisible();
+    await expect(row.locator('.ingredient-name')).toContainText(/./);
     await expect(row.locator('.ingredient-qty')).toBeVisible();
     await expect(row.locator('.ingredient-visual')).toHaveCount(0);
     await expect(page.locator(`[data-food-image][src$="${missingFoodId}.webp"]`)).toHaveCount(0);
