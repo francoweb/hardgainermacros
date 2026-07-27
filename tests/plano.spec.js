@@ -100,38 +100,32 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
     await gotoResultados(page);
     await gotoPlano(page);
 
-    const swapButtons = page.locator('[data-swap]');
-    const swapCount = Math.min(await swapButtons.count(), 8);
-    let targetIndex = -1;
     const targetSubId = 'atum_agua';
-
-    for (let i = 0; i < swapCount; i += 1) {
-      await swapButtons.nth(i).click();
-      await page.waitForSelector('.sub-option', { timeout: 5_000 });
-      const hasAtum = await page.locator(`.sub-option[data-sub-id="${targetSubId}"]`).count();
-      if (hasAtum) {
-        targetIndex = i;
-        break;
-      }
-      await page.locator('[data-modal-close]').first().click();
-      await expect(page.locator('.sub-option')).toHaveCount(0);
-    }
-
-    expect(targetIndex, 'Deve existir pelo menos um modal de substituicao com atum_agua').toBeGreaterThanOrEqual(0);
-
-    const row = swapButtons.nth(targetIndex).locator('xpath=ancestor::li[contains(@class,"ingredient")]');
+    const sourceRow = page.locator('.ingredient[data-food-id="peito_frango"]').first();
+    const swapButton = sourceRow.locator('[data-swap]');
+    const row = swapButton.locator('xpath=ancestor::li[contains(@class,"ingredient")]');
+    await expect(row).toBeVisible();
     const originalFoodId = await row.getAttribute('data-food-id');
     expect(originalFoodId).toBeTruthy();
     expect(FOOD_IMAGE_IDS.has(originalFoodId)).toBe(true);
 
-    await page.locator(`.sub-option[data-sub-id="${targetSubId}"]`).click();
-    await expect(row).toHaveAttribute('data-food-id', targetSubId);
-    await expect(row.locator('.ingredient-visual')).toHaveCount(0);
-    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+    await swapButton.click();
+    await page.waitForSelector('.sub-option', { timeout: 5_000 });
+    const visibleAtumOption = page.locator(`.sub-option[data-sub-id="${targetSubId}"]`).filter({ visible: true }).first();
+    await expect(visibleAtumOption).toBeVisible();
+    await visibleAtumOption.click();
 
-    await row.locator('[data-revert]').click();
-    await expect(row).toHaveAttribute('data-food-id', originalFoodId);
-    await expect(row.locator('[data-food-image]')).toHaveAttribute('src', new RegExp(`${originalFoodId}\\.webp$`));
+    const substitutedRow = page.locator(`.ingredient.ingredient-substituted[data-food-id="${targetSubId}"]`).first();
+    await expect(substitutedRow).toBeVisible();
+    await expect(substitutedRow.locator('[data-revert]')).toBeVisible();
+    await expect(substitutedRow.locator('[data-food-image]')).toHaveAttribute('src', /atum_agua\.webp$/);
+    expect(
+      imageRequests.some(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url) && r.status === 200)
+    ).toBe(true);
+
+    await substitutedRow.locator('[data-revert]').click();
+    await expect(sourceRow).toHaveAttribute('data-food-id', originalFoodId);
+    await expect(sourceRow.locator('[data-food-image]')).toHaveAttribute('src', new RegExp(`${originalFoodId}\\.webp$`));
   });
 
   test('C-FOOD-IMG-3 - alimento criado manualmente nao tenta renderizar URL invalida', async ({ page }) => {
@@ -180,7 +174,8 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
 
   test('C-FOOD-IMG-4 - alimento oficial sem WebP nao deixa miniatura quebrada visivel', async ({ page }) => {
     const imageRequests = watchImageRequests(page);
-    expect(FOOD_IMAGE_IDS.has('atum_agua')).toBe(false);
+    const missingFoodId = 'mandioca_cozida';
+    expect(FOOD_IMAGE_IDS.has(missingFoodId)).toBe(false);
 
     await injectState(page, CENARIO_6);
     await gotoResultados(page);
@@ -189,15 +184,15 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
       localStorage.setItem('hg:additions', JSON.stringify({
         '0:0': [
           {
-            id: 'addition_atum_teste',
-            food: 'atum_agua',
+            id: 'addition_mandioca_teste',
+            food: 'mandioca_cozida',
             grams: 120,
             unit: 'g',
             snapshot: {
               name: 'Atum em água',
-              category: 'protein',
+              category: 'carb',
               source: 'library',
-              per100: { kcal: 116, prot: 26, carb: 0, fat: 1 },
+              per100: { kcal: 125, prot: 1, carb: 30, fat: 0.3 },
             },
           },
         ],
@@ -206,11 +201,12 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
 
     await gotoPlano(page);
 
-    const row = page.locator('.ingredient-added[data-food-id="atum_agua"]').first();
+    const row = page.locator(`.ingredient-added[data-food-id="${missingFoodId}"]`).first();
     await expect(row).toBeVisible();
+    await expect(row.locator('.ingredient-qty')).toBeVisible();
     await expect(row.locator('.ingredient-visual')).toHaveCount(0);
-    await expect(page.locator('[data-food-image][src$="atum_agua.webp"]')).toHaveCount(0);
-    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+    await expect(page.locator(`[data-food-image][src$="${missingFoodId}.webp"]`)).toHaveCount(0);
+    expect(imageRequests.filter(r => new RegExp(`/assets/images/foods/${missingFoodId}\\.webp$`, 'i').test(r.url))).toHaveLength(0);
   });
 
   test('C-FOOD-IMG-5 - ingrediente removido preserva estado visual desativado e continua oculto no print', async ({ page }) => {
@@ -283,8 +279,10 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
     await expect(firstMeal.locator('[data-testid="recipe-badge"]')).toBeVisible();
     await expect(firstMeal.locator('.ingredient[data-food-id="whey"] [data-food-image]')).toHaveAttribute('src', /whey\.webp$/);
     await expect(firstMeal.locator('.ingredient[data-food-id="banana_prata"] [data-food-image]')).toHaveAttribute('src', /banana_prata\.webp$/);
-    await expect(firstMeal.locator('.ingredient[data-food-id="atum_agua"] .ingredient-visual')).toHaveCount(0);
-    expect(imageRequests.filter(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url))).toHaveLength(0);
+    await expect(firstMeal.locator('.ingredient[data-food-id="atum_agua"] [data-food-image]')).toHaveAttribute('src', /atum_agua\.webp$/);
+    expect(
+      imageRequests.some(r => /\/assets\/images\/foods\/atum_agua\.webp$/i.test(r.url) && r.status === 200)
+    ).toBe(true);
   });
 });
 
