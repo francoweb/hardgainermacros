@@ -172,51 +172,57 @@ test.describe('Plano Alimentar 14 Dias - imagens individuais dos alimentos', () 
     ).toHaveLength(0);
   });
 
-  test('C-FOOD-IMG-4 - alimento oficial sem WebP nao deixa miniatura quebrada visivel', async ({ page }) => {
+  test('C-FOOD-IMG-4 - todos os alimentos oficiais possuem WebP e nenhum item oficial usa fallback por ausencia de imagem', async ({ page }) => {
     const imageRequests = watchImageRequests(page);
     const officialFoodIds = [
       ...fs.readFileSync(path.join(__dirname, '../assets/js/data/foods.js'), 'utf8')
         .matchAll(/^  ([a-z0-9_]+): \{$/gm),
     ].map(([, foodId]) => foodId);
-    const missingFoodId = officialFoodIds
+    const missingFoodIds = officialFoodIds
       .filter(foodId => !FOOD_IMAGE_IDS.has(foodId))
-      .sort()[0];
+      .sort();
+    const validatedFoodId = 'acucar_mascavo';
 
-    expect(officialFoodIds).toContain(missingFoodId);
-    expect(missingFoodId).toBeTruthy();
-    expect(FOOD_IMAGE_IDS.has(missingFoodId)).toBe(false);
+    expect(missingFoodIds).toEqual([]);
+    expect(officialFoodIds).toContain(validatedFoodId);
+    expect(FOOD_IMAGE_IDS.has(validatedFoodId)).toBe(true);
 
     await injectState(page, CENARIO_6);
     await gotoResultados(page);
 
-    await page.evaluate(({ missingFoodId }) => {
+    await page.evaluate(({ validatedFoodId }) => {
       localStorage.setItem('hg:additions', JSON.stringify({
         '0:0': [
           {
-            id: `addition_${missingFoodId}_teste`,
-            food: missingFoodId,
+            id: `addition_${validatedFoodId}_teste`,
+            food: validatedFoodId,
             grams: 120,
             unit: 'g',
             snapshot: {
-              name: 'Atum em água',
+              name: 'Acucar Mascavo',
               category: 'extra',
               source: 'library',
-              per100: { kcal: 120, prot: 2, carb: 20, fat: 3 },
+              per100: { kcal: 380, prot: 0, carb: 98, fat: 0 },
             },
           },
         ],
       }));
-    }, { missingFoodId });
+    }, { validatedFoodId });
 
     await gotoPlano(page);
 
-    const row = page.locator(`.ingredient-added[data-food-id="${missingFoodId}"]`).first();
+    const row = page.locator(`.ingredient-added[data-food-id="${validatedFoodId}"]`).first();
     await expect(row).toBeVisible();
     await expect(row.locator('.ingredient-name')).toContainText(/./);
     await expect(row.locator('.ingredient-qty')).toBeVisible();
-    await expect(row.locator('.ingredient-visual')).toHaveCount(0);
-    await expect(page.locator(`[data-food-image][src$="${missingFoodId}.webp"]`)).toHaveCount(0);
-    expect(imageRequests.filter(r => new RegExp(`/assets/images/foods/${missingFoodId}\\.webp$`, 'i').test(r.url))).toHaveLength(0);
+    await expect(row.locator('.ingredient-visual')).toHaveCount(1);
+    await expect(row.locator('[data-food-image]')).toHaveAttribute('src', /acucar_mascavo.webp$/);
+    expect(
+      imageRequests.some(r => /\/assets\/images\/foods\/acucar_mascavo\.webp$/i.test(r.url) && r.status === 200)
+    ).toBe(true);
+    expect(
+      imageRequests.filter(r => /\/assets\/images\/foods\/.+\.webp$/i.test(r.url) && r.status !== 200)
+    ).toHaveLength(0);
   });
 
   test('C-FOOD-IMG-5 - ingrediente removido preserva estado visual desativado e continua oculto no print', async ({ page }) => {
