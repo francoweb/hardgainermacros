@@ -3088,6 +3088,8 @@ body { max-width: 100%; overflow-x: hidden; }
 /* ── Calculadora de macros por alimento ────────────────────────────────────── */
 .calc-alimento-wrapper { max-width: 860px; margin: 0 auto; padding: 40px 0 80px; }
 .calc-alimento-header { margin-bottom: 32px; }
+.calc-alimento-header-has-visual { display: flex; align-items: center; gap: 18px; }
+.calc-alimento-header-copy { min-width: 0; }
 .calc-alimento-title { font-size: clamp(24px, 4vw, 32px); font-weight: 800; color: var(--ink); margin: 0 0 10px; }
 .calc-alimento-sub { font-size: 16px; color: var(--ink-soft); margin: 0; line-height: 1.6; }
 .calc-alimento-form { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; }
@@ -3095,13 +3097,18 @@ body { max-width: 100%; overflow-x: hidden; }
 .calc-alimento-input { width: 100%; padding: 14px 16px; border-radius: var(--r-lg); border: 1.5px solid var(--border); background: var(--surface); font: 15px var(--font-body); color: var(--ink); outline: none; transition: border-color var(--t-fast); box-sizing: border-box; }
 .calc-alimento-input:focus { border-color: var(--accent); }
 .calc-alimento-suggestions { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-lg); box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 50; display: none; overflow: hidden; }
-.calc-suggestion-item { padding: 12px 16px; font-size: 14px; color: var(--ink); cursor: pointer; transition: background var(--t-fast); }
+.calc-suggestion-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; font-size: 14px; color: var(--ink); cursor: pointer; transition: background var(--t-fast); border: 0; background: transparent; text-align: left; font: inherit; }
 .calc-suggestion-item:hover { background: var(--surface); color: var(--accent); }
+.calc-suggestion-copy { display: flex; flex-direction: column; min-width: 0; }
+.calc-suggestion-name { font-size: 14px; font-weight: 600; color: inherit; }
+.calc-suggestion-meta { font-size: 12px; color: var(--ink-soft); }
 .calc-alimento-qty-wrap { display: flex; align-items: center; gap: 8px; }
 .calc-alimento-qty { width: 90px; padding: 14px 12px; border-radius: var(--r-lg); border: 1.5px solid var(--border); background: var(--surface); font: 600 15px var(--font-body); color: var(--ink); text-align: center; outline: none; transition: border-color var(--t-fast); }
 .calc-alimento-qty:focus { border-color: var(--accent); }
 .calc-alimento-qty-label { font-size: 15px; color: var(--ink-soft); white-space: nowrap; }
 .calc-alimento-result { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); padding: 28px; margin-bottom: 28px; }
+.calc-alimento-result-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.calc-alimento-result-copy { min-width: 0; }
 .calc-alimento-food-name { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 20px; }
 .calc-alimento-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
 .calc-alimento-card { display: flex; flex-direction: column; align-items: center; padding: 16px 8px; border-radius: var(--r-md); background: var(--bg); gap: 4px; }
@@ -3116,6 +3123,12 @@ body { max-width: 100%; overflow-x: hidden; }
 .calc-alimento-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 .calc-alimento-item-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); text-decoration: none; color: inherit; transition: border-color var(--t-fast), box-shadow var(--t-fast); }
 .calc-alimento-item-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,.07); }
+.calc-alimento-visual { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.calc-alimento-visual img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.calc-alimento-header-visual { width: 96px; height: 96px; }
+.calc-alimento-result-visual { width: 72px; height: 72px; }
+.calc-alimento-card-visual { width: 64px; height: 64px; margin-bottom: 6px; }
+.calc-alimento-suggestion-visual { width: 44px; height: 44px; flex-basis: 44px; }
 .calc-alimento-item-name { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.3; }
 .calc-alimento-item-kcal { font-size: 13px; color: var(--accent); font-weight: 700; }
 .calc-alimento-item-prot { font-size: 12px; color: var(--ink-soft); }
@@ -3126,7 +3139,15 @@ body { max-width: 100%; overflow-x: hidden; }
 .calc-alimento-table tr { border-bottom: 1px solid var(--border); }
 .calc-alimento-table td { padding: 12px 8px; color: var(--ink-soft); }
 .calc-alimento-table td:last-child { text-align: right; color: var(--ink); }
-@media (max-width: 600px) { .calc-alimento-cards { grid-template-columns: repeat(2, 1fr); } .calc-alimento-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) {
+  .calc-alimento-header-has-visual,
+  .calc-alimento-result-head { align-items: flex-start; }
+  .calc-alimento-header-visual { width: 72px; height: 72px; }
+  .calc-alimento-result-visual { width: 60px; height: 60px; }
+  .calc-alimento-card-visual { width: 56px; height: 56px; }
+  .calc-alimento-cards { grid-template-columns: repeat(2, 1fr); }
+  .calc-alimento-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
 :root[data-theme="dark"] {
   --bg: #1b1815;
