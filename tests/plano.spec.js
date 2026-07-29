@@ -358,6 +358,79 @@ test.describe('Plano Alimentar 14 Dias - imagens nos modais', () => {
   });
 });
 
+test.describe('Plano Alimentar 14 Dias - pesquisa nos modais', () => {
+  test('C-MODAL-SEARCH-1 - Adicionar Alimento filtra sem acentos, mostra estado vazio e limpar restaura categorias', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-library]').first().click();
+    const search = page.locator('#add-library-search');
+    await expect(search).toBeVisible();
+
+    await search.fill('mamao');
+    const filteredNames = await page.locator('.lib-food-item').evaluateAll(els =>
+      els.filter(el => !el.hidden).map(el => el.querySelector('.lib-food-name')?.textContent?.trim() || '')
+    );
+    expect(filteredNames).toContain('Mamão');
+    expect(await page.locator('.sub-cat-group').evaluateAll(els => els.filter(el => !el.hidden).length)).toBe(1);
+
+    await search.fill('zzzz-sem-resultado');
+    await expect(page.locator('[data-modal-search-empty]')).toHaveText(/Nenhum alimento encontrado/i);
+    expect(await page.locator('.lib-food-item').evaluateAll(els => els.filter(el => !el.hidden).length)).toBe(0);
+    await expect(page.locator('[data-modal-search-clear]')).toBeVisible();
+
+    await page.locator('[data-modal-search-clear]').click();
+    await expect(page.locator('[data-modal-search-empty]')).toBeHidden();
+    expect(await page.locator('.sub-cat-group').evaluateAll(els => els.filter(el => !el.hidden).length)).toBeGreaterThan(3);
+    await expect(page.locator('details.sub-cat-group[open]')).toHaveCount(1);
+  });
+
+  test('C-MODAL-SEARCH-2 - Substituir alimento filtra e permite aplicar resultado pesquisado', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const sourceRow = page.locator('.ingredient[data-food-id="peito_frango"]').first();
+    await sourceRow.locator('[data-swap]').click();
+
+    const search = page.locator('#sub-modal-search');
+    await expect(search).toBeVisible();
+    await search.fill('peru');
+
+    const peruOption = page.locator('.sub-option[data-sub-id="peito_peru"]').first();
+    await expect.poll(async () => peruOption.evaluate(el => !el.hidden)).toBe(true);
+    await expect(peruOption).toContainText(/Peito de peru/i);
+    expect(await page.locator('.sub-cat-group').evaluateAll(els => els.filter(el => !el.hidden).length)).toBeGreaterThan(0);
+    await peruOption.click();
+
+    const substitutedRow = page.locator('.ingredient.ingredient-substituted[data-food-id="peito_peru"]').first();
+    await expect(substitutedRow).toBeVisible();
+    await substitutedRow.locator('[data-revert]').click();
+    await expect(sourceRow).toHaveAttribute('data-food-id', 'peito_frango');
+  });
+
+  test('C-MODAL-SEARCH-3 - Receitas filtra por ingrediente e abre pré-visualização do resultado', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-use-recipe]').first().click();
+    const search = page.locator('#recipe-modal-search');
+    await expect(search).toBeVisible();
+
+    await search.fill('frango desfiado');
+    const visibleRecipes = page.locator('.recipe-modal-item:visible');
+    await expect(visibleRecipes).toHaveCount(1);
+    await expect(visibleRecipes.first()).toContainText(/Omelete de frango anabólica/i);
+    await visibleRecipes.first().click();
+    await expect(page.locator('[data-testid="recipe-preview-panel"]')).toBeVisible();
+
+    await page.locator('[data-modal-search-clear]').click();
+    expect(await page.locator('.recipe-modal-item:visible').count()).toBeGreaterThan(1);
+  });
+});
+
 test.describe('Plano Alimentar 14 Dias - imagens das refeicoes', () => {
   test('C-MEAL-IMG-1 - refeicao original resolve imagem pelo templateId com alt acessivel', async ({ page }) => {
     await injectState(page, CENARIO_6);

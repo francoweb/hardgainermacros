@@ -1562,6 +1562,168 @@ const SUB_CAT_LABEL = {
 };
 const SUB_CAT_ORDER = ['protein', 'dairy', 'carb', 'fat', 'fruit', 'veg', 'extra'];
 
+function normalizeModalSearchText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function renderModalSearchBar({ inputId, label, placeholder }) {
+  return `
+    <div class="modal-search" data-modal-search>
+      <label class="sr-only" for="${escapeHtml(inputId)}">${escapeHtml(label)}</label>
+      <div class="modal-search-field">
+        <span class="modal-search-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+        </span>
+        <input
+          id="${escapeHtml(inputId)}"
+          class="modal-search-input"
+          data-modal-search-input
+          type="search"
+          placeholder="${escapeHtml(placeholder)}"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button
+          type="button"
+          class="modal-search-clear"
+          data-modal-search-clear
+          aria-label="Limpar pesquisa"
+          hidden
+          disabled
+        >${icons.x(14)}</button>
+      </div>
+    </div>
+  `;
+}
+
+function bindGroupedModalSearch(modalRoot, {
+  inputSelector = '[data-modal-search-input]',
+  clearSelector = '[data-modal-search-clear]',
+  groupSelector,
+  itemSelector,
+  emptySelector = '[data-modal-search-empty]',
+}) {
+  if (!modalRoot) return;
+
+  const input = modalRoot.querySelector(inputSelector);
+  const clearBtn = modalRoot.querySelector(clearSelector);
+  const emptyState = modalRoot.querySelector(emptySelector);
+  if (!input || !clearBtn) return;
+
+  const groups = Array.from(modalRoot.querySelectorAll(groupSelector)).map(group => {
+    const items = Array.from(group.querySelectorAll(itemSelector));
+    const countEl = group.querySelector('.sub-cat-count');
+    return {
+      group,
+      items,
+      countEl,
+      originalCount: items.length,
+      originalOpen: group.tagName === 'DETAILS' ? group.hasAttribute('open') : null,
+    };
+  });
+
+  const applySearch = () => {
+    const query = normalizeModalSearchText(input.value);
+    const isSearching = query.length > 0;
+    modalRoot.dataset.searchActive = isSearching ? 'true' : 'false';
+    clearBtn.hidden = !isSearching;
+    clearBtn.disabled = !isSearching;
+
+    let visibleGroups = 0;
+    groups.forEach(({ group, items, countEl, originalCount, originalOpen }) => {
+      let visibleCount = 0;
+
+      items.forEach(item => {
+        const match = !isSearching || (item.dataset.search || '').includes(query);
+        item.hidden = !match;
+        if (match) visibleCount += 1;
+      });
+
+      if (countEl) countEl.textContent = ` (${isSearching ? visibleCount : originalCount})`;
+
+      group.hidden = isSearching && visibleCount === 0;
+      if (group.tagName === 'DETAILS') {
+        if (isSearching) {
+          if (visibleCount > 0) group.setAttribute('open', '');
+          else group.removeAttribute('open');
+        } else if (originalOpen) {
+          group.setAttribute('open', '');
+        } else {
+          group.removeAttribute('open');
+        }
+      }
+
+      if (!group.hidden) visibleGroups += 1;
+    });
+
+    if (emptyState) emptyState.hidden = visibleGroups > 0;
+  };
+
+  input.addEventListener('input', applySearch);
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    applySearch();
+    input.focus();
+  });
+
+  applySearch();
+}
+
+function bindRecipeModalSearch(modalRoot) {
+  if (!modalRoot) return;
+
+  const input = modalRoot.querySelector('[data-modal-search-input]');
+  const clearBtn = modalRoot.querySelector('[data-modal-search-clear]');
+  const emptyState = modalRoot.querySelector('[data-modal-search-empty]');
+  if (!input || !clearBtn) return;
+
+  const sections = Array.from(modalRoot.querySelectorAll('[data-recipe-search-section]')).map(section => ({
+    section,
+    items: Array.from(section.querySelectorAll('.recipe-modal-item[data-search]')),
+    restoreHidden: section.hidden,
+  }));
+
+  const applySearch = () => {
+    const query = normalizeModalSearchText(input.value);
+    const isSearching = query.length > 0;
+    modalRoot.dataset.searchActive = isSearching ? 'true' : 'false';
+    clearBtn.hidden = !isSearching;
+    clearBtn.disabled = !isSearching;
+
+    let visibleItems = 0;
+    sections.forEach(({ section, items, restoreHidden }) => {
+      let sectionVisibleItems = 0;
+      items.forEach(item => {
+        const match = !isSearching || (item.dataset.search || '').includes(query);
+        item.hidden = !match;
+        if (match) sectionVisibleItems += 1;
+      });
+
+      section.hidden = isSearching ? sectionVisibleItems === 0 : restoreHidden;
+      visibleItems += sectionVisibleItems;
+    });
+
+    if (emptyState) emptyState.hidden = !isSearching || visibleItems > 0;
+  };
+
+  input.addEventListener('input', applySearch);
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    applySearch();
+    input.focus();
+  });
+
+  applySearch();
+}
+
 function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
   const plan      = loadPlan();
   let subs        = loadSubstitutions();
@@ -1676,6 +1838,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
       size: 52,
       testId: `sub-option-visual-${opt.id}`,
     });
+    const searchText = normalizeModalSearchText(`${opt.food.name} ${opt.id} ${opt.food.category || ''}`);
     // Linha de projecção do total diário (apenas quando results disponível)
     let projLine = '';
     if (opt.projected && results) {
@@ -1685,7 +1848,7 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
       projLine = `<div class="sub-option-proj">Dia projetado: <strong>${projKcal} kcal</strong> (${projSign}${projDiff} vs alvo ${results.calories})</div>`;
     }
     return `
-      <li class="sub-option${opt.isCustom ? ' sub-option-custom' : ''}" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}">
+      <li class="sub-option${opt.isCustom ? ' sub-option-custom' : ''}" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}" data-search="${escapeHtml(searchText)}">
         <div class="sub-option-main">
           ${optionVisual}
           <div class="sub-option-copy">
@@ -1753,7 +1916,13 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
         <p class="card-body" style="margin-top:14px;">Não há substituições equivalentes registadas para este alimento. Considere manter o original.</p>
       ` : `
         <p style="margin-top:14px; margin-bottom:0; font-size:12.5px; color:var(--ink-muted);">Clique para aplicar. Quantidade calculada para manter calorias aproximadas. Afeta apenas este ingrediente neste dia.</p>
+        ${renderModalSearchBar({
+          inputId: 'sub-modal-search',
+          label: 'Pesquisar substituto',
+          placeholder: 'Pesquisar substituto...',
+        })}
         <div class="sub-options">${optionsHtml}${customOptsHtml}</div>
+        <p class="modal-search-empty" data-modal-search-empty hidden>Nenhum alimento encontrado.</p>
       `}
       <div class="btn-row" style="margin-top:16px; flex-wrap:wrap;">
         ${isAlreadySubstituted ? `<button type="button" class="btn btn-ghost" id="btn-reset-ing" style="font-size:13px;">${icons.refresh(14)} Reverter: ${escapeHtml(originalFoodName)}</button>` : ''}
@@ -1764,11 +1933,13 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
 
   const close = openModal(contentHtml);
   bindIngredientVisualFallbacks(document);
+  const modalRoot = document.querySelector('.modal-body');
 
   // Accordion: close other categories when one opens, then scroll its summary
   // to the top of the modal (not the page) so the user sees the start of the list.
   document.querySelectorAll('.sub-cat-group').forEach(det => {
     det.addEventListener('toggle', () => {
+      if (modalRoot?.dataset.searchActive === 'true') return;
       if (det.open) {
         // 1. Close all other groups (exclusive accordion)
         document.querySelectorAll('.sub-cat-group').forEach(other => {
@@ -1786,6 +1957,11 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
         });
       }
     });
+  });
+
+  bindGroupedModalSearch(modalRoot, {
+    groupSelector: '.sub-cat-group',
+    itemSelector: '.sub-option',
   });
 
   // Apply substitution on option click
@@ -3366,14 +3542,15 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
     .filter(f => f.source === 'barcode' || f.source === 'custom');
 
   const myFoodsHtml = myFoods.length === 0 ? '' : `
-    <div class="lib-my-products">
-      <div class="lib-my-products-title">Os Meus Produtos <span class="sub-cat-count">(${myFoods.length})</span></div>
+    <div class="sub-cat-group lib-my-products">
+      <div class="sub-cat-label lib-my-products-title">Os Meus Produtos <span class="sub-cat-count">(${myFoods.length})</span></div>
       <ul class="sub-cat-items">
         ${myFoods.map((cf, idx) => {
           const m = cf.per100 || {};
           const r1 = (v) => Math.round((v || 0) * 10) / 10;
+          const searchText = normalizeModalSearchText(`${cf.name} ${cf.id} ${cf.category || ''}`);
           return `
-            <li class="lib-food-item">
+            <li class="lib-food-item" data-search="${escapeHtml(searchText)}">
               <div class="lib-food-info">
                 <div class="lib-food-name">${escapeHtml(cf.name)}</div>
                 <div class="lib-food-qty">100 g</div>
@@ -3401,7 +3578,7 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
   });
 
   const renderItems = (items) => items.map(({ id, food, grams, macros, display }) => `
-    <li class="lib-food-item">
+    <li class="lib-food-item" data-search="${escapeHtml(normalizeModalSearchText(`${food.name} ${id} ${food.category || ''}`))}">
       ${renderFoodVisualById(id, food.name, { className: 'lib-food-visual', size: 52, testId: `lib-food-visual-${id}` })}
       <div class="lib-food-info">
         <div class="lib-food-name">${escapeHtml(food.name)}</div>
@@ -3433,8 +3610,14 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
     </div>
     <div class="modal-body">
       <p style="margin: 0 0 12px; font-size: 12.5px; color: var(--ink-muted);">Clique em <strong>Adicionar</strong> para incluir o alimento com a porção padrão. Os macros são recalculados automaticamente.</p>
+      ${renderModalSearchBar({
+        inputId: 'add-library-search',
+        label: 'Pesquisar alimento',
+        placeholder: 'Pesquisar alimento...',
+      })}
       ${myFoodsHtml}
       <div class="sub-options">${catGroupsHtml}</div>
+      <p class="modal-search-empty" data-modal-search-empty hidden>Nenhum alimento encontrado.</p>
       <div class="btn-row" style="margin-top: 16px;">
         <button type="button" class="btn btn-secondary" data-modal-close>Fechar</button>
       </div>
@@ -3442,16 +3625,23 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
   `;
 
   const close = openModal(contentHtml);
+  const modalRoot = document.querySelector('.modal-body');
 
   // Accordion exclusivo (igual ao modal de substituições)
   document.querySelectorAll('.sub-cat-group').forEach(det => {
     det.addEventListener('toggle', () => {
+      if (modalRoot?.dataset.searchActive === 'true') return;
       if (det.open) {
         document.querySelectorAll('.sub-cat-group').forEach(other => {
           if (other !== det) other.removeAttribute('open');
         });
       }
     });
+  });
+
+  bindGroupedModalSearch(modalRoot, {
+    groupSelector: '.sub-cat-group',
+    itemSelector: '.lib-food-item',
   });
 
   // Botões Adicionar — biblioteca estática
@@ -3591,11 +3781,13 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
   function renderItem(r, isCompat) {
     const typeCls  = r.type === 'shake' ? 'recipe-modal-badge-shake' : 'recipe-modal-badge-solid';
     const typeTxt  = TYPE_LABEL[r.type] || r.type;
+    const ingredientTerms = (r.ingredients || []).map(ing => `${ing.name || ''} ${ing.foodId || ''}`).join(' ');
+    const searchText = normalizeModalSearchText(`${r.name} ${r.description} ${ingredientTerms} ${typeTxt} ${r.type}`);
     const compatEl = isCompat
       ? '<span class="recipe-modal-compat">✅ Compatível</span>'
       : '<span class="recipe-modal-incompat">⚠️ Fora dos slots sugeridos</span>';
     return `
-      <li class="recipe-modal-item" data-recipe-id="${r.id}"
+      <li class="recipe-modal-item" data-recipe-id="${r.id}" data-search="${escapeHtml(searchText)}"
           role="button" tabindex="0"
           aria-label="Ver pré-visualização: ${escapeHtml(r.name)}">
         <div class="recipe-modal-item-main">
@@ -3630,10 +3822,20 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
       <button type="button" class="modal-close" data-modal-close aria-label="Fechar">${icons.x(18)}</button>
     </div>
     <div class="modal-body">
+      ${renderModalSearchBar({
+        inputId: 'recipe-modal-search',
+        label: 'Pesquisar receita',
+        placeholder: 'Pesquisar receita...',
+      })}
       <div class="recipe-list-section">
-        ${compatHtml}
-        ${incompatSection}
+        <div data-recipe-search-section="compatible">
+          ${compatHtml}
+        </div>
+        <div data-recipe-search-section="other">
+          ${incompatSection}
+        </div>
       </div>
+      <p class="modal-search-empty" data-modal-search-empty hidden>Nenhuma receita encontrada.</p>
       <div id="recipe-preview-panel" class="recipe-preview-panel" style="display:none;" data-testid="recipe-preview-panel"></div>
       <div class="btn-row" style="margin-top: 16px;">
         <button type="button" class="btn btn-secondary" data-modal-close>Fechar</button>
@@ -3643,6 +3845,7 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
 
   const closeModal = openModal(contentHtml);  // Sprint R4-C: captura close para usar em applySelectedRecipe
   bindIngredientVisualFallbacks(document);
+  bindRecipeModalSearch(document.querySelector('.modal-body'));
 
   // ── Handlers de clique nas receitas — após openModal reconstruir o DOM ─────
   document.querySelectorAll('.recipe-modal-item[data-recipe-id]').forEach(item => {

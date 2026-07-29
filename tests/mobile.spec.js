@@ -248,6 +248,48 @@ test.describe('Plano 14 Dias no mobile - imagens dos alimentos', () => {
     expect(pageErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);
   });
+
+  test('C-MOBILE-MODAL-SEARCH-1 - Mobile 390px mostra pesquisa sticky nos três modais sem overflow', async ({ page }) => {
+    const pageErrors = [];
+    const consoleErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+
+    await gotoPlanoMobile(page);
+    await page.locator('#header-theme-toggle').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    await page.locator('[data-swap]').first().click();
+    await expect(page.locator('#sub-modal-search')).toBeVisible();
+    await page.locator('#sub-modal-search').fill('atum');
+    expect(await page.locator('.sub-option:visible').count()).toBeGreaterThan(0);
+    let scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+    await page.locator('[data-modal-close]').first().click();
+
+    await page.locator('[data-add-library]').first().click();
+    await expect(page.locator('#add-library-search')).toBeVisible();
+    await page.locator('#add-library-search').fill('mamao');
+    const mobileFilteredNames = await page.locator('.lib-food-item').evaluateAll(els =>
+      els.filter(el => !el.hidden).map(el => el.querySelector('.lib-food-name')?.textContent?.trim() || '')
+    );
+    expect(mobileFilteredNames).toContain('Mamão');
+    scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+    await page.locator('[data-modal-close]').first().click();
+
+    await page.locator('[data-use-recipe]').first().click();
+    await expect(page.locator('#recipe-modal-search')).toBeVisible();
+    await page.locator('#recipe-modal-search').fill('frango');
+    expect(await page.locator('.recipe-modal-item:visible').count()).toBeGreaterThan(0);
+    scrollW = await page.evaluate(() => document.body.scrollWidth);
+    expect(scrollW).toBeLessThanOrEqual(395);
+
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
+  });
 });
 
 test.describe('Plano 14 Dias no mobile - imagem da refeicao', () => {
