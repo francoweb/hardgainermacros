@@ -292,6 +292,24 @@ test.describe('Plano 14 Dias no mobile - imagens dos alimentos', () => {
   });
 });
 
+test('C-MOBILE-MODAL-SEARCH-2 - Mobile 390px filtra frango sem mostrar ovo nem criar overflow', async ({ page }) => {
+  await gotoPlanoMobile(page);
+
+  await page.locator('[data-add-library]').first().click();
+  const search = page.locator('#add-library-search');
+  await expect(search).toBeVisible();
+  await expect(page.locator('[data-modal-search-clear]')).toHaveCount(1);
+
+  await search.fill('frango');
+  const mobileFilteredNames = await page.locator('.lib-food-item:visible .lib-food-name').allTextContents();
+  expect(mobileFilteredNames.some(name => /frango/i.test(name))).toBe(true);
+  expect(mobileFilteredNames).not.toContain('Ovo inteiro');
+  expect(mobileFilteredNames).not.toContain('Clara de ovo');
+
+  const scrollW = await page.evaluate(() => document.body.scrollWidth);
+  expect(scrollW).toBeLessThanOrEqual(395);
+});
+
 test.describe('Plano 14 Dias no mobile - imagem da refeicao', () => {
   test('C-MOBILE-MEAL-IMG-1 - Mobile 390px mostra imagem sem overflow no card', async ({ page }) => {
     await page.setViewportSize(MOBILE_390);

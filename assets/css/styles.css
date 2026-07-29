@@ -1393,6 +1393,18 @@ ul, ol { margin: 0; padding: 0; }
 }
 .modal-search-input::placeholder { color: var(--ink-muted); opacity: 0.9; }
 .modal-search-input:focus { outline: none; }
+.modal-search-input::-webkit-search-cancel-button,
+.modal-search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+.modal-search-input::-ms-clear,
+.modal-search-input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
 .modal-search-field:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(194, 109, 90, 0.16);
@@ -1419,6 +1431,9 @@ ul, ol { margin: 0; padding: 0; }
   margin: 10px 0 0;
   font-size: 13px;
   color: var(--ink-muted);
+}
+.modal-search-item-hidden {
+  display: none !important;
 }
 
 .sub-option {

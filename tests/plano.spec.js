@@ -431,6 +431,93 @@ test.describe('Plano Alimentar 14 Dias - pesquisa nos modais', () => {
   });
 });
 
+test.describe('Plano Alimentar 14 Dias - pesquisa nos modais - relevancia e Enter', () => {
+  test('C-MODAL-SEARCH-4 - frango nao mostra ovo e Enter adiciona o primeiro alimento relevante', async ({ page }) => {
+    await injectState(page, CENARIO_4);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-add-library]').first().click();
+    const search = page.locator('#add-library-search');
+    await expect(search).toBeVisible();
+    await expect(page.locator('[data-modal-search-clear]')).toHaveCount(1);
+
+    await search.type('f');
+    expect(await page.locator('.lib-food-item:visible').count()).toBeGreaterThan(0);
+    await search.type('rango');
+
+    const visibleNames = await page.locator('.lib-food-item:visible .lib-food-name').allTextContents();
+    expect(visibleNames.some(name => /frango/i.test(name))).toBe(true);
+    expect(visibleNames).not.toContain('Ovo inteiro');
+    expect(visibleNames).not.toContain('Clara de ovo');
+
+    const firstVisibleName = ((await page.locator('.lib-food-item:visible .lib-food-name').first().textContent()) || '').trim();
+    const addedCountBefore = await page.locator('.ingredient.ingredient-added').count();
+    await expect(page.locator('.lib-food-item:visible .lib-food-name').first()).toContainText(/frango/i);
+    await search.press('Enter');
+
+    await expect(page.locator('.ingredient.ingredient-added')).toHaveCount(addedCountBefore + 1);
+    const matchingAddedRow = page.locator('.ingredient.ingredient-added').filter({ hasText: firstVisibleName }).first();
+    await expect(matchingAddedRow).toBeVisible();
+    await matchingAddedRow.locator('[data-remove-addition]').click();
+  });
+
+  test('C-MODAL-SEARCH-5 - Enter aplica o primeiro substituto visivel e limpar restaura o modal', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const sourceRow = page.locator('.ingredient[data-food-id="peito_frango"]').first();
+    await sourceRow.locator('[data-swap]').click();
+
+    const search = page.locator('#sub-modal-search');
+    await expect(search).toBeVisible();
+    await expect(page.locator('[data-modal-search-clear]')).toHaveCount(1);
+    await search.type('frango');
+
+    const visibleNames = await page.locator('.sub-option:visible .sub-option-name').allTextContents();
+    expect(visibleNames.some(name => /frango/i.test(name))).toBe(true);
+    expect(visibleNames).not.toContain('Ovo inteiro');
+    expect(visibleNames).not.toContain('Clara de ovo');
+
+    const firstVisibleOption = page.locator('.sub-option:visible').first();
+    const firstVisibleFoodId = await firstVisibleOption.getAttribute('data-sub-id');
+    await search.press('Enter');
+
+    const substitutedRow = page.locator(`.ingredient.ingredient-substituted[data-food-id="${firstVisibleFoodId}"]`).first();
+    await expect(substitutedRow).toBeVisible();
+    await substitutedRow.locator('[data-revert]').click();
+    await expect(sourceRow).toHaveAttribute('data-food-id', 'peito_frango');
+  });
+
+  test('C-MODAL-SEARCH-6 - Enter abre o preview da primeira receita e sem resultados nao executa acao', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await page.locator('[data-use-recipe]').first().click();
+    const search = page.locator('#recipe-modal-search');
+    await expect(search).toBeVisible();
+    await expect(page.locator('[data-modal-search-clear]')).toHaveCount(1);
+
+    await search.fill('omelete');
+    await expect(page.locator('.recipe-modal-item:visible').first()).toContainText(/Omelete de frango/i);
+    await search.press('Enter');
+    const previewPanel = page.locator('[data-testid="recipe-preview-panel"]');
+    await expect(previewPanel).toBeVisible();
+
+    const previewHtmlBefore = await previewPanel.innerHTML();
+    await search.fill('receita-inexistente-xyz');
+    await expect(page.locator('[data-modal-search-empty]')).toHaveText(/Nenhuma receita encontrada/i);
+    await search.press('Enter');
+    await expect(previewPanel).toBeVisible();
+    expect(await previewPanel.innerHTML()).toBe(previewHtmlBefore);
+
+    await page.locator('[data-modal-search-clear]').click();
+    expect(await page.locator('.recipe-modal-item:visible').count()).toBeGreaterThan(1);
+  });
+});
+
 test.describe('Plano Alimentar 14 Dias - imagens das refeicoes', () => {
   test('C-MEAL-IMG-1 - refeicao original resolve imagem pelo templateId com alt acessivel', async ({ page }) => {
     await injectState(page, CENARIO_6);

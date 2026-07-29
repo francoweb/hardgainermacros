@@ -1571,6 +1571,83 @@ function normalizeModalSearchText(value) {
     .replace(/\s+/g, ' ');
 }
 
+const MODAL_SEARCH_COLLATOR = new Intl.Collator('pt-PT', {
+  sensitivity: 'base',
+  numeric: true,
+});
+
+function modalSearchWords(value) {
+  return normalizeModalSearchText(value).split(' ').filter(Boolean);
+}
+
+function readableModalFoodId(foodId) {
+  return String(foodId || '').replace(/[_-]+/g, ' ');
+}
+
+function scoreModalTextMatch(query, text) {
+  if (!query || !text) return null;
+  if (text === query) return 0;
+  if (text.startsWith(query)) return 1;
+  if (modalSearchWords(text).some(word => word.startsWith(query))) return 2;
+  if (text.includes(query)) return 3;
+  return null;
+}
+
+function compareModalSearchNames(a, b) {
+  return MODAL_SEARCH_COLLATOR.compare(String(a || ''), String(b || ''));
+}
+
+function scoreFoodModalResult(query, { name = '', foodId = '', category = '' }) {
+  const normalizedName = normalizeModalSearchText(name);
+  const normalizedFoodId = normalizeModalSearchText(readableModalFoodId(foodId));
+  const normalizedCategory = normalizeModalSearchText(category);
+
+  const nameScore = scoreModalTextMatch(query, normalizedName);
+  if (nameScore !== null) return nameScore;
+
+  if (normalizedFoodId === query) return 4;
+  if (normalizedFoodId.startsWith(query)) return 4;
+  if (normalizedFoodId.includes(query)) return 5;
+
+  const categoryScore = scoreModalTextMatch(query, normalizedCategory);
+  if (categoryScore !== null) return 6 + categoryScore;
+
+  return null;
+}
+
+function scoreRecipeModalResult(query, {
+  name = '',
+  ingredients = '',
+  description = '',
+  type = '',
+}) {
+  const normalizedName = normalizeModalSearchText(name);
+  const normalizedIngredients = normalizeModalSearchText(ingredients);
+  const normalizedDescription = normalizeModalSearchText(description);
+  const normalizedType = normalizeModalSearchText(type);
+
+  const nameScore = scoreModalTextMatch(query, normalizedName);
+  if (nameScore !== null) return nameScore;
+  if (normalizedIngredients.includes(query)) return 4;
+  if (normalizedDescription.includes(query)) return 5;
+  if (normalizedType.includes(query)) return 6;
+  return null;
+}
+
+function setModalSearchVisibility(element, isVisible) {
+  if (!element) return;
+  element.classList.toggle('modal-search-item-hidden', !isVisible);
+  element.hidden = !isVisible;
+  element.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+}
+
+function restoreModalSearchOrder(parents) {
+  parents.forEach(({ parent, children }) => {
+    if (!parent) return;
+    children.forEach(child => parent.appendChild(child));
+  });
+}
+
 function renderModalSearchBar({ inputId, label, placeholder }) {
   return `
     <div class="modal-search" data-modal-search>
@@ -1610,6 +1687,9 @@ function bindGroupedModalSearch(modalRoot, {
   groupSelector,
   itemSelector,
   emptySelector = '[data-modal-search-empty]',
+  getItemSearchData = () => ({}),
+  getItemName = () => '',
+  getPrimaryAction = item => item,
 }) {
   if (!modalRoot) return;
 
@@ -1618,7 +1698,7 @@ function bindGroupedModalSearch(modalRoot, {
   const emptyState = modalRoot.querySelector(emptySelector);
   if (!input || !clearBtn) return;
 
-  const groups = Array.from(modalRoot.querySelectorAll(groupSelector)).map(group => {
+  const groups = Array.from(modalRoot.querySelectorAll(groupSelector)).map((group, groupIndex) => {
     const items = Array.from(group.querySelectorAll(itemSelector));
     const countEl = group.querySelector('.sub-cat-count');
     return {
@@ -1627,8 +1707,21 @@ function bindGroupedModalSearch(modalRoot, {
       countEl,
       originalCount: items.length,
       originalOpen: group.tagName === 'DETAILS' ? group.hasAttribute('open') : null,
+      groupIndex,
+      parent: group.parentElement,
+      label: group.querySelector('.sub-cat-label')?.textContent?.trim() || '',
     };
   });
+
+  const parentMap = new Map();
+  groups.forEach((groupMeta) => {
+    if (!groupMeta.parent) return;
+    if (!parentMap.has(groupMeta.parent)) parentMap.set(groupMeta.parent, []);
+    parentMap.get(groupMeta.parent).push(groupMeta.group);
+  });
+
+  const parentOrder = Array.from(parentMap.entries()).map(([parent, children]) => ({ parent, children }));
+  let firstVisibleAction = null;
 
   const applySearch = () => {
     const query = normalizeModalSearchText(input.value);
@@ -1636,20 +1729,71 @@ function bindGroupedModalSearch(modalRoot, {
     modalRoot.dataset.searchActive = isSearching ? 'true' : 'false';
     clearBtn.hidden = !isSearching;
     clearBtn.disabled = !isSearching;
+    firstVisibleAction = null;
 
-    let visibleGroups = 0;
-    groups.forEach(({ group, items, countEl, originalCount, originalOpen }) => {
+    if (!isSearching) restoreModalSearchOrder(parentOrder);
+
+    const orderedGroupsByParent = new Map();
+    let visibleItems = 0;
+
+    groups.forEach(({ group, items, countEl, originalCount, originalOpen, groupIndex, parent, label }) => {
       let visibleCount = 0;
+      let bestScore = Infinity;
 
-      items.forEach(item => {
-        const match = !isSearching || (item.dataset.search || '').includes(query);
-        item.hidden = !match;
-        if (match) visibleCount += 1;
+      if (!isSearching) {
+        items.forEach(item => {
+          setModalSearchVisibility(item, true);
+        });
+      }
+
+      const itemStates = items.map((item, itemIndex) => {
+        if (!isSearching) {
+          return {
+            item,
+            itemIndex,
+            isVisible: true,
+            score: Infinity,
+            name: getItemName(item),
+          };
+        }
+
+        const searchData = getItemSearchData(item);
+        const score = scoreFoodModalResult(query, searchData);
+        return {
+          item,
+          itemIndex,
+          isVisible: score !== null,
+          score,
+          name: getItemName(item),
+        };
+      });
+
+      if (isSearching) {
+        itemStates
+          .slice()
+          .sort((a, b) => {
+            if (a.isVisible !== b.isVisible) return a.isVisible ? -1 : 1;
+            if (!a.isVisible && !b.isVisible) return a.itemIndex - b.itemIndex;
+            if (a.score !== b.score) return a.score - b.score;
+            const byName = compareModalSearchNames(a.name, b.name);
+            return byName !== 0 ? byName : a.itemIndex - b.itemIndex;
+          })
+          .forEach(({ item }) => item.parentElement?.appendChild(item));
+      } else {
+        items.forEach(item => item.parentElement?.appendChild(item));
+      }
+
+      itemStates.forEach(({ item, isVisible, score }) => {
+        setModalSearchVisibility(item, isVisible);
+        if (!isVisible) return;
+        visibleCount += 1;
+        visibleItems += 1;
+        if (score < bestScore) bestScore = score;
       });
 
       if (countEl) countEl.textContent = ` (${isSearching ? visibleCount : originalCount})`;
 
-      group.hidden = isSearching && visibleCount === 0;
+      setModalSearchVisibility(group, !isSearching || visibleCount > 0);
       if (group.tagName === 'DETAILS') {
         if (isSearching) {
           if (visibleCount > 0) group.setAttribute('open', '');
@@ -1661,10 +1805,35 @@ function bindGroupedModalSearch(modalRoot, {
         }
       }
 
-      if (!group.hidden) visibleGroups += 1;
+      if (!isSearching || visibleCount > 0) {
+        if (!orderedGroupsByParent.has(parent)) orderedGroupsByParent.set(parent, []);
+        orderedGroupsByParent.get(parent).push({
+          group,
+          bestScore,
+          groupIndex,
+          label,
+        });
+      }
     });
 
-    if (emptyState) emptyState.hidden = visibleGroups > 0;
+    if (isSearching) {
+      orderedGroupsByParent.forEach((entries, parent) => {
+        entries
+          .slice()
+          .sort((a, b) => {
+            if (a.bestScore !== b.bestScore) return a.bestScore - b.bestScore;
+            const byLabel = compareModalSearchNames(a.label, b.label);
+            return byLabel !== 0 ? byLabel : a.groupIndex - b.groupIndex;
+          })
+          .forEach(({ group }) => parent?.appendChild(group));
+      });
+    }
+
+    if (emptyState) emptyState.hidden = visibleItems > 0;
+
+    const firstVisibleItem = Array.from(modalRoot.querySelectorAll(itemSelector))
+      .find(item => !item.hidden);
+    firstVisibleAction = firstVisibleItem ? getPrimaryAction(firstVisibleItem) : null;
   };
 
   input.addEventListener('input', applySearch);
@@ -1672,6 +1841,21 @@ function bindGroupedModalSearch(modalRoot, {
     input.value = '';
     applySearch();
     input.focus();
+  });
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && input.value) {
+      event.preventDefault();
+      event.stopPropagation();
+      input.value = '';
+      applySearch();
+      input.focus();
+      return;
+    }
+
+    if (event.key !== 'Enter' || event.isComposing || !input.value.trim()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    firstVisibleAction?.click();
   });
 
   applySearch();
@@ -1685,11 +1869,16 @@ function bindRecipeModalSearch(modalRoot) {
   const emptyState = modalRoot.querySelector('[data-modal-search-empty]');
   if (!input || !clearBtn) return;
 
-  const sections = Array.from(modalRoot.querySelectorAll('[data-recipe-search-section]')).map(section => ({
+  const sections = Array.from(modalRoot.querySelectorAll('[data-recipe-search-section]')).map((section, sectionIndex) => ({
     section,
-    items: Array.from(section.querySelectorAll('.recipe-modal-item[data-search]')),
+    items: Array.from(section.querySelectorAll('.recipe-modal-item[data-recipe-id]')),
     restoreHidden: section.hidden,
+    sectionIndex,
+    label: section.querySelector('.recipe-modal-section-label')?.textContent?.trim() || '',
   }));
+  const sectionParent = sections[0]?.section.parentElement || null;
+  const originalSectionOrder = sections.map(({ section }) => section);
+  let firstVisibleItem = null;
 
   const applySearch = () => {
     const query = normalizeModalSearchText(input.value);
@@ -1697,19 +1886,95 @@ function bindRecipeModalSearch(modalRoot) {
     modalRoot.dataset.searchActive = isSearching ? 'true' : 'false';
     clearBtn.hidden = !isSearching;
     clearBtn.disabled = !isSearching;
+    firstVisibleItem = null;
+
+    if (!isSearching && sectionParent) {
+      originalSectionOrder.forEach(section => sectionParent.appendChild(section));
+    }
 
     let visibleItems = 0;
-    sections.forEach(({ section, items, restoreHidden }) => {
+    const visibleSections = [];
+
+    sections.forEach(({ section, items, restoreHidden, sectionIndex, label }) => {
       let sectionVisibleItems = 0;
-      items.forEach(item => {
-        const match = !isSearching || (item.dataset.search || '').includes(query);
-        item.hidden = !match;
-        if (match) sectionVisibleItems += 1;
+      let bestScore = Infinity;
+
+      if (!isSearching) {
+        items.forEach(item => {
+          setModalSearchVisibility(item, true);
+        });
+      }
+
+      const itemStates = items.map((item, itemIndex) => {
+        if (!isSearching) {
+          return {
+            item,
+            itemIndex,
+            isVisible: true,
+            score: Infinity,
+            name: item.querySelector('.recipe-modal-name')?.textContent?.trim() || '',
+          };
+        }
+
+        const score = scoreRecipeModalResult(query, {
+          name: item.dataset.searchName,
+          ingredients: item.dataset.searchIngredients,
+          description: item.dataset.searchDescription,
+          type: item.dataset.searchType,
+        });
+        return {
+          item,
+          itemIndex,
+          isVisible: score !== null,
+          score,
+          name: item.querySelector('.recipe-modal-name')?.textContent?.trim() || '',
+        };
       });
 
-      section.hidden = isSearching ? sectionVisibleItems === 0 : restoreHidden;
-      visibleItems += sectionVisibleItems;
+      if (isSearching) {
+        itemStates
+          .slice()
+          .sort((a, b) => {
+            if (a.isVisible !== b.isVisible) return a.isVisible ? -1 : 1;
+            if (!a.isVisible && !b.isVisible) return a.itemIndex - b.itemIndex;
+            if (a.score !== b.score) return a.score - b.score;
+            const byName = compareModalSearchNames(a.name, b.name);
+            return byName !== 0 ? byName : a.itemIndex - b.itemIndex;
+          })
+          .forEach(({ item }) => item.parentElement?.appendChild(item));
+      } else {
+        items.forEach(item => item.parentElement?.appendChild(item));
+      }
+
+      itemStates.forEach(({ item, isVisible, score }) => {
+        setModalSearchVisibility(item, isVisible);
+        if (!isVisible) return;
+        sectionVisibleItems += 1;
+        visibleItems += 1;
+        if (score < bestScore) bestScore = score;
+        if (!firstVisibleItem) firstVisibleItem = item;
+      });
+
+      setModalSearchVisibility(section, isSearching ? sectionVisibleItems > 0 : !restoreHidden);
+      if (!isSearching) {
+        section.hidden = restoreHidden;
+      }
+
+      if (!isSearching || sectionVisibleItems > 0) {
+        visibleSections.push({ section, bestScore, sectionIndex, label });
+      }
     });
+
+    if (isSearching && sectionParent) {
+      visibleSections
+        .slice()
+        .sort((a, b) => {
+          if (a.bestScore !== b.bestScore) return a.bestScore - b.bestScore;
+          const byLabel = compareModalSearchNames(a.label, b.label);
+          return byLabel !== 0 ? byLabel : a.sectionIndex - b.sectionIndex;
+        })
+        .forEach(({ section }) => sectionParent.appendChild(section));
+    }
 
     if (emptyState) emptyState.hidden = !isSearching || visibleItems > 0;
   };
@@ -1719,6 +1984,21 @@ function bindRecipeModalSearch(modalRoot) {
     input.value = '';
     applySearch();
     input.focus();
+  });
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && input.value) {
+      event.preventDefault();
+      event.stopPropagation();
+      input.value = '';
+      applySearch();
+      input.focus();
+      return;
+    }
+
+    if (event.key !== 'Enter' || event.isComposing || !input.value.trim()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    firstVisibleItem?.click();
   });
 
   applySearch();
@@ -1848,7 +2128,15 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
       projLine = `<div class="sub-option-proj">Dia projetado: <strong>${projKcal} kcal</strong> (${projSign}${projDiff} vs alvo ${results.calories})</div>`;
     }
     return `
-      <li class="sub-option${opt.isCustom ? ' sub-option-custom' : ''}" data-sub-id="${opt.id}" data-sub-grams="${opt.grams}" data-search="${escapeHtml(searchText)}">
+      <li
+        class="sub-option${opt.isCustom ? ' sub-option-custom' : ''}"
+        data-sub-id="${opt.id}"
+        data-sub-grams="${opt.grams}"
+        data-search="${escapeHtml(searchText)}"
+        data-search-name="${escapeHtml(normalizeModalSearchText(opt.food.name))}"
+        data-search-id="${escapeHtml(normalizeModalSearchText(readableModalFoodId(opt.id)))}"
+        data-search-category="${escapeHtml(normalizeModalSearchText(opt.food.category || ''))}"
+      >
         <div class="sub-option-main">
           ${optionVisual}
           <div class="sub-option-copy">
@@ -1962,6 +2250,13 @@ function openSubModal(dayIdx, mealIdx, ingIdx, mount, results) {
   bindGroupedModalSearch(modalRoot, {
     groupSelector: '.sub-cat-group',
     itemSelector: '.sub-option',
+    getItemSearchData: item => ({
+      name: item.dataset.searchName,
+      foodId: item.dataset.searchId,
+      category: item.dataset.searchCategory,
+    }),
+    getItemName: item => item.querySelector('.sub-option-name')?.textContent?.trim() || '',
+    getPrimaryAction: item => item,
   });
 
   // Apply substitution on option click
@@ -3550,7 +3845,13 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
           const r1 = (v) => Math.round((v || 0) * 10) / 10;
           const searchText = normalizeModalSearchText(`${cf.name} ${cf.id} ${cf.category || ''}`);
           return `
-            <li class="lib-food-item" data-search="${escapeHtml(searchText)}">
+            <li
+              class="lib-food-item"
+              data-search="${escapeHtml(searchText)}"
+              data-search-name="${escapeHtml(normalizeModalSearchText(cf.name))}"
+              data-search-id="${escapeHtml(normalizeModalSearchText(readableModalFoodId(cf.id)))}"
+              data-search-category="${escapeHtml(normalizeModalSearchText(cf.category || ''))}"
+            >
               <div class="lib-food-info">
                 <div class="lib-food-name">${escapeHtml(cf.name)}</div>
                 <div class="lib-food-qty">100 g</div>
@@ -3578,7 +3879,13 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
   });
 
   const renderItems = (items) => items.map(({ id, food, grams, macros, display }) => `
-    <li class="lib-food-item" data-search="${escapeHtml(normalizeModalSearchText(`${food.name} ${id} ${food.category || ''}`))}">
+    <li
+      class="lib-food-item"
+      data-search="${escapeHtml(normalizeModalSearchText(`${food.name} ${id} ${food.category || ''}`))}"
+      data-search-name="${escapeHtml(normalizeModalSearchText(food.name))}"
+      data-search-id="${escapeHtml(normalizeModalSearchText(readableModalFoodId(id)))}"
+      data-search-category="${escapeHtml(normalizeModalSearchText(food.category || ''))}"
+    >
       ${renderFoodVisualById(id, food.name, { className: 'lib-food-visual', size: 52, testId: `lib-food-visual-${id}` })}
       <div class="lib-food-info">
         <div class="lib-food-name">${escapeHtml(food.name)}</div>
@@ -3642,6 +3949,13 @@ function openAddLibraryModal(dayIdx, mealIdx, mount) {
   bindGroupedModalSearch(modalRoot, {
     groupSelector: '.sub-cat-group',
     itemSelector: '.lib-food-item',
+    getItemSearchData: item => ({
+      name: item.dataset.searchName,
+      foodId: item.dataset.searchId,
+      category: item.dataset.searchCategory,
+    }),
+    getItemName: item => item.querySelector('.lib-food-name')?.textContent?.trim() || '',
+    getPrimaryAction: item => item.querySelector('.lib-add-btn'),
   });
 
   // Botões Adicionar — biblioteca estática
@@ -3787,7 +4101,13 @@ function openRecipeModal(dayIdx, mealIdx, mealSlot, mount) {  // mount adicionad
       ? '<span class="recipe-modal-compat">✅ Compatível</span>'
       : '<span class="recipe-modal-incompat">⚠️ Fora dos slots sugeridos</span>';
     return `
-      <li class="recipe-modal-item" data-recipe-id="${r.id}" data-search="${escapeHtml(searchText)}"
+      <li class="recipe-modal-item"
+          data-recipe-id="${r.id}"
+          data-search="${escapeHtml(searchText)}"
+          data-search-name="${escapeHtml(normalizeModalSearchText(r.name))}"
+          data-search-ingredients="${escapeHtml(normalizeModalSearchText(ingredientTerms))}"
+          data-search-description="${escapeHtml(normalizeModalSearchText(r.description))}"
+          data-search-type="${escapeHtml(normalizeModalSearchText(`${typeTxt} ${r.type}`))}"
           role="button" tabindex="0"
           aria-label="Ver pré-visualização: ${escapeHtml(r.name)}">
         <div class="recipe-modal-item-main">
