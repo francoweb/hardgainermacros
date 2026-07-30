@@ -1269,6 +1269,17 @@ ul, ol { margin: 0; padding: 0; }
 }
 .meal-note-icon { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
 
+html[data-theme="dark"] .meal-note {
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-top-color: var(--border-strong);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+html[data-theme="dark"] .meal-note-icon {
+  color: var(--accent-dark);
+}
+
 /* ---------- SUBSTITUTION MODAL ---------- */
 .modal-backdrop {
   position: fixed;
@@ -2634,6 +2645,13 @@ html[data-theme="dark"] .modal-search {
   .meal-card-visual { display: none !important; }
   .ingredient-visual { display: none !important; }
   details.prep-details summary { display: none !important; }
+  .meal-note {
+    background: #fdf6f0 !important;
+    color: #585048 !important;
+    border-top-color: #efeae0 !important;
+    box-shadow: none !important;
+  }
+  .meal-note-icon { color: #c26d5a !important; }
 }
 
 /* =========================================================================
