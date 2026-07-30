@@ -773,15 +773,57 @@ function getRecipeVisualItems(recipeLike, maxItems = 3) {
   return visuals.slice(0, maxItems);
 }
 
+function resolveRecipeFinalVisual(recipeLike) {
+  const recipeId = typeof recipeLike?.recipeId === 'string'
+    ? recipeLike.recipeId.trim()
+    : typeof recipeLike?.id === 'string'
+      ? recipeLike.id.trim()
+      : '';
+
+  const recipeSource = recipeId
+    ? RECIPES.find(recipe => recipe?.id === recipeId) || recipeLike
+    : recipeLike;
+
+  const src = typeof recipeSource?.imageSrc === 'string' ? recipeSource.imageSrc.trim() : '';
+  if (!src) return null;
+
+  const name = recipeLike?.name || recipeSource?.name || 'Receita';
+  const alt = typeof recipeSource?.imageAlt === 'string' && recipeSource.imageAlt.trim()
+    ? recipeSource.imageAlt.trim()
+    : `${name} pronta para servir`;
+
+  return { src, alt, recipeId: recipeId || recipeSource?.id || '' };
+}
+
 function renderRecipeVisual(recipeLike, { className = '', testId = '', maxItems = 3 } = {}) {
+  const finalVisual = resolveRecipeFinalVisual(recipeLike);
+  const testIdAttr = testId ? ` data-testid="${escapeHtml(testId)}"` : '';
+
+  if (finalVisual) {
+    const classes = ['recipe-visual', 'recipe-visual--single', className].filter(Boolean).join(' ');
+    return `
+      <div class="${classes}" data-recipe-visual="final"${testIdAttr}>
+        <img
+          src="${escapeHtml(finalVisual.src)}"
+          alt="${escapeHtml(finalVisual.alt)}"
+          loading="lazy"
+          decoding="async"
+          width="96"
+          height="96"
+          data-recipe-image
+          data-recipe-id="${escapeHtml(finalVisual.recipeId)}"
+        >
+      </div>
+    `;
+  }
+
   const visuals = getRecipeVisualItems(recipeLike, maxItems);
   if (!visuals.length) return '';
 
   const classes = ['recipe-visual', className].filter(Boolean).join(' ');
-  const testIdAttr = testId ? ` data-testid="${escapeHtml(testId)}"` : '';
 
   return `
-    <div class="${classes}" data-recipe-visual${testIdAttr}>
+    <div class="${classes}" data-recipe-visual="ingredients"${testIdAttr}>
       ${visuals.map((visual, idx) => `
         <div class="recipe-visual-thumb recipe-visual-thumb-${idx + 1}" data-food-visual="image" data-food-id="${escapeHtml(visual.foodId)}">
           <img

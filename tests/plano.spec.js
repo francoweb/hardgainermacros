@@ -344,9 +344,9 @@ test.describe('Plano Alimentar 14 Dias - imagens nos modais', () => {
     await page.locator('[data-modal-close]').first().click();
 
     await page.locator('[data-use-recipe]').first().click();
-    await expect(page.locator('.recipe-modal-item [data-food-image]').first()).toBeVisible();
+    await expect(page.locator('.recipe-modal-item [data-recipe-image]').first()).toBeVisible();
     await page.locator('.recipe-modal-item').first().click();
-    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-food-image]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="recipe-preview-visual"] [data-recipe-image]').first()).toBeVisible();
 
     await page.waitForLoadState('networkidle');
 
