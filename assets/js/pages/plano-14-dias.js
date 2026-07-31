@@ -16,6 +16,7 @@
 import { icons } from '../modules/icons.js';
 import { navigate } from '../modules/router.js';
 import { openModal } from '../components/ui.js';
+import { renderMacroDashboard } from '../modules/macro-dashboard.js';
 import {
   loadPlan, loadResults,
   loadSubstitutions, saveSubstitutions,
@@ -109,7 +110,8 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
       <div class="plan-hero">
         <h1 class="hero-title">Seu Plano Alimentar de 14 Dias</h1>
         <p class="hero-sub">${strategyLabel}: ${solidText} + ${shakeText}</p>
-        <div class="plan-hero-meta">
+        ${renderMacroDashboard(results, { variant: 'compact' })}
+        <div class="plan-hero-meta plan-hero-meta--print">
           <span><strong>${formatKcal(results.calories)}</strong> kcal/dia</span>
           <span>•</span>
           <span>P: <strong>${results.protein.grams}g</strong></span>

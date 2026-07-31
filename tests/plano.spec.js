@@ -358,6 +358,43 @@ test.describe('Plano Alimentar 14 Dias - imagens nos modais', () => {
   });
 });
 
+test.describe('Plano Alimentar 14 Dias - painel compacto de macros', () => {
+  test('C-MACRO-DASH-2 - hero mostra painel compacto com os mesmos valores e fallback textual no print', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const dashboard = page.locator('[data-macro-dashboard="compact"]');
+    await expect(dashboard).toBeVisible();
+    await expect(dashboard.locator('.macro-dashboard__kcal')).toContainText('2660');
+    await expect(dashboard.locator('[data-macro-row="protein"]')).toContainText('200 g');
+    await expect(dashboard.locator('[data-macro-row="carb"]')).toContainText('332 g');
+    await expect(dashboard.locator('[data-macro-row="fat"]')).toContainText('59 g');
+
+    const ariaLabel = await dashboard.locator('[data-macro-ring]').getAttribute('aria-label');
+    expect(ariaLabel).toContain('2660');
+    expect(ariaLabel).toContain('200');
+    expect(ariaLabel).toContain('332');
+    expect(ariaLabel).toContain('59');
+
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('.plan-hero-meta--print')).toBeVisible();
+    const printState = await page.locator('.plan-hero').evaluate(el => {
+      const dashboardEl = el.querySelector('[data-macro-dashboard="compact"]');
+      const fallbackEl = el.querySelector('.plan-hero-meta--print');
+      return {
+        dashboardDisplay: dashboardEl ? getComputedStyle(dashboardEl).display : null,
+        fallbackDisplay: fallbackEl ? getComputedStyle(fallbackEl).display : null,
+        fallbackText: fallbackEl ? (fallbackEl.textContent || '') : '',
+      };
+    });
+    expect(printState.dashboardDisplay).toBe('none');
+    expect(printState.fallbackDisplay).toMatch(/inline-flex|flex/);
+    expect(printState.fallbackText).toContain('2660');
+    await page.emulateMedia({ media: 'screen' });
+  });
+});
+
 test.describe('Plano Alimentar 14 Dias - pesquisa nos modais', () => {
   test('C-MODAL-SEARCH-1 - Adicionar Alimento filtra sem acentos, mostra estado vazio e limpar restaura categorias', async ({ page }) => {
     await injectState(page, CENARIO_4);

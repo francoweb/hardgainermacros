@@ -807,6 +807,337 @@ ul, ol { margin: 0; padding: 0; }
 .macro-bar-fill.carb { background: var(--carb); }
 .macro-bar-fill.fat { background: var(--fat); }
 
+.macro-dashboard {
+  --macro-track: color-mix(in srgb, var(--border) 52%, transparent);
+  --macro-surface: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, var(--accent-softer) 8%), var(--surface));
+  --macro-shadow: 0 14px 34px rgba(48, 33, 23, 0.08);
+  display: grid;
+  grid-template-columns: minmax(220px, 240px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid color-mix(in srgb, var(--border) 84%, var(--accent) 16%);
+  border-radius: 24px;
+  background: var(--macro-surface);
+  box-shadow: var(--macro-shadow);
+  overflow: hidden;
+}
+
+.macro-dashboard__visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+}
+
+.macro-dashboard__ring {
+  width: min(100%, 240px);
+  height: auto;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.macro-dashboard__track,
+.macro-dashboard__segment {
+  fill: none;
+  cx: 60;
+  cy: 60;
+  r: 54;
+  stroke-width: 12;
+}
+
+.macro-dashboard__track {
+  stroke: var(--macro-track);
+}
+
+.macro-dashboard__segment {
+  stroke-linecap: round;
+  stroke-dasharray: var(--segment-length, 0) calc(var(--circumference, 1) - var(--segment-length, 0));
+  stroke-dashoffset: var(--segment-offset, 0);
+}
+
+.macro-dashboard__segment--protein { stroke: var(--protein-color); }
+.macro-dashboard__segment--carb { stroke: var(--carb-color); }
+.macro-dashboard__segment--fat { stroke: var(--fat-color); }
+
+.macro-dashboard__center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 24px;
+  pointer-events: none;
+}
+
+.macro-dashboard__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+  opacity: 0.86;
+  margin-bottom: 8px;
+}
+
+.macro-dashboard__kcal {
+  margin-bottom: 0;
+  font-size: clamp(32px, 5vw, 48px);
+}
+
+.macro-dashboard__unit {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+.macro-dashboard__rows {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.macro-dashboard__row {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.macro-dashboard__row-head,
+.macro-dashboard__row-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.macro-dashboard__row-head {
+  margin-bottom: 8px;
+}
+
+.macro-dashboard__row-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.macro-dashboard__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.macro-dashboard__swatch--protein { background: var(--protein-color); }
+.macro-dashboard__swatch--carb { background: var(--carb-color); }
+.macro-dashboard__swatch--fat { background: var(--fat-color); }
+
+.macro-dashboard__row-grams {
+  font-size: 17px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.macro-dashboard__row-meta {
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.macro-dashboard__row-kcal,
+.macro-dashboard__row-pct {
+  font-variant-numeric: tabular-nums;
+}
+
+.macro-dashboard__row-pct {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.macro-dashboard__bar {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-soft) 86%, var(--surface) 14%);
+  overflow: hidden;
+}
+
+.macro-dashboard__bar-fill {
+  width: min(100%, var(--macro-fill, 0%));
+  height: 100%;
+  border-radius: inherit;
+}
+
+.macro-dashboard__bar-fill--protein { background: var(--protein-color); }
+.macro-dashboard__bar-fill--carb { background: var(--carb-color); }
+.macro-dashboard__bar-fill--fat { background: var(--fat-color); }
+
+.macro-dashboard--compact {
+  grid-template-columns: minmax(105px, 128px) minmax(0, 1fr);
+  gap: 18px;
+  padding: 16px 18px;
+  margin: 16px auto 0;
+  max-width: 760px;
+  border-radius: 22px;
+}
+
+.macro-dashboard--compact .macro-dashboard__ring {
+  width: min(100%, 128px);
+}
+
+.macro-dashboard--compact .macro-dashboard__track,
+.macro-dashboard--compact .macro-dashboard__segment {
+  stroke-width: 11;
+}
+
+.macro-dashboard--compact .macro-dashboard__center {
+  padding: 16px;
+}
+
+.macro-dashboard--compact .macro-dashboard__eyebrow {
+  margin-bottom: 6px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.macro-dashboard--compact .macro-dashboard__kcal {
+  font-size: clamp(22px, 4.4vw, 30px);
+}
+
+.macro-dashboard--compact .macro-dashboard__unit {
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.macro-dashboard--compact .macro-dashboard__rows {
+  gap: 10px;
+}
+
+.macro-dashboard--compact .macro-dashboard__row {
+  padding: 10px 12px;
+  border-radius: 16px;
+}
+
+.macro-dashboard--compact .macro-dashboard__row-title {
+  font-size: 13px;
+}
+
+.macro-dashboard--compact .macro-dashboard__row-grams {
+  font-size: 15px;
+}
+
+.macro-dashboard--compact .macro-dashboard__row-meta {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.macro-dashboard--compact .macro-dashboard__bar {
+  height: 8px;
+}
+
+@media (max-width: 920px) {
+  .macro-dashboard,
+  .macro-dashboard--compact {
+    grid-template-columns: 1fr;
+  }
+
+  .macro-dashboard {
+    justify-items: center;
+  }
+
+  .macro-dashboard__visual {
+    width: 100%;
+  }
+
+  .macro-dashboard__rows {
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .macro-dashboard {
+    padding: 20px 16px;
+    gap: 18px;
+    border-radius: 22px;
+  }
+
+  .macro-dashboard__ring {
+    width: min(100%, 190px);
+  }
+
+  .macro-dashboard__row {
+    padding: 12px 14px;
+  }
+
+  .macro-dashboard__row-head,
+  .macro-dashboard__row-meta {
+    flex-wrap: wrap;
+  }
+
+  .macro-dashboard__row-grams,
+  .macro-dashboard__row-pct {
+    margin-left: auto;
+  }
+
+  .macro-dashboard--compact {
+    grid-template-columns: minmax(92px, 108px) minmax(0, 1fr);
+    align-items: center;
+    padding: 14px;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .macro-dashboard--compact .macro-dashboard__ring {
+    width: min(100%, 116px);
+  }
+
+  .macro-dashboard--compact .macro-dashboard__row {
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  .macro-dashboard--compact .macro-dashboard__row-head {
+    margin-bottom: 6px;
+  }
+
+  .macro-dashboard--compact .macro-dashboard__row-title {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .macro-dashboard--compact .macro-dashboard__row-grams {
+    font-size: 14px;
+  }
+
+  .macro-dashboard--compact .macro-dashboard__row-meta {
+    margin-bottom: 6px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .macro-dashboard__segment {
+    transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;
+  }
+
+  .macro-dashboard__bar-fill {
+    transition: width 0.7s ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .macro-dashboard__segment,
+  .macro-dashboard__bar-fill {
+    transition: none;
+  }
+}
+
 .stat-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -989,6 +1320,7 @@ ul, ol { margin: 0; padding: 0; }
   font-weight: 500;
 }
 .plan-hero-meta span { background: #fff; padding: 6px 12px; border-radius: var(--r-pill); }
+.plan-hero-meta--print { display: none; }
 
 .plan-toolbar {
   display: flex;
@@ -2511,11 +2843,26 @@ html[data-theme="dark"] .modal-search {
 @media (max-width: 420px) {
   .step-label { display: none; }
   .plan-hero-meta { flex-direction: column; gap: 8px; }
+  .plan-hero { padding: 18px 14px; }
   .hero-title { font-size: 24px; }
   .macro-val { font-size: 22px; }
   .macro-card { padding: 12px 10px 10px; }
   .macro-head { font-size: 9.5px; }
   .profile-summary { grid-template-columns: 1fr; gap: 6px; }
+  .macro-dashboard--compact {
+    grid-template-columns: minmax(84px, 96px) minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+  }
+  .macro-dashboard--compact .macro-dashboard__visual {
+    max-width: 96px;
+    margin: 0;
+  }
+  .macro-dashboard--compact .macro-dashboard__rows { gap: 8px; }
+  .macro-dashboard--compact .macro-dashboard__row-head,
+  .macro-dashboard--compact .macro-dashboard__row-meta {
+    gap: 6px;
+  }
 }
 
 /* ─── Preparação recolhível (prep-details) — desktop & mobile ───────────── */
@@ -2636,6 +2983,25 @@ html[data-theme="dark"] .modal-search {
   .no-print, .header, .footer, .plan-toolbar, .cookie, .ingredient-sub-btn, .help-fab { display: none !important; }
   .main { padding: 0; }
   body { background: #fff; }
+  .macro-dashboard {
+    box-shadow: none !important;
+    background: #fff !important;
+    border-color: #ddd !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .macro-dashboard__ring { display: none !important; }
+  .macro-dashboard__center {
+    position: static !important;
+    padding: 0 !important;
+    margin-bottom: 12px;
+    pointer-events: auto;
+  }
+  .macro-dashboard__visual {
+    display: block !important;
+  }
+  .plan-hero .macro-dashboard { display: none !important; }
+  .plan-hero-meta--print { display: inline-flex !important; }
   .day { page-break-inside: avoid; break-inside: avoid; border: 1px solid #ddd; }
   .day-body { display: block !important; }
   .day-chev { display: none; }
@@ -3426,6 +3792,21 @@ body { max-width: 100%; overflow-x: hidden; }
 :root[data-theme="dark"] .plan-hero-meta span,
 :root[data-theme="dark"] .meal-card {
   background: var(--surface);
+}
+
+:root[data-theme="dark"] .macro-dashboard {
+  --macro-track: color-mix(in srgb, var(--border-strong) 60%, transparent);
+  --macro-surface: linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, var(--accent-softer) 10%), var(--surface));
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+}
+
+:root[data-theme="dark"] .macro-dashboard__row {
+  background: color-mix(in srgb, var(--surface-soft) 84%, transparent);
+  border-color: color-mix(in srgb, var(--border-strong) 84%, transparent);
+}
+
+:root[data-theme="dark"] .macro-dashboard__eyebrow {
+  color: var(--accent-soft);
 }
 
 :root[data-theme="dark"] .meal-card.solid .meal-card-head,

@@ -290,6 +290,27 @@ test.describe('Plano 14 Dias no mobile - imagens dos alimentos', () => {
     expect(pageErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);
   });
+  test('C-MOBILE-MACRO-DASH-1 - hero compacto respeita reduced motion e continua sem overflow em 390px', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await gotoPlanoMobile(page);
+
+    const dashboard = page.locator('[data-macro-dashboard="compact"]');
+    await expect(dashboard).toBeVisible();
+
+    const state = await dashboard.evaluate(el => {
+      const proteinSegment = el.querySelector('[data-macro-segment="protein"]');
+      const proteinBar = el.querySelector('.macro-dashboard__bar-fill--protein');
+      return {
+        scrollWidth: document.documentElement.scrollWidth,
+        segmentTransition: proteinSegment ? getComputedStyle(proteinSegment).transitionDuration : '',
+        barTransition: proteinBar ? getComputedStyle(proteinBar).transitionDuration : '',
+      };
+    });
+
+    expect(state.scrollWidth).toBeLessThanOrEqual(390);
+    expect(state.segmentTransition).toBe('0s');
+    expect(state.barTransition).toBe('0s');
+  });
 });
 
 test('C-MOBILE-MODAL-SEARCH-2 - Mobile 390px filtra frango sem mostrar ovo nem criar overflow', async ({ page }) => {

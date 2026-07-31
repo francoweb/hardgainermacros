@@ -22,6 +22,7 @@ import {
 import { formatKcal } from '../modules/calculator.js';
 import { generatePlan } from '../modules/meal-planner.js';
 import { applyDedupLabels, SLOT_LABEL } from '../modules/day-schedule.js';
+import { renderMacroDashboard } from '../modules/macro-dashboard.js';
 
 const getDisplayMealLabel = (slot, time, nocturnal = false, strategy = 'hybrid', trainEndTime = null) => {
   // Refeição sólida logo após o treino (até 60 min depois do fim)
@@ -229,42 +230,7 @@ export function renderResultadosPage(mount) {
       <div class="btn-row">
         <button type="button" class="btn btn-ghost" id="btn-back-top">← Voltar e ajustar rotina</button>
       </div>
-
-      <!-- Macro cards -->
-      <div class="macro-grid">
-        <div class="macro-card cal">
-          <div class="macro-head">
-            <span class="macro-dot"><img src="/assets/img/macro-icons/calorias.webp" alt="Calorias"></span>
-            <span>Calorias</span>
-          </div>
-          <div class="macro-val">${formatKcal(results.calories)}<span class="macro-unit">kcal/dia</span></div>
-          <div class="macro-bar"><div class="macro-bar-fill" style="width: 100%; background: var(--cal-color);"></div></div>
-        </div>
-        <div class="macro-card protein">
-          <div class="macro-head">
-            <span class="macro-dot"><img src="/assets/img/macro-icons/proteina.webp" alt="Proteína"></span>
-            <span>Proteína</span>
-          </div>
-          <div class="macro-val">${results.protein.grams}g<span class="macro-unit">${results.protein.pct}% • ${formatKcal(results.protein.kcal)} kcal</span></div>
-          <div class="macro-bar"><div class="macro-bar-fill" style="width: ${results.protein.pct * 2}%; background: var(--protein-color); max-width: 100%;"></div></div>
-        </div>
-        <div class="macro-card carb">
-          <div class="macro-head">
-            <span class="macro-dot"><img src="/assets/img/macro-icons/carboidratos.webp" alt="Carboidratos"></span>
-            <span>Carboidratos</span>
-          </div>
-          <div class="macro-val">${results.carb.grams}g<span class="macro-unit">${results.carb.pct}% • ${formatKcal(results.carb.kcal)} kcal</span></div>
-          <div class="macro-bar"><div class="macro-bar-fill" style="width: ${results.carb.pct * 1.5}%; background: var(--carb-color); max-width: 100%;"></div></div>
-        </div>
-        <div class="macro-card fat">
-          <div class="macro-head">
-            <span class="macro-dot"><img src="/assets/img/macro-icons/gorduras.webp" alt="Gorduras"></span>
-            <span>Gorduras</span>
-          </div>
-          <div class="macro-val">${results.fat.grams}g<span class="macro-unit">${results.fat.pct}% • ${formatKcal(results.fat.kcal)} kcal</span></div>
-          <div class="macro-bar"><div class="macro-bar-fill" style="width: ${results.fat.pct * 3}%; background: var(--fat-color); max-width: 100%;"></div></div>
-        </div>
-      </div>
+      ${renderMacroDashboard(results, { variant: 'complete' })}
 
       <!-- Stats row (TMB / TDEE / Surplus) -->
       <div class="stat-row">

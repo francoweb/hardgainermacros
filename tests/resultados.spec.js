@@ -85,6 +85,46 @@ test.describe('Resultados — primeira refeição no topo', () => {
 
 });
 
+test.describe('Resultados â€” painel grÃ¡fico de macros', () => {
+  test('C-MACRO-DASH-1 â€” painel completo mostra kcal, macros, percentuais e segmentos SVG vÃ¡lidos', async ({ page }) => {
+    await injectState(page, CENARIO_1);
+    await gotoResultados(page);
+
+    const dashboard = page.locator('[data-macro-dashboard="complete"]');
+    await expect(dashboard).toBeVisible();
+    await expect(dashboard.locator('[data-macro-ring]')).toBeVisible();
+    await expect(dashboard.locator('[data-macro-segment]')).toHaveCount(3);
+    await expect(dashboard.locator('.macro-dashboard__kcal')).toContainText('2660');
+
+    await expect(dashboard.locator('[data-macro-row="protein"]')).toContainText('200 g');
+    await expect(dashboard.locator('[data-macro-row="protein"]')).toContainText('800 kcal');
+    await expect(dashboard.locator('[data-macro-row="protein"]')).toContainText('30%');
+
+    await expect(dashboard.locator('[data-macro-row="carb"]')).toContainText('332 g');
+    await expect(dashboard.locator('[data-macro-row="carb"]')).toContainText('1328 kcal');
+    await expect(dashboard.locator('[data-macro-row="carb"]')).toContainText('50%');
+
+    await expect(dashboard.locator('[data-macro-row="fat"]')).toContainText('59 g');
+    await expect(dashboard.locator('[data-macro-row="fat"]')).toContainText('531 kcal');
+    await expect(dashboard.locator('[data-macro-row="fat"]')).toContainText('20%');
+
+    const ariaLabel = await dashboard.locator('[data-macro-ring]').getAttribute('aria-label');
+    expect(ariaLabel).toContain('2660');
+    expect(ariaLabel).toContain('200');
+    expect(ariaLabel).toContain('332');
+    expect(ariaLabel).toContain('59');
+
+    const segmentMarkup = await dashboard.locator('[data-macro-segment]').evaluateAll(nodes =>
+      nodes.map(node => ({
+        style: node.getAttribute('style') || '',
+        dasharray: getComputedStyle(node).strokeDasharray,
+        dashoffset: getComputedStyle(node).strokeDashoffset,
+      }))
+    );
+    expect(segmentMarkup.every(item => !/NaN|Infinity/i.test(`${item.style} ${item.dasharray} ${item.dashoffset}`))).toBe(true);
+  });
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Grupo: Labels sem treino (Etapa 3E-A + fix Refeição Pré-Treino)
 // ─────────────────────────────────────────────────────────────────────────────
