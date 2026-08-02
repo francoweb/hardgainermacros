@@ -1212,6 +1212,25 @@ ul, ol { margin: 0; padding: 0; }
 }
 @media (max-width: 480px) {
   .profile-summary { grid-template-columns: repeat(2, 1fr); gap: 6px 10px; padding: 10px 12px; }
+  .plan-insights__stats,
+  .plan-insights__principles {
+    grid-template-columns: 1fr;
+  }
+  .plan-insights__timeline-step {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .plan-insights__timeline-badge {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .hydration-card__head {
+    flex-direction: column;
+  }
+  .hydration-card__badge {
+    align-self: flex-start;
+  }
 }
 
 /* Meal breakdown */
@@ -1277,6 +1296,226 @@ ul, ol { margin: 0; padding: 0; }
   font-size: 12px;
   font-weight: 700;
   flex-shrink: 0;
+}
+
+.plan-section-intro {
+  margin-bottom: 14px;
+  color: var(--ink-soft);
+}
+
+.plan-section-summary {
+  margin: 0 0 16px;
+}
+
+.plan-insights__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.plan-insights__stat-card,
+.plan-insights__timeline-card,
+.plan-insights__principle-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.72) 100%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--sh-sm);
+}
+
+.plan-insights__stat-card {
+  padding: 14px 15px;
+}
+
+.plan-insights__stat-card--accent {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.plan-insights__stat-card--water {
+  border-color: color-mix(in srgb, #6ba8b8 32%, var(--border));
+}
+
+.plan-insights__stat-label,
+.plan-insights__bar-meta,
+.plan-insights__timeline-meta {
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+}
+
+.plan-insights__stat-value {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.plan-insights__stat-meta {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.plan-insights__bars {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.plan-insights__bar-row {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.62);
+}
+
+.plan-insights__bar-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.plan-insights__bar-copy {
+  min-width: 0;
+}
+
+.plan-insights__bar-label,
+.plan-insights__timeline-title,
+.plan-insights__principle-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.plan-insights__bar-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.plan-insights__bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 72%, transparent);
+  overflow: hidden;
+}
+
+.plan-insights__bar-fill {
+  width: var(--plan-bar-fill, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6ba8b8 0%, var(--accent) 100%);
+}
+
+.plan-insights__bar-row[data-tone="accent"] .plan-insights__bar-fill {
+  background: linear-gradient(90deg, var(--accent) 0%, #d88f4f 100%);
+}
+
+.plan-insights__bar-row[data-tone="neutral"] .plan-insights__bar-fill {
+  background: linear-gradient(90deg, #8f8578 0%, #c9b89f 100%);
+}
+
+.plan-insights__timeline {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.plan-insights__timeline-step {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.plan-insights__timeline-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, var(--accent) 0%, #b77b47 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--sh-sm);
+}
+
+.plan-insights__timeline-card {
+  padding: 14px 15px;
+}
+
+.plan-insights__timeline-body,
+.plan-insights__principle-body {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+.plan-insights__principles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 10px 0 14px;
+}
+
+.plan-insights__principle-card {
+  padding: 14px 15px;
+}
+
+.plan-insights__principle-card--accent {
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+}
+
+.plan-insights__principle-card--water {
+  border-color: color-mix(in srgb, #6ba8b8 30%, var(--border));
+}
+
+.plan-insights__footnote {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+.hydration-card {
+  border-left: 4px solid #6ba8b8;
+}
+
+.hydration-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.hydration-card__intro {
+  margin-bottom: 0;
+}
+
+.hydration-card__badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.hydration-card__tips {
+  margin-top: 14px;
 }
 
 /* ---------- TAB TOGGLE ---------- */
@@ -3018,6 +3257,39 @@ html[data-theme="dark"] .modal-search {
     box-shadow: none !important;
   }
   .meal-note-icon { color: #c26d5a !important; }
+  .plan-insights__timeline-card,
+  .plan-insights__principle-card,
+  .plan-insights__stat-card,
+  .plan-insights__bar-row,
+  .hydration-card__badge {
+    background: #fff !important;
+    color: #1a1814 !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+  .plan-insights__timeline-title,
+  .plan-insights__principle-title,
+  .plan-insights__bar-label,
+  .plan-insights__bar-value,
+  .plan-insights__stat-value,
+  .hydration-card__badge {
+    color: #1a1814 !important;
+  }
+  .plan-insights__timeline-body,
+  .plan-insights__principle-body,
+  .plan-insights__footnote,
+  .plan-section-intro,
+  .plan-insights__stat-meta {
+    color: #585048 !important;
+  }
+  .plan-insights__timeline-meta,
+  .plan-insights__stat-label,
+  .plan-insights__bar-meta {
+    color: #8a7f75 !important;
+  }
+  .plan-insights__bar-track {
+    background: #ece7de !important;
+  }
 }
 
 /* =========================================================================
@@ -3807,6 +4079,42 @@ body { max-width: 100%; overflow-x: hidden; }
 
 :root[data-theme="dark"] .macro-dashboard__eyebrow {
   color: var(--accent-soft);
+}
+
+:root[data-theme="dark"] .plan-insights__stat-card,
+:root[data-theme="dark"] .plan-insights__timeline-card,
+:root[data-theme="dark"] .plan-insights__principle-card,
+:root[data-theme="dark"] .plan-insights__bar-row,
+:root[data-theme="dark"] .hydration-card__badge {
+  background: rgba(33, 29, 27, 0.82);
+  border-color: #4f4338;
+}
+
+:root[data-theme="dark"] .plan-insights__bar-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .plan-insights__bar-value,
+:root[data-theme="dark"] .plan-insights__stat-value,
+:root[data-theme="dark"] .plan-insights__bar-label,
+:root[data-theme="dark"] .plan-insights__timeline-title,
+:root[data-theme="dark"] .plan-insights__principle-title,
+:root[data-theme="dark"] .hydration-card__badge {
+  color: var(--paper);
+}
+
+:root[data-theme="dark"] .plan-insights__stat-meta,
+:root[data-theme="dark"] .plan-insights__timeline-body,
+:root[data-theme="dark"] .plan-insights__principle-body,
+:root[data-theme="dark"] .plan-insights__footnote,
+:root[data-theme="dark"] .plan-section-intro {
+  color: rgba(240, 236, 227, 0.78);
+}
+
+:root[data-theme="dark"] .plan-insights__stat-label,
+:root[data-theme="dark"] .plan-insights__bar-meta,
+:root[data-theme="dark"] .plan-insights__timeline-meta {
+  color: rgba(240, 236, 227, 0.56);
 }
 
 :root[data-theme="dark"] .meal-card.solid .meal-card-head,

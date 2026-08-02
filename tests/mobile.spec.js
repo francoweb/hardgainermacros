@@ -591,6 +591,26 @@ test.describe('UX Mobile — Plano Alimentar 14 Dias', () => {
     expect(mobileTotal, 'Totais mobile vs desktop devem ser iguais').toBe(desktopTotal);
   });
 
+  test('C-MOBILE-PLAN-UX16 — Mobile 390px: resumos visuais do plano continuam legíveis e sem overflow', async ({ page }) => {
+    await gotoPlanoMobile(page);
+
+    await expect(page.locator('[data-testid="hydration-insight-stats"]')).toBeVisible();
+    await expect(page.locator('[data-testid="shopping-insights"]')).toBeVisible();
+    await expect(page.locator('[data-testid="how-to-apply-timeline"]')).toBeVisible();
+    await expect(page.locator('[data-testid="consistency-principles-grid"]')).toBeVisible();
+
+    const state = await page.evaluate(() => ({
+      bodyWidth: document.body.scrollWidth,
+      viewportWidth: window.innerWidth,
+      hydrationCards: document.querySelectorAll('[data-testid="hydration-insight-stats"] .plan-insights__stat-card').length,
+      principleCards: document.querySelectorAll('[data-testid="consistency-principles-grid"] .plan-insights__principle-card').length,
+    }));
+
+    expect(state.bodyWidth).toBeLessThanOrEqual(state.viewportWidth + 2);
+    expect(state.hydrationCards).toBe(3);
+    expect(state.principleCards).toBe(6);
+  });
+
 });
 
 test.describe('Plano 14 Dias no mobile - tema e espacamento visual', () => {

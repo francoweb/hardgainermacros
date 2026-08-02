@@ -395,6 +395,52 @@ test.describe('Plano Alimentar 14 Dias - painel compacto de macros', () => {
   });
 });
 
+test.describe('Plano Alimentar 14 Dias - visuais editoriais do plano', () => {
+  test('C-PLAN-INSIGHTS-1 - hidratação e lista de compras ganham resumos visuais sem quebrar ações existentes', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    await expect(page.locator('[data-testid="hydration-card"]')).toBeVisible();
+    await expect(page.locator('[data-testid="hydration-insight-stats"]')).toBeVisible();
+    await expect(page.locator('[data-testid="hydration-insight-stats"]')).toContainText('Meta diária');
+    await expect(page.locator('[data-testid="hydration-insight-bars"]')).toContainText('Manhã');
+    await expect(page.locator('[data-testid="hydration-insight-bars"]')).toContainText('Tarde');
+    await expect(page.locator('[data-testid="hydration-insight-bars"]')).toContainText('Noite');
+
+    await expect(page.locator('[data-testid="shopping-insights"]')).toBeVisible();
+    await expect(page.locator('[data-testid="shopping-insight-stats"]')).toContainText('Itens únicos');
+    await expect(page.locator('[data-testid="shopping-insight-stats"]')).toContainText('Categorias');
+    await expect(page.locator('[data-testid="shopping-insight-bars"]')).toContainText(/Proteínas|Carboidratos|Frutas|Lácteos/);
+    await expect(page.locator('#btn-copy-shopping')).toBeVisible();
+    await expect(page.locator('#btn-pdf-shopping')).toBeVisible();
+  });
+
+  test('C-PLAN-INSIGHTS-2 - guia visual e cards de consistência mantêm leitura boa e fallback de print', async ({ page }) => {
+    await injectState(page, CENARIO_6);
+    await gotoResultados(page);
+    await gotoPlano(page);
+
+    const timeline = page.locator('[data-testid="how-to-apply-timeline"]');
+    await expect(timeline).toBeVisible();
+    await expect(timeline.locator('.plan-insights__timeline-step')).toHaveCount(5);
+    await expect(timeline).toContainText('Prepare a base antes da semana começar');
+    await expect(timeline).toContainText('Adapte sem perder a meta do dia');
+
+    const principles = page.locator('[data-testid="consistency-principles-grid"]');
+    await expect(principles).toBeVisible();
+    await expect(principles.locator('.plan-insights__principle-card')).toHaveCount(6);
+    await expect(principles).toContainText('Todos os dias contam');
+    await expect(principles).toContainText('Shakes como ferramenta');
+
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('[data-testid="hydration-card"]')).toBeHidden();
+    await expect(page.locator('[data-testid="shopping-insights"]')).toBeHidden();
+    await expect(page.locator('[data-testid="how-to-apply-timeline"]')).toBeVisible();
+    await page.emulateMedia({ media: 'screen' });
+  });
+});
+
 test.describe('Plano Alimentar 14 Dias - pesquisa nos modais', () => {
   test('C-MODAL-SEARCH-1 - Adicionar Alimento filtra sem acentos, mostra estado vazio e limpar restaura categorias', async ({ page }) => {
     await injectState(page, CENARIO_4);

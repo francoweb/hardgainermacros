@@ -18,6 +18,12 @@ import { navigate } from '../modules/router.js';
 import { openModal } from '../components/ui.js';
 import { renderMacroDashboard } from '../modules/macro-dashboard.js';
 import {
+  renderInsightStatCards,
+  renderInsightBars,
+  renderInsightTimeline,
+  renderInsightPrincipleCards,
+} from '../modules/plan-section-insights.js';
+import {
   loadPlan, loadResults,
   loadSubstitutions, saveSubstitutions,
   loadCustomFoods, saveCustomFoods,
@@ -209,6 +215,7 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
             <button type="button" class="btn btn-ghost" id="btn-copy-shopping" style="font-size:13px;padding:6px 12px;">📋 Copiar lista</button>
             <button type="button" class="btn btn-ghost" id="btn-pdf-shopping" style="font-size:13px;padding:6px 12px;">${icons.download(14)} Salvar PDF</button>
           </div>
+          ${renderShoppingInsights(plan.slice(0, 7))}
           ${renderShoppingList(plan.slice(0, 7))}
         </div>
       </div>
@@ -216,18 +223,14 @@ function render(mount, plan, results, subs, originalPlan, additions, removals, e
       <!-- Como aplicar -->
       <div class="card card-section">
         <h3 class="card-title">${icons.target(18)} Como Aplicar Sem Falhar</h3>
-        <ol class="rec-list">
-          <li class="rec-item"><span class="rec-num">1</span><div><strong>Prepare com antecedência:</strong> domingo à noite, cozinhe arroz, carnes e deixe frutas cortadas. Reduz fricção nos dias de semana.</div></li>
-          <li class="rec-item"><span class="rec-num">2</span><div>${item2Text}</div></li>
-          <li class="rec-item"><span class="rec-num">3</span><div><strong>Coma mesmo sem fome:</strong> hardgainer come por relógio, não por apetite. 3h passou — hora do próximo ataque.</div></li>
-          <li class="rec-item"><span class="rec-num">4</span><div><strong>Pese-se a cada 2 semanas:</strong> mesmo horário, estômago vazio. Ajuste ±150 kcal se sair fora da meta semanal.</div></li>
-          <li class="rec-item"><span class="rec-num">5</span><div><strong>Nada é sagrado:</strong> substitua ingredientes, ajuste horários, adapte à sua vida. O que importa é atingir ${formatKcal(results.calories)} kcal por dia.</div></li>
-        </ol>
+        <p class="card-body plan-section-intro">Um guia prático para executar o plano com menos fricção e mais consistência no dia a dia.</p>
+        ${renderHowToApplyVisual(results, item2Text)}
       </div>
 
       <!-- Princípios de consistência -->
       <div class="card card-section">
         <h3 class="card-title">${icons.check(18)} Princípios de Consistência</h3>
+        ${renderConsistencyPrinciplesVisual()}
         <ul class="check-list">
           <li>${icons.check(14)} Comer <strong>todos os dias</strong> — fim de semana também conta</li>
           <li>${icons.check(14)} Respeitar <strong>intervalos de 2h30 a 3h</strong> entre refeições</li>
@@ -3154,6 +3157,143 @@ function formatGramsHumans(g) {
   return `${g} g`;
 }
 
+function toKgFromForm(weight, unit) {
+  const value = Number(weight);
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return unit === 'imperial' ? value * 0.45359237 : value;
+}
+
+function resolveResultsWeightKg(results) {
+  const direct = Number(results?.weightKg);
+  if (Number.isFinite(direct) && direct > 0) return direct;
+  const form = loadFormData();
+  return toKgFromForm(form?.weight, form?.unit);
+}
+
+function buildHydrationPlan(results) {
+  const { baseMl, trainMl, hasTraining, weightKg } = getHydrationTargets(results);
+  const extraMl = Math.max(0, trainMl - baseMl);
+  const totalMl = hasTraining ? trainMl : baseMl;
+  const displayTotalMl = Math.round(totalMl / 100) * 100;
+  const ratioA = hasTraining ? 0.3 : 0.35;
+  const ratioB = 0.4;
+  const firstMl = Math.round(displayTotalMl * ratioA);
+  const secondMl = Math.round(displayTotalMl * ratioB);
+  const thirdMl = Math.max(0, displayTotalMl - firstMl - secondMl);
+
+  const periods = hasTraining
+    ? [
+        { label: 'Manhã', value: formatHydrationLiters(firstMl), meta: 'comece cedo para não acumular à noite', percent: 30, tone: 'water' },
+        { label: 'Tarde', value: formatHydrationLiters(secondMl), meta: 'janela principal entre refeições e treino', percent: 40, tone: 'accent' },
+        { label: 'Noite', value: formatHydrationLiters(thirdMl), meta: 'finalize sem concentrar grandes volumes', percent: 30, tone: 'neutral' },
+      ]
+    : [
+        { label: 'Manhã', value: formatHydrationLiters(firstMl), meta: 'ao acordar e início do dia', percent: 35, tone: 'water' },
+        { label: 'Tarde', value: formatHydrationLiters(secondMl), meta: 'entre refeições, em doses pequenas', percent: 40, tone: 'accent' },
+        { label: 'Noite', value: formatHydrationLiters(thirdMl), meta: 'fecho leve para não pesar antes de dormir', percent: 25, tone: 'neutral' },
+      ];
+
+  const stats = hasTraining
+    ? [
+        { label: 'Meta base', value: formatHydrationLiters(baseMl), meta: 'dias sem treino', tone: 'water' },
+        { label: 'Reforço treino', value: `+${formatHydrationLiters(extraMl)}`, meta: 'janela antes/durante/depois', tone: 'accent' },
+        { label: 'Meta alta', value: formatHydrationLiters(trainMl), meta: 'dias com treino', tone: 'neutral' },
+      ]
+    : [
+        { label: 'Meta diária', value: formatHydrationLiters(baseMl), meta: 'estimativa principal', tone: 'water' },
+        { label: 'Peso usado', value: `${Math.round(weightKg)} kg`, meta: 'fonte real da fórmula', tone: 'accent' },
+        { label: 'Base da conta', value: '40 ml/kg', meta: 'sem dados inventados', tone: 'neutral' },
+      ];
+
+  return {
+    hasTraining,
+    weightKg,
+    baseMl,
+    trainMl,
+    totalMl,
+    extraMl,
+    stats,
+    periods,
+  };
+}
+
+function renderShoppingInsights(days) {
+  const { byCategory } = _getShoppingData(days);
+  const categories = SHOPPING_CAT_ORDER.filter(cat => byCategory[cat]?.length);
+  if (!categories.length) return '';
+
+  const rows = categories.map((cat) => {
+    const items = byCategory[cat];
+    return {
+      cat,
+      label: SHOPPING_CAT_LABEL[cat] || cat,
+      itemCount: items.length,
+    };
+  }).sort((a, b) => b.itemCount - a.itemCount);
+
+  const totalItems = rows.reduce((sum, row) => sum + row.itemCount, 0);
+  const lead = rows[0];
+
+  return `
+    <div class="plan-section-summary no-print" data-testid="shopping-insights">
+      ${renderInsightStatCards([
+        { label: 'Itens únicos', value: String(totalItems), meta: 'sem duplicar equivalentes', tone: 'accent' },
+        { label: 'Categorias', value: String(rows.length), meta: 'organizadas para compra rápida', tone: 'neutral' },
+        { label: 'Maior bloco', value: lead.label, meta: `${lead.itemCount} de ${totalItems} itens`, tone: 'water' },
+      ], { testId: 'shopping-insight-stats' })}
+      ${renderInsightBars(rows.slice(0, 4).map((row) => ({
+        label: row.label,
+        value: `${Math.round((row.itemCount / totalItems) * 100)}% da lista`,
+        meta: `${row.itemCount} de ${totalItems} itens`,
+        percent: (row.itemCount / totalItems) * 100,
+        tone: row.cat === lead.cat ? 'accent' : 'neutral',
+      })), { testId: 'shopping-insight-bars' })}
+      <p class="plan-insights__footnote">As barras mostram participação por itens únicos da lista, sem comparar peso, volume e unidades incompatíveis.</p>
+    </div>
+  `;
+}
+
+function renderHowToApplyVisual(results, item2Text) {
+  return renderInsightTimeline([
+    {
+      title: 'Prepare a base antes da semana começar',
+      body: '<strong>Prepare com antecedência:</strong> domingo à noite, cozinhe arroz, carnes e deixe frutas cortadas. Reduz fricção nos dias de semana.',
+      meta: 'Menos improviso, mais aderência.',
+    },
+    {
+      title: 'Reduza a fricção da execução diária',
+      body: item2Text,
+      meta: 'A refeição certa precisa estar fácil de repetir.',
+    },
+    {
+      title: 'Siga a cadência do plano',
+      body: '<strong>Coma mesmo sem fome:</strong> hardgainer come por relógio, não por apetite. 3h passou — hora do próximo ataque.',
+      meta: 'A consistência pesa mais do que um dia “perfeito”.',
+    },
+    {
+      title: 'Recalibre sem dramatizar',
+      body: '<strong>Pese-se a cada 2 semanas:</strong> mesmo horário, estômago vazio. Ajuste ±150 kcal se sair fora da meta semanal.',
+      meta: 'Ajuste pequeno, leitura clara.',
+    },
+    {
+      title: 'Adapte sem perder a meta do dia',
+      body: `<strong>Nada é sagrado:</strong> substitua ingredientes, ajuste horários, adapte à sua vida. O que importa é atingir ${formatKcal(results.calories)} kcal por dia.`,
+      meta: 'Flexível no formato, firme no alvo.',
+    },
+  ], { testId: 'how-to-apply-timeline' });
+}
+
+function renderConsistencyPrinciplesVisual() {
+  return renderInsightPrincipleCards([
+    { title: 'Todos os dias contam', body: 'Fim de semana também faz parte do ganho de massa. O plano precisa ser repetível, não heroico.', tone: 'accent' },
+    { title: 'Ritmo previsível', body: 'Intervalos de 2h30 a 3h mantêm ingestão alta sem depender de fome intensa.', tone: 'neutral' },
+    { title: 'Carboidrato fácil de comer', body: 'Escolhas leves ajudam a bater calorias sem pesar na digestão ao longo do dia.', tone: 'water' },
+    { title: 'Proteína sempre presente', body: 'Cada refeição sólida deve sustentar o plano com proteína suficiente e prática.', tone: 'neutral' },
+    { title: 'Shakes como ferramenta', body: 'Quando a fome cai ou o tempo aperta, o shake mantém a execução sem quebrar o plano.', tone: 'accent' },
+    { title: 'Recalibração contínua', body: 'Peso, espelho e conforto digestivo dizem quando ajustar. Nada de mudanças bruscas.', tone: 'water' },
+  ], { testId: 'consistency-principles-grid' });
+}
+
 /* ============================================================================ */
 /* Shopping list — Copiar e Salvar PDF                                          */
 /* ============================================================================ */
@@ -3365,11 +3505,11 @@ function formatHydrationLiters(ml) {
  * Dias com treino: base + 500 ml.
  */
 function getHydrationTargets(results) {
-  const weightKg = results.weightKg || 0;
+  const weightKg = resolveResultsWeightKg(results);
   const trainDays = results.routine?.trainDays ?? 0;
   const baseMl = Math.round(weightKg * 40);
   const trainMl = baseMl + 500;
-  return { baseMl, trainMl, hasTraining: trainDays > 0 };
+  return { baseMl, trainMl, hasTraining: trainDays > 0, weightKg };
 }
 
 /**
@@ -3378,42 +3518,28 @@ function getHydrationTargets(results) {
  * Classe no-print: invisível em PDFs e impressões.
  */
 function renderHydrationCard(results) {
-  const { baseMl, trainMl, hasTraining } = getHydrationTargets(results);
-  const baseL = formatHydrationLiters(baseMl);
-  const trainL = formatHydrationLiters(trainMl);
-
-  if (hasTraining) {
-    return `
-      <div class="card card-section no-print" data-testid="hydration-card" style="border-left:4px solid #6ba8b8;">
-        <h3 class="card-title">💧 Hidratação do dia</h3>
-        <p class="card-body" style="text-align:center;margin-bottom:4px;">Meta aproximada em dias com treino: <strong>${trainL}</strong></p>
-        <p class="card-body" style="text-align:center;margin-bottom:14px;">Meta aproximada em dias sem treino: <strong>${baseL}</strong></p>
-        <p class="card-body">Beba em pequenas doses ao longo do dia. Evite beber muita água junto das refeições para não atrapalhar o apetite.</p>
-        <p style="margin:8px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-muted);">Distribuição prática</p>
-        <ul class="check-list">
-          <li>🌅 <strong>Ao acordar:</strong> 400–500 ml</li>
-          <li>🍽️ <strong>Entre refeições:</strong> 200–300 ml</li>
-          <li>⚡ <strong>Antes do treino:</strong> 300–400 ml</li>
-          <li>🏋️ <strong>Durante o treino:</strong> pequenos goles</li>
-          <li>💪 <strong>Depois do treino:</strong> 400–600 ml</li>
-          <li>🌙 <strong>Final do dia:</strong> 200–300 ml</li>
-        </ul>
-        <p class="card-body" style="margin-top:12px;">Em dias sem treino, mantenha a meta base e distribua ao longo do dia.</p>
-      </div>
-    `;
-  }
+  const hydration = buildHydrationPlan(results);
+  const mainTarget = hydration.hasTraining
+    ? `Meta alta em dias com treino: <strong>${formatHydrationLiters(hydration.trainMl)}</strong>`
+    : `Meta aproximada diária: <strong>${formatHydrationLiters(hydration.baseMl)}</strong>`;
 
   return `
-    <div class="card card-section no-print" data-testid="hydration-card" style="border-left:4px solid #6ba8b8;">
-      <h3 class="card-title">💧 Hidratação do dia</h3>
-      <p class="card-body" style="text-align:center;margin-bottom:14px;">Meta aproximada diária: <strong>${baseL}</strong></p>
-      <p class="card-body">Beba em pequenas doses ao longo do dia. Evite beber muita água junto das refeições para não atrapalhar o apetite.</p>
-      <p style="margin:8px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-muted);">Distribuição prática</p>
-      <ul class="check-list">
+    <div class="card card-section no-print hydration-card" data-testid="hydration-card">
+      <div class="hydration-card__head">
+        <div>
+          <h3 class="card-title">💧 Hidratação do dia</h3>
+          <p class="card-body hydration-card__intro">${mainTarget}</p>
+        </div>
+        <div class="hydration-card__badge">${Math.round(hydration.weightKg)} kg</div>
+      </div>
+      ${renderInsightStatCards(hydration.stats, { testId: 'hydration-insight-stats' })}
+      ${renderInsightBars(hydration.periods, { testId: 'hydration-insight-bars' })}
+      <p class="plan-insights__footnote">Beba em pequenas doses ao longo do dia. Evite grandes volumes junto das refeições para não atrapalhar o apetite.</p>
+      <ul class="check-list hydration-card__tips">
         <li>🌅 <strong>Ao acordar:</strong> 400–500 ml</li>
-        <li>🍽️ <strong>Entre refeições:</strong> 200–300 ml</li>
-        <li>💧 <strong>Ao longo do dia:</strong> pequenos goles</li>
-        <li>🌙 <strong>Final do dia:</strong> 200–300 ml</li>
+        <li>🍽️ <strong>Entre refeições:</strong> 200–300 ml por bloco</li>
+        ${hydration.hasTraining ? '<li>🏋️ <strong>Janela de treino:</strong> some o reforço extra antes, durante e depois.</li>' : '<li>💧 <strong>Ao longo do dia:</strong> pequenos goles mantêm o ritmo sem pesar.</li>'}
+        <li>🌙 <strong>Final do dia:</strong> feche a meta sem concentrar tudo na última hora.</li>
       </ul>
     </div>
   `;
