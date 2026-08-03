@@ -94,10 +94,7 @@ export function buildMacroDashboardModel(results) {
   });
 
   const totalMacroKcal = macrosBase.reduce((sum, macro) => sum + macro.kcal, 0);
-  const totalCalories = Math.max(
-    Math.round(toNonNegativeNumber(results?.calories)),
-    totalMacroKcal,
-  );
+  const totalCalories = Math.round(toNonNegativeNumber(results?.calories)) || totalMacroKcal;
 
   const macros = normalizeMacroPercentages(macrosBase, totalMacroKcal || totalCalories);
   const ring = buildRingSegments(macros);

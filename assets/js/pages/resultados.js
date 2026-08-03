@@ -105,6 +105,28 @@ function formatPercent(value) {
   return `${toNonNegativeNumber(value).toFixed(1).replace('.', ',')}%`;
 }
 
+function getShortHintIntervalLabel(hintInterval) {
+  if (!hintInterval) return 'intervalos regulares entre as refeições';
+
+  const normalized = String(hintInterval).replace(/\s+/g, ' ').trim();
+  const patterns = [
+    /^Intervalo sugerido:\s*([^.]*)\./i,
+    /^Use\s+([^.]*)\./i,
+    /^([^.]*(?:\d+h?(?:\d+)?\s*a\s*\d+h?(?:\d+)?)[^.]*)\./i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = normalized.match(pattern);
+    if (match?.[1]) return match[1].trim();
+  }
+
+  if (/intervalos?\s+ficam\s+naturalmente\s+maiores/i.test(normalized)) {
+    return 'intervalos naturalmente maiores entre as refeições';
+  }
+
+  return 'intervalos regulares entre as refeições';
+}
+
 function buildCalorieArchitecture(results, gainStatStr) {
   const bmr = toNonNegativeNumber(results.bmr);
   const tdee = toNonNegativeNumber(results.tdee);
@@ -231,8 +253,8 @@ function buildProfileInsightItems(formData, profile, routine, results, gainStatS
     {
       title: 'Ritmo esperado',
       body: gainStatStr
-        ? `Objetivo de ${goalLabel} com ritmo estimado de ${gainStatStr}, sustentado por ${formatKcal(results.calories)} kcal por dia.`
-        : `Objetivo de ${goalLabel} apoiado por ${formatKcal(results.calories)} kcal por dia e ajustes progressivos conforme a resposta do peso.`,
+        ? `Para ${goalLabel}, a referência de ganho é ${gainStatStr}, sustentada por ${formatKcal(results.calories)} kcal por dia.`
+        : `Para ${goalLabel}, a base atual é ${formatKcal(results.calories)} kcal por dia, com ajustes progressivos conforme a resposta do peso.`,
     },
   ];
 }
@@ -241,6 +263,7 @@ function buildStrategyInsightItems(routine, results, solidCount, shakeCount, hin
   const proteinPerMeal = routine.mealsPerDay
     ? Math.round(toNonNegativeNumber(results.protein?.grams) / Math.max(1, routine.mealsPerDay))
     : 0;
+  const shortHintInterval = getShortHintIntervalLabel(hintInterval);
 
   return [
     {
@@ -252,7 +275,7 @@ function buildStrategyInsightItems(routine, results, solidCount, shakeCount, hin
     },
     {
       title: 'Ritmo de ingestão',
-      body: `Use ${hintInterval.toLowerCase()} como referência para não deixar calorias acumularem apenas no fim do dia.`,
+      body: `Distribua as refeições em ${shortHintInterval} para manter uma ingestão regular ao longo do dia.`,
     },
     {
       title: 'Proteína por bloco',

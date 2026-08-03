@@ -3220,6 +3220,14 @@ html[data-theme="dark"] .modal-search {
 /* Print styles for the 14-day plan */
 @media print {
   .no-print, .header, .site-header, .footer, .plan-toolbar, .cookie, .ingredient-sub-btn, .help-fab { display: none !important; }
+  #btn-plan,
+  #btn-back-top,
+  #btn-back-bottom,
+  .btn-row:has(#btn-plan),
+  .btn-row:has(#btn-back-top),
+  .btn-row:has(#btn-back-bottom) {
+    display: none !important;
+  }
   .main { padding: 0; }
   body { background: #fff; }
   .results-hero,

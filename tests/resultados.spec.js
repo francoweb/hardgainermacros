@@ -96,6 +96,8 @@ test.describe('Resultados â€” painel grÃ¡fico de macros', () => {
     await expect(dashboard.locator('[data-macro-segment]')).toHaveCount(3);
     await expect(dashboard.locator('.macro-dashboard__kcal')).toContainText('2660');
 
+    const visibleKcal = ((await dashboard.locator('.macro-dashboard__kcal').textContent()) || '').match(/\d+/)?.[0];
+
     await expect(dashboard.locator('[data-macro-row="protein"]')).toContainText('200 g');
     await expect(dashboard.locator('[data-macro-row="protein"]')).toContainText('800 kcal');
     await expect(dashboard.locator('[data-macro-row="protein"]')).toContainText('30%');
@@ -109,7 +111,8 @@ test.describe('Resultados â€” painel grÃ¡fico de macros', () => {
     await expect(dashboard.locator('[data-macro-row="fat"]')).toContainText('20%');
 
     const ariaLabel = await dashboard.locator('[data-macro-ring]').getAttribute('aria-label');
-    expect(ariaLabel).toContain('2660');
+    expect(visibleKcal).toBe('2660');
+    expect(ariaLabel).toContain(`Meta diaria de ${visibleKcal} calorias`);
     expect(ariaLabel).toContain('200');
     expect(ariaLabel).toContain('332');
     expect(ariaLabel).toContain('59');
@@ -414,5 +417,55 @@ test.describe('Resultados - leitura visual da meta e da estrategia', () => {
     await expect(page.locator('[data-testid="results-strategy-principles"] .plan-insights__principle-card')).toHaveCount(4);
     await expect(page.locator('[data-testid="results-next-steps"] .plan-insights__timeline-step')).toHaveCount(3);
     await expect(page.locator('[data-macro-dashboard="complete"]')).toHaveCount(1);
+  });
+
+  test('C-RESULTS-VIS-3 - textos do hotfix ficam coerentes, kcal acessivel bate com a visivel e CTA some no print', async ({ page }) => {
+    await injectState(page, CENARIO_1);
+    await gotoResultados(page);
+
+    const dashboard = page.locator('[data-macro-dashboard="complete"]');
+    const visibleKcal = ((await dashboard.locator('.macro-dashboard__kcal').textContent()) || '').match(/\d+/)?.[0];
+    const ariaLabel = await dashboard.locator('[data-macro-ring]').getAttribute('aria-label');
+    expect(visibleKcal).toBe('2660');
+    expect(ariaLabel).toContain(`Meta diaria de ${visibleKcal} calorias`);
+
+    const rhythmCard = page.locator('[data-testid="results-profile-principles"] .plan-insights__principle-card').filter({ hasText: 'Ritmo esperado' });
+    const rhythmText = (await rhythmCard.textContent()) || '';
+    expect(rhythmText).not.toContain('Objetivo de objetivo');
+    expect(rhythmText).toContain('0.3–0.5kg/semana');
+    expect(rhythmText).toContain('2660 kcal por dia');
+
+    const intakeCard = page.locator('[data-testid="results-strategy-principles"] .plan-insights__principle-card').filter({ hasText: 'Ritmo de ingestão' });
+    const intakeText = (await intakeCard.textContent()) || '';
+    /*
+    expect(intakeText).toContain('2h30 a 3h entre refeições');
+    expect(intakeText).not.toContain('como referência');
+    expect(intakeText).not.toContain('referência para não deixar');
+
+    expect(intakeText).toContain('Distribua as refeiÃ§Ãµes em 2h30 a 3h entre refeiÃ§Ãµes para manter uma ingestÃ£o regular ao longo do dia.');
+    expect((intakeText.match(/\./g) || [])).toHaveLength(1);
+    expect((intakeText.match(/entre refeiÃ§Ãµes/gi) || [])).toHaveLength(1);
+    expect((intakeText.match(/intervalo/gi) || [])).toHaveLength(0);
+    expect(intakeText).not.toContain('o lÃ­quido digere');
+    expect(intakeText).not.toContain('. o');
+    expect(intakeText).not.toContain('. para');
+
+    */
+    const normalizedIntakeText = intakeText.replace(/\s+/g, ' ').trim();
+    expect(normalizedIntakeText).toContain('2h30 a 3h');
+    expect(normalizedIntakeText).toMatch(/Distribua as refei\S+ em 2h30 a 3h entre refei\S+ para manter uma ingest\S+o regular ao longo do dia\./);
+    expect((normalizedIntakeText.match(/\./g) || [])).toHaveLength(1);
+    expect((normalizedIntakeText.match(/entre refei\S+/gi) || [])).toHaveLength(1);
+    expect((normalizedIntakeText.match(/intervalo/gi) || [])).toHaveLength(0);
+    expect(normalizedIntakeText).not.toContain('o líquido digere');
+    expect(normalizedIntakeText).not.toContain('. o');
+    expect(normalizedIntakeText).not.toContain('. para');
+
+    const cta = page.locator('#btn-plan');
+    await expect(cta).toBeVisible();
+    await page.emulateMedia({ media: 'print' });
+    await expect(cta).toHaveCSS('display', 'none');
+    await expect(page.locator('[data-testid="results-calorie-architecture"]')).toBeVisible();
+    await expect(page.locator('[data-macro-dashboard="complete"]')).toBeVisible();
   });
 });
