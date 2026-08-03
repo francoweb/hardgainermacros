@@ -3219,9 +3219,58 @@ html[data-theme="dark"] .modal-search {
 
 /* Print styles for the 14-day plan */
 @media print {
-  .no-print, .header, .footer, .plan-toolbar, .cookie, .ingredient-sub-btn, .help-fab { display: none !important; }
+  .no-print, .header, .site-header, .footer, .plan-toolbar, .cookie, .ingredient-sub-btn, .help-fab { display: none !important; }
   .main { padding: 0; }
   body { background: #fff; }
+  .results-hero,
+  .card,
+  .profile-summary,
+  .profile-summary-item,
+  .hybrid-explain,
+  .hint,
+  .meal-row,
+  .rec-item,
+  .stat,
+  .macro-card {
+    background: #fff !important;
+    color: #1a1814 !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+  .card-title,
+  .card-sub,
+  .card-body,
+  .hero-title,
+  .hero-sub,
+  .profile-summary-value,
+  .meal-name,
+  .meal-macro-val,
+  .stat-val,
+  .macro-val {
+    color: #1a1814 !important;
+  }
+  .profile-summary-label,
+  .meal-time,
+  .meal-macro-label,
+  .stat-label,
+  .stat-desc,
+  .hero-sub,
+  .card-sub,
+  .card-body {
+    color: #585048 !important;
+  }
+  .tag,
+  .meal-tag,
+  .tab {
+    background: #f7f3ed !important;
+    color: #585048 !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+  .btn-row,
+  .tabs {
+    display: none !important;
+  }
   .macro-dashboard {
     box-shadow: none !important;
     background: #fff !important;
@@ -3288,6 +3337,29 @@ html[data-theme="dark"] .modal-search {
     color: #8a7f75 !important;
   }
   .plan-insights__bar-track {
+    background: #ece7de !important;
+  }
+  .results-insight-card,
+  .results-calorie-stage,
+  .results-surplus-band {
+    background: #fff !important;
+    color: #1a1814 !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+  .results-calorie-stage__label,
+  .results-calorie-stage__value,
+  .results-surplus-band__value {
+    color: #1a1814 !important;
+  }
+  .results-calorie-stage__meta,
+  .results-surplus-band__meta,
+  .results-surplus-band__legend,
+  .results-surplus-band__note {
+    color: #585048 !important;
+  }
+  .results-calorie-stage__track,
+  .results-surplus-band__track {
     background: #ece7de !important;
   }
 }
@@ -3376,6 +3448,202 @@ html[data-theme="dark"] .modal-search {
 .stat-label { color: var(--ink-muted); font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 .stat-val { font-family: var(--font-display); font-weight: 800; font-size: 26px; color: var(--ink); margin-top: 4px; font-variant-numeric: tabular-nums; }
 @media (max-width: 680px) { .stat-row { grid-template-columns: 1fr; } }
+
+.results-card-sub {
+  margin-bottom: 16px;
+}
+
+.results-insight-card {
+  background:
+    radial-gradient(circle at top right, rgba(194, 109, 90, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,250,245,0.96) 100%);
+}
+
+.results-section-head {
+  margin-bottom: 16px;
+}
+
+.results-insight-stats {
+  margin-bottom: 18px;
+}
+
+.results-profile-principles,
+.results-strategy-principles {
+  margin: 0 0 16px;
+}
+
+.results-calorie-stage-list {
+  display: grid;
+  gap: 12px;
+}
+
+.results-calorie-stage {
+  padding: 15px 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255,255,255,0.72);
+}
+
+.results-calorie-stage__head {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.results-calorie-stage__step {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(180deg, #8f8578 0%, #6d6258 100%);
+  box-shadow: var(--sh-sm);
+}
+
+.results-calorie-stage__copy {
+  min-width: 0;
+}
+
+.results-calorie-stage__label {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.results-calorie-stage__meta {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.results-calorie-stage__value {
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.results-calorie-stage__track {
+  height: 10px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 72%, transparent);
+  overflow: hidden;
+}
+
+.results-calorie-stage__fill {
+  width: var(--results-stage-fill, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8f8578 0%, #c9b89f 100%);
+}
+
+.results-calorie-stage--balanced .results-calorie-stage__step {
+  background: linear-gradient(180deg, #6ba8b8 0%, #3d7d8e 100%);
+}
+
+.results-calorie-stage--balanced .results-calorie-stage__fill {
+  background: linear-gradient(90deg, #6ba8b8 0%, #8fc5cf 100%);
+}
+
+.results-calorie-stage--accent .results-calorie-stage__step {
+  background: linear-gradient(180deg, var(--accent) 0%, #b77b47 100%);
+}
+
+.results-calorie-stage--accent .results-calorie-stage__fill {
+  background: linear-gradient(90deg, var(--accent) 0%, #d88f4f 100%);
+}
+
+.results-surplus-band {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  background: linear-gradient(135deg, rgba(194, 109, 90, 0.10), rgba(255,255,255,0.92));
+}
+
+.results-surplus-band__head,
+.results-surplus-band__legend {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.results-surplus-band__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+}
+
+.results-surplus-band__value {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.results-surplus-band__meta,
+.results-surplus-band__legend,
+.results-surplus-band__note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.results-surplus-band__track {
+  position: relative;
+  height: 12px;
+  margin: 14px 0 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 72%, transparent);
+  overflow: hidden;
+}
+
+.results-surplus-band__base,
+.results-surplus-band__delta {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: inherit;
+}
+
+.results-surplus-band__base {
+  left: 0;
+  background: linear-gradient(90deg, rgba(107, 168, 184, 0.28) 0%, rgba(107, 168, 184, 0.56) 100%);
+}
+
+.results-surplus-band__delta {
+  background: linear-gradient(90deg, var(--accent) 0%, #d88f4f 100%);
+}
+
+.results-surplus-band__note {
+  margin: 10px 0 0;
+}
+
+.results-next-steps {
+  margin-top: 16px;
+}
+
+@media (max-width: 680px) {
+  .results-calorie-stage__head {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .results-calorie-stage__value {
+    grid-column: 2;
+  }
+}
 
 /* ---------- Tabs ---------- */
 .tabs { display: inline-flex; background: var(--bg-soft); padding: 4px; border-radius: var(--r-pill); margin: 16px 0 12px; }
@@ -4079,6 +4347,40 @@ body { max-width: 100%; overflow-x: hidden; }
 
 :root[data-theme="dark"] .macro-dashboard__eyebrow {
   color: var(--accent-soft);
+}
+
+:root[data-theme="dark"] .results-insight-card {
+  background:
+    radial-gradient(circle at top right, rgba(194, 109, 90, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(33, 29, 27, 0.96) 0%, rgba(26, 23, 21, 0.96) 100%);
+}
+
+:root[data-theme="dark"] .results-calorie-stage,
+:root[data-theme="dark"] .results-surplus-band {
+  background: rgba(33, 29, 27, 0.82);
+  border-color: #4f4338;
+}
+
+:root[data-theme="dark"] .results-calorie-stage__value,
+:root[data-theme="dark"] .results-calorie-stage__label,
+:root[data-theme="dark"] .results-surplus-band__value {
+  color: var(--paper);
+}
+
+:root[data-theme="dark"] .results-calorie-stage__meta,
+:root[data-theme="dark"] .results-surplus-band__meta,
+:root[data-theme="dark"] .results-surplus-band__legend,
+:root[data-theme="dark"] .results-surplus-band__note {
+  color: rgba(240, 236, 227, 0.78);
+}
+
+:root[data-theme="dark"] .results-surplus-band__label {
+  color: var(--accent-soft);
+}
+
+:root[data-theme="dark"] .results-calorie-stage__track,
+:root[data-theme="dark"] .results-surplus-band__track {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 :root[data-theme="dark"] .plan-insights__stat-card,

@@ -383,3 +383,36 @@ test.describe('Resultados — F3: pós-treino noturno sem buffer', () => {
   });
 
 });
+
+test.describe('Resultados - leitura visual da meta e da estrategia', () => {
+  test('C-RESULTS-VIS-1 - arquitetura calorica mostra BMR, TDEE, meta final e superavit proporcional', async ({ page }) => {
+    await injectState(page, CENARIO_1);
+    await gotoResultados(page);
+
+    const section = page.locator('[data-testid="results-calorie-architecture"]');
+    await expect(section).toBeVisible();
+    await expect(section).toContainText('1842');
+    await expect(section).toContainText('2310');
+    await expect(section).toContainText('2660');
+    await expect(section).toContainText('+350');
+    await expect(section).toContainText('15,2%');
+
+    const fills = await section.locator('.results-calorie-stage').evaluateAll((nodes) =>
+      nodes.map((node) => Number(node.getAttribute('data-fill-pct') || '0'))
+    );
+    expect(fills).toHaveLength(3);
+    expect(fills[0]).toBeGreaterThan(0);
+    expect(fills[0]).toBeLessThan(fills[1]);
+    expect(fills[1]).toBeLessThan(fills[2]);
+  });
+
+  test('C-RESULTS-VIS-2 - perfil, estrategia e proximos passos ganham suporte visual sem duplicar o dashboard', async ({ page }) => {
+    await injectState(page, CENARIO_5);
+    await gotoResultados(page);
+
+    await expect(page.locator('[data-testid="results-profile-principles"] .plan-insights__principle-card')).toHaveCount(4);
+    await expect(page.locator('[data-testid="results-strategy-principles"] .plan-insights__principle-card')).toHaveCount(4);
+    await expect(page.locator('[data-testid="results-next-steps"] .plan-insights__timeline-step')).toHaveCount(3);
+    await expect(page.locator('[data-macro-dashboard="complete"]')).toHaveCount(1);
+  });
+});

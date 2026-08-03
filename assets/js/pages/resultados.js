@@ -23,6 +23,11 @@ import { formatKcal } from '../modules/calculator.js';
 import { generatePlan } from '../modules/meal-planner.js';
 import { applyDedupLabels, SLOT_LABEL } from '../modules/day-schedule.js';
 import { renderMacroDashboard } from '../modules/macro-dashboard.js';
+import {
+  renderInsightPrincipleCards,
+  renderInsightStatCards,
+  renderInsightTimeline,
+} from '../modules/plan-section-insights.js';
 
 const getDisplayMealLabel = (slot, time, nocturnal = false, strategy = 'hybrid', trainEndTime = null) => {
   // Refeição sólida logo após o treino (até 60 min depois do fim)
@@ -86,6 +91,210 @@ const STRATEGY_LABEL = {
   practical: 'Máxima Praticidade',
 };
 
+function toNonNegativeNumber(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return 0;
+  return Math.max(0, number);
+}
+
+function clampPercent(value) {
+  return Math.max(0, Math.min(100, toNonNegativeNumber(value)));
+}
+
+function formatPercent(value) {
+  return `${toNonNegativeNumber(value).toFixed(1).replace('.', ',')}%`;
+}
+
+function buildCalorieArchitecture(results, gainStatStr) {
+  const bmr = toNonNegativeNumber(results.bmr);
+  const tdee = toNonNegativeNumber(results.tdee);
+  const calories = toNonNegativeNumber(results.calories);
+  const surplus = toNonNegativeNumber(results.surplus);
+  const maxStageValue = Math.max(bmr, tdee, calories, 1);
+  const surplusPctOfTdee = tdee > 0 ? (surplus / tdee) * 100 : 0;
+  const stageRows = [
+    {
+      step: '1',
+      label: 'Metabolismo basal',
+      meta: 'O mínimo para manter o corpo em repouso absoluto.',
+      value: `${formatKcal(bmr)} kcal`,
+      percent: (bmr / maxStageValue) * 100,
+      tone: 'neutral',
+    },
+    {
+      step: '2',
+      label: 'Gasto total diário',
+      meta: 'Base metabólica mais rotina e treino, quando existir.',
+      value: `${formatKcal(tdee)} kcal`,
+      percent: (tdee / maxStageValue) * 100,
+      tone: 'balanced',
+    },
+    {
+      step: '3',
+      label: 'Meta calórica final',
+      meta: gainStatStr
+        ? `Valor diário para sustentar uma meta de ganho de ${gainStatStr}.`
+        : 'Valor final diário definido para o seu objetivo atual.',
+      value: `${formatKcal(calories)} kcal`,
+      percent: (calories / maxStageValue) * 100,
+      tone: 'accent',
+    },
+  ];
+  const summaryStats = [
+    { label: 'BMR', value: `${formatKcal(bmr)} kcal`, meta: 'Base metabólica', tone: 'neutral' },
+    { label: 'TDEE', value: `${formatKcal(tdee)} kcal`, meta: 'Gasto diário real', tone: 'water' },
+    { label: 'Meta final', value: `${formatKcal(calories)} kcal`, meta: 'Alvo diário', tone: 'accent' },
+    { label: 'Superávit', value: `+${formatKcal(surplus)} kcal`, meta: gainStatStr || 'Ajuste de ganho', tone: 'accent' },
+  ];
+
+  return `
+    <section class="card results-insight-card" data-testid="results-calorie-architecture">
+      <div class="results-section-head">
+        <h3 class="card-title">Como a sua meta calórica foi construída</h3>
+        <p class="card-sub results-card-sub">Primeiro estimamos o custo energético do seu corpo em repouso, depois o custo real do seu dia e, só então, somamos a margem extra necessária para crescer.</p>
+      </div>
+      ${renderInsightStatCards(summaryStats, {
+        testId: 'results-calorie-architecture-stats',
+        className: 'results-insight-stats',
+      })}
+      <div class="results-calorie-stage-list" data-testid="results-calorie-stage-list">
+        ${stageRows.map((row) => `
+          <article class="results-calorie-stage results-calorie-stage--${row.tone}" data-fill-pct="${row.percent.toFixed(3)}">
+            <div class="results-calorie-stage__head">
+              <div class="results-calorie-stage__step">${row.step}</div>
+              <div class="results-calorie-stage__copy">
+                <div class="results-calorie-stage__label">${row.label}</div>
+                <div class="results-calorie-stage__meta">${row.meta}</div>
+              </div>
+              <div class="results-calorie-stage__value">${row.value}</div>
+            </div>
+            <div class="results-calorie-stage__track" aria-hidden="true">
+              <div class="results-calorie-stage__fill" style="--results-stage-fill:${clampPercent(row.percent).toFixed(3)}%;"></div>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+      <div class="results-surplus-band" data-testid="results-surplus-band">
+        <div class="results-surplus-band__head">
+          <div>
+            <div class="results-surplus-band__label">Superávit aplicado sobre o TDEE</div>
+            <div class="results-surplus-band__value">+${formatKcal(surplus)} kcal</div>
+          </div>
+          <div class="results-surplus-band__meta">${formatPercent(surplusPctOfTdee)} do seu gasto total</div>
+        </div>
+        <div class="results-surplus-band__track" aria-hidden="true">
+          <div class="results-surplus-band__base" style="width:${clampPercent((tdee / maxStageValue) * 100).toFixed(3)}%;"></div>
+          <div class="results-surplus-band__delta" style="left:${clampPercent((tdee / maxStageValue) * 100).toFixed(3)}%;width:${clampPercent(((calories - tdee) / maxStageValue) * 100).toFixed(3)}%;"></div>
+        </div>
+        <div class="results-surplus-band__legend">
+          <span>TDEE ${formatKcal(tdee)} kcal</span>
+          <span>Meta final ${formatKcal(calories)} kcal</span>
+        </div>
+        <p class="results-surplus-band__note">O superávit não substitui o seu gasto diário: ele entra por cima do TDEE para criar margem de crescimento sem perder a referência do custo real do seu dia.</p>
+      </div>
+    </section>
+  `;
+}
+
+function buildProfileInsightItems(formData, profile, routine, results, gainStatStr) {
+  const bodyProfile = profile.falsoMagro ? 'Falso magro / magro com barriga' : 'Magro clássico';
+  const goalLabel = profile.goal === 'gain'
+    ? 'ganho de massa'
+    : profile.goal === 'maintain'
+      ? 'manutenção'
+      : profile.goal === 'lose'
+        ? 'perda de gordura'
+        : 'objetivo atual';
+  const ageSex = [
+    formData.age ? `${formData.age} anos` : '',
+    formData.sex === 'female' ? 'sexo feminino' : formData.sex === 'male' ? 'sexo masculino' : '',
+  ].filter(Boolean).join(', ');
+  const trainSummary = routine.trainDays > 0
+    ? `${routine.trainDays} treinos/semana${routine.trainStartTime && routine.trainEndTime ? `, ${routine.trainStartTime} – ${routine.trainEndTime}` : ''}`
+    : 'sem treino definido na rotina atual';
+
+  return [
+    {
+      title: 'Ponto de partida',
+      body: `${bodyProfile}${ageSex ? `, ${ageSex}` : ''}. O plano parte deste contexto corporal antes de distribuir calorias e refeições.`,
+      tone: 'accent',
+    },
+    {
+      title: 'Pressão da rotina',
+      body: `${ACTIVITY_LABEL[profile.activity] || 'Atividade não informada'}. ${trainSummary}.`,
+      tone: 'water',
+    },
+    {
+      title: 'Formato mais viável',
+      body: `${STRATEGY_LABEL[routine.strategy] || 'Estratégia atual'} com ${routine.mealsPerDay || 0} refeições por dia para encaixar melhor no seu apetite e no seu tempo disponível.`,
+    },
+    {
+      title: 'Ritmo esperado',
+      body: gainStatStr
+        ? `Objetivo de ${goalLabel} com ritmo estimado de ${gainStatStr}, sustentado por ${formatKcal(results.calories)} kcal por dia.`
+        : `Objetivo de ${goalLabel} apoiado por ${formatKcal(results.calories)} kcal por dia e ajustes progressivos conforme a resposta do peso.`,
+    },
+  ];
+}
+
+function buildStrategyInsightItems(routine, results, solidCount, shakeCount, hintInterval, gainStatStr) {
+  const proteinPerMeal = routine.mealsPerDay
+    ? Math.round(toNonNegativeNumber(results.protein?.grams) / Math.max(1, routine.mealsPerDay))
+    : 0;
+
+  return [
+    {
+      title: 'Base do dia',
+      body: shakeCount > 0
+        ? `${solidCount} refeições sólidas + ${shakeCount} ${routine.strategy === 'solid' || routine.strategy === 'practical' ? 'shakes de apoio' : 'shakes anabólicos'} para distribuir calorias com menos atrito.`
+        : `${solidCount} refeições sólidas como base total da execução diária.`,
+      tone: 'accent',
+    },
+    {
+      title: 'Ritmo de ingestão',
+      body: `Use ${hintInterval.toLowerCase()} como referência para não deixar calorias acumularem apenas no fim do dia.`,
+    },
+    {
+      title: 'Proteína por bloco',
+      body: proteinPerMeal > 0
+        ? `Leitura simples para o dia a dia: perto de ${proteinPerMeal} g de proteína por refeição.`
+        : 'A proteína continua distribuída ao longo do dia para apoiar recuperação e ganho de massa.',
+      tone: 'water',
+    },
+    {
+      title: 'Janela de ajuste',
+      body: gainStatStr
+        ? `Se o peso não acompanhar a meta de ${gainStatStr}, ajuste 150–200 kcal para cima ou 100–150 kcal para baixo após 2 semanas.`
+        : 'Reavalie o peso após 2 semanas e ajuste as calorias de forma gradual, não impulsiva.',
+    },
+  ];
+}
+
+function buildResultsNextSteps(results, routine) {
+  const proteinTarget = toNonNegativeNumber(results.protein?.grams);
+  const carbsTarget = toNonNegativeNumber(results.carb?.grams);
+  const fatTarget = toNonNegativeNumber(results.fat?.grams);
+  const meals = routine.mealsPerDay || 0;
+
+  return [
+    {
+      title: 'Cumprir a meta diária primeiro',
+      body: `A prioridade operacional continua sendo bater ${formatKcal(results.calories)} kcal por dia com a estrutura que a app calculou para você.`,
+      meta: meals ? `${meals} refeições distribuídas ao longo do dia` : '',
+    },
+    {
+      title: 'Preservar a distribuição dos macros',
+      body: `Proteína ${proteinTarget} g, carboidratos ${carbsTarget} g e gorduras ${fatTarget} g. O dashboard de macros acima continua sendo a referência principal desta divisão.`,
+      meta: 'Distribuição nutricional diária',
+    },
+    {
+      title: 'Rever a resposta do peso em 2 semanas',
+      body: 'Se o peso não subir, aumente calorias de forma controlada. Se subir rápido demais com desconforto ou barriga, reduza um pouco e mantenha a consistência.',
+      meta: 'Ajuste progressivo, sem mexer todos os dias',
+    },
+  ];
+}
+
 export function renderResultadosPage(mount) {
   const results = loadResults();
   if (!results) { navigate('/'); return; }
@@ -125,6 +334,14 @@ export function renderResultadosPage(mount) {
 
   // Recomendações personalizadas
   const recommendations = buildRecommendations(profile, routine, results);
+  const calorieArchitecture = buildCalorieArchitecture(results, gainStatStr);
+  const profileInsightCards = renderInsightPrincipleCards(
+    buildProfileInsightItems(formData, profile, routine, results, gainStatStr),
+    {
+      testId: 'results-profile-principles',
+      className: 'results-profile-principles',
+    }
+  );
 
   const TRAIN_TIME_LABEL = { morning: 'Manhã', afternoon: 'Tarde', evening: 'Noite', dawn: 'Madrugada' };
   const inferPeriod = t => { if (!t) return null; const [h, m] = t.split(':').map(Number); const mins = h*60+m; return mins<360?'dawn':mins<840?'morning':mins<1080?'afternoon':'evening'; };
@@ -218,6 +435,20 @@ export function renderResultadosPage(mount) {
     ? `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, priorizando refeições sólidas e mantendo 1 shake anabólico como apoio para facilitar o superávit calórico.`
     : `Você escolheu ${totalMeals} refeições por dia no Sistema Híbrido. A app organizou o plano como ${solidCount} ${solidLabel} + ${shakeCount} ${shakeLabel}, equilibrando refeições sólidas e shakes anabólicos para facilitar o superávit calórico sem pesar tanto na digestão.`;
 
+  const strategyInsightCards = renderInsightPrincipleCards(
+    buildStrategyInsightItems(routine, results, solidCount, shakeCount, hintInterval, gainStatStr),
+    {
+      testId: 'results-strategy-principles',
+      className: 'results-strategy-principles',
+    }
+  );
+  const nextStepsTimeline = renderInsightTimeline(
+    buildResultsNextSteps(results, routine),
+    {
+      testId: 'results-next-steps',
+      className: 'results-next-steps',
+    }
+  );
   const dedupedSlots = _buildFinalSlots();
 
   mount.innerHTML = `
@@ -232,30 +463,14 @@ export function renderResultadosPage(mount) {
       </div>
       ${renderMacroDashboard(results, { variant: 'complete' })}
 
-      <!-- Stats row (TMB / TDEE / Surplus) -->
-      <div class="stat-row">
-        <div class="stat">
-          <div class="stat-label">Metabolismo Basal</div>
-          <div class="stat-val">${formatKcal(results.bmr)}</div>
-          <div class="stat-desc">kcal em repouso absoluto</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Gasto Total (TDEE)</div>
-          <div class="stat-val">${formatKcal(results.tdee)}</div>
-          <div class="stat-desc">com a sua atividade diária</div>
-        </div>
-        <div class="stat accent">
-          <div class="stat-label">Superávit</div>
-          <div class="stat-val">+${formatKcal(results.surplus)}</div>
-          <div class="stat-desc">Meta: ${gainStatStr}</div>
-        </div>
-      </div>
+      ${calorieArchitecture}
 
       <!-- Perfil interpretation -->
       <div class="card">
         <h3 class="card-title">Análise do Seu Perfil Hardgainer</h3>
-        <p class="card-sub" style="margin-bottom: 16px;">Ficha personalizada com base nos dados que você preencheu</p>
+        <p class="card-sub results-card-sub">Ficha personalizada com base nos dados que você preencheu</p>
         ${profileSummary}
+        ${profileInsightCards}
         <div class="tag-row">
           ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
         </div>
@@ -295,6 +510,7 @@ export function renderResultadosPage(mount) {
         </div>
         `}
         ${sequenceHtml ? `<div class="hybrid-sequence">${sequenceHtml}</div>` : ''}
+        ${strategyInsightCards}
         <div class="hybrid-explain">
           <div class="hybrid-explain-label">Por que esse formato?</div>
           <p>${sectionExplain}</p>
@@ -303,6 +519,7 @@ export function renderResultadosPage(mount) {
           <span class="hint-icon">${icons.clock(18)}</span>
           <div><strong>Intervalo ideal:</strong> ${hintInterval}</div>
         </div>
+        ${nextStepsTimeline}
       </div>
 
       <!-- Macros distribution -->

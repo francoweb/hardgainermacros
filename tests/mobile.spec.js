@@ -313,6 +313,19 @@ test.describe('Plano 14 Dias no mobile - imagens dos alimentos', () => {
   });
 });
 
+test('C-MOBILE-RESULTS-VIS-1 - Resultados 390px mostra arquitetura calorica sem overflow', async ({ page }) => {
+  await page.setViewportSize(MOBILE_390);
+  await injectState(page, CENARIO_6);
+  await gotoResultados(page);
+
+  await expect(page.locator('[data-testid="results-calorie-architecture"]')).toBeVisible();
+  await expect(page.locator('[data-testid="results-profile-principles"] .plan-insights__principle-card').first()).toBeVisible();
+  await expect(page.locator('[data-testid="results-next-steps"] .plan-insights__timeline-step')).toHaveCount(3);
+
+  const scrollW = await page.evaluate(() => document.body.scrollWidth);
+  expect(scrollW).toBeLessThanOrEqual(395);
+});
+
 test('C-MOBILE-MODAL-SEARCH-2 - Mobile 390px filtra frango sem mostrar ovo nem criar overflow', async ({ page }) => {
   await gotoPlanoMobile(page);
 
