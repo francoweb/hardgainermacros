@@ -29,6 +29,8 @@ const {
   CENARIO_12,
 } = require('./fixtures/scenarios');
 
+const cloneScenario = (scenario) => JSON.parse(JSON.stringify(scenario));
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Grupo: Ordem da primeira refeição (Etapa 3E-A)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -430,8 +432,10 @@ test.describe('Resultados - leitura visual da meta e da estrategia', () => {
     expect(ariaLabel).toContain(`Meta diaria de ${visibleKcal} calorias`);
 
     const rhythmCard = page.locator('[data-testid="results-profile-principles"] .plan-insights__principle-card').filter({ hasText: 'Ritmo esperado' });
-    const rhythmText = (await rhythmCard.textContent()) || '';
+    const rhythmText = ((await rhythmCard.textContent()) || '').replace(/\s+/g, ' ').trim();
     expect(rhythmText).not.toContain('Objetivo de objetivo');
+    expect(rhythmText).toContain('Para ganho de massa');
+    expect(rhythmText).not.toContain('Para o ganho de massa');
     expect(rhythmText).toContain('0.3–0.5kg/semana');
     expect(rhythmText).toContain('2660 kcal por dia');
 
@@ -467,5 +471,33 @@ test.describe('Resultados - leitura visual da meta e da estrategia', () => {
     await expect(cta).toHaveCSS('display', 'none');
     await expect(page.locator('[data-testid="results-calorie-architecture"]')).toBeVisible();
     await expect(page.locator('[data-macro-dashboard="complete"]')).toBeVisible();
+  });
+
+  test('C-RESULTS-VIS-4 - fallback de Ritmo esperado usa artigo correto sem mudar os rotulos especificos', async ({ page }) => {
+    const fallbackScenario = cloneScenario(CENARIO_1);
+    fallbackScenario.profile.goal = 'recomp';
+    fallbackScenario.results.profile.goal = 'recomp';
+
+    await injectState(page, fallbackScenario);
+    await gotoResultados(page);
+
+    const rhythmCard = page.locator('[data-testid="results-profile-principles"] .plan-insights__principle-card').filter({ hasText: 'Ritmo esperado' });
+    const rhythmText = ((await rhythmCard.textContent()) || '').replace(/\s+/g, ' ').trim();
+    expect(rhythmText).toContain('Para o objetivo atual');
+    expect(rhythmText).not.toContain('Para objetivo atual');
+    expect(rhythmText).not.toContain('Objetivo de objetivo');
+    expect(rhythmText).not.toContain('Para o o objetivo atual');
+    expect(rhythmText).toMatch(/0\.3\S*0\.5kg\/semana/);
+
+    const fallbackNoGainScenario = cloneScenario(fallbackScenario);
+    delete fallbackNoGainScenario.results.weeklyGainLowKg;
+    delete fallbackNoGainScenario.results.weeklyGainHighKg;
+
+    await injectState(page, fallbackNoGainScenario);
+    await gotoResultados(page);
+
+    const fallbackNoGainText = ((await rhythmCard.textContent()) || '').replace(/\s+/g, ' ').trim();
+    expect(fallbackNoGainText).toContain('Para o objetivo atual, a base atual');
+    expect(fallbackNoGainText).not.toContain('Para objetivo atual');
   });
 });

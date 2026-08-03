@@ -227,6 +227,9 @@ function buildProfileInsightItems(formData, profile, routine, results, gainStatS
       : profile.goal === 'lose'
         ? 'perda de gordura'
         : 'objetivo atual';
+  const goalContextLabel = goalLabel === 'objetivo atual'
+    ? 'o objetivo atual'
+    : goalLabel;
   const ageSex = [
     formData.age ? `${formData.age} anos` : '',
     formData.sex === 'female' ? 'sexo feminino' : formData.sex === 'male' ? 'sexo masculino' : '',
@@ -253,8 +256,8 @@ function buildProfileInsightItems(formData, profile, routine, results, gainStatS
     {
       title: 'Ritmo esperado',
       body: gainStatStr
-        ? `Para ${goalLabel}, a referência de ganho é ${gainStatStr}, sustentada por ${formatKcal(results.calories)} kcal por dia.`
-        : `Para ${goalLabel}, a base atual é ${formatKcal(results.calories)} kcal por dia, com ajustes progressivos conforme a resposta do peso.`,
+        ? `Para ${goalContextLabel}, a referência de ganho é ${gainStatStr}, sustentada por ${formatKcal(results.calories)} kcal por dia.`
+        : `Para ${goalContextLabel}, a base atual é ${formatKcal(results.calories)} kcal por dia, com ajustes progressivos conforme a resposta do peso.`,
     },
   ];
 }
