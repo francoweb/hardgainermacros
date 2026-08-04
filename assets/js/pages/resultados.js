@@ -186,8 +186,10 @@ function buildPlanSummaryVisual(strategy, solidCount, shakeCount, totalMeals) {
             role="img"
             aria-label="${title}: ${count} de ${totalDailyMeals} refeições do dia (${formatPercent(sharePct)})"
           >
-            <span class="results-plan-summary-card__ring-value">${count}</span>
-            <span class="results-plan-summary-card__ring-meta">de ${totalDailyMeals}</span>
+            <span class="results-plan-summary-card__ring-center">
+              <span class="results-plan-summary-card__ring-value">${count}</span>
+              <span class="results-plan-summary-card__ring-meta">de ${totalDailyMeals}</span>
+            </span>
           </div>
         </div>
         <div class="results-plan-summary-card__segments" aria-hidden="true">${segments}</div>
