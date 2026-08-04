@@ -415,6 +415,22 @@ test.describe('Resultados - leitura visual da meta e da estrategia', () => {
     await injectState(page, CENARIO_5);
     await gotoResultados(page);
 
+    const planSummary = page.locator('[data-testid="results-plan-summary"]');
+    await expect(planSummary).toBeVisible();
+    await expect(planSummary).toHaveAttribute('data-strategy', 'solid');
+    await expect(planSummary.locator('[data-testid="results-plan-summary-card"]')).toHaveCount(2);
+    await expect(planSummary.locator('[data-summary-type="solid"]')).toHaveAttribute('data-count', '5');
+    await expect(planSummary.locator('[data-summary-type="solid"]')).toHaveAttribute('data-total', '7');
+    await expect(planSummary.locator('[data-summary-type="solid"]')).toHaveAttribute('data-share-pct', '71.4');
+    await expect(planSummary.locator('[data-summary-type="shake"]')).toHaveAttribute('data-count', '2');
+    await expect(planSummary.locator('[data-summary-type="shake"]')).toHaveAttribute('data-total', '7');
+    await expect(planSummary.locator('[data-summary-type="shake"]')).toHaveAttribute('data-share-pct', '28.6');
+    await expect(planSummary).toContainText('Plano mais sólido do dia');
+    await expect(planSummary).toContainText('7 refeições distribuídas com base sólida');
+    await expect(planSummary).toContainText('5 sólidas + 2 shakes de apoio');
+    await expect(planSummary.locator('[data-summary-type="shake"] .results-plan-summary-card__ring')).toHaveAttribute('role', 'img');
+    await expect(planSummary.locator('[data-summary-type="shake"] .results-plan-summary-card__ring')).toHaveAttribute('aria-label', /2 de 7 refeições do dia \(28,6%\)/);
+
     await expect(page.locator('[data-testid="results-profile-principles"] .plan-insights__principle-card')).toHaveCount(4);
     await expect(page.locator('[data-testid="results-strategy-principles"] .plan-insights__principle-card')).toHaveCount(4);
     await expect(page.locator('[data-testid="results-next-steps"] .plan-insights__timeline-step')).toHaveCount(3);

@@ -127,6 +127,123 @@ function getShortHintIntervalLabel(hintInterval) {
   return 'intervalos regulares entre as refeições';
 }
 
+function buildPlanSummaryVisual(strategy, solidCount, shakeCount, totalMeals) {
+  const totalDailyMeals = Math.max(0, totalMeals || solidCount + shakeCount || 0);
+  const shakeTitle = strategy === 'solid' || strategy === 'practical' ? 'Shakes de Apoio' : 'Shakes Anabólicos';
+  const pluralize = (count, singular, plural) => `${count} ${count === 1 ? singular : plural}`;
+  const distributedMealsLabel = `${pluralize(totalDailyMeals, 'refeição', 'refeições')} distribuíd${totalDailyMeals === 1 ? 'a' : 'as'}`;
+  const describeSummary = () => {
+    if (shakeCount === 0) return `${pluralize(solidCount, 'refeição sólida', 'refeições sólidas')} por dia`;
+    if (strategy === 'hybrid') return `${solidCount} sólidas + ${shakeCount} shakes anabólicos`;
+    return `${solidCount} sólidas + ${shakeCount} shakes de apoio`;
+  };
+  const boardCopy = strategy === 'solid'
+    ? {
+      eyebrow: 'Plano mais sólido do dia',
+      headline: `${distributedMealsLabel} com base sólida`,
+      summary: describeSummary(),
+    }
+    : strategy === 'practical'
+    ? {
+      eyebrow: 'Plano de máxima praticidade',
+      headline: `${distributedMealsLabel} para simplificar a rotina`,
+      summary: describeSummary(),
+    }
+    : {
+      eyebrow: 'Sistema híbrido do dia',
+      headline: `${distributedMealsLabel} no sistema híbrido`,
+      summary: describeSummary(),
+    };
+
+  const buildCard = ({ type, title, icon, count, emphasis, note }) => {
+    const sharePct = totalDailyMeals > 0 ? clampPercent((count / totalDailyMeals) * 100) : 0;
+    const percentLabel = `${Math.round(sharePct)}% do plano`;
+    const segments = Array.from({ length: totalDailyMeals }, (_, index) =>
+      `<span class="results-plan-summary-card__segment${index < count ? ' is-active' : ''}" aria-hidden="true"></span>`
+    ).join('');
+
+    return `
+      <article
+        class="results-plan-summary-card results-plan-summary-card--${type}"
+        data-testid="results-plan-summary-card"
+        data-summary-type="${type}"
+        data-count="${count}"
+        data-total="${totalDailyMeals}"
+        data-share-pct="${sharePct.toFixed(1)}"
+      >
+        <div class="results-plan-summary-card__top">
+          <div class="results-plan-summary-card__copy">
+            <div class="results-plan-summary-card__eyebrow">
+              <span class="results-plan-summary-card__icon">${icon}</span>
+              <span>${title}</span>
+            </div>
+            <div class="results-plan-summary-card__emphasis">${emphasis}</div>
+            <div class="results-plan-summary-card__note">${note}</div>
+          </div>
+          <div
+            class="results-plan-summary-card__ring"
+            style="--summary-ratio:${sharePct.toFixed(2)}%;"
+            role="img"
+            aria-label="${title}: ${count} de ${totalDailyMeals} refeições do dia (${formatPercent(sharePct)})"
+          >
+            <span class="results-plan-summary-card__ring-value">${count}</span>
+            <span class="results-plan-summary-card__ring-meta">de ${totalDailyMeals}</span>
+          </div>
+        </div>
+        <div class="results-plan-summary-card__segments" aria-hidden="true">${segments}</div>
+        <div class="results-plan-summary-card__footer">
+          <span>${type === 'solid'
+            ? pluralize(count, 'refeição sólida', 'refeições sólidas')
+            : pluralize(count, 'shake', 'shakes')} por dia</span>
+          <strong>${percentLabel}</strong>
+        </div>
+      </article>
+    `;
+  };
+
+  return `
+    <div
+      class="results-plan-summary-board${shakeCount > 0 ? '' : ' results-plan-summary-board--single'}"
+      data-testid="results-plan-summary"
+      data-strategy="${strategy}"
+    >
+      <div class="results-plan-summary-board__header">
+        <div class="results-plan-summary-board__copy">
+          <span class="results-plan-summary-board__eyebrow">${boardCopy.eyebrow}</span>
+          <strong class="results-plan-summary-board__title">${boardCopy.headline}</strong>
+          <p class="results-plan-summary-board__meta">${boardCopy.summary}</p>
+        </div>
+        <div class="results-plan-summary-board__badge" aria-label="${totalDailyMeals} refeições totais por dia">
+          <span class="results-plan-summary-board__badge-value">${totalDailyMeals}</span>
+          <span class="results-plan-summary-board__badge-label">por dia</span>
+        </div>
+      </div>
+      <div class="results-plan-summary-board__grid">
+        ${buildCard({
+          type: 'solid',
+          title: 'Refeições Sólidas',
+          icon: icons.utensils(18),
+          count: solidCount,
+          emphasis: 'Base de mastigação, saciedade e densidade nutricional.',
+          note: `${pluralize(solidCount, 'bloco sólido', 'blocos sólidos')} que estruturam o dia.`,
+        })}
+        ${shakeCount > 0 ? buildCard({
+          type: 'shake',
+          title: shakeTitle,
+          icon: icons.droplet(18),
+          count: shakeCount,
+          emphasis: 'Apoio calórico leve para fechar a meta sem pesar.',
+          note: `${pluralize(
+            shakeCount,
+            strategy === 'hybrid' ? 'shake anabólico' : 'shake de apoio',
+            strategy === 'hybrid' ? 'shakes anabólicos' : 'shakes de apoio'
+          )} para facilitar a execução.`,
+        }) : ''}
+      </div>
+    </div>
+  `;
+}
+
 function buildCalorieArchitecture(results, gainStatStr) {
   const bmr = toNonNegativeNumber(results.bmr);
   const tdee = toNonNegativeNumber(results.tdee);
@@ -476,6 +593,7 @@ export function renderResultadosPage(mount) {
     }
   );
   const dedupedSlots = _buildFinalSlots();
+  const planSummaryVisual = buildPlanSummaryVisual(strategy, solidCount, shakeCount, totalMeals);
 
   mount.innerHTML = `
     <div class="container">
@@ -516,25 +634,7 @@ export function renderResultadosPage(mount) {
       <div class="card">
         <h3 class="card-title">Resumo do Seu Plano Calculado</h3>
         <p class="card-sub">${planDistributionText}</p>
-        ${shakeCount > 0 ? `
-        <div class="macro-grid macro-grid-2" style="margin-top: 14px;">
-          <div class="macro-card">
-            <div class="macro-head"><span class="macro-dot">${icons.utensils(16)}</span><span>Refeições Sólidas</span></div>
-            <div class="macro-val">${solidCount}<span class="macro-unit">por dia</span></div>
-          </div>
-          <div class="macro-card">
-            <div class="macro-head"><span class="macro-dot">${icons.droplet(16)}</span><span>${strategy === 'solid' || strategy === 'practical' ? 'Shakes de Apoio' : 'Shakes Anabólicos'}</span></div>
-            <div class="macro-val">${shakeCount}<span class="macro-unit">por dia</span></div>
-          </div>
-        </div>
-        ` : `
-        <div style="margin-top: 14px; display: flex; justify-content: center;">
-          <div class="macro-card" style="text-align: center; align-items: center; min-width: 180px; max-width: 260px;">
-            <div class="macro-head" style="justify-content: center;"><span class="macro-dot">${icons.utensils(16)}</span><span>Refeições Sólidas</span></div>
-            <div class="macro-val">${solidCount}<span class="macro-unit">por dia</span></div>
-          </div>
-        </div>
-        `}
+        ${planSummaryVisual}
         ${sequenceHtml ? `<div class="hybrid-sequence">${sequenceHtml}</div>` : ''}
         ${strategyInsightCards}
         <div class="hybrid-explain">
