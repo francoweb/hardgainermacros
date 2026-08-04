@@ -3296,7 +3296,9 @@ html[data-theme="dark"] .modal-search {
   .results-plan-summary-board__meta,
   .results-plan-summary-card__note,
   .results-plan-summary-card__footer,
-  .results-plan-summary-card__ring-meta {
+  .results-plan-summary-card__eyebrow,
+  .results-plan-summary-card__ring-meta,
+  .results-surplus-band__label {
     color: #585048 !important;
   }
   .tag,
@@ -3478,53 +3480,220 @@ html[data-theme="dark"] .modal-search {
 .results-hero .hero-title { margin-bottom: 4px; }
 
 .results-page .results-hero {
-  padding: 16px 0 30px;
+  padding: 20px 0 36px;
 }
 
 .results-page .hero-title {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .results-page .hero-sub {
+  max-width: 64ch;
   margin-bottom: 0;
+  margin-inline: auto;
+  line-height: 1.7;
 }
 
 .results-page > .btn-row {
   margin-top: 0;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .results-page > .card,
 .results-page > .results-insight-card {
-  margin-bottom: 28px;
+  margin-bottom: 34px;
 }
 
 .results-page .card-title {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .results-page .card-sub,
 .results-page .results-card-sub {
-  margin-bottom: 22px;
+  margin-bottom: 26px;
+  line-height: 1.72;
 }
 
 .results-page .results-section-head {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .results-page .results-insight-stats {
-  margin-bottom: 22px;
+  margin-bottom: 26px;
 }
 
 .results-page .results-profile-principles,
 .results-page .results-strategy-principles,
 .results-page .results-next-steps {
-  margin-top: 22px;
+  margin-top: 26px;
 }
 
 .results-page .hybrid-explain,
 .results-page .hint {
-  margin-top: 20px !important;
+  margin-top: 24px !important;
+}
+
+.results-page .results-insight-card,
+.results-page > .card {
+  padding: 26px 28px 30px;
+}
+
+.results-page .card-body {
+  margin: 0 0 14px;
+  line-height: 1.72;
+}
+
+.results-page .tag-row {
+  margin: 14px 0 18px;
+  row-gap: 8px;
+}
+
+.results-page .results-calorie-stage-list {
+  gap: 15px;
+}
+
+.results-page .results-calorie-stage {
+  padding: 18px 18px 17px;
+}
+
+.results-page .results-calorie-stage__head {
+  gap: 14px;
+}
+
+.results-page .results-calorie-stage__meta {
+  margin-top: 6px;
+  line-height: 1.62;
+}
+
+.results-page .results-calorie-stage__track {
+  margin-top: 14px;
+}
+
+.results-page .results-surplus-band {
+  margin-top: 20px;
+  padding: 20px 20px 18px;
+}
+
+.results-page .results-surplus-band__head,
+.results-page .results-surplus-band__legend {
+  gap: 14px;
+}
+
+.results-page .results-surplus-band__meta,
+.results-page .results-surplus-band__legend,
+.results-page .results-surplus-band__note {
+  line-height: 1.68;
+}
+
+.results-page .results-surplus-band__track {
+  margin: 16px 0 12px;
+}
+
+.results-page .results-plan-summary-board {
+  margin-top: 20px;
+  padding: 24px;
+}
+
+.results-page .results-plan-summary-board__header {
+  gap: 20px;
+}
+
+.results-page .results-plan-summary-board__meta {
+  margin-top: 12px;
+  line-height: 1.62;
+}
+
+.results-page .results-plan-summary-board__grid {
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.results-page .results-plan-summary-card {
+  padding: 20px;
+  row-gap: 20px;
+}
+
+.results-page .results-plan-summary-card__main {
+  gap: 20px;
+}
+
+.results-page .results-plan-summary-card__copy {
+  row-gap: 12px;
+}
+
+.results-page .results-plan-summary-card__note {
+  line-height: 1.62;
+}
+
+.results-page .results-plan-summary-card__segments {
+  gap: 7px;
+}
+
+.results-page .results-plan-summary-card__footer {
+  padding-top: 16px;
+}
+
+.results-page .results-plan-summary-board + .hybrid-sequence {
+  margin-top: 20px;
+  padding: 13px 15px;
+}
+
+.results-page .hybrid-explain {
+  padding: 18px 18px 17px;
+}
+
+.results-page .hybrid-explain-label {
+  margin-bottom: 8px;
+}
+
+.results-page .hybrid-explain p {
+  line-height: 1.65;
+}
+
+.results-page .hint {
+  padding: 16px 18px;
+}
+
+.results-page .tabs {
+  margin: 20px 0 14px;
+}
+
+.results-page .plan-insights__stats {
+  gap: 14px;
+}
+
+.results-page .plan-insights__stat-card,
+.results-page .plan-insights__timeline-card,
+.results-page .plan-insights__principle-card,
+.results-page .plan-insights__bar-row {
+  padding: 16px 17px;
+}
+
+.results-page .plan-insights__stat-card,
+.results-page .plan-insights__timeline-card,
+.results-page .plan-insights__principle-card {
+  border-radius: 20px;
+}
+
+.results-page .plan-insights__stat-meta,
+.results-page .plan-insights__timeline-body,
+.results-page .plan-insights__principle-body,
+.results-page .plan-insights__footnote {
+  line-height: 1.68;
+}
+
+.results-page .plan-insights__principles,
+.results-page .plan-insights__timeline,
+.results-page .plan-insights__bars {
+  gap: 14px;
+}
+
+.results-page .plan-insights__principles {
+  margin: 12px 0 16px;
+}
+
+.results-page .plan-insights__timeline {
+  margin-top: 12px;
 }
 
 /* ---------- Macro grid additional variants ---------- */
@@ -3862,16 +4031,58 @@ html[data-theme="dark"] .modal-search {
 
 @media (max-width: 680px) {
   .results-page .results-hero {
-    padding: 14px 0 24px;
+    padding: 16px 0 26px;
   }
   .results-page > .card,
   .results-page > .results-insight-card {
-    margin-bottom: 24px;
+    margin-bottom: 26px;
   }
   .results-page .results-profile-principles,
   .results-page .results-strategy-principles,
   .results-page .results-next-steps {
+    margin-top: 20px;
+  }
+  .results-page .card-sub,
+  .results-page .results-card-sub {
+    margin-bottom: 22px;
+  }
+  .results-page .results-insight-card,
+  .results-page > .card {
+    padding: 22px 22px 24px;
+  }
+  .results-page .results-section-head,
+  .results-page .results-insight-stats {
+    margin-bottom: 22px;
+  }
+  .results-page .results-calorie-stage {
+    padding: 16px 16px 15px;
+  }
+  .results-page .results-surplus-band {
+    padding: 18px 18px 16px;
+  }
+  .results-page .results-plan-summary-board {
+    padding: 20px;
+  }
+  .results-page .results-plan-summary-board__grid {
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .results-page .results-plan-summary-card {
+    padding: 18px;
+    row-gap: 18px;
+  }
+  .results-page .results-plan-summary-board + .hybrid-sequence {
     margin-top: 18px;
+  }
+  .results-page .hybrid-explain,
+  .results-page .hint {
+    margin-top: 20px !important;
+  }
+  .results-page .plan-insights__stats,
+  .results-page .plan-insights__principles,
+  .results-page .plan-insights__timeline,
+  .results-page .plan-insights__bars {
+    gap: 12px;
   }
   .results-plan-summary-board { padding: 18px; border-radius: 22px; }
   .results-plan-summary-board__header { grid-template-columns: 1fr; gap: 14px; }
@@ -3890,12 +4101,36 @@ html[data-theme="dark"] .modal-search {
 }
 
 @media (max-width: 420px) {
+  .results-page .hero-sub {
+    line-height: 1.64;
+  }
   .results-page .card-title {
     margin-bottom: 8px;
   }
   .results-page .card-sub,
   .results-page .results-card-sub {
     margin-bottom: 18px;
+  }
+  .results-page .results-insight-card,
+  .results-page > .card {
+    padding: 20px 18px 22px;
+  }
+  .results-page .results-section-head,
+  .results-page .results-insight-stats {
+    margin-bottom: 18px;
+  }
+  .results-page .results-plan-summary-board {
+    padding: 18px 16px;
+  }
+  .results-page .results-plan-summary-board__grid {
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .results-page .results-plan-summary-card {
+    padding: 16px 15px;
+  }
+  .results-page .results-surplus-band {
+    padding: 16px;
   }
   .results-plan-summary-board { padding: 16px; }
   .results-plan-summary-board__title { font-size: 19px; }
@@ -4843,11 +5078,23 @@ body { max-width: 100%; overflow-x: hidden; }
 :root[data-theme="dark"] .results-surplus-band__meta,
 :root[data-theme="dark"] .results-surplus-band__legend,
 :root[data-theme="dark"] .results-surplus-band__note {
-  color: rgba(240, 236, 227, 0.78);
+  color: rgba(240, 236, 227, 0.88);
 }
 
 :root[data-theme="dark"] .results-surplus-band__label {
-  color: var(--accent-soft);
+  color: #f1c3a0;
+}
+
+:root[data-theme="dark"] .results-page .hero-sub,
+:root[data-theme="dark"] .results-page .card-sub,
+:root[data-theme="dark"] .results-page .results-card-sub,
+:root[data-theme="dark"] .results-page .card-body,
+:root[data-theme="dark"] .results-page .results-plan-summary-board__meta,
+:root[data-theme="dark"] .results-page .results-plan-summary-card__note,
+:root[data-theme="dark"] .results-page .results-plan-summary-card__footer,
+:root[data-theme="dark"] .results-page .results-plan-summary-card__eyebrow,
+:root[data-theme="dark"] .results-page .results-plan-summary-card__ring-meta {
+  color: rgba(240, 236, 227, 0.84);
 }
 
 :root[data-theme="dark"] .results-calorie-stage__track,
@@ -4882,13 +5129,13 @@ body { max-width: 100%; overflow-x: hidden; }
 :root[data-theme="dark"] .plan-insights__principle-body,
 :root[data-theme="dark"] .plan-insights__footnote,
 :root[data-theme="dark"] .plan-section-intro {
-  color: rgba(240, 236, 227, 0.78);
+  color: rgba(240, 236, 227, 0.84);
 }
 
 :root[data-theme="dark"] .plan-insights__stat-label,
 :root[data-theme="dark"] .plan-insights__bar-meta,
 :root[data-theme="dark"] .plan-insights__timeline-meta {
-  color: rgba(240, 236, 227, 0.56);
+  color: rgba(240, 236, 227, 0.7);
 }
 
 :root[data-theme="dark"] .meal-card.solid .meal-card-head,
