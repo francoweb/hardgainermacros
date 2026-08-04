@@ -13,6 +13,33 @@
 
 export const UPDATES = [
   {
+    date: '2026-08-04',
+    type: 'Melhoria',
+    title: 'Resultados mais visuais e personalizados',
+    description:
+      'A página de resultados agora mostra de forma visual como a meta calórica foi construída, desde o metabolismo basal até o gasto diário e o objetivo final. Também ficou mais fácil entender o superávit, a distribuição dos macronutrientes e a estrutura do plano entre refeições sólidas e shakes antes de abrir o plano alimentar de 14 dias.',
+    tags: ['Resultados', 'Gráficos', 'Personalização'],
+    highlight: false,
+  },
+  {
+    date: '2026-08-03',
+    type: 'Melhoria',
+    title: 'Mais indicadores visuais no plano de 14 dias',
+    description:
+      'O plano alimentar de 14 dias ganhou novos indicadores visuais para hidratação, lista de compras, aplicação prática e consistência. As novas informações ajudam a compreender melhor a rotina, organizar os alimentos e seguir o plano com mais clareza no dia a dia.',
+    tags: ['Plano alimentar', 'Hidratação', 'Praticidade'],
+    highlight: false,
+  },
+  {
+    date: '2026-08-01',
+    type: 'Melhoria',
+    title: 'Dashboard dinâmico de calorias e macros',
+    description:
+      'As páginas de resultados e do plano alimentar agora apresentam um painel dinâmico com calorias, proteína, carboidratos e gorduras calculados para cada pessoa. As proporções são atualizadas de acordo com o objetivo e permanecem fáceis de consultar no computador, celular, modo escuro e impressão.',
+    tags: ['Calorias', 'Macronutrientes', 'Dashboard'],
+    highlight: false,
+  },
+  {
     date: '2026-07-25',
     type: 'Melhoria',
     title: 'Os modais do plano agora mostram as ilustrações dos alimentos e receitas',

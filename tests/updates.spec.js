@@ -10,19 +10,26 @@
  */
 
 const { test, expect } = require('@playwright/test');
-const { injectState, gotoResultados, gotoPlano } = require('./helpers/inject-state');
-const { CENARIO_6, CENARIO_4 } = require('./fixtures/scenarios');
 
 const PAGE_SIZE = 6;
+const EXPECTED_TOTAL_UPDATES = 35;
+const EXPECTED_TOTAL_PAGES = Math.ceil(EXPECTED_TOTAL_UPDATES / PAGE_SIZE);
+const EXPECTED_PAGE_ONE_TITLES = [
+  'Resultados mais visuais e personalizados',
+  'Mais indicadores visuais no plano de 14 dias',
+  'Dashboard dinâmico de calorias e macros',
+];
 
 /** Navega para /atualizacoes via SPA router. */
 async function gotoAtualizacoes(page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('hg:cookies', JSON.stringify('accepted'));
+  });
   await page.goto('/');
   await page.waitForLoadState('load');
-  await page.evaluate(() => {
-    history.pushState({}, '', '/atualizacoes');
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  });
+  const footerLink = page.locator('footer a[href="/atualizacoes"]');
+  await footerLink.scrollIntoViewIfNeeded();
+  await footerLink.click();
   await page.waitForSelector('[data-testid="upd-card"]', { timeout: 10000 });
 }
 
@@ -172,7 +179,7 @@ test.describe('Paginação de Atualizações', () => {
 
     const pgNums = page.locator('[data-testid="upd-pg-num"]');
     const total  = await pgNums.count();
-    expect(total).toBeGreaterThan(1); // mais de 1 página
+    expect(total).toBe(EXPECTED_TOTAL_PAGES);
 
     // Clicar no último número
     await pgNums.last().click();
@@ -197,12 +204,11 @@ test.describe('Paginação de Atualizações', () => {
   // ── C-UPD-PAG-9 ──────────────────────────────────────────────────────────
   test('C-UPD-PAG-9 — página 1 mostra atualizações mais recentes', async ({ page }) => {
     await gotoAtualizacoes(page);
-    // A mais recente deve conter "ml" ou "topo" ou "ajuda" (melhorias de Jun/2026)
-    const firstTitle = (await page.locator('[data-testid="upd-card"] .upd-title').first().textContent() || '').trim();
-    expect(firstTitle.length).toBeGreaterThan(0);
-    // Deve ter data de Junho 2026 no primeiro grupo
+    const pageOneTitles = await page.locator('[data-testid="upd-card"] .upd-title').allTextContents();
+    expect(pageOneTitles.slice(0, 3).map(t => t.trim())).toEqual(EXPECTED_PAGE_ONE_TITLES);
+
     const firstGroup = (await page.locator('[data-testid="upd-group"]').first().textContent() || '');
-    expect(firstGroup).toMatch(/Junho 2026/i);
+    expect(firstGroup).toMatch(/Agosto 2026/i);
   });
 
   // ── C-UPD-PAG-10 ─────────────────────────────────────────────────────────
