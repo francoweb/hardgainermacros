@@ -171,12 +171,12 @@ function buildPlanSummaryVisual(strategy, solidCount, shakeCount, totalMeals) {
         data-total="${totalDailyMeals}"
         data-share-pct="${sharePct.toFixed(1)}"
       >
-        <div class="results-plan-summary-card__top">
+        <div class="results-plan-summary-card__eyebrow">
+          <span class="results-plan-summary-card__icon">${icon}</span>
+          <span>${title}</span>
+        </div>
+        <div class="results-plan-summary-card__main">
           <div class="results-plan-summary-card__copy">
-            <div class="results-plan-summary-card__eyebrow">
-              <span class="results-plan-summary-card__icon">${icon}</span>
-              <span>${title}</span>
-            </div>
             <div class="results-plan-summary-card__emphasis">${emphasis}</div>
             <div class="results-plan-summary-card__note">${note}</div>
           </div>
@@ -598,7 +598,7 @@ export function renderResultadosPage(mount) {
   const planSummaryVisual = buildPlanSummaryVisual(strategy, solidCount, shakeCount, totalMeals);
 
   mount.innerHTML = `
-    <div class="container">
+    <div class="container results-page">
       <div class="results-hero">
         <h1 class="hero-title">Seu Plano Personalizado</h1>
         <p class="hero-sub">Baseado no <a href="https://hardgainerhibrido.com/" target="_blank" rel="noopener noreferrer">Sistema de Alimentação Híbrida</a> para Hardgainers</p>
