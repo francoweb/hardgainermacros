@@ -6,6 +6,9 @@ const fs = require('fs');
 const path = require('path');
 
 const MOBILE_390 = { width: 390, height: 844 };
+const HOME_TITLE = 'Hardgainer Macros — Calculadora para ectomorfos';
+const HOME_META_DESCRIPTION = 'Hardgainer Macros — calculadora especializada para ectomorfos. Descubra suas calorias, macros e receba um plano alimentar de 14 dias baseado no Sistema Híbrido.';
+const HOME_CANONICAL = 'https://hardgainermacros.com/';
 
 async function loadFoodSeoModule() {
   const sourcePath = path.resolve(__dirname, '../assets/js/data/food-seo-content.js');
@@ -125,8 +128,36 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
   });
 
   test('CA-SEO-4 - navegação SPA remove schema residual e protege metadados de slug inexistente', async ({ page }) => {
+    const pageErrors = [];
+    const consoleErrors = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+
     await gotoCalcItem(page, 'clara-ovo');
     await expect(page.locator('#schema-food')).toHaveCount(1);
+
+    const cta = page.locator('[data-testid="food-seo-cta"] .blog-cta-btn');
+    await expect(cta).toHaveAttribute('href', '/');
+    await cta.click();
+    await page.waitForURL('**/');
+    await expect(page.locator('#f-dados')).toBeVisible();
+    await expect(page).toHaveTitle(HOME_TITLE);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', HOME_META_DESCRIPTION);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', HOME_CANONICAL);
+    await expect(page.locator('#schema-food')).toHaveCount(0);
+
+    await page.evaluate(() => {
+      history.pushState({}, '', '/calcular-alimento/skyr');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForSelector('h1', { timeout: 10000 });
+    await expect(page).toHaveTitle('Calorias e Macros de Skyr natural | Hardgainer Macros');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://hardgainermacros.com/calcular-alimento/skyr');
+    await expect(page.locator('#schema-food')).toHaveCount(1);
+    const schemaNameAfterReturn = await page.locator('#schema-food').evaluate((node) => JSON.parse(node.textContent || '{}').name);
+    expect(schemaNameAfterReturn).toBe('Skyr natural');
 
     await page.evaluate(() => {
       history.pushState({}, '', '/calcular-alimento');
@@ -155,6 +186,8 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://hardgainermacros.com/calcular-alimento');
     await expect(page).toHaveTitle('Alimento não encontrado | Hardgainer Macros');
     await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /não foi encontrado/i);
+    expect(pageErrors).toEqual([]);
+    expect(consoleErrors).toEqual([]);
   });
 
   test('CA-SEO-5 - mobile 390px light e dark mantém CTA e links sem overflow', async ({ page }) => {

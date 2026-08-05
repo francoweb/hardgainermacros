@@ -17,6 +17,32 @@ import { navigate, markProgress } from '../modules/router.js';
 import { saveFormData, loadFormData, K, local } from '../modules/storage.js';
 import { BLOG_POSTS } from '../data/blog-posts.js';
 
+const HOME_TITLE = 'Hardgainer Macros — Calculadora para ectomorfos';
+const HOME_META_DESCRIPTION = 'Hardgainer Macros — calculadora especializada para ectomorfos. Descubra suas calorias, macros e receba um plano alimentar de 14 dias baseado no Sistema Híbrido.';
+const HOME_CANONICAL = 'https://hardgainermacros.com/';
+
+function ensureCanonical() {
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    document.head.appendChild(canonical);
+  }
+  return canonical;
+}
+
+function setMetaDescription(content) {
+  const metaDescription = document.querySelector('meta[name="description"]');
+  if (metaDescription) metaDescription.setAttribute('content', content);
+}
+
+function restoreHomeMetadata() {
+  document.title = HOME_TITLE;
+  setMetaDescription(HOME_META_DESCRIPTION);
+  ensureCanonical().href = HOME_CANONICAL;
+  document.getElementById('schema-food')?.remove();
+}
+
 function renderHomeBlogSection() {
   const recent = BLOG_POSTS.slice(0, 4);
   return `
@@ -43,6 +69,8 @@ function renderHomeBlogSection() {
 }
 
 export function renderDadosFisicosPage(mount) {
+  restoreHomeMetadata();
+
   const existing = loadFormData() || {
     unit: 'metric',
     sex: null,
