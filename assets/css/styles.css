@@ -3375,10 +3375,29 @@ html[data-theme="dark"] .modal-search {
   .plan-insights__principle-card,
   .plan-insights__stat-card,
   .plan-insights__bar-row,
+  .calc-alimento-seo-copy,
+  .calc-alimento-seo-cta,
   .hydration-card__badge {
     background: #fff !important;
     color: #1a1814 !important;
     border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+  .calc-alimento-seo-block {
+    display: block !important;
+  }
+  .calc-alimento-seo-cta {
+    margin-top: 14px;
+    position: static !important;
+    background: #fff !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .calc-alimento-seo-cta__secondary,
+  .calc-alimento-seo-cta .blog-cta-btn {
+    background: #fff !important;
+    color: #1a1814 !important;
+    border: 1px solid #ddd !important;
     box-shadow: none !important;
   }
   .plan-insights__timeline-title,
@@ -4928,6 +4947,27 @@ body { max-width: 100%; overflow-x: hidden; }
 .calc-alimento-info-block { margin-top: 36px; }
 .calc-alimento-info-block h2 { font-size: 20px; font-weight: 700; color: var(--ink); margin: 0 0 14px; }
 .calc-alimento-info-block p { font-size: 15px; color: var(--ink-soft); line-height: 1.7; margin: 0; }
+.calc-alimento-seo-block { margin-top: 36px; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, .95fr); gap: 20px; align-items: start; }
+.calc-alimento-seo-copy,
+.calc-alimento-seo-cta { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh-sm); }
+.calc-alimento-seo-copy { padding: 24px 26px; }
+.calc-alimento-seo-copy h2,
+.calc-alimento-seo-copy h3 { margin: 0; color: var(--ink); }
+.calc-alimento-seo-copy h2 { font-size: 20px; font-weight: 700; margin-bottom: 14px; }
+.calc-alimento-seo-copy h3 { font-size: 16px; font-weight: 700; margin-top: 22px; margin-bottom: 10px; }
+.calc-alimento-seo-copy p { margin: 0; font-size: 15px; line-height: 1.75; color: var(--ink-soft); }
+.calc-alimento-seo-copy p + p { margin-top: 12px; }
+.calc-alimento-seo-copy a { color: var(--accent); font-weight: 600; text-decoration-thickness: 1.5px; }
+.calc-alimento-seo-cta { position: sticky; top: 88px; padding: 22px; background:
+  linear-gradient(180deg, rgba(180,80,60,.12) 0%, rgba(180,80,60,.05) 100%),
+  var(--surface); }
+.calc-alimento-seo-cta__eyebrow { display: inline-flex; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: 10px; }
+.calc-alimento-seo-cta h3 { margin: 0 0 10px; font-size: 19px; line-height: 1.25; color: var(--ink); }
+.calc-alimento-seo-cta p { margin: 0; font-size: 14px; line-height: 1.65; color: var(--ink-soft); }
+.calc-alimento-seo-cta__actions { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.calc-alimento-seo-cta__secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 11px 16px; border-radius: var(--r-pill); border: 1.5px solid var(--border); color: var(--ink); text-decoration: none; font: 700 14px var(--font-body); background: var(--bg); }
+.calc-alimento-seo-cta__secondary:hover,
+.calc-alimento-seo-cta__secondary:focus-visible { border-color: var(--accent); color: var(--accent); }
 .calc-alimento-table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .calc-alimento-table tr { border-bottom: 1px solid var(--border); }
 .calc-alimento-table td { padding: 12px 8px; color: var(--ink-soft); }
@@ -4940,6 +4980,9 @@ body { max-width: 100%; overflow-x: hidden; }
   .calc-alimento-card-visual { width: 56px; height: 56px; }
   .calc-alimento-cards { grid-template-columns: repeat(2, 1fr); }
   .calc-alimento-grid { grid-template-columns: repeat(2, 1fr); }
+  .calc-alimento-seo-block { grid-template-columns: 1fr; gap: 14px; }
+  .calc-alimento-seo-copy { padding: 20px; }
+  .calc-alimento-seo-cta { position: static; padding: 20px; }
 }
 
 :root[data-theme="dark"] {

@@ -1,8 +1,11 @@
 import { hasFoodImage } from '../data/food-images.js';
 import { FOODS } from '../data/foods.js';
+import { getFoodSeoContent } from '../data/food-seo-content.js';
 
 function idToSlug(id) { return id.replace(/_/g, '-'); }
 function slugToId(slug) { return slug.replace(/-/g, '_'); }
+
+const PLAN_START_ROUTE = '/';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -44,6 +47,25 @@ function bindFoodImageFallback(scope) {
   });
 }
 
+function removeFoodSchema() {
+  document.getElementById('schema-food')?.remove();
+}
+
+function ensureCanonical() {
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    document.head.appendChild(canonical);
+  }
+  return canonical;
+}
+
+function setMetaDescription(content) {
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.setAttribute('content', content);
+}
+
 function renderFoodCard(id, food) {
   return `
     <a href="/calcular-alimento/${idToSlug(id)}" data-route class="calc-alimento-item-card">
@@ -64,6 +86,57 @@ function renderSuggestionItem(id, food) {
         <span class="calc-suggestion-meta">${food.per100.kcal} kcal · ${food.per100.prot}g prot</span>
       </span>
     </button>
+  `;
+}
+
+function renderFoodLink(foodId) {
+  const linkedFood = FOODS[foodId];
+  if (!linkedFood) return '';
+  return `<a href="/calcular-alimento/${idToSlug(foodId)}" data-route>${escapeHtml(linkedFood.name)}</a>`;
+}
+
+function renderFoodLinkList(foodIds = []) {
+  const links = foodIds.map(renderFoodLink).filter(Boolean);
+  if (!links.length) return '';
+  if (links.length === 1) return links[0];
+  if (links.length === 2) return `${links[0]} e ${links[1]}`;
+  return `${links.slice(0, -1).join(', ')} e ${links[links.length - 1]}`;
+}
+
+function renderLegacyFoodInfoBlock(food, catDesc) {
+  return `
+    <div class="calc-alimento-info-block">
+      <h2>${escapeHtml(food.name)} para Hardgainers</h2>
+      <p>${escapeHtml(food.name)} é uma ${escapeHtml(catDesc)}. Para hardgainers e ectomorfos que precisam aumentar o aporte calórico, este alimento pode ser uma excelente opção para atingir o superávit calórico diário necessário para ganhar massa muscular.</p>
+      <a href="/" data-route class="blog-cta-btn" style="display:inline-block;margin-top:16px">Calcular os meus macros grátis →</a>
+    </div>
+  `;
+}
+
+function renderFoodSeoSection(foodId, food, seoContent) {
+  const pairingLinks = renderFoodLinkList(seoContent.pairingIds);
+
+  return `
+    <section class="calc-alimento-seo-block" data-testid="food-seo-content" data-food-id="${escapeHtml(foodId)}">
+      <div class="calc-alimento-seo-copy">
+        <h2>${escapeHtml(food.name)} para hardgainers</h2>
+        <p>${escapeHtml(seoContent.intro)}</p>
+        <p>${escapeHtml(seoContent.macroContext)}</p>
+        <h3>Como incluir ${escapeHtml(food.name)} na alimentação</h3>
+        <p>${escapeHtml(seoContent.bestUse)}</p>
+        <h3>${escapeHtml(seoContent.pairingHeading)}</h3>
+        <p>${escapeHtml(seoContent.pairingText)} ${pairingLinks}</p>
+      </div>
+      <aside class="calc-alimento-seo-cta" data-testid="food-seo-cta">
+        <span class="calc-alimento-seo-cta__eyebrow">Próximo passo</span>
+        <h3>Quer transformar esses valores em um plano completo?</h3>
+        <p>Calcule suas necessidades e receba uma distribuição personalizada de calorias, macronutrientes e refeições para 14 dias.</p>
+        <div class="calc-alimento-seo-cta__actions">
+          <a href="${PLAN_START_ROUTE}" data-route class="blog-cta-btn">Criar meu plano alimentar de 14 dias</a>
+          <a href="/calcular-alimento" data-route class="calc-alimento-seo-cta__secondary">Consultar outros alimentos</a>
+        </div>
+      </aside>
+    </section>
   `;
 }
 
@@ -89,15 +162,9 @@ const CATEGORIES = {
 
 export function renderCalcularAlimentoPage(mount) {
   document.title = 'Calculadora de Macros por Alimento | Hardgainer Macros';
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) metaDesc.setAttribute('content', 'Calcule as calorias, proteína, carboidratos e gordura de mais de 75 alimentos. Calculadora gratuita de macros para hardgainers e ectomorfos.');
-  let canonical = document.querySelector('link[rel="canonical"]');
-  if (!canonical) {
-    canonical = document.createElement('link');
-    canonical.rel = 'canonical';
-    document.head.appendChild(canonical);
-  }
-  canonical.href = 'https://hardgainermacros.com/calcular-alimento';
+  setMetaDescription('Calcule as calorias, proteína, carboidratos e gordura de mais de 75 alimentos. Calculadora gratuita de macros para hardgainers e ectomorfos.');
+  ensureCanonical().href = 'https://hardgainermacros.com/calcular-alimento';
+  removeFoodSchema();
 
   const foodsList = Object.entries(FOODS);
 
@@ -213,21 +280,20 @@ export function renderCalcularAlimentoItemPage(mount) {
   const food = FOODS[id];
 
   if (!food) {
+    document.title = 'Alimento não encontrado | Hardgainer Macros';
+    setMetaDescription('O alimento pesquisado não foi encontrado. Volte para a calculadora de alimentos e consulte calorias e macronutrientes de outros itens.');
+    ensureCanonical().href = 'https://hardgainermacros.com/calcular-alimento';
+    removeFoodSchema();
     mount.innerHTML = '<div class="container"><div class="legal-page"><a href="/calcular-alimento" data-route class="blog-back">← Ver todos os alimentos</a><h1>Alimento não encontrado</h1></div></div>';
     return;
   }
 
   const catDesc = CATEGORY_DESC[food.category] || '';
+  const seoContent = getFoodSeoContent(id);
+
   document.title = 'Calorias e Macros de ' + food.name + ' | Hardgainer Macros';
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) metaDesc.setAttribute('content', 'Descubra quantas calorias, proteína, carboidratos e gordura tem ' + food.name + ' por 100g. Calcule para qualquer quantidade.');
-  let canonical = document.querySelector('link[rel="canonical"]');
-  if (!canonical) {
-    canonical = document.createElement('link');
-    canonical.rel = 'canonical';
-    document.head.appendChild(canonical);
-  }
-  canonical.href = 'https://hardgainermacros.com/calcular-alimento/' + slug;
+  setMetaDescription(seoContent?.metaDescription || ('Descubra quantas calorias, proteína, carboidratos e gordura tem ' + food.name + ' por 100g. Calcule para qualquer quantidade.'));
+  ensureCanonical().href = 'https://hardgainermacros.com/calcular-alimento/' + slug;
 
   let schema = document.getElementById('schema-food');
   if (!schema) {
@@ -296,11 +362,7 @@ export function renderCalcularAlimentoItemPage(mount) {
             </tbody>
           </table>
         </div>
-        <div class="calc-alimento-info-block">
-          <h2>${escapeHtml(food.name)} para Hardgainers</h2>
-          <p>${escapeHtml(food.name)} é uma ${escapeHtml(catDesc)}. Para hardgainers e ectomorfos que precisam aumentar o aporte calórico, este alimento pode ser uma excelente opção para atingir o superávit calórico diário necessário para ganhar massa muscular.</p>
-          <a href="/" data-route class="blog-cta-btn" style="display:inline-block;margin-top:16px">Calcular os meus macros grátis →</a>
-        </div>
+        ${seoContent ? renderFoodSeoSection(id, food, seoContent) : renderLegacyFoodInfoBlock(food, catDesc)}
         ${substitutes.length ? '<div class="calc-alimento-info-block"><h2>Alternativas a ' + escapeHtml(food.name) + '</h2><div class="calc-alimento-grid">' +
           substitutes.map(item => renderFoodCard(item.id, item.food)).join('') +
           '</div></div>' : ''}
