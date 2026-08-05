@@ -20,6 +20,11 @@ const PILOT_SNAPSHOTS = {
     intro: 'A proteína whey é uma opção prática para aumentar a ingestão proteica quando a rotina não permite depender apenas de refeições sólidas. Para hardgainers, isso pode facilitar a distribuição de proteína ao longo do dia, especialmente em horários de pressa, lanches mais leves ou shakes montados com outras fontes de energia.',
     pairingIds: ['banana_prata', 'aveia_flocos', 'leite_integral'],
   },
+  skyr: {
+    metaDescription: 'Confira as calorias e os macronutrientes do skyr natural por 100g, ajuste a porção e veja como usar esse laticínio em lanches e combinações práticas.',
+    intro: 'O skyr natural é uma alternativa prática quando a meta é incluir proteína em lanches, cafés da manhã ou combinações frias sem recorrer sempre a carnes, ovos ou suplementos. Para hardgainers, isso ajuda a variar o plano e a manter uma distribuição proteica mais estável em momentos do dia em que a refeição precisa ser rápida.',
+    pairingIds: ['banana_prata', 'aveia_flocos', 'mel'],
+  },
 };
 
 async function loadFoodSeoModule() {
@@ -235,26 +240,33 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test('CA-SEO-6 - todos os alimentos protein possuem cobertura individual com metas e links válidos', async () => {
+  test('CA-SEO-6 - todos os alimentos protein e dairy possuem cobertura individual com metas e links válidos', async () => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
     const { FOODS } = await loadFoodsModule();
 
     const proteinIds = Object.entries(FOODS)
       .filter(([, food]) => food.category === 'protein')
       .map(([foodId]) => foodId);
+    const dairyIds = Object.entries(FOODS)
+      .filter(([, food]) => food.category === 'dairy')
+      .map(([foodId]) => foodId);
 
     expect(proteinIds).toHaveLength(23);
+    expect(dairyIds).toHaveLength(11);
 
     const missingProteinIds = proteinIds.filter((foodId) => !FOOD_SEO_CONTENT[foodId]);
+    const missingDairyIds = dairyIds.filter((foodId) => !FOOD_SEO_CONTENT[foodId]);
     expect(missingProteinIds).toEqual([]);
+    expect(missingDairyIds).toEqual([]);
 
     const requiredFields = ['metaDescription', 'intro', 'macroContext', 'bestUse', 'pairingHeading', 'pairingText'];
     const invalidEntries = [];
     const invalidPairings = [];
     const selfPairings = [];
     const duplicatedPairings = [];
+    const coveredIds = [...proteinIds, ...dairyIds];
 
-    for (const foodId of proteinIds) {
+    for (const foodId of coveredIds) {
       const entry = FOOD_SEO_CONTENT[foodId];
       const missingFields = requiredFields.filter((field) => !normalize(entry?.[field]));
       if (missingFields.length) invalidEntries.push({ foodId, missingFields });
@@ -291,7 +303,7 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     expect(duplicates).toEqual([]);
   });
 
-  test('CA-SEO-7 - páginas representativas de protein preservam cálculo, CTA, schema e conteúdo específico', async ({ page }) => {
+  test('CA-SEO-7 - páginas representativas de dairy preservam cálculo, CTA, schema e conteúdo específico', async ({ page }) => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
     const { FOODS } = await loadFoodsModule();
     const pageErrors = [];
@@ -301,7 +313,7 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
 
-    for (const foodId of ['carne_moida', 'peixe_tilapia', 'atum_agua', 'caseina']) {
+    for (const foodId of ['leite_integral', 'iogurte_grego', 'queijo_cottage', 'leite_po']) {
       const slug = foodId.replace(/_/g, '-');
       const food = FOODS[foodId];
       const content = FOOD_SEO_CONTENT[foodId];
@@ -331,7 +343,7 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test('CA-SEO-8 - conteúdos piloto de clara_ovo e whey permanecem inalterados', async () => {
+  test('CA-SEO-8 - conteúdos preservados de clara_ovo, whey e skyr permanecem inalterados', async () => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
 
     expect(FOOD_SEO_CONTENT.clara_ovo.metaDescription).toBe(PILOT_SNAPSHOTS.clara_ovo.metaDescription);
@@ -341,14 +353,23 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     expect(FOOD_SEO_CONTENT.whey.metaDescription).toBe(PILOT_SNAPSHOTS.whey.metaDescription);
     expect(FOOD_SEO_CONTENT.whey.intro).toBe(PILOT_SNAPSHOTS.whey.intro);
     expect(FOOD_SEO_CONTENT.whey.pairingIds).toEqual(PILOT_SNAPSHOTS.whey.pairingIds);
+
+    expect(FOOD_SEO_CONTENT.skyr.metaDescription).toBe(PILOT_SNAPSHOTS.skyr.metaDescription);
+    expect(FOOD_SEO_CONTENT.skyr.intro).toBe(PILOT_SNAPSHOTS.skyr.intro);
+    expect(FOOD_SEO_CONTENT.skyr.pairingIds).toEqual(PILOT_SNAPSHOTS.skyr.pairingIds);
   });
 
-  test('CA-SEO-9 - fallback legado continua ativo fora da categoria protein expandida', async ({ page }) => {
-    for (const [slug, heading] of [
-      ['iogurte-grego', 'Iogurte grego natural para Hardgainers'],
-      ['arroz-basmati-cozido', 'Arroz basmati cozido para Hardgainers'],
-      ['pasta-amendoim', 'Pasta de amendoim para Hardgainers'],
+  test('CA-SEO-9 - fallback legado continua ativo fora das categorias protein e dairy cobertas', async ({ page }) => {
+    const { FOODS } = await loadFoodsModule();
+
+    for (const slug of [
+      'arroz-basmati-cozido',
+      'pasta-amendoim',
+      'maca',
+      'mel',
     ]) {
+      const foodId = slug.replace(/-/g, '_');
+      const heading = `${FOODS[foodId].name} para Hardgainers`;
       await gotoCalcItem(page, slug);
       await expect(page.locator('[data-testid="food-seo-content"]')).toHaveCount(0);
       await expect(page.locator('.calc-alimento-info-block h2').nth(1)).toHaveText(heading);
@@ -358,7 +379,7 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     }
   });
 
-  test('CA-SEO-10 - mobile 390px em novo alimento protein mantém conteúdo legível e sem overflow', async ({ page }) => {
+  test('CA-SEO-10 - mobile 390px em novo alimento dairy mantém conteúdo legível e sem overflow', async ({ page }) => {
     const pageErrors = [];
     const consoleErrors = [];
     page.on('pageerror', (err) => pageErrors.push(err.message));
@@ -367,11 +388,11 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     });
 
     await page.setViewportSize(MOBILE_390);
-    await gotoCalcItem(page, 'atum-agua');
+    await gotoCalcItem(page, 'iogurte-grego');
     await expect(page.locator('[data-testid="food-seo-content"]')).toBeVisible();
     await expect(page.locator('[data-testid="food-seo-cta"] .blog-cta-btn')).toBeVisible();
     await expect(page.locator('[data-testid="food-seo-content"] a[href^="/calcular-alimento/"]')).toHaveCount(3);
-    await expect(page.locator('.calc-alimento-info-block h2').filter({ hasText: 'Alternativas a Atum em água' })).toHaveCount(1);
+    await expect(page.locator('.calc-alimento-info-block h2').filter({ hasText: 'Alternativas a Iogurte grego natural' })).toHaveCount(1);
 
     let scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(scrollWidth).toBeLessThanOrEqual(390);
