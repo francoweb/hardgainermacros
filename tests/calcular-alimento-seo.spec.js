@@ -71,6 +71,13 @@ function normalize(text) {
   return String(text || '').replace(/\s+/g, ' ').trim();
 }
 
+function normalizeForTermAudit(text) {
+  return normalize(text)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
 test.describe('Calcular alimento - SEO editorial individual', () => {
   test('CA-SEO-1 - clara de ovo preserva calculo, tabela, schema e novo bloco editorial', async ({ page }) => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
@@ -264,6 +271,19 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     const invalidPairings = [];
     const selfPairings = [];
     const duplicatedPairings = [];
+    const forbiddenDairyTerms = ['vitamina', 'vitaminas', 'vitaminico', 'vitaminica', 'vitaminicos', 'vitaminicas'];
+    const newDairyIds = [
+      'leite_integral',
+      'leite_lactose_free',
+      'bebida_aveia',
+      'bebida_amendoa',
+      'iogurte_natural',
+      'iogurte_grego',
+      'leite_po',
+      'queijo_cottage',
+      'queijo_parmesao',
+      'ricotta',
+    ];
     const coveredIds = [...proteinIds, ...dairyIds];
 
     for (const foodId of coveredIds) {
@@ -301,6 +321,17 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
       paragraphs.findIndex((candidate) => candidate.text === paragraph.text) !== index
     );
     expect(duplicates).toEqual([]);
+
+    for (const foodId of newDairyIds) {
+      const entry = FOOD_SEO_CONTENT[foodId];
+      for (const field of requiredFields) {
+        const auditedText = normalizeForTermAudit(entry[field]);
+        for (const term of forbiddenDairyTerms) {
+          const pattern = new RegExp(`\\b${term}\\b`, 'i');
+          expect(pattern.test(auditedText), `${foodId}.${field} contém termo proibido: ${term}`).toBe(false);
+        }
+      }
+    }
   });
 
   test('CA-SEO-7 - páginas representativas de dairy preservam cálculo, CTA, schema e conteúdo específico', async ({ page }) => {
