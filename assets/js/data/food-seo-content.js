@@ -1,904 +1,1304 @@
 export const FOOD_SEO_CONTENT = {
-  clara_ovo: {
-    metaDescription: 'Veja as calorias e os macronutrientes da clara de ovo por 100g, ajuste a quantidade e entenda como usar essa fonte proteica nas refeições.',
-    intro: 'A clara de ovo é uma forma direta de elevar a proteína da refeição sem aumentar muito as calorias vindas de gordura ou carboidratos. Para hardgainers, isso ajuda a ajustar o total proteico do dia com mais precisão quando o restante do prato já está carregado de arroz, frutas, pães ou outras fontes de energia.',
-    macroContext: 'Como os valores da base mostram um alimento muito concentrado em proteína para cada 100g, a clara funciona bem quando o objetivo é reforçar a estrutura de uma omelete, de um café da manhã salgado ou de uma refeição pós-treino sem transformar tudo em um prato pesado. Ela também facilita o controle da porção porque pode ser aumentada em pequenas etapas.',
-    bestUse: 'Na prática, costuma encaixar melhor em refeições sólidas e preparações simples. Sozinha, porém, não entrega um perfil completo para montar a refeição inteira, então faz mais sentido combiná-la com fontes de carboidratos, alguma gordura e alimentos que deixem o prato mais saciante.',
-    pairingHeading: 'O que combinar com clara de ovo',
-    pairingText: 'Para deixar a refeição mais completa, a clara de ovo conversa bem com uma base de carboidratos fácil de medir e com uma fonte de gordura usada em pequena quantidade.',
-    pairingIds: ['arroz_branco_cozido', 'aveia_flocos', 'azeite'],
-  },
-  ovo_inteiro: {
-    metaDescription: 'Consulte as calorias e os macronutrientes do ovo inteiro por 100g, compare a porção e veja como encaixar esse alimento em refeições mais completas.',
-    intro: 'O ovo inteiro reúne proteína e gordura no mesmo alimento, o que faz dele uma opção prática para montar refeições sólidas com mais densidade nutricional. Para hardgainers, isso costuma ser útil quando a meta não é só bater proteína, mas também construir pratos que sustentem melhor o total de calorias ao longo do dia.',
-    macroContext: 'Em comparação com a clara de ovo, o perfil do ovo inteiro já traz mais gordura e, por isso, muda o impacto da porção final. Essa diferença é relevante na organização dos macros porque duas refeições com ovos podem ter a mesma base proteica e, ainda assim, entregar totais calóricos bem diferentes dependendo da quantidade usada.',
-    bestUse: 'No dia a dia, o ovo inteiro funciona bem no café da manhã, em refeições rápidas e em combinações com pães, arroz, aveia ou vegetais. Como a base já oferece proteína e gordura juntas, ele pode simplificar a montagem do prato quando você quer praticidade sem depender apenas de suplementos.',
-    pairingHeading: 'Como combinar ovo inteiro',
-    pairingText: 'Quando a ideia é transformar o ovo em uma refeição mais estável, vale combiná-lo com carboidratos de uso comum e com uma proteína sólida em outros momentos do dia para equilibrar a distribuição dos macros.',
-    pairingIds: ['pao_forma', 'banana_prata', 'peito_frango'],
-  },
-  peito_frango: {
-    metaDescription: 'Confira as calorias e os macronutrientes do peito de frango grelhado por 100g e veja como usar essa proteína em refeições principais do dia.',
-    intro: 'O peito de frango grelhado é uma referência prática quando a meta é organizar refeições com bastante proteína e pouca interferência de carboidratos. Para hardgainers, isso facilita a montagem de pratos em que o aumento das calorias pode ser controlado separadamente com arroz, massas, azeite ou outras fontes energéticas.',
-    macroContext: 'Como os números da base mostram um alimento predominantemente proteico, ele funciona bem como eixo central da refeição principal. Isso ajuda quando você quer manter previsibilidade: a proteína vem do frango, os carboidratos entram por outra fonte e a gordura pode ser ajustada conforme a necessidade da refeição ou do dia.',
-    bestUse: 'Na prática, costuma encaixar melhor em almoço e jantar, mas também pode aparecer em wraps, sanduíches ou marmitas. A preparação e a porção escolhida mudam o total da refeição, então o valor por 100g vira uma boa referência para comparar versões mais enxutas ou mais calóricas do mesmo prato.',
-    pairingHeading: 'O que combinar com peito de frango',
-    pairingText: 'Para transformar o frango em uma refeição completa, a combinação mais natural é usar um carboidrato principal, um reforço calórico medido e um acompanhamento que ajude a variar textura e volume.',
-    pairingIds: ['arroz_branco_cozido', 'azeite', 'lentilha_cozida'],
-  },
-  arroz_branco_cozido: {
-    metaDescription: 'Descubra as calorias e os macronutrientes do arroz branco cozido por 100g, ajuste a porção e entenda como ele entra em refeições para hardgainers.',
-    intro: 'O arroz branco cozido é uma das formas mais previsíveis de aumentar carboidratos em refeições sólidas. Para hardgainers, isso é valioso porque a porção pode subir ou descer com facilidade, permitindo ajustar o total energético sem precisar mexer tanto na fonte principal de proteína.',
-    macroContext: 'O perfil nutricional desta base mostra um alimento centrado em carboidratos, com pequenas quantidades de proteína e gordura. Na prática, isso faz do arroz um componente de apoio: ele não costuma resolver a refeição sozinho, mas define grande parte do volume energético quando é combinado com carnes, ovos, leguminosas ou gorduras adicionadas.',
-    bestUse: 'Como a porção é simples de medir por colher ou xícara, o arroz funciona bem em almoço, jantar e marmitas. Também é um bom ponto de partida para comparar refeições mais leves e mais densas, já que pequenos ajustes de quantidade mudam bastante o total de carboidratos do prato.',
-    pairingHeading: 'Como combinar arroz branco',
-    pairingText: 'Quando o objetivo é montar uma refeição mais completa, o arroz costuma funcionar melhor ao lado de uma proteína principal e de um complemento que aumente a densidade calórica sem complicar a preparação.',
-    pairingIds: ['peito_frango', 'azeite', 'lentilha_cozida'],
-  },
-  aveia_flocos: {
-    metaDescription: 'Veja as calorias e os macronutrientes da aveia em flocos por 100g, ajuste a porção e entenda como usá-la em lanches, cafés da manhã e shakes.',
-    intro: 'A aveia em flocos é um alimento versátil para quem precisa organizar carboidratos em preparações fáceis de repetir. Para hardgainers, ela ajuda a construir refeições e lanches com mais sustância, especialmente quando o plano pede opções práticas entre as refeições principais.',
-    macroContext: 'Os dados da base mostram que a aveia não entrega só carboidratos: há também alguma proteína e gordura na composição. Isso torna o alimento mais completo do que uma fonte puramente amilácea, mas ainda assim o seu papel costuma ser complementar, entrando para dar corpo, energia e flexibilidade a mingaus, bowls, vitaminas e misturas com iogurte.',
-    bestUse: 'No uso diário, a aveia combina bem com refeições rápidas, cafés da manhã e shakes em que a textura precisa ser mais consistente. A porção merece atenção porque o valor por 100g sobe rápido, o que é útil para aumentar calorias, mas também pede ajuste consciente quando a refeição já tem outras fontes energéticas.',
-    pairingHeading: 'O que combinar com aveia',
-    pairingText: 'A aveia costuma render melhor quando entra com uma fruta prática, uma fonte proteica fácil de usar e uma gordura em pequena quantidade para completar o perfil da refeição.',
-    pairingIds: ['banana_prata', 'skyr', 'pasta_amendoim'],
-  },
-  banana_prata: {
-    metaDescription: 'Consulte as calorias e os macronutrientes da banana por 100g, compare porções e veja como essa fruta pode entrar em refeições e shakes do dia.',
-    intro: 'A banana madura é uma fruta prática para aumentar carboidratos sem complicar a montagem da refeição. Para hardgainers, isso faz diferença porque ela cabe tanto em lanches rápidos quanto em shakes e cafés da manhã, ajudando a elevar o total energético com uma porção simples de ajustar.',
-    macroContext: 'Na base nutricional atual, a banana aparece principalmente como fonte de carboidratos, com baixa gordura e pouca proteína. Esse perfil deixa claro o seu papel: ela funciona melhor como complemento energético, não como centro da refeição. Em outras palavras, costuma entrar para somar calorias e melhorar a praticidade do plano.',
-    bestUse: 'No dia a dia, a banana é fácil de carregar, fácil de combinar e simples de repetir em horários apertados. Ela pode acompanhar laticínios, aveia, whey e pastas mais calóricas, funcionando tanto em refeições menores quanto em preparações mais densas quando o objetivo é ganhar previsibilidade nas calorias.',
-    pairingHeading: 'Como combinar banana',
-    pairingText: 'Quando você quer transformar a banana em algo mais completo, vale aproximá-la de uma fonte proteica e de um alimento mais denso para que o lanche ou shake não fique limitado só aos carboidratos da fruta.',
-    pairingIds: ['aveia_flocos', 'whey', 'pasta_amendoim'],
-  },
-  azeite: {
-    metaDescription: 'Confira as calorias e os macronutrientes do azeite por 100g e veja como pequenas quantidades ajudam a ajustar refeições com mais densidade calórica.',
-    intro: 'O azeite de oliva é uma ferramenta de ajuste calórico, não um prato por si só. Para hardgainers, isso é útil porque pequenas quantidades já alteram o total energético da refeição de forma perceptível, sem exigir aumento grande no volume do prato.',
-    macroContext: 'Como a base mostra um alimento praticamente composto por gordura, o azeite funciona melhor quando a necessidade é reforçar calorias de refeições que já têm proteína e carboidratos definidos. Em vez de mudar toda a estrutura do prato, ele permite refinar o total com uma colher de chá ou de sopa, conforme a estratégia do dia.',
-    bestUse: 'Na prática, costuma entrar em refeições sólidas, finalizações e preparações simples. O ponto importante é o controle da medida: justamente por ser muito concentrado em calorias, o azeite faz mais sentido quando é usado de forma deliberada para complementar arroz, carnes, saladas, legumes ou bowls salgados.',
-    pairingHeading: 'O que combinar com azeite',
-    pairingText: 'O uso mais natural do azeite aparece quando ele complementa uma base sólida já pronta, acrescentando calorias a proteínas magras e carboidratos que suportam bem esse reforço.',
-    pairingIds: ['peito_frango', 'arroz_branco_cozido', 'salada_mista'],
-  },
-  whey: {
-    metaDescription: 'Veja as calorias e os macronutrientes da proteína whey por 100g, ajuste a quantidade e entenda como usar esse suplemento no seu planejamento.',
-    intro: 'A proteína whey é uma opção prática para aumentar a ingestão proteica quando a rotina não permite depender apenas de refeições sólidas. Para hardgainers, isso pode facilitar a distribuição de proteína ao longo do dia, especialmente em horários de pressa, lanches mais leves ou shakes montados com outras fontes de energia.',
-    macroContext: 'Os valores da base mostram um alimento muito concentrado em proteína, com alguma presença de carboidratos e gordura conforme o produto cadastrado. Isso significa que o whey não precisa ser tratado como substituto automático da comida sólida, mas sim como uma peça funcional para completar a organização dos macros quando o contexto pede rapidez e consistência.',
-    bestUse: 'Na prática, ele costuma render melhor em shakes, lanches líquidos e combinações com frutas, leite, aveia ou outras fontes calóricas. O mais útil é pensar no whey como apoio: ele resolve proteína com facilidade, mas o total da refeição ainda depende do que entra junto para formar calorias e saciedade adequadas.',
-    pairingHeading: 'Como combinar proteína whey',
-    pairingText: 'Para montar um shake mais completo, o whey normalmente funciona melhor ao lado de uma fruta simples, de um carboidrato fácil de medir e de um laticínio ou líquido que encaixe bem na rotina.',
-    pairingIds: ['banana_prata', 'aveia_flocos', 'leite_integral'],
-  },
-  lentilha_cozida: {
-    metaDescription: 'Descubra as calorias e os macronutrientes da lentilha cozida por 100g e veja como usar esse alimento em refeições sólidas mais equilibradas.',
-    intro: 'A lentilha cozida ocupa um espaço interessante para hardgainers porque entrega carboidratos e proteína no mesmo alimento, sem deixar de ser uma opção tipicamente usada em refeições sólidas. Isso faz dela um complemento útil para pratos que precisam ganhar estrutura sem depender apenas de arroz ou massas.',
-    macroContext: 'Os dados atuais mostram um perfil misto, com predominância de carboidratos e um reforço proteico que ajuda a compor a refeição. Como a digestibilidade cadastrada é intermediária, a lentilha tende a funcionar melhor quando a porção é pensada dentro do contexto do prato inteiro, e não apenas somada sem critério a outras fontes mais pesadas.',
-    bestUse: 'Na prática, ela costuma encaixar melhor em almoço e jantar, principalmente ao lado de cereais, proteínas animais ou vegetais e algum ajuste de gordura. O valor por 100g ajuda a comparar melhor a lentilha com feijão, arroz ou outras bases do prato, facilitando escolhas conforme volume, rotina e distribuição de macros.',
-    pairingHeading: 'O que combinar com lentilha cozida',
-    pairingText: 'Para que a lentilha participe de uma refeição mais completa, costuma valer a pena associá-la a um cereal simples e a uma proteína principal que mantenha a estrutura do prato clara e fácil de repetir.',
-    pairingIds: ['arroz_branco_cozido', 'peito_frango', 'azeite'],
-  },
-  skyr: {
-    metaDescription: 'Confira as calorias e os macronutrientes do skyr natural por 100g, ajuste a porção e veja como usar esse laticínio em lanches e combinações práticas.',
-    intro: 'O skyr natural é uma alternativa prática quando a meta é incluir proteína em lanches, cafés da manhã ou combinações frias sem recorrer sempre a carnes, ovos ou suplementos. Para hardgainers, isso ajuda a variar o plano e a manter uma distribuição proteica mais estável em momentos do dia em que a refeição precisa ser rápida.',
-    macroContext: 'Pelos valores da base, o skyr apresenta um perfil mais voltado para proteína, com baixo teor de gordura e carboidratos moderados. Esse desenho nutricional faz dele um alimento útil para composições que pedem controle de porção e facilidade de uso, especialmente quando você quer somar proteína sem tornar o lanche excessivamente pesado.',
-    bestUse: 'No uso diário, ele combina bem com frutas, aveia, granola ou mel, funcionando tanto como base de um lanche quanto como complemento de uma refeição menor. Em vez de tratá-lo como solução isolada, o mais produtivo é pensar no skyr como uma peça versátil que recebe outros alimentos conforme a necessidade de calorias e textura.',
-    pairingHeading: 'Como combinar skyr natural',
-    pairingText: 'Para transformar o skyr em uma refeição mais completa, a combinação mais natural é usar uma fruta, um carboidrato de apoio e um complemento energético que aumente o total sem perder praticidade.',
-    pairingIds: ['banana_prata', 'aveia_flocos', 'mel'],
-  },
-  carne_moida: {
-    metaDescription: 'Consulte as calorias e os macronutrientes da carne moída por 100g, ajuste a porção e veja como usar essa proteína em refeições mais densas do dia.',
-    intro: 'A carne moída costuma ser uma das proteínas mais fáceis de encaixar na rotina porque aceita porções variadas, combina com várias bases e muda pouco de estrutura quando vai para marmitas, bowls ou recheios. Para hardgainers, isso ajuda a repetir refeições com mais consistência, sem depender sempre dos mesmos cortes ou da mesma textura no prato.',
-    macroContext: 'Os dados da base mostram um alimento fortemente proteico, mas com gordura suficiente para elevar a densidade calórica da refeição em comparação com carnes mais magras. Essa diferença importa na prática: a carne moída pode simplificar o ajuste do total energético quando você quer um prato mais robusto sem precisar acrescentar tanto volume de comida.',
-    bestUse: 'No dia a dia, costuma funcionar bem em almoço, jantar, wraps e preparações misturadas com arroz, legumes ou tubérculos. O valor por 100g é útil justamente para comparar versões mais enxutas e versões mais reforçadas do mesmo prato, já que o alimento pode ocupar tanto o centro da refeição quanto o papel de recheio ou complemento proteico.',
-    pairingHeading: 'O que combinar com carne moída',
-    pairingText: 'Quando a ideia é transformar a carne moída em uma refeição mais completa, faz sentido aproximá-la de um carboidrato simples de medir e de um reforço calórico controlado para não depender apenas do tamanho da porção proteica.',
-    pairingIds: ['arroz_basmati_cozido', 'mandioca_cozida', 'azeite'],
-  },
-  peixe_tilapia: {
-    metaDescription: 'Veja as calorias e os macronutrientes da tilápia cozida por 100g, ajuste a quantidade e entenda como incluir esse peixe em refeições práticas.',
-    intro: 'A tilápia cozida é uma proteína de perfil enxuto, útil para quem quer organizar refeições principais com bastante previsibilidade. Para hardgainers, isso pode ser interessante nos dias em que a estratégia é controlar melhor a gordura do prato e deixar que o aumento das calorias venha do arroz, da mandioca, do azeite ou de outro acompanhamento medido separadamente.',
-    macroContext: 'Pelos valores da base, a tilápia concentra proteína com pouca gordura e praticamente nenhum carboidrato. Isso faz dela uma peça bem linear na montagem da refeição: a proteína fica resolvida com facilidade, enquanto o restante dos macros pode ser distribuído conforme a necessidade do dia, sem que o peixe altere tanto a leitura calórica da combinação.',
-    bestUse: 'Na prática, a tilápia costuma render melhor em almoço, jantar e marmitas mais diretas, especialmente quando você quer um prato leve na sensação, mas ainda funcional para bater proteína. O valor por 100g ajuda a aumentar ou reduzir a porção sem complicar a conta, o que é útil quando a refeição já tem outros elementos mais energéticos ao redor.',
-    pairingHeading: 'Como combinar tilápia cozida',
-    pairingText: 'Para evitar que a refeição fique proteica demais e pouco energética, a tilápia costuma funcionar melhor ao lado de um carboidrato principal e de um complemento simples que ajuste as calorias sem pesar o volume total do prato.',
-    pairingIds: ['arroz_branco_cozido', 'quinoa_cozida', 'azeite'],
-  },
-  peixe_pescada: {
-    metaDescription: 'Confira as calorias e os macronutrientes da pescada cozida por 100g, ajuste a porção e veja como usar esse peixe em refeições do dia.',
-    intro: 'A pescada cozida é uma opção proteica muito direta para quem prefere peixes mais leves e com sabor neutro no planejamento alimentar. Para hardgainers, ela pode ser útil quando a proteína principal precisa ser fácil de repetir e combinar com bases energéticas diferentes, sem roubar espaço de carboidratos ou tornar a refeição excessivamente pesada.',
-    macroContext: 'Os números da base mostram uma proteína com baixa gordura e sem contribuição relevante de carboidratos. Em termos práticos, isso aproxima a pescada de um papel semelhante ao de outras proteínas magras: ela resolve a estrutura proteica do prato, enquanto a densidade calórica passa a depender mais da base escolhida e dos complementos adicionados na refeição.',
-    bestUse: 'No uso diário, a pescada tende a encaixar melhor em almoços, jantares e pratos simples de marmita. O valor por 100g serve como boa referência para controlar a quantidade quando a refeição já traz arroz, tubérculos ou azeite, evitando que a proteína fique superdimensionada enquanto o restante dos macros continua abaixo do planejado.',
-    pairingHeading: 'O que combinar com pescada cozida',
-    pairingText: 'Quando a pescada entra como proteína central, costuma valer a pena juntá-la a uma base de carboidrato clara e a um ajuste calórico discreto para que o prato fique mais completo sem perder praticidade.',
-    pairingIds: ['arroz_basmati_cozido', 'mandioca_cozida', 'azeite'],
-  },
-  peixe_salmao: {
-    metaDescription: 'Descubra as calorias e os macronutrientes do salmão cozido por 100g, ajuste a porção e entenda como usar esse peixe em refeições mais calóricas.',
-    intro: 'O salmão cozido ocupa um espaço diferente dentro das proteínas porque já entrega gordura relevante junto com a porção proteica. Para hardgainers, isso pode facilitar refeições com mais densidade calórica sem exigir tantas adições extras, o que é útil quando o objetivo é subir calorias do dia com pratos sólidos que não dependam apenas de óleo, molhos ou grandes volumes de carboidrato.',
-    macroContext: 'Os dados da base mostram um alimento com boa concentração de proteína e gordura perceptível por 100g. Essa combinação muda o papel do salmão no prato: ele não funciona apenas como proteína principal, mas também como parte importante da energia total da refeição, o que pede leitura mais atenta da porção quando a base escolhida já é mais calórica.',
-    bestUse: 'Na prática, costuma encaixar melhor em almoço e jantar, principalmente com arroz, quinoa ou vegetais mais neutros. O valor por 100g ajuda a decidir se a refeição precisa de um complemento de gordura ou se o próprio peixe já cumpre essa função, deixando o ajuste restante concentrado na quantidade de carboidrato usada ao lado.',
-    pairingHeading: 'Como combinar salmão cozido',
-    pairingText: 'Para montar um prato mais equilibrado com salmão, normalmente faz sentido usar uma base de carboidratos que aceite bem a gordura natural do peixe e um acompanhamento que mantenha a refeição organizada sem exagerar no volume.',
-    pairingIds: ['arroz_jasmine_cozido', 'quinoa_cozida', 'salada_mista'],
-  },
-  atum_agua: {
-    metaDescription: 'Consulte as calorias e os macronutrientes do atum em água por 100g, ajuste a quantidade e veja como encaixar essa proteína pronta nas refeições.',
-    intro: 'O atum em água é uma das proteínas mais práticas para quem precisa de rapidez, porque já chega pronto para uso e pode entrar em lanches, bowls, sanduíches ou refeições frias com pouca preparação. Para hardgainers, isso ajuda a manter a ingestão proteica sob controle mesmo em dias corridos, quando cozinhar uma fonte proteica do zero não é a opção mais viável.',
-    macroContext: 'Pelos valores da base, trata-se de uma proteína concentrada, com gordura baixa e ausência relevante de carboidratos. Isso deixa o papel do atum bem claro: ele resolve a parte proteica sem aumentar tanto a energia do prato, então o restante das calorias normalmente precisa vir da base de carboidratos, de laticínios, pães ou ajustes de gordura feitos ao redor.',
-    bestUse: 'No dia a dia, o atum em água costuma funcionar melhor em refeições rápidas, lanches maiores e montagens em que a praticidade pesa mais do que o ritual de cozinhar. O valor por 100g também facilita o ajuste da porção em preparações frias, evitando a impressão de que a lata inteira sempre precisa virar uma refeição completa por conta própria.',
-    pairingHeading: 'O que combinar com atum em água',
-    pairingText: 'Para que o atum em água deixe de ser apenas uma proteína isolada, costuma ajudar aproximá-lo de um carboidrato fácil de repetir e de um complemento que melhore a densidade total da refeição sem complicar a rotina.',
-    pairingIds: ['pao_forma', 'arroz_integral_cozido', 'azeite'],
-  },
-  coxa_frango: {
-    metaDescription: 'Veja as calorias e os macronutrientes da coxa de frango sem pele por 100g, ajuste a porção e entenda como usar essa proteína nas refeições.',
-    intro: 'A coxa de frango sem pele grelhada costuma agradar quem procura uma proteína mais suculenta do que o peito, mas ainda previsível o suficiente para entrar no planejamento alimentar. Para hardgainers, ela pode ajudar a deixar as refeições mais satisfatórias sem exigir mudanças grandes na estrutura do prato, o que facilita a repetição ao longo da semana.',
-    macroContext: 'Os valores da base mostram um alimento proteico com gordura um pouco mais alta do que cortes mais magros. Na prática, isso significa que a coxa de frango entrega mais densidade calórica por 100g e pode reduzir a necessidade de reforços extras em alguns pratos, embora ainda dependa de uma base de carboidrato clara para completar a refeição de forma equilibrada.',
-    bestUse: 'No uso diário, costuma encaixar melhor em almoço, jantar e marmitas em que a refeição precisa ser mais confortável de comer. O valor por 100g ajuda a calibrar a quantidade conforme o resto do prato, especialmente quando a refeição já tem arroz, mandioca ou outro acompanhamento energético que também participa do total calórico.',
-    pairingHeading: 'Como combinar coxa de frango',
-    pairingText: 'Para que a coxa de frango participe de uma refeição completa sem perder praticidade, vale combiná-la com um carboidrato de fácil medição e com um ajuste calórico que complemente o prato sem deixar tudo dependente da proteína.',
-    pairingIds: ['arroz_branco_cozido', 'mandioca_cozida', 'azeite'],
-  },
-  peito_peru: {
-    metaDescription: 'Confira as calorias e os macronutrientes do peito de peru grelhado por 100g, ajuste a porção e veja como usar essa proteína em refeições leves.',
-    intro: 'O peito de peru grelhado é uma proteína bastante enxuta, útil para refeições em que você quer priorizar proteína alta com pouca interferência de gordura. Para hardgainers, isso pode ser interessante nos momentos em que o total energético será controlado por wraps, arroz, pães ou outros acompanhamentos mais fáceis de ampliar, sem que a proteína mude muito o perfil calórico do prato.',
-    macroContext: 'Os dados da base mostram um alimento muito concentrado em proteína e com gordura baixa. Em termos práticos, o peito de peru funciona como uma base proteica bastante previsível, parecida com outras carnes magras, mas com espaço bom para lanches salgados, sanduíches e montagens rápidas em que o corte do alimento ajuda a distribuir melhor a porção pela refeição.',
-    bestUse: 'Na rotina, ele costuma render bem em almoços mais enxutos, wraps, sanduíches e pratos que precisam de praticidade. O valor por 100g ajuda a aumentar ou reduzir a porção sem bagunçar a leitura do restante dos macros, o que é útil quando a refeição principal ainda vai receber um carboidrato maior ou um complemento energético separado.',
-    pairingHeading: 'O que combinar com peito de peru',
-    pairingText: 'Quando o peito de peru entra como proteína principal, a combinação mais eficiente costuma vir de um carboidrato claro e de um complemento simples que deixe a refeição mais completa sem depender de grandes volumes.',
-    pairingIds: ['wrap_tortilha', 'arroz_basmati_cozido', 'azeite'],
-  },
-  alcatra_grelhada: {
-    metaDescription: 'Consulte as calorias e os macronutrientes da alcatra grelhada por 100g, ajuste a quantidade e veja como usar essa carne magra no planejamento.',
-    intro: 'A alcatra grelhada ocupa um espaço útil para quem quer carne bovina mais enxuta dentro do plano, sem abrir mão de uma refeição sólida e reconhecível. Para hardgainers, isso pode ser vantajoso porque a carne ajuda a variar o cardápio proteico e mantém boa densidade calórica, mas ainda permite que o ajuste maior da refeição fique por conta dos carboidratos e dos complementos.',
-    macroContext: 'Os valores da base mostram uma proteína alta com gordura moderada, acima de peixes e aves muito magras, mas abaixo de cortes bovinos mais pesados. Na prática, essa composição torna a alcatra uma opção intermediária: ela reforça a refeição de forma mais robusta do que proteínas muito secas, sem transformar automaticamente o prato em uma refeição excessivamente gordurosa.',
-    bestUse: 'No uso diário, a alcatra costuma funcionar melhor em almoço e jantar, especialmente quando você quer uma refeição mais consistente e saciante. O valor por 100g ajuda a comparar a carne com frango, peixe ou outras opções, deixando mais claro quando vale aumentar a porção e quando é melhor concentrar o reforço calórico em arroz, quinoa ou gordura adicionada.',
-    pairingHeading: 'Como combinar alcatra grelhada',
-    pairingText: 'Para transformar a alcatra em um prato mais equilibrado, normalmente faz sentido cercá-la de um carboidrato principal e de um ajuste calórico simples que complemente a refeição sem perder clareza na porção.',
-    pairingIds: ['arroz_integral_cozido', 'quinoa_cozida', 'azeite'],
-  },
-  camarao: {
-    metaDescription: 'Veja as calorias e os macronutrientes do camarão cozido por 100g, ajuste a porção e entenda como usar essa proteína leve nas refeições.',
-    intro: 'O camarão cozido é uma proteína enxuta e prática para variar o cardápio sem sair do eixo de refeições principais mais leves. Para hardgainers, ele pode funcionar bem quando a prioridade é manter proteína alta com pouca gordura e deixar o reforço de calorias concentrado na base de arroz, mandioca, azeite ou outros componentes que sejam mais fáceis de medir separadamente.',
-    macroContext: 'A base mostra um alimento muito proteico, com gordura baixa e carboidrato praticamente inexistente. Isso faz do camarão uma proteína clara em termos de função: ele entra para resolver proteína sem aumentar tanto a energia do prato, o que pede atenção aos acompanhamentos quando a meta do dia exige refeições mais densas.',
-    bestUse: 'Na prática, costuma render melhor em almoços, jantares e bowls em que a refeição precisa ter boa digestibilidade e preparo rápido. O valor por 100g ajuda a dosar a porção com precisão, o que é útil quando o camarão divide o espaço do prato com arroz, quinoa ou outra base energética que também precisa participar da conta final.',
-    pairingHeading: 'O que combinar com camarão cozido',
-    pairingText: 'Quando o camarão aparece como proteína principal, a refeição tende a funcionar melhor ao lado de um carboidrato nítido e de um complemento simples que aumente as calorias sem tirar a leveza do conjunto.',
-    pairingIds: ['arroz_jasmine_cozido', 'quinoa_cozida', 'azeite'],
-  },
-  bacalhau_fresco: {
-    metaDescription: 'Confira as calorias e os macronutrientes do bacalhau fresco por 100g, ajuste a porção e veja como incluir esse peixe nas refeições do dia.',
-    intro: 'O bacalhau fresco cozido é uma proteína de perfil enxuto e sabor marcante, útil para quem quer variar o cardápio sem sair da lógica de refeições sólidas com boa previsibilidade. Para hardgainers, ele pode ajudar a manter a estrutura proteica alta enquanto o reforço calórico é distribuído pelos acompanhamentos, algo especialmente útil quando a refeição precisa continuar leve na sensação.',
-    macroContext: 'Os valores da base mostram uma proteína alta com pouca gordura e ausência de carboidratos relevantes. Na prática, isso deixa o papel do bacalhau bastante objetivo: ele cumpre a função proteica do prato, mas depende de arroz, mandioca, azeite ou outros complementos para transformar a refeição em algo mais denso quando a meta calórica do dia pede mais energia.',
-    bestUse: 'No dia a dia, o bacalhau fresco costuma funcionar melhor em almoço e jantar, principalmente quando a refeição pede uma proteína mais magra e fácil de combinar. O valor por 100g facilita o ajuste fino da porção, o que é útil para não exagerar no volume do peixe enquanto a base energética da refeição continua bem dimensionada.',
-    pairingHeading: 'Como combinar bacalhau fresco',
-    pairingText: 'Para que o bacalhau fresco participe de uma refeição mais completa, costuma valer a pena juntá-lo a uma base de carboidratos fácil de repetir e a um complemento simples que deixe o prato mais consistente.',
-    pairingIds: ['arroz_basmati_cozido', 'mandioca_cozida', 'azeite'],
-  },
-  queijo_mussarela: {
-    metaDescription: 'Descubra as calorias e os macronutrientes da mussarela por 100g, ajuste a porção e veja como usar esse alimento proteico em lanches e pratos.',
-    intro: 'A mussarela entra no planejamento de forma diferente das carnes e peixes porque combina proteína com gordura em uma porção pequena e fácil de espalhar por lanches, sanduíches, wraps e pratos quentes. Para hardgainers, isso pode ser útil quando a refeição precisa ganhar densidade sem aumentar demais o volume, principalmente em montagens rápidas do dia a dia.',
-    macroContext: 'Os dados da base mostram um alimento com proteína relevante, mas também com gordura elevada em comparação com fontes mais magras. Na prática, isso faz da mussarela uma peça de apoio calórico e proteico ao mesmo tempo: ela não costuma funcionar como proteína isolada do prato, porém ajuda bastante a reforçar a refeição quando entra como complemento bem medido.',
-    bestUse: 'Na rotina, a mussarela tende a render melhor em lanches salgados, wraps, sanduíches e refeições que precisam de praticidade. O valor por 100g ajuda a evitar que pequenas porções pareçam neutras na conta final, já que algumas fatias já alteram bastante o total de gordura e energia da montagem.',
-    pairingHeading: 'O que combinar com queijo mussarela',
-    pairingText: 'Para que a mussarela contribua de forma útil na refeição, normalmente vale aproximá-la de uma base de carboidrato e de um item fresco ou neutro que organize melhor o volume e a saciedade do prato.',
-    pairingIds: ['pao_forma', 'wrap_tortilha', 'salada_mista'],
-  },
-  queijo_branco: {
-    metaDescription: 'Veja as calorias e os macronutrientes do queijo branco por 100g, ajuste a porção e entenda como usar essa opção proteica em refeições leves.',
-    intro: 'O queijo branco costuma aparecer como uma alternativa prática para lanches, cafés da manhã e refeições frias em que você quer proteína com sensação mais leve do que queijos mais gordurosos. Para hardgainers, isso pode ajudar a variar as fontes proteicas do dia sem depender sempre de carnes ou suplementos, especialmente em horários em que a montagem precisa ser simples.',
-    macroContext: 'Pelos valores da base, ele entrega proteína acompanhada de gordura moderada e pequena presença de carboidratos. Isso coloca o queijo branco em uma posição intermediária: ele não é tão enxuto quanto proteínas muito magras, mas também não pesa tanto quanto queijos mais concentrados, o que facilita seu uso como parte de lanches e combinações menores.',
-    bestUse: 'No dia a dia, costuma render melhor em sanduíches, pratos frios, cafés da manhã e combinações rápidas com pão, frutas ou outros acompanhamentos fáceis. O valor por 100g ajuda a lembrar que algumas fatias já participam de forma real no total calórico, então a porção merece atenção quando a refeição já possui outras fontes de gordura.',
-    pairingHeading: 'Como combinar queijo branco',
-    pairingText: 'Para transformar o queijo branco em uma refeição mais completa, a escolha mais natural costuma ser um carboidrato simples e um complemento que deixe o prato mais funcional sem torná-lo pesado demais.',
-    pairingIds: ['pao_forma', 'banana_prata', 'azeite'],
-  },
-  caseina: {
-    metaDescription: 'Consulte as calorias e os macronutrientes da caseína por 100g, ajuste a quantidade e veja como usar esse suplemento em lanches e shakes.',
-    intro: 'A caseína é uma proteína em pó pensada para momentos em que praticidade e organização da ingestão proteica pesam mais do que a refeição sólida completa. Para hardgainers, isso pode ser útil em lanches programados, horários apertados ou montagens em que a proteína precisa ser acrescentada sem exigir preparo longo, especialmente quando o restante das calorias virá de leite, aveia ou frutas.',
-    macroContext: 'Os valores da base mostram um suplemento altamente concentrado em proteína, com carboidratos e gordura baixos. Em termos práticos, a caseína funciona como uma peça técnica: ela resolve proteína com precisão, mas raramente forma uma refeição inteira por conta própria. Por isso, o contexto do shake ou do lanche onde ela entra é o que realmente define o peso calórico da combinação.',
-    bestUse: 'Na rotina, a caseína costuma render melhor em shakes, lanches líquidos e combinações rápidas com leite, aveia ou frutas. O valor por 100g ajuda a lembrar que o suplemento é muito concentrado, então pequenas diferenças de porção já alteram bastante o total proteico, o que favorece ajustes mais finos ao longo do dia.',
-    pairingHeading: 'O que combinar com proteína caseína',
-    pairingText: 'Para que a caseína participe de um lanche mais completo, normalmente vale combiná-la com um líquido base, uma fonte simples de carboidrato e um alimento que aumente a saciedade sem complicar a montagem.',
-    pairingIds: ['leite_integral', 'banana_prata', 'aveia_flocos'],
-  },
-  tofu: {
-    metaDescription: 'Confira as calorias e os macronutrientes do tofu firme por 100g, ajuste a porção e veja como usar essa proteína vegetal nas refeições.',
-    intro: 'O tofu firme é uma alternativa vegetal interessante para quem quer variar a fonte proteica sem abrir mão de refeições sólidas e fáceis de organizar. Para hardgainers, ele pode funcionar como uma peça versátil em pratos quentes, salteados e bowls, especialmente quando a meta é distribuir proteína ao longo do dia com combinações que não dependam sempre de carnes, ovos ou suplementos.',
-    macroContext: 'A base mostra um alimento com proteína moderada, alguma gordura e poucos carboidratos. Isso faz do tofu um ingrediente mais híbrido do que proteínas em pó ou carnes muito magras: ele ajuda a compor a refeição, mas normalmente precisa de uma base energética clara para que o prato chegue ao total calórico desejado por quem está tentando ganhar peso com consistência.',
-    bestUse: 'Na prática, o tofu costuma render melhor em almoço, jantar e preparações quentes em que a textura do alimento participa do prato inteiro. O valor por 100g ajuda a ajustar a porção com objetividade, evitando a sensação de que um bloco inteiro precisa ser usado sempre do mesmo jeito quando a refeição pode pedir mais ou menos densidade.',
-    pairingHeading: 'Como combinar tofu firme',
-    pairingText: 'Para deixar o tofu mais funcional dentro de uma refeição completa, costuma ajudar combiná-lo com uma base de carboidratos nítida e com um ajuste simples de gordura para reforçar o total energético.',
-    pairingIds: ['arroz_integral_cozido', 'quinoa_cozida', 'azeite'],
-  },
-  tempeh: {
-    metaDescription: 'Veja as calorias e os macronutrientes do tempeh por 100g, ajuste a porção e entenda como usar essa proteína vegetal em refeições do dia.',
-    intro: 'O tempeh é uma opção vegetal que costuma entregar mais densidade do que o tofu, tanto em textura quanto em energia por porção. Para hardgainers, isso pode ser útil quando a refeição precisa de uma proteína não animal com presença real no prato, sem deixar toda a responsabilidade do total calórico apenas para arroz, pães ou óleos adicionados.',
-    macroContext: 'Os dados da base mostram proteína relevante acompanhada de gordura e alguma quantidade de carboidratos. Esse perfil faz do tempeh um alimento mais completo do que muitas proteínas magras: ele participa da refeição tanto pela estrutura proteica quanto pela energia que adiciona, o que permite construir pratos mais robustos com menos componentes extras.',
-    bestUse: 'No uso diário, o tempeh tende a funcionar melhor em almoço, jantar e montagens mais substanciais, como bowls e wraps. O valor por 100g ajuda a dimensionar a porção com clareza, o que é útil para equilibrar a refeição quando já existem outras fontes energéticas importantes no prato.',
-    pairingHeading: 'O que combinar com tempeh',
-    pairingText: 'Para que o tempeh fique bem inserido no planejamento, normalmente faz sentido cercá-lo de um carboidrato fácil de repetir e de um complemento discreto que reforce a refeição sem exagerar no conjunto.',
-    pairingIds: ['arroz_jasmine_cozido', 'wrap_tortilha', 'azeite'],
-  },
-  lombo_porco: {
-    metaDescription: 'Descubra as calorias e os macronutrientes do lombo de porco por 100g, ajuste a quantidade e veja como usar esse corte nas refeições principais.',
-    intro: 'O lombo de porco grelhado é uma proteína sólida que pode variar o cardápio sem sair da lógica de refeições principais bem estruturadas. Para hardgainers, ele pode ser útil quando você quer uma opção com boa proteína e gordura moderada, permitindo refeições mais robustas do que peixes muito magros, mas ainda previsíveis o bastante para organizar o restante dos macros com clareza.',
-    macroContext: 'Os valores da base mostram um corte com proteína alta e gordura intermediária. Isso coloca o lombo em uma posição parecida com outras carnes mais secas, mas ainda com densidade calórica suficiente para contribuir de forma relevante no total do prato. Em termos práticos, ele ajuda a construir refeições firmes sem exigir adições muito grandes para ganhar consistência.',
-    bestUse: 'Na prática, costuma render melhor em almoço, jantar e marmitas com arroz, mandioca ou outros carboidratos centrais. O valor por 100g é útil para ajustar a porção conforme a refeição do dia, principalmente quando o corte divide o prato com acompanhamentos já energéticos e a intenção é evitar exageros sem reduzir a proteína.',
-    pairingHeading: 'Como combinar lombo de porco',
-    pairingText: 'Para deixar o lombo de porco bem distribuído dentro da refeição, costuma valer a pena combiná-lo com um carboidrato simples de medir e com um ajuste calórico que reforce o prato sem roubar a clareza da porção proteica.',
-    pairingIds: ['arroz_basmati_cozido', 'mandioca_cozida', 'azeite'],
-  },
-  sardinha_lata: {
-    metaDescription: 'Consulte as calorias e os macronutrientes da sardinha em lata por 100g, ajuste a porção e veja como usar essa proteína pronta nas refeições.',
-    intro: 'A sardinha em lata é uma proteína pronta que mistura praticidade com densidade maior do que versões mais magras de peixe em conserva. Para hardgainers, isso pode ser útil quando a refeição precisa ser rápida, mas ainda assim entregar proteína relevante junto com mais energia, sem depender de preparos demorados ou de muitos ingredientes extras para ganhar consistência.',
-    macroContext: 'Pelos valores da base, a sardinha combina proteína alta com gordura expressiva e praticamente nenhum carboidrato. Isso faz dela uma opção diferente do atum em água: ela participa mais ativamente do total calórico do prato, o que pode reduzir a necessidade de outros reforços, mas também pede atenção à porção quando a refeição já tem bases energéticas importantes.',
-    bestUse: 'No dia a dia, costuma funcionar melhor em lanches salgados, pratos simples com arroz ou montagens frias mais rápidas. O valor por 100g ajuda a calibrar o uso da lata inteira ou parcial, evitando que a praticidade leve a porções automáticas que não conversam com o restante das calorias planejadas para o dia.',
-    pairingHeading: 'O que combinar com sardinha em lata',
-    pairingText: 'Para que a sardinha em lata entre numa refeição mais organizada, o caminho mais direto costuma ser combiná-la com um carboidrato central e com um complemento simples que ajude no volume do prato sem tirar sua praticidade.',
-    pairingIds: ['arroz_branco_cozido', 'pao_forma', 'mandioca_cozida'],
-  },
-  proteina_ervilha: {
-    metaDescription: 'Confira as calorias e os macronutrientes da proteína de ervilha por 100g, ajuste a quantidade e entenda como usar esse suplemento vegetal.',
-    intro: 'A proteína de ervilha em pó é uma alternativa prática para quem quer organizar a ingestão proteica com uma opção vegetal de uso simples. Para hardgainers, ela pode ajudar em lanches líquidos, shakes e combinações rápidas em que a proteína precisa entrar sem depender de uma refeição cozida, especialmente quando o restante das calorias será ajustado com frutas, bebidas vegetais ou aveia.',
-    macroContext: 'Os dados da base mostram um suplemento muito concentrado em proteína, com pouca gordura e poucos carboidratos. Isso torna a proteína de ervilha uma peça bem funcional: ela resolve proteína com facilidade, mas a refeição só fica completa quando recebe também uma base energética adequada. O contexto do shake continua sendo mais importante do que o suplemento isolado.',
-    bestUse: 'Na prática, costuma render melhor em shakes, lanches rápidos e momentos do dia em que a refeição sólida seria difícil de executar. O valor por 100g ajuda a ajustar a porção com precisão, o que é útil para distribuir proteína sem exagerar no uso do pó quando a refeição já tem outras fontes proteicas ao redor.',
-    pairingHeading: 'Como combinar proteína de ervilha',
-    pairingText: 'Para transformar a proteína de ervilha em um lanche mais completo, normalmente faz sentido aproximá-la de um líquido base e de duas fontes simples de energia que deixem a refeição mais estável e fácil de repetir.',
-    pairingIds: ['bebida_aveia', 'banana_prata', 'aveia_flocos'],
-  },
-  proteina_arroz: {
-    metaDescription: 'Veja as calorias e os macronutrientes da proteína de arroz por 100g, ajuste a porção e saiba como usar esse suplemento no planejamento.',
-    intro: 'A proteína de arroz em pó é uma alternativa vegetal útil para quem precisa organizar lanches rápidos ou shakes sem depender de fontes animais. Para hardgainers, ela pode funcionar como apoio em momentos em que a prioridade é colocar proteína de forma prática e depois completar as calorias com bebidas, frutas ou outras bases mais simples de medir dentro da rotina.',
-    macroContext: 'Os valores da base mostram um suplemento concentrado em proteína, com pequena presença de carboidratos e gordura. Em termos práticos, a proteína de arroz se comporta como uma peça de ajuste: ela facilita o acerto da proteína total do dia, mas o peso calórico real da refeição depende do que entra junto para dar volume, energia e maior estabilidade ao lanche.',
-    bestUse: 'No uso diário, costuma render melhor em shakes, lanches líquidos e misturas rápidas com bebidas vegetais ou creme de arroz. O valor por 100g ajuda a lembrar que o suplemento é concentrado, então porções pequenas já fazem diferença na conta final, algo valioso quando você busca precisão sem transformar cada lanche em uma refeição excessiva.',
-    pairingHeading: 'O que combinar com proteína de arroz',
-    pairingText: 'Para que a proteína de arroz participe de um shake mais completo, costuma ajudar combiná-la com uma base líquida simples e com duas fontes energéticas que deixem o lanche mais funcional e fácil de repetir.',
-    pairingIds: ['bebida_amendoa', 'banana_prata', 'creme_arroz'],
-  },
-  leite_integral: {
-    metaDescription: 'Confira as calorias e os macronutrientes do leite integral por 100ml, ajuste a porção e veja como usar esse líquido em refeições e shakes.',
-    intro: 'O leite integral é uma base prática para quem precisa aumentar calorias sem recorrer sempre a refeições sólidas maiores. Para hardgainers, isso costuma ser útil porque ele entra com facilidade em shakes, cafés da manhã, lanches e preparações rápidas, ajudando a somar energia de forma mais previsível quando o volume de comida já está alto em outros horários do dia.',
-    macroContext: 'Os dados da base mostram um perfil equilibrado entre carboidratos, gordura e proteína, sem concentrar demais um único macro. Na prática, isso faz do leite integral um alimento de apoio: ele não costuma ser o centro proteico da refeição, mas participa muito bem quando a estratégia pede uma base líquida que carregue calorias com leitura simples de porção.',
-    bestUse: 'No dia a dia, o leite integral costuma render melhor em shakes, mingaus e combinações com café da manhã. O valor por 100ml ajuda a ajustar a quantidade de forma objetiva, o que é útil tanto para reforçar lanches menores quanto para transformar uma mistura com aveia, whey ou fruta em algo mais robusto e repetível.',
-    pairingHeading: 'Como combinar leite integral',
-    pairingText: 'Quando o leite integral entra como base, a combinação mais natural costuma ser uma fonte proteica fácil de misturar e um carboidrato simples que aumente a consistência e a densidade calórica do shake ou lanche.',
-    pairingIds: ['whey', 'aveia_flocos', 'banana_prata'],
-  },
-  leite_lactose_free: {
-    metaDescription: 'Veja as calorias e os macronutrientes do leite sem lactose integral por 100ml, ajuste a porção e entenda como usar esse alimento no dia.',
-    intro: 'O leite sem lactose integral ocupa um papel muito parecido com o leite tradicional na rotina de quem precisa de praticidade para bater calorias. Para hardgainers, isso faz sentido principalmente em shakes, cafés da manhã e lanches líquidos, porque permite manter uma base energética conhecida sem mudar a lógica geral da refeição nem depender de preparos mais demorados.',
-    macroContext: 'Pelos valores da base, o perfil de proteína, carboidratos e gordura continua equilibrado e próximo de um leite integral clássico. Na prática, isso faz do produto uma base líquida previsível, útil quando você quer somar calorias e alguma proteína em preparações rápidas, enquanto os ajustes maiores da refeição continuam vindo dos acompanhamentos escolhidos.',
-    bestUse: 'No uso diário, costuma funcionar melhor em bebidas, mingaus e combinações com suplementos ou frutas. O valor por 100ml ajuda a comparar a porção do copo com o restante do plano, evitando que um líquido aparentemente simples passe despercebido quando ele já contribui de forma real para o total energético do dia.',
-    pairingHeading: 'O que combinar com leite sem lactose integral',
-    pairingText: 'Para transformar o leite sem lactose integral em algo mais completo, costuma funcionar bem aproximá-lo de uma fonte proteica prática e de um carboidrato que deixe a bebida mais estável e fácil de repetir.',
-    pairingIds: ['caseina', 'banana_prata', 'aveia_flocos'],
-  },
-  bebida_aveia: {
-    metaDescription: 'Consulte as calorias e os macronutrientes da bebida vegetal de aveia por 100ml, ajuste a porção e veja como usar esse líquido em lanches.',
-    intro: 'A bebida vegetal de aveia costuma aparecer mais como base líquida energética do que como fonte importante de proteína. Para hardgainers, isso pode ser útil em shakes, bowls líquidos e cafés da manhã em que a prioridade é dar volume calórico à mistura sem depender apenas de água, principalmente quando o lanche precisa ser rápido e fácil de repetir.',
-    macroContext: 'Os valores da base mostram um alimento com carboidratos mais evidentes do que proteína, além de pouca gordura. Na prática, isso faz da bebida de aveia uma base de apoio para receitas líquidas: ela ajuda na textura e na energia total, mas normalmente precisa de uma fonte proteica clara ao lado para que o lanche fique mais completo.',
-    bestUse: 'No dia a dia, costuma render melhor em shakes, misturas com proteína em pó e lanches líquidos em que a consistência importa. O valor por 100ml ajuda a controlar o tamanho da porção sem complicar a conta, o que é útil quando a bebida entra junto com aveia, banana ou outro complemento que também pesa no total calórico final.',
-    pairingHeading: 'Como combinar bebida vegetal de aveia',
-    pairingText: 'Para que a bebida de aveia funcione melhor dentro do plano, normalmente vale combiná-la com uma proteína prática e com um alimento simples que reforce os carboidratos sem tornar o lanche confuso.',
-    pairingIds: ['proteina_ervilha', 'banana_prata', 'aveia_flocos'],
-  },
-  bebida_amendoa: {
-    metaDescription: 'Confira as calorias e os macronutrientes da bebida vegetal de amêndoa por 100ml, ajuste a porção e veja como usá-la em shakes e lanches.',
-    intro: 'A bebida vegetal de amêndoa costuma entrar na rotina mais como base leve para misturas do que como componente central da refeição. Para hardgainers, isso pode fazer sentido quando a ideia é montar shakes ou lanches líquidos com sabor neutro e controle de volume, deixando que a maior parte das calorias venha de aveia, fruta, creme de arroz ou proteína em pó.',
-    macroContext: 'Pelos valores da base, ela entrega pouca proteína, poucos carboidratos e pouca gordura quando comparada a laticínios mais densos. Na prática, isso a coloca como um líquido de suporte: útil para dar textura e facilitar a montagem da receita, mas insuficiente para sustentar sozinha a parte energética ou proteica do lanche.',
-    bestUse: 'No uso diário, costuma render melhor em shakes, cafés da manhã líquidos e combinações em que a base precisa ser leve e fácil de medir. O valor por 100ml ajuda a evitar que a bebida seja vista como neutra demais na conta, mesmo quando sua principal função é acompanhar ingredientes mais concentrados em calorias e proteína.',
-    pairingHeading: 'O que combinar com bebida vegetal de amêndoa',
-    pairingText: 'Para que a bebida de amêndoa entre de forma útil no planejamento, normalmente compensa aproximá-la de uma proteína prática e de dois reforços simples que tornem o lanche mais completo.',
-    pairingIds: ['proteina_arroz', 'banana_prata', 'creme_arroz'],
-  },
-  iogurte_natural: {
-    metaDescription: 'Veja as calorias e os macronutrientes do iogurte natural integral por 100g, ajuste a porção e entenda como usar esse laticínio no dia.',
-    intro: 'O iogurte natural integral é uma opção simples para lanches e cafés da manhã em que a refeição precisa ser rápida, fria e fácil de repetir. Para hardgainers, isso pode ser útil quando a estratégia pede algo prático entre refeições maiores, com alguma proteína e calorias suficientes para sustentar combinações com aveia, frutas ou outros complementos energéticos.',
-    macroContext: 'Os valores da base mostram um perfil relativamente equilibrado entre proteína, carboidratos e gordura, sem chegar ao nível proteico de opções mais concentradas. Na prática, isso faz do iogurte natural um alimento de apoio: ele ajuda a compor o lanche e a melhorar a textura da refeição, mas costuma funcionar melhor quando recebe acompanhamentos bem definidos.',
-    bestUse: 'Na rotina, ele costuma render melhor em lanches, bowls frios e cafés da manhã em que a praticidade pesa mais do que o volume. O valor por 100g ajuda a dosar a porção com clareza, o que é útil quando o iogurte entra junto com frutas, granola, aveia ou pastas mais calóricas e a soma total do lanche precisa continuar previsível.',
-    pairingHeading: 'Como combinar iogurte natural integral',
-    pairingText: 'Para transformar o iogurte natural em um lanche mais completo, costuma funcionar bem usar uma fruta simples, um carboidrato de apoio e um complemento energético que aumente a saciedade sem complicar a montagem.',
-    pairingIds: ['banana_prata', 'aveia_flocos', 'mel'],
-  },
-  iogurte_grego: {
-    metaDescription: 'Consulte as calorias e os macronutrientes do iogurte grego natural por 100g, ajuste a porção e veja como usá-lo em lanches mais consistentes.',
-    intro: 'O iogurte grego natural costuma ocupar um espaço diferente do iogurte comum porque entrega mais proteína e mais densidade na colher. Para hardgainers, isso pode ser útil em lanches frios e cafés da manhã em que a refeição precisa ser rápida, mas ainda assim participar de forma real na meta de proteína e calorias do dia.',
-    macroContext: 'Pelos valores da base, ele combina proteína mais alta com gordura moderada e poucos carboidratos. Na prática, isso faz do iogurte grego uma opção mais completa do que bases lácteas mais leves: ele já oferece mais estrutura ao lanche, embora continue funcionando melhor quando recebe um carboidrato e algum complemento que ajude no total energético.',
-    bestUse: 'No dia a dia, costuma render melhor em lanches, bowls e combinações com fruta, aveia ou mel. O valor por 100g ajuda a comparar a porção com opções como skyr e cottage, o que é útil quando a refeição precisa ficar mais proteica sem depender apenas de suplementos ou de uma refeição salgada maior.',
-    pairingHeading: 'O que combinar com iogurte grego natural',
-    pairingText: 'Para que o iogurte grego vire um lanche mais estável, normalmente vale aproximá-lo de uma fruta prática e de dois complementos que reforcem energia e textura sem perder simplicidade.',
-    pairingIds: ['banana_prata', 'aveia_flocos', 'mel'],
-  },
-  leite_po: {
-    metaDescription: 'Confira as calorias e os macronutrientes do leite em pó integral por 100g, ajuste a porção e veja como usar esse ingrediente em shakes.',
-    intro: 'O leite em pó integral é um ingrediente concentrado que pode aumentar calorias e proteína sem exigir muito volume físico na refeição. Para hardgainers, isso costuma ser útil em shakes, mingaus e lanches rápidos, principalmente quando a meta do dia pede soluções mais densas e o apetite já está comprometido por refeições sólidas maiores em outros horários.',
-    macroContext: 'Os dados da base mostram um alimento bem mais concentrado do que o leite líquido, com proteína relevante, carboidratos presentes e gordura alta o bastante para elevar bastante a energia total. Na prática, isso faz do leite em pó um reforço técnico: pequenas medidas já alteram a conta do lanche, o que favorece ajustes finos sem depender de um grande aumento no volume.',
-    bestUse: 'Na rotina, costuma render melhor em shakes, misturas com aveia e preparações em que a textura mais encorpada é bem-vinda. O valor por 100g ajuda a lembrar que uma colher já participa de forma importante no total calórico, o que faz sentido para quem quer densidade, mas ainda precisa manter alguma previsibilidade na montagem.',
-    pairingHeading: 'Como combinar leite em pó integral',
-    pairingText: 'Para que o leite em pó entre de forma útil no planejamento, normalmente vale combiná-lo com uma base prática e com alimentos que completem tanto a proteína quanto a parte energética do lanche.',
-    pairingIds: ['banana_prata', 'aveia_flocos', 'whey'],
-  },
-  queijo_cottage: {
-    metaDescription: 'Veja as calorias e os macronutrientes do queijo cottage por 100g, ajuste a porção e entenda como usar esse laticínio em lanches e refeições.',
-    intro: 'O queijo cottage costuma ser uma opção prática quando a meta é incluir proteína em lanches e refeições frias sem recorrer sempre a suplementos. Para hardgainers, isso pode ser útil em montagens rápidas com pão, fruta ou bowls salgados leves, especialmente quando a refeição precisa ser simples de repetir e ainda assim contribuir de forma real para o total proteico do dia.',
-    macroContext: 'Pelos valores da base, ele entrega proteína relevante com gordura moderada e poucos carboidratos. Na prática, isso faz do cottage uma alternativa intermediária entre laticínios mais leves e queijos mais densos: ele já participa bem da proteína da refeição, mas costuma render melhor quando recebe algum carboidrato de apoio ou outro componente energético ao redor.',
-    bestUse: 'No uso diário, costuma funcionar melhor em lanches frios, torradas, bowls e refeições menores entre os horários principais. O valor por 100g ajuda a comparar a porção com skyr, iogurte grego e queijos mais gordurosos, o que é útil quando você quer variar a textura do lanche sem perder previsibilidade nos macros.',
-    pairingHeading: 'O que combinar com queijo cottage',
-    pairingText: 'Para deixar o cottage mais funcional dentro da rotina, normalmente faz sentido combiná-lo com um carboidrato simples de usar e com um complemento que ajude no volume e na saciedade do lanche.',
-    pairingIds: ['pao_forma', 'banana_prata', 'mel'],
-  },
-  queijo_parmesao: {
-    metaDescription: 'Consulte as calorias e os macronutrientes do queijo parmesão ralado por 100g, ajuste a porção e veja como usá-lo em refeições e lanches.',
-    intro: 'O queijo parmesão ralado participa da rotina de um jeito diferente de laticínios usados como base de lanche, porque costuma entrar em pequenas quantidades, mas com impacto calórico e proteico concentrado. Para hardgainers, isso pode ser útil quando a refeição precisa ganhar mais densidade sem depender de grandes volumes, especialmente em pratos salgados, massas, arroz ou combinações rápidas.',
-    macroContext: 'Os valores da base mostram um alimento muito denso em proteína e gordura, com poucos carboidratos. Na prática, isso faz do parmesão um complemento potente: ele raramente será o núcleo da refeição, mas pequenas porções já mudam o total energético e podem reforçar a proteína de um prato que teria menos densidade sem esse acréscimo.',
-    bestUse: 'No dia a dia, costuma render melhor em finalizações de pratos quentes, lanches salgados e receitas em que sabor e densidade importam mais do que volume. O valor por 100g ajuda a lembrar que mesmo uma colher já conta na soma final, o que é útil para ajustar a refeição com mais precisão em vez de usar o ingrediente de forma automática.',
-    pairingHeading: 'Como combinar queijo parmesão ralado',
-    pairingText: 'Para que o parmesão faça sentido dentro do plano, normalmente vale aproximá-lo de uma base salgada simples e de alimentos que organizem melhor o volume da refeição principal.',
-    pairingIds: ['arroz_basmati_cozido', 'wrap_tortilha', 'azeite'],
-  },
-  ricotta: {
-    metaDescription: 'Confira as calorias e os macronutrientes da ricotta por 100g, ajuste a porção e entenda como usar esse queijo em lanches e pratos leves.',
-    intro: 'A ricotta costuma aparecer como um queijo de textura mais leve, útil para variar lanches e pratos frios sem cair sempre nas mesmas opções mais secas ou mais concentradas. Para hardgainers, isso pode ajudar quando a refeição precisa ser simples, com alguma proteína e gordura, mas ainda manter uma sensação mais leve do que queijos muito intensos ou complementos mais pesados.',
-    macroContext: 'Os dados da base mostram um alimento com proteína relevante, carboidratos baixos e gordura suficiente para contribuir de forma clara no total da refeição. Na prática, isso coloca a ricotta num meio-termo interessante: ela não é tão concentrada quanto queijos curados, mas também entrega mais densidade do que iogurtes e bases lácteas puramente líquidas.',
-    bestUse: 'Na rotina, costuma render melhor em lanches frios, torradas, recheios e pratos menores em que a textura cremosa ajuda na montagem. O valor por 100g facilita o ajuste da porção quando a ricotta entra ao lado de pão, fruta ou outro acompanhamento, evitando que a refeição pareça leve demais e acabe subestimada na conta final.',
-    pairingHeading: 'O que combinar com ricotta',
-    pairingText: 'Para deixar a ricotta mais funcional dentro do plano, normalmente ajuda combiná-la com um carboidrato prático e com um complemento simples que aumente a energia sem tornar o lanche pesado demais.',
-    pairingIds: ['pao_forma', 'banana_prata', 'mel'],
-  },
-  arroz_basmati_cozido: {
-    metaDescription: "Veja calorias e macronutrientes de arroz basmati cozido por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Arroz basmati cozido entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, arroz basmati cozido tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por xícara e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, arroz basmati cozido rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar arroz basmati cozido",
-    pairingText: "Para que arroz basmati cozido fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peito_frango","azeite","brocolis"],
-  },
-  macarrao_cozido: {
-    metaDescription: "Consulte calorias e macronutrientes de macarrão cozido por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Macarrão cozido costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, macarrão cozido tem um perfil intermedi?rio, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por xícara e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, macarrão cozido rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar macarrão cozido",
-    pairingText: "Para que macarrão cozido fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["carne_moida","molho_tomate","queijo_parmesao"],
-  },
-  batata_cozida: {
-    metaDescription: "Confira calorias e macronutrientes de batata inglesa cozida por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Batata inglesa cozida ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, batata inglesa cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por batata pequena e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, batata inglesa cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar batata inglesa cozida",
-    pairingText: "Para que batata inglesa cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peito_frango","azeite","brocolis"],
-  },
-  pure_batata: {
-    metaDescription: "Descubra calorias e macronutrientes de purê de batata por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Purê de batata entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, purê de batata tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, purê de batata rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar purê de batata",
-    pairingText: "Para que purê de batata fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["carne_moida","azeite","brocolis"],
-  },
-  batata_doce_cozida: {
-    metaDescription: "Entenda as calorias e os macronutrientes de batata doce cozida por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Batata doce cozida costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, batata doce cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por batata-doce pequena e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, batata doce cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar batata doce cozida",
-    pairingText: "Para que batata doce cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peito_frango","azeite","brocolis"],
-  },
-  mandioca_cozida: {
-    metaDescription: "Veja calorias e macronutrientes de mandioca cozida por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Mandioca cozida ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, mandioca cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, mandioca cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar mandioca cozida",
-    pairingText: "Para que mandioca cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["coxa_frango","azeite","salada_mista"],
-  },
-  polenta: {
-    metaDescription: "Consulte calorias e macronutrientes de polenta cozida por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Polenta cozida entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, polenta cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, polenta cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar polenta cozida",
-    pairingText: "Para que polenta cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["carne_moida","molho_tomate","queijo_parmesao"],
-  },
-  cuscuz: {
-    metaDescription: "Confira calorias e macronutrientes de cuscuz de milho por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Cuscuz de milho costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, cuscuz de milho tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, cuscuz de milho rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar cuscuz de milho",
-    pairingText: "Para que cuscuz de milho fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["ovo_inteiro","azeite","queijo_cottage"],
-  },
-  tapioca: {
-    metaDescription: "Descubra calorias e macronutrientes de tapioca por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Tapioca ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, tapioca tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, tapioca rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar tapioca",
-    pairingText: "Para que tapioca fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["queijo_cottage","banana_prata","pasta_amendoim"],
-  },
-  pao_frances: {
-    metaDescription: "Entenda as calorias e os macronutrientes de pão branco por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Pão branco entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, pão branco tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, pão branco rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar pão branco",
-    pairingText: "Para que pão branco fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["ovo_inteiro","queijo_cottage","peito_peru"],
-  },
-  pao_forma: {
-    metaDescription: "Veja calorias e macronutrientes de pão de forma branco por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Pão de forma branco costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, pão de forma branco tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por fatia e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, pão de forma branco rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar pão de forma branco",
-    pairingText: "Para que pão de forma branco fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["queijo_cottage","atum_agua","banana_prata"],
-  },
-  feijao_carioca: {
-    metaDescription: "Consulte calorias e macronutrientes de feijão carioca cozido por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Feijão carioca cozido ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, feijão carioca cozido tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por concha e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, feijão carioca cozido rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar feijão carioca cozido",
-    pairingText: "Para que feijão carioca cozido fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["arroz_branco_cozido","peito_frango","azeite"],
-  },
-  arroz_integral_cozido: {
-    metaDescription: "Confira calorias e macronutrientes de arroz integral cozido por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Arroz integral cozido entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, arroz integral cozido tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por xícara e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, arroz integral cozido rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar arroz integral cozido",
-    pairingText: "Para que arroz integral cozido fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peito_frango","azeite","brocolis"],
-  },
-  arroz_jasmine_cozido: {
-    metaDescription: "Descubra calorias e macronutrientes de arroz jasmine cozido por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Arroz jasmine cozido costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, arroz jasmine cozido tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por xícara e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, arroz jasmine cozido rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar arroz jasmine cozido",
-    pairingText: "Para que arroz jasmine cozido fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peixe_salmao","azeite","salada_mista"],
-  },
-  quinoa_cozida: {
-    metaDescription: "Entenda as calorias e os macronutrientes de quinoa cozida por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Quinoa cozida ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, quinoa cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por xícara e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, quinoa cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar quinoa cozida",
-    pairingText: "Para que quinoa cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peixe_tilapia","azeite","abobrinha"],
-  },
-  creme_arroz: {
-    metaDescription: "Veja calorias e macronutrientes de creme de arroz por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Creme de arroz entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, creme de arroz tem um perfil muito concentrado, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, creme de arroz rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar creme de arroz",
-    pairingText: "Para que creme de arroz fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["whey","banana_prata","pasta_amendoim"],
-  },
-  bagel: {
-    metaDescription: "Consulte calorias e macronutrientes de bagel simples por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Bagel simples costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, bagel simples tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, bagel simples rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar bagel simples",
-    pairingText: "Para que bagel simples fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peito_peru","queijo_cottage","banana_prata"],
-  },
-  wrap_tortilha: {
-    metaDescription: "Confira calorias e macronutrientes de wrap / tortilha de trigo por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Wrap / tortilha de trigo ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, wrap / tortilha de trigo tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, wrap / tortilha de trigo rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar wrap / tortilha de trigo",
-    pairingText: "Para que wrap / tortilha de trigo fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peito_peru","queijo_mussarela","salada_mista"],
-  },
-  maca: {
-    metaDescription: "Descubra calorias e macronutrientes de maçã sem casca por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Maçã sem casca ajuda a colocar carboidratos no dia com pouco preparo e boa flexibilidade para lanches, bowls e shakes. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, maçã sem casca tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por maçã pequena e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, maçã sem casca rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com maçã sem casca",
-    pairingText: "Para que maçã sem casca fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["skyr","aveia_flocos","pasta_amendoim"],
-  },
-  pera: {
-    metaDescription: "Entenda as calorias e os macronutrientes de pera por 100g, ajuste a por??o e confira como usar esse alimento nas refei??es do seu planejamento.",
-    intro: "Pera costuma aparecer como uma forma pr?tica de somar calorias em refei??es r?pidas sem complicar a montagem. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, pera tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por pera pequena e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, pera rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com pera",
-    pairingText: "Para que pera fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_grego","granola","mel"],
-  },
-  manga: {
-    metaDescription: "Veja calorias e macronutrientes de manga por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Manga funciona bem quando a rotina pede uma fruta simples de ajustar em por??o e f?cil de combinar com outras bases. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, manga tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por manga pequena e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, manga rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com manga",
-    pairingText: "Para que manga fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_natural","aveia_flocos","leite_integral"],
-  },
-  mamao: {
-    metaDescription: "Consulte calorias e macronutrientes de mam?o por 100g, compare a por??o e entenda como usar esse alimento nas refei??es do plano di?rio.",
-    intro: "Mamão ajuda a colocar carboidratos no dia com pouco preparo e boa flexibilidade para lanches, bowls e shakes. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, mamão tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por fatia e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, mamão rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com mamão",
-    pairingText: "Para que mamão fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["skyr","granola","mel"],
-  },
-  datil: {
-    metaDescription: "Confira calorias e macronutrientes de tâmara seca por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Tâmara seca costuma aparecer como uma forma pr?tica de somar calorias em refei??es r?pidas sem complicar a montagem. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, tâmara seca tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, tâmara seca rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com tâmara seca",
-    pairingText: "Para que tâmara seca fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["whey","pasta_amendoim","leite_integral"],
-  },
-  abacate: {
-    metaDescription: "Descubra calorias e macronutrientes de abacate por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Abacate costuma ser ?til para refor?ar calorias do dia em pequenas medidas, sem depender apenas de por??es muito grandes de carboidrato. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, abacate tem um perfil intermedi?rio, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade pequena e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, abacate rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar abacate",
-    pairingText: "Para que abacate fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["pao_forma","ovo_inteiro","whey"],
-  },
-  oleo_coco: {
-    metaDescription: "Entenda as calorias e os macronutrientes de óleo de coco por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Óleo de coco muda a densidade da refei??o com pouco volume, algo valioso quando o plano precisa subir calorias sem deixar o prato enorme. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, óleo de coco tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, óleo de coco rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar óleo de coco",
-    pairingText: "Para que óleo de coco fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["creme_arroz","banana_prata","whey"],
-  },
-  pasta_amendoim: {
-    metaDescription: "Veja calorias e macronutrientes de pasta de amendoim por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Pasta de amendoim entra melhor como refor?o medido de energia do que como centro do prato, o que ajuda bastante em fases de super?vit. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, pasta de amendoim tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de chá e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, pasta de amendoim rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar pasta de amendoim",
-    pairingText: "Para que pasta de amendoim fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["banana_prata","aveia_flocos","whey"],
-  },
-  pasta_amendoa: {
-    metaDescription: "Consulte calorias e macronutrientes de pasta de amêndoa por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Pasta de amêndoa costuma ser ?til para refor?ar calorias do dia em pequenas medidas, sem depender apenas de por??es muito grandes de carboidrato. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, pasta de amêndoa tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de chá e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, pasta de amêndoa rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar pasta de amêndoa",
-    pairingText: "Para que pasta de amêndoa fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["banana_prata","skyr","aveia_flocos"],
-  },
-  pasta_castanha_caju: {
-    metaDescription: "Confira calorias e macronutrientes de pasta de castanha de caju por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Pasta de castanha de caju muda a densidade da refei??o com pouco volume, algo valioso quando o plano precisa subir calorias sem deixar o prato enorme. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, pasta de castanha de caju tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de chá e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, pasta de castanha de caju rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar pasta de castanha de caju",
-    pairingText: "Para que pasta de castanha de caju fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["pao_forma","banana_prata","whey"],
-  },
-  castanha_para: {
-    metaDescription: "Descubra calorias e macronutrientes de castanha do Pará por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Castanha do Pará entra melhor como refor?o medido de energia do que como centro do prato, o que ajuda bastante em fases de super?vit. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, castanha do Pará tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, castanha do Pará rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar castanha do Pará",
-    pairingText: "Para que castanha do Pará fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_grego","banana_prata","granola"],
-  },
-  amendoa: {
-    metaDescription: "Entenda as calorias e os macronutrientes de amêndoas por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Amêndoas costuma ser ?til para refor?ar calorias do dia em pequenas medidas, sem depender apenas de por??es muito grandes de carboidrato. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, amêndoas tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, amêndoas rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar amêndoas",
-    pairingText: "Para que amêndoas fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_natural","banana_prata","granola"],
-  },
-  nozes: {
-    metaDescription: "Veja calorias e macronutrientes de nozes por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Nozes muda a densidade da refei??o com pouco volume, algo valioso quando o plano precisa subir calorias sem deixar o prato enorme. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, nozes tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, nozes rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar nozes",
-    pairingText: "Para que nozes fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["skyr","maca","granola"],
-  },
-  sementes_chia: {
-    metaDescription: "Consulte calorias e macronutrientes de sementes de chia por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Sementes de chia entra melhor como refor?o medido de energia do que como centro do prato, o que ajuda bastante em fases de super?vit. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, sementes de chia tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, sementes de chia rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar sementes de chia",
-    pairingText: "Para que sementes de chia fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_natural","banana_prata","aveia_flocos"],
-  },
-  gema_ovo: {
-    metaDescription: "Confira calorias e macronutrientes de gema de ovo por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Gema de ovo costuma ser ?til para refor?ar calorias do dia em pequenas medidas, sem depender apenas de por??es muito grandes de carboidrato. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, gema de ovo tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, gema de ovo rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar gema de ovo",
-    pairingText: "Para que gema de ovo fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["arroz_branco_cozido","clara_ovo","brocolis"],
-  },
-  brocolis: {
-    metaDescription: "Descubra calorias e macronutrientes de brócolis cozido por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Brócolis cozido normalmente entra para dar estrutura e contraste ao prato sem assumir o papel principal das calorias. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, brócolis cozido tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No uso di?rio, costuma render melhor como acompanhamento de almo?o e jantar, ao lado de uma base energ?tica e de uma prote?na principal. Em geral, brócolis cozido rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com brócolis cozido",
-    pairingText: "Para que brócolis cozido fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["arroz_branco_cozido","peito_frango","azeite"],
-  },
-  abobrinha: {
-    metaDescription: "Entenda as calorias e os macronutrientes de abobrinha cozida por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Abobrinha cozida funciona melhor como apoio da refei??o, ajudando na organiza??o do prato ao lado de carboidratos e prote?nas bem definidos. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, abobrinha cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No uso di?rio, costuma render melhor como acompanhamento de almo?o e jantar, ao lado de uma base energ?tica e de uma prote?na principal. Em geral, abobrinha cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com abobrinha cozida",
-    pairingText: "Para que abobrinha cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["quinoa_cozida","peixe_tilapia","azeite"],
-  },
-  cenoura: {
-    metaDescription: "Veja calorias e macronutrientes de cenoura cozida por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Cenoura cozida costuma aparecer como acompanhamento, mantendo o prato mais completo sem tirar espa?o das bases energ?ticas do plano. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, cenoura cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No uso di?rio, costuma render melhor como acompanhamento de almo?o e jantar, ao lado de uma base energ?tica e de uma prote?na principal. Em geral, cenoura cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com cenoura cozida",
-    pairingText: "Para que cenoura cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["arroz_integral_cozido","peito_frango","azeite"],
-  },
-  salada_mista: {
-    metaDescription: "Consulte calorias e macronutrientes de salada por 100g, compare a por??o e entenda como usar esse alimento nas refei??es do plano di?rio.",
-    intro: "Salada normalmente entra para dar estrutura e contraste ao prato sem assumir o papel principal das calorias. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, salada tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por prato e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No uso di?rio, costuma render melhor como acompanhamento de almo?o e jantar, ao lado de uma base energ?tica e de uma prote?na principal. Em geral, salada rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com salada",
-    pairingText: "Para que salada fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["arroz_basmati_cozido","peixe_salmao","azeite"],
-  },
-  mel: {
-    metaDescription: "Confira calorias e macronutrientes de mel por 100g, ajuste a quantidade e veja como encaixar esse alimento nas refei??es do seu plano di?rio.",
-    intro: "Mel aparece melhor como complemento pr?tico do que como alimento central, ajudando a fechar a conta da refei??o com mais precis?o. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, mel tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de chá e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, ele rende melhor quando aparece em doses deliberadas, ajudando a completar o lanche ou a receita sem virar o foco da refei??o. Em geral, mel rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar mel",
-    pairingText: "Para que mel fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["skyr","banana_prata","aveia_flocos"],
-  },
-  acucar_mascavo: {
-    metaDescription: "Descubra calorias e macronutrientes de açúcar mascavo por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Açúcar mascavo entra na rotina como apoio de preparo, o que faz diferen?a quando a meta ? deixar o plano mais f?cil de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, açúcar mascavo tem um perfil muito concentrado, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, ele rende melhor quando aparece em doses deliberadas, ajudando a completar o lanche ou a receita sem virar o foco da refei??o. Em geral, açúcar mascavo rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar açúcar mascavo",
-    pairingText: "Para que açúcar mascavo fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["aveia_flocos","banana_prata","leite_integral"],
-  },
-  cacau_po: {
-    metaDescription: "Entenda as calorias e os macronutrientes de cacau em pó por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Cacau em pó costuma funcionar como ajuste t?cnico da refei??o, entrando em pequenas quantidades para mudar textura, sabor ou energia total. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, cacau em pó tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de chá e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, ele rende melhor quando aparece em doses deliberadas, ajudando a completar o lanche ou a receita sem virar o foco da refei??o. Em geral, cacau em pó rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar cacau em pó",
-    pairingText: "Para que cacau em pó fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["leite_integral","banana_prata","aveia_flocos"],
-  },
-  canela: {
-    metaDescription: "Veja calorias e macronutrientes de canela em pó por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Canela em pó aparece melhor como complemento pr?tico do que como alimento central, ajudando a fechar a conta da refei??o com mais precis?o. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, canela em pó tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por pitada e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, ele rende melhor quando aparece em doses deliberadas, ajudando a completar o lanche ou a receita sem virar o foco da refei??o. Em geral, canela em pó rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar canela em pó",
-    pairingText: "Para que canela em pó fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["banana_prata","aveia_flocos","iogurte_natural"],
-  },
-  molho_tomate: {
-    metaDescription: "Consulte calorias e macronutrientes de molho de tomate simples por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Molho de tomate simples entra na rotina como apoio de preparo, o que faz diferen?a quando a meta ? deixar o plano mais f?cil de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, molho de tomate simples tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, ele rende melhor quando aparece em doses deliberadas, ajudando a completar o lanche ou a receita sem virar o foco da refei??o. Em geral, molho de tomate simples rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar molho de tomate simples",
-    pairingText: "Para que molho de tomate simples fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["macarrao_cozido","carne_moida","queijo_parmesao"],
-  },
-  mass_gainer: {
-    metaDescription: "Confira calorias e macronutrientes de mass gainer hipercalórico por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Mass gainer hipercalórico costuma funcionar como ajuste t?cnico da refei??o, entrando em pequenas quantidades para mudar textura, sabor ou energia total. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, mass gainer hipercalórico tem um perfil muito concentrado, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por dose (100g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, ele rende melhor quando aparece em doses deliberadas, ajudando a completar o lanche ou a receita sem virar o foco da refei??o. Em geral, mass gainer hipercalórico rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar mass gainer hipercalórico",
-    pairingText: "Para que mass gainer hipercalórico fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["leite_integral","banana_prata","aveia_flocos"],
-  },
-  pao_centeio: {
-    metaDescription: "Descubra calorias e macronutrientes de pão de centeio por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Pão de centeio costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, pão de centeio tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por fatia e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, pão de centeio rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar pão de centeio",
-    pairingText: "Para que pão de centeio fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["queijo_cottage","peito_peru","azeite"],
-  },
-  granola: {
-    metaDescription: "Entenda as calorias e os macronutrientes de granola tradicional por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Granola tradicional ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, granola tradicional tem um perfil muito concentrado, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção (50g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, granola tradicional rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar granola tradicional",
-    pairingText: "Para que granola tradicional fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_grego","banana_prata","mel"],
-  },
-  farinha_aveia: {
-    metaDescription: "Veja calorias e macronutrientes de farinha de aveia por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Farinha de aveia entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, farinha de aveia tem um perfil muito concentrado, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, farinha de aveia rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar farinha de aveia",
-    pairingText: "Para que farinha de aveia fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["whey","banana_prata","pasta_amendoim"],
-  },
-  massa_integral: {
-    metaDescription: "Consulte calorias e macronutrientes de massa integral cozida por 100g, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Massa integral cozida costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, massa integral cozida tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção (200g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, massa integral cozida rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar massa integral cozida",
-    pairingText: "Para que massa integral cozida fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["carne_moida","molho_tomate","queijo_parmesao"],
-  },
-  creme_milho: {
-    metaDescription: "Confira calorias e macronutrientes de creme de milho por 100ml, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Creme de milho ? uma escolha ?til quando o plano pede uma fonte de carboidratos f?cil de medir e de encaixar na rotina. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, creme de milho tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por ml e por copo ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, creme de milho rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar creme de milho",
-    pairingText: "Para que creme de milho fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["peito_frango","azeite","queijo_parmesao"],
-  },
-  barra_cereal: {
-    metaDescription: "Descubra calorias e macronutrientes de barra de cereal por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Barra de cereal entra bem no planejamento quando a ideia ? subir carboidratos com uma base simples de repetir. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, barra de cereal tem um perfil muito concentrado, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por barra (30g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, barra de cereal rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar barra de cereal",
-    pairingText: "Para que barra de cereal fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["whey","banana_prata","leite_integral"],
-  },
-  batata_frita: {
-    metaDescription: "Entenda as calorias e os macronutrientes de batata frita por 100g, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Batata frita costuma funcionar como base pr?tica para aumentar o volume energ?tico da refei??o sem mexer tanto na prote?na principal. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, batata frita tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção (150g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na rotina, ele rende melhor em refei??es s?lidas, marmitas e montagens em que a quantidade pode subir ou descer com facilidade. Em geral, batata frita rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar batata frita",
-    pairingText: "Para que batata frita fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["carne_moida","molho_tomate","salada_mista"],
-  },
-  chocolate_negro: {
-    metaDescription: "Veja calorias e macronutrientes de chocolate negro 70% por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Chocolate negro 70% costuma ser ?til para refor?ar calorias do dia em pequenas medidas, sem depender apenas de por??es muito grandes de carboidrato. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, chocolate negro 70% tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por quadrado (10g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, chocolate negro 70% rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar chocolate negro 70%",
-    pairingText: "Para que chocolate negro 70% fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_grego","morango","amendoa"],
-  },
-  creme_leite: {
-    metaDescription: "Consulte calorias e macronutrientes de creme de leite por 100ml, compare a por??o e entenda como usar esse alimento no plano di?rio.",
-    intro: "Creme de leite muda a densidade da refei??o com pouco volume, algo valioso quando o plano precisa subir calorias sem deixar o prato enorme. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, creme de leite tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por ml e por copo ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, creme de leite rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar creme de leite",
-    pairingText: "Para que creme de leite fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["macarrao_cozido","carne_moida","molho_tomate"],
-  },
-  coco_ralado: {
-    metaDescription: "Confira calorias e macronutrientes de coco ralado seco por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Coco ralado seco entra melhor como refor?o medido de energia do que como centro do prato, o que ajuda bastante em fases de super?vit. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, coco ralado seco tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa (10g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, coco ralado seco rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar coco ralado seco",
-    pairingText: "Para que coco ralado seco fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["creme_arroz","banana_prata","whey"],
-  },
-  oleo_girassol: {
-    metaDescription: "Descubra calorias e macronutrientes de óleo de girassol por 100ml, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Óleo de girassol costuma ser ?til para refor?ar calorias do dia em pequenas medidas, sem depender apenas de por??es muito grandes de carboidrato. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, óleo de girassol tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por ml e por copo ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, óleo de girassol rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar óleo de girassol",
-    pairingText: "Para que óleo de girassol fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["arroz_branco_cozido","peito_frango","salada_mista"],
-  },
-  azeite_abacate: {
-    metaDescription: "Entenda as calorias e os macronutrientes de azeite de abacate por 100ml, ajuste a por??o e confira como usar esse alimento no seu planejamento.",
-    intro: "Azeite de abacate muda a densidade da refei??o com pouco volume, algo valioso quando o plano precisa subir calorias sem deixar o prato enorme. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, azeite de abacate tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por ml e por copo ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, azeite de abacate rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar azeite de abacate",
-    pairingText: "Para que azeite de abacate fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["quinoa_cozida","peixe_salmao","salada_mista"],
-  },
-  banha_porco: {
-    metaDescription: "Veja calorias e macronutrientes de banha de porco por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Banha de porco entra melhor como refor?o medido de energia do que como centro do prato, o que ajuda bastante em fases de super?vit. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, banha de porco tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa (15g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, banha de porco rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar banha de porco",
-    pairingText: "Para que banha de porco fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["batata_cozida","ovo_inteiro","brocolis"],
-  },
-  manteiga: {
-    metaDescription: "Consulte calorias e macronutrientes de manteiga por 100g, compare a por??o e entenda como usar esse alimento nas refei??es do plano di?rio.",
-    intro: "Manteiga costuma ser ?til para refor?ar calorias do dia em pequenas medidas, sem depender apenas de por??es muito grandes de carboidrato. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, manteiga tem um perfil muito concentrado, com destaque para gordura. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por colher de sopa (15g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "Na pr?tica, costuma fazer mais sentido em pequenas medidas, combinando com bases que j? resolvem prote?na e carboidratos. Em geral, manteiga rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "Como combinar manteiga",
-    pairingText: "Para que manteiga fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["pao_frances","ovo_inteiro","queijo_cottage"],
-  },
-  abacaxi: {
-    metaDescription: "Confira calorias e macronutrientes de abacaxi por 100g, ajuste a quantidade e veja como encaixar esse alimento no seu plano di?rio.",
-    intro: "Abacaxi ajuda a colocar carboidratos no dia com pouco preparo e boa flexibilidade para lanches, bowls e shakes. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, abacaxi tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por fatia e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, abacaxi rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com abacaxi",
-    pairingText: "Para que abacaxi fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_grego","granola","mel"],
-  },
-  uva_passa: {
-    metaDescription: "Descubra calorias e macronutrientes de uva passa por 100g, ajuste a por??o e compare como esse alimento participa das refei??es do dia.",
-    intro: "Uva passa costuma aparecer como uma forma pr?tica de somar calorias em refei??es r?pidas sem complicar a montagem. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, uva passa tem um perfil bem denso, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por porção (30g) e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, uva passa rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com uva passa",
-    pairingText: "Para que uva passa fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["aveia_flocos","whey","amendoa"],
-  },
-  kiwi: {
-    metaDescription: "Entenda as calorias e os macronutrientes de kiwi por 100g, ajuste a por??o e confira como usar esse alimento nas refei??es do seu planejamento.",
-    intro: "Kiwi funciona bem quando a rotina pede uma fruta simples de ajustar em por??o e f?cil de combinar com outras bases. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, kiwi tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade média e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, kiwi rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com kiwi",
-    pairingText: "Para que kiwi fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["skyr","granola","mel"],
-  },
-  morango: {
-    metaDescription: "Veja calorias e macronutrientes de morango por 100g, ajuste a por??o e veja como esse alimento entra nas refei??es do seu plano di?rio.",
-    intro: "Morango ajuda a colocar carboidratos no dia com pouco preparo e boa flexibilidade para lanches, bowls e shakes. Para hardgainers, isso ajuda a ajustar a refei??o com previsibilidade, seja para ampliar calorias, seja para distribuir melhor os macros ao longo do dia.",
-    macroContext: "Pelos valores da base, morango tem um perfil mais leve, com destaque para carboidratos. Isso muda a leitura da por??o: o valor por 100g serve como refer?ncia est?vel, enquanto a medida pr?tica por unidade e por 100g ajuda a comparar vers?es menores e maiores da mesma refei??o sem perder clareza na conta final.",
-    bestUse: "No dia a dia, costuma render melhor em lanches, caf?s da manh? e shakes em que a por??o precisa ser r?pida de ajustar. Em geral, morango rende melhor quando a por??o conversa com os outros blocos do prato e com a estrat?gia do dia.",
-    pairingHeading: "O que combinar com morango",
-    pairingText: "Para que morango fa?a mais sentido dentro do plano, vale combinar esse alimento com itens que fechem a refei??o sem exagerar no volume nem deixar a distribui??o dos macros confusa.",
-    pairingIds: ["iogurte_grego","aveia_flocos","mel"],
-  },
+  "ovo_inteiro": {
+    "metaDescription": "Consulte calorias e macronutrientes de ovo inteiro por 100g, compare a porção em ovo e veja como encaixar esse alimento na rotina.",
+    "intro": "Ovo inteiro já entrega proteína com mais gordura ou mais densidade do que uma base magra, então costuma render refeições mais completas sem exigir tantos complementos. A porção por ovo ajuda a comparar uma montagem mais leve com outra mais carregada, especialmente quando o alimento aparece em almoço, jantar ou lanche reforçado.",
+    "macroContext": "Na referência de 100g, ovo inteiro entrega cerca de 143 kcal, 12,6g de proteína, 0,7g de carboidratos e 9,5g de gordura, com predominância de proteína. Na prática, a combinação de proteína com mais gordura ou mais densidade muda o espaço que sobra para outros reforços calóricos no prato.",
+    "bestUse": "Na prática, ovo inteiro funciona bem em almoço, jantar, sanduíches reforçados ou pratos mais completos, porque a própria porção já entrega mais peso calórico do que uma proteína muito magra. A medida por ovo ajuda bastante a comparar uma refeição mais enxuta com outra mais carregada.",
+    "pairingHeading": "Como combinar ovo inteiro",
+    "pairingText": "Ovo inteiro costuma render melhor com pão de forma branco, banana madura e peito de frango grelhado, criando uma refeição mais completa sem precisar de muitos ingredientes.",
+    "pairingIds": [
+      "pao_forma",
+      "banana_prata",
+      "peito_frango"
+    ]
+  },
+  "clara_ovo": {
+    "metaDescription": "Confira calorias e macronutrientes de clara de ovo por 100g, ajuste a porção em unidade e descubra como usar esse alimento nas refeições.",
+    "intro": "Clara de ovo funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por unidade ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, clara de ovo entrega cerca de 52 kcal, 10,9g de proteína, 0,7g de carboidratos e 0,2g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, clara de ovo rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por unidade permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar clara de ovo",
+    "pairingText": "Clara de ovo combina bem com arroz branco cozido, flocos de aveia finos e azeite de oliva, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "aveia_flocos",
+      "azeite"
+    ]
+  },
+  "peito_frango": {
+    "metaDescription": "Consulte calorias e macronutrientes de peito de frango grelhado por 100g, compare a porção em porção média e veja como encaixar esse alimento na rotina.",
+    "intro": "Peito de frango grelhado funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por porção média ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, peito de frango grelhado entrega cerca de 165 kcal, 31g de proteína, 0g de carboidratos e 3,6g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, peito de frango grelhado rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por porção média permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar peito de frango grelhado",
+    "pairingText": "Peito de frango grelhado combina bem com arroz branco cozido, azeite de oliva e lentilha cozida, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "azeite",
+      "lentilha_cozida"
+    ]
+  },
+  "carne_moida": {
+    "metaDescription": "Confira calorias e macronutrientes de carne moída (carne picada) por 100g, ajuste a porção em porção média e descubra como usar esse alimento nas refeições.",
+    "intro": "Carne moída (carne picada) já entrega proteína com mais gordura ou mais densidade do que uma base magra, então costuma render refeições mais completas sem exigir tantos complementos. A porção por porção média ajuda a comparar uma montagem mais leve com outra mais carregada, especialmente quando o alimento aparece em almoço, jantar ou lanche reforçado.",
+    "macroContext": "Na referência de 100g, carne moída (carne picada) entrega cerca de 170 kcal, 21,5g de proteína, 0g de carboidratos e 9g de gordura, com predominância de proteína. Na prática, a combinação de proteína com mais gordura ou mais densidade muda o espaço que sobra para outros reforços calóricos no prato.",
+    "bestUse": "Na prática, carne moída (carne picada) funciona bem em almoço, jantar, sanduíches reforçados ou pratos mais completos, porque a própria porção já entrega mais peso calórico do que uma proteína muito magra. A medida por porção média ajuda bastante a comparar uma refeição mais enxuta com outra mais carregada.",
+    "pairingHeading": "Como combinar carne moída (carne picada)",
+    "pairingText": "Carne moída (carne picada) costuma render melhor com arroz basmati cozido, mandioca cozida e azeite de oliva, criando uma refeição mais completa sem precisar de muitos ingredientes.",
+    "pairingIds": [
+      "arroz_basmati_cozido",
+      "mandioca_cozida",
+      "azeite"
+    ]
+  },
+  "peixe_tilapia": {
+    "metaDescription": "Confira calorias e macronutrientes de tilápia cozida por 100g, ajuste a porção em filé médio e descubra como usar esse alimento nas refeições.",
+    "intro": "Tilápia cozida funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por filé médio ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, tilápia cozida entrega cerca de 128 kcal, 26g de proteína, 0g de carboidratos e 2,7g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, tilápia cozida rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por filé médio permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar tilápia cozida",
+    "pairingText": "Tilápia cozida combina bem com arroz branco cozido, quinoa cozida e azeite de oliva, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "quinoa_cozida",
+      "azeite"
+    ]
+  },
+  "peixe_pescada": {
+    "metaDescription": "Entenda calorias e macronutrientes de pescada cozida por 100g, revise a porção em filé médio e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Pescada cozida funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por filé médio ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, pescada cozida entrega cerca de 105 kcal, 21g de proteína, 0g de carboidratos e 2g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, pescada cozida rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por filé médio permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar pescada cozida",
+    "pairingText": "Pescada cozida combina bem com arroz basmati cozido, mandioca cozida e azeite de oliva, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "arroz_basmati_cozido",
+      "mandioca_cozida",
+      "azeite"
+    ]
+  },
+  "peixe_salmao": {
+    "metaDescription": "Entenda calorias e macronutrientes de salmão cozido por 100g, revise a porção em filé médio e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Salmão cozido já entrega proteína com mais gordura ou mais densidade do que uma base magra, então costuma render refeições mais completas sem exigir tantos complementos. A porção por filé médio ajuda a comparar uma montagem mais leve com outra mais carregada, especialmente quando o alimento aparece em almoço, jantar ou lanche reforçado.",
+    "macroContext": "Na referência de 100g, salmão cozido entrega cerca de 206 kcal, 22g de proteína, 0g de carboidratos e 12,5g de gordura, com predominância de proteína. Na prática, a combinação de proteína com mais gordura ou mais densidade muda o espaço que sobra para outros reforços calóricos no prato.",
+    "bestUse": "Na prática, salmão cozido funciona bem em almoço, jantar, sanduíches reforçados ou pratos mais completos, porque a própria porção já entrega mais peso calórico do que uma proteína muito magra. A medida por filé médio ajuda bastante a comparar uma refeição mais enxuta com outra mais carregada.",
+    "pairingHeading": "Como combinar salmão cozido",
+    "pairingText": "Salmão cozido costuma render melhor com arroz jasmine cozido, quinoa cozida e salada (alface, tomate), criando uma refeição mais completa sem precisar de muitos ingredientes.",
+    "pairingIds": [
+      "arroz_jasmine_cozido",
+      "quinoa_cozida",
+      "salada_mista"
+    ]
+  },
+  "atum_agua": {
+    "metaDescription": "Veja calorias e macronutrientes de atum em água por 100g, ajuste a porção em lata e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Atum em água pode entrar na rotina com bastante praticidade quando a porção está bem definida. A medida por lata ajuda a repetir a refeição com menos variação.",
+    "macroContext": "Na referência de 100g, atum em água entrega cerca de 116 kcal, 26g de proteína, 0g de carboidratos e 1g de gordura, com predominância de proteína. Na prática, a lata resolve proteína com rapidez e ainda exige atenção ao que vai acompanhar para fechar a refeição.",
+    "bestUse": "Na prática, atum em água faz mais sentido em sanduíches, saladas reforçadas, pratos frios e refeições rápidas em que a lata já resolve boa parte da proteína. A medida por lata ajuda a não misturar a praticidade do alimento com uma porção vaga.",
+    "pairingHeading": "Como combinar atum em água",
+    "pairingText": "Atum em água fica mais coerente com pão de forma branco, arroz integral cozido e azeite de oliva, formando refeições rápidas sem perder estrutura.",
+    "pairingIds": [
+      "pao_forma",
+      "arroz_integral_cozido",
+      "azeite"
+    ]
+  },
+  "coxa_frango": {
+    "metaDescription": "Entenda calorias e macronutrientes de coxa de frango sem pele grelhada por 100g, revise a porção em porção média e veja como ele entra no dia.",
+    "intro": "Coxa de frango sem pele grelhada funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por porção média ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, coxa de frango sem pele grelhada entrega cerca de 185 kcal, 25g de proteína, 0g de carboidratos e 9g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, coxa de frango sem pele grelhada rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por porção média permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar coxa de frango sem pele grelhada",
+    "pairingText": "Coxa de frango sem pele grelhada combina bem com arroz branco cozido, mandioca cozida e azeite de oliva, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "mandioca_cozida",
+      "azeite"
+    ]
+  },
+  "peito_peru": {
+    "metaDescription": "Veja calorias e macronutrientes de peito de peru grelhado por 100g, ajuste a porção em porção média e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Peito de peru grelhado funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por porção média ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, peito de peru grelhado entrega cerca de 135 kcal, 30g de proteína, 0g de carboidratos e 1g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, peito de peru grelhado rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por porção média permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar peito de peru grelhado",
+    "pairingText": "Peito de peru grelhado combina bem com wrap / tortilha de trigo, arroz basmati cozido e azeite de oliva, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "wrap_tortilha",
+      "arroz_basmati_cozido",
+      "azeite"
+    ]
+  },
+  "alcatra_grelhada": {
+    "metaDescription": "Entenda calorias e macronutrientes de alcatra/patinho grelhado (carne magra) por 100g, revise a porção em porção média e veja como ele entra no dia.",
+    "intro": "Alcatra/patinho grelhado (carne magra) já entrega proteína com mais gordura ou mais densidade do que uma base magra, então costuma render refeições mais completas sem exigir tantos complementos. A porção por porção média ajuda a comparar uma montagem mais leve com outra mais carregada, especialmente quando o alimento aparece em almoço, jantar ou lanche reforçado.",
+    "macroContext": "Na referência de 100g, alcatra/patinho grelhado (carne magra) entrega cerca de 180 kcal, 28g de proteína, 0g de carboidratos e 7g de gordura, com predominância de proteína. Na prática, a combinação de proteína com mais gordura ou mais densidade muda o espaço que sobra para outros reforços calóricos no prato.",
+    "bestUse": "Na prática, alcatra/patinho grelhado (carne magra) funciona bem em almoço, jantar, sanduíches reforçados ou pratos mais completos, porque a própria porção já entrega mais peso calórico do que uma proteína muito magra. A medida por porção média ajuda bastante a comparar uma refeição mais enxuta com outra mais carregada.",
+    "pairingHeading": "Como combinar alcatra/patinho grelhado (carne magra)",
+    "pairingText": "Alcatra/patinho grelhado (carne magra) costuma render melhor com arroz integral cozido, quinoa cozida e azeite de oliva, criando uma refeição mais completa sem precisar de muitos ingredientes.",
+    "pairingIds": [
+      "arroz_integral_cozido",
+      "quinoa_cozida",
+      "azeite"
+    ]
+  },
+  "camarao": {
+    "metaDescription": "Veja calorias e macronutrientes de camarão cozido por 100g, ajuste a porção em porção média e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Camarão cozido funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por porção média ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, camarão cozido entrega cerca de 99 kcal, 24g de proteína, 0,2g de carboidratos e 0,3g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, camarão cozido rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por porção média permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar camarão cozido",
+    "pairingText": "Camarão cozido combina bem com arroz jasmine cozido, quinoa cozida e azeite de oliva, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "arroz_jasmine_cozido",
+      "quinoa_cozida",
+      "azeite"
+    ]
+  },
+  "bacalhau_fresco": {
+    "metaDescription": "Confira calorias e macronutrientes de bacalhau fresco cozido (cod) por 100g, ajuste a porção em posta média e descubra como usar esse alimento nas refeições.",
+    "intro": "Bacalhau fresco cozido (cod) funciona bem quando a refeição precisa de proteína clara e o restante das calorias pode vir de arroz, raízes, pão ou azeite. A medida por posta média ajuda a subir ou reduzir a porção real sem mexer tanto na estrutura do prato, o que deixa a rotina mais simples de repetir.",
+    "macroContext": "Na referência de 100g, bacalhau fresco cozido (cod) entrega cerca de 105 kcal, 23g de proteína, 0g de carboidratos e 0,9g de gordura, com predominância de proteína. Isso deixa o alimento bem posicionado como proteína principal, com pouca interferência sobre carboidratos e gordura do resto da refeição.",
+    "bestUse": "No dia a dia, bacalhau fresco cozido (cod) rende melhor em omeletes, mexidos, pratos quentes e refeições sólidas em que arroz, pão, aveia ou raízes já resolvem a parte energética. Contar a porção por posta média permite subir proteína aos poucos sem perder o controle do volume total da refeição.",
+    "pairingHeading": "Como combinar bacalhau fresco cozido (cod)",
+    "pairingText": "Bacalhau fresco cozido (cod) combina bem com arroz basmati cozido, mandioca cozida e azeite de oliva, porque a refeição ganha proteína, energia e um ajuste calórico simples de controlar.",
+    "pairingIds": [
+      "arroz_basmati_cozido",
+      "mandioca_cozida",
+      "azeite"
+    ]
+  },
+  "whey": {
+    "metaDescription": "Consulte calorias e macronutrientes de proteína whey por 100g, compare a porção em scoop e veja como encaixar esse alimento na rotina.",
+    "intro": "Proteína whey resolve a parte proteica com uma medida prática, o que ajuda bastante em shakes e lanches líquidos. A dose por scoop facilita repetir o preparo e ajustar a refeição com mais objetividade quando entram fruta, leite, aveia ou outra fonte de energia junto.",
+    "macroContext": "Na referência de 100g, proteína whey entrega cerca de 380 kcal, 75g de proteína, 10g de carboidratos e 5g de gordura, com predominância de proteína. Por isso, a dose resolve proteína com rapidez, mas o resto da refeição ainda depende do que entra junto no shake.",
+    "bestUse": "No uso diário, proteína whey funciona melhor em shakes e lanches líquidos nos quais a proteína precisa entrar com rapidez e medida clara. A dose em scoop resolve a parte proteica, mas a refeição só fica completa quando recebe um carboidrato ou outro complemento coerente ao redor.",
+    "pairingHeading": "Como combinar proteína whey",
+    "pairingText": "Proteína whey funciona melhor com banana madura, flocos de aveia finos e leite integral, porque o shake deixa de ser só proteína e ganha uma estrutura mais útil para a rotina.",
+    "pairingIds": [
+      "banana_prata",
+      "aveia_flocos",
+      "leite_integral"
+    ]
+  },
+  "leite_integral": {
+    "metaDescription": "Veja calorias e macronutrientes de leite integral por 100ml, ajuste a porção em ml e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Leite integral participa bem de bebidas, shakes, cafés da manhã e preparações rápidas porque a medida líquida é fácil de repetir. A comparação entre 100ml e ml ajuda a perceber quando a base do preparo ficou mais enxuta ou mais reforçada.",
+    "macroContext": "Na referência de 100ml, leite integral entrega cerca de 61 kcal, 3,2g de proteína, 4,8g de carboidratos e 3,3g de gordura, com predominância de carboidratos. Isso mostra que a bebida pode servir como base de mistura e também como apoio de proteína, carboidratos ou gordura, conforme o item.",
+    "bestUse": "Na prática, leite integral funciona bem em bebidas, mingaus, cafés da manhã e shakes que pedem uma base líquida simples de repetir. A medida por ml ajuda a ajustar o preparo quando ele já recebe fruta, aveia, whey ou outras adições.",
+    "pairingHeading": "Como montar um lanche com leite integral",
+    "pairingText": "Leite integral combina naturalmente com proteína whey, flocos de aveia finos e banana madura, formando bebidas ou lanches líquidos mais completos.",
+    "pairingIds": [
+      "whey",
+      "aveia_flocos",
+      "banana_prata"
+    ]
+  },
+  "leite_lactose_free": {
+    "metaDescription": "Confira calorias e macronutrientes de leite sem lactose integral por 100ml, ajuste a porção em ml e descubra como usar esse alimento nas refeições.",
+    "intro": "Leite sem lactose integral participa bem de bebidas, shakes, cafés da manhã e preparações rápidas porque a medida líquida é fácil de repetir. A comparação entre 100ml e ml ajuda a perceber quando a base do preparo ficou mais enxuta ou mais reforçada.",
+    "macroContext": "Na referência de 100ml, leite sem lactose integral entrega cerca de 60 kcal, 3,2g de proteína, 4,8g de carboidratos e 3,2g de gordura, com predominância de carboidratos. Isso mostra que a bebida pode servir como base de mistura e também como apoio de proteína, carboidratos ou gordura, conforme o item.",
+    "bestUse": "Na prática, leite sem lactose integral funciona bem em bebidas, mingaus, cafés da manhã e shakes que pedem uma base líquida simples de repetir. A medida por ml ajuda a ajustar o preparo quando ele já recebe fruta, aveia, whey ou outras adições.",
+    "pairingHeading": "Como montar um lanche com leite sem lactose integral",
+    "pairingText": "Leite sem lactose integral combina naturalmente com proteína caseína, banana madura e flocos de aveia finos, formando bebidas ou lanches líquidos mais completos.",
+    "pairingIds": [
+      "caseina",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "bebida_aveia": {
+    "metaDescription": "Veja calorias e macronutrientes de bebida vegetal de aveia por 100ml, ajuste a porção em ml e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Bebida vegetal de aveia participa bem de bebidas, shakes, cafés da manhã e preparações rápidas porque a medida líquida é fácil de repetir. A comparação entre 100ml e ml ajuda a perceber quando a base do preparo ficou mais enxuta ou mais reforçada.",
+    "macroContext": "Na referência de 100ml, bebida vegetal de aveia entrega cerca de 50 kcal, 1g de proteína, 8g de carboidratos e 1,5g de gordura, com predominância de carboidratos. Isso mostra que a bebida pode servir como base de mistura e também como apoio de proteína, carboidratos ou gordura, conforme o item.",
+    "bestUse": "Na prática, bebida vegetal de aveia funciona bem em bebidas, mingaus, cafés da manhã e shakes que pedem uma base líquida simples de repetir. A medida por ml ajuda a ajustar o preparo quando ele já recebe fruta, aveia, whey ou outras adições.",
+    "pairingHeading": "Como montar um lanche com bebida vegetal de aveia",
+    "pairingText": "Bebida vegetal de aveia combina naturalmente com proteína de ervilha (pó), banana madura e flocos de aveia finos, formando bebidas ou lanches líquidos mais completos.",
+    "pairingIds": [
+      "proteina_ervilha",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "bebida_amendoa": {
+    "metaDescription": "Entenda calorias e macronutrientes de bebida vegetal de amêndoa por 100ml, revise a porção em ml e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Bebida vegetal de amêndoa participa bem de bebidas, shakes, cafés da manhã e preparações rápidas porque a medida líquida é fácil de repetir. A comparação entre 100ml e ml ajuda a perceber quando a base do preparo ficou mais enxuta ou mais reforçada.",
+    "macroContext": "Na referência de 100ml, bebida vegetal de amêndoa entrega cerca de 30 kcal, 1g de proteína, 3g de carboidratos e 1,5g de gordura, com predominância de carboidratos. Isso mostra que a bebida pode servir como base de mistura e também como apoio de proteína, carboidratos ou gordura, conforme o item.",
+    "bestUse": "Na prática, bebida vegetal de amêndoa funciona bem em bebidas, mingaus, cafés da manhã e shakes que pedem uma base líquida simples de repetir. A medida por ml ajuda a ajustar o preparo quando ele já recebe fruta, aveia, whey ou outras adições.",
+    "pairingHeading": "Como montar um lanche com bebida vegetal de amêndoa",
+    "pairingText": "Bebida vegetal de amêndoa combina naturalmente com proteína de arroz (pó), banana madura e creme de arroz (cream of rice), formando bebidas ou lanches líquidos mais completos.",
+    "pairingIds": [
+      "proteina_arroz",
+      "banana_prata",
+      "creme_arroz"
+    ]
+  },
+  "iogurte_natural": {
+    "metaDescription": "Consulte calorias e macronutrientes de iogurte natural integral por 100g, compare a porção em pote e veja como encaixar esse alimento na rotina.",
+    "intro": "Iogurte natural integral encaixa bem em lanches frios, cafés da manhã e refeições de colher nas quais a montagem precisa ser rápida. A medida por pote ajuda a repetir a porção com menos variação quando o alimento aparece com fruta, aveia, granola, mel ou outras combinações do dia a dia.",
+    "macroContext": "Na referência de 100g, iogurte natural integral entrega cerca de 63 kcal, 3,5g de proteína, 4,7g de carboidratos e 3,3g de gordura, com predominância de carboidratos. Na prática, o alimento entra como base pronta para lanche, com espaço para ajustar a energia ao redor.",
+    "bestUse": "No uso diário, iogurte natural integral combina bem com frutas, granola, aveia e mel, formando lanches de colher ou cafés da manhã rápidos. A porção por pote ajuda a comparar um pote mais enxuto com outro reforçado sem depender só da percepção visual.",
+    "pairingHeading": "Como montar um lanche com iogurte natural integral",
+    "pairingText": "Iogurte natural integral costuma ficar mais completo com banana madura, flocos de aveia finos e mel, montando um lanche de colher simples e coerente.",
+    "pairingIds": [
+      "banana_prata",
+      "aveia_flocos",
+      "mel"
+    ]
+  },
+  "iogurte_grego": {
+    "metaDescription": "Confira calorias e macronutrientes de iogurte grego natural por 100g, ajuste a porção em pote e descubra como usar esse alimento nas refeições.",
+    "intro": "Iogurte grego natural encaixa bem em lanches frios, cafés da manhã e refeições de colher nas quais a montagem precisa ser rápida. A medida por pote ajuda a repetir a porção com menos variação quando o alimento aparece com fruta, aveia, granola, mel ou outras combinações do dia a dia.",
+    "macroContext": "Na referência de 100g, iogurte grego natural entrega cerca de 97 kcal, 9g de proteína, 4g de carboidratos e 5g de gordura, com predominância de proteína. Na prática, o alimento entra como base pronta para lanche, com espaço para ajustar a energia ao redor.",
+    "bestUse": "No uso diário, iogurte grego natural combina bem com frutas, granola, aveia e mel, formando lanches de colher ou cafés da manhã rápidos. A porção por pote ajuda a comparar um pote mais enxuto com outro reforçado sem depender só da percepção visual.",
+    "pairingHeading": "Como montar um lanche com iogurte grego natural",
+    "pairingText": "Iogurte grego natural costuma ficar mais completo com banana madura, flocos de aveia finos e mel, montando um lanche de colher simples e coerente.",
+    "pairingIds": [
+      "banana_prata",
+      "aveia_flocos",
+      "mel"
+    ]
+  },
+  "queijo_mussarela": {
+    "metaDescription": "Consulte calorias e macronutrientes de queijo mussarela por 100g, compare a porção em fatia e veja como encaixar esse alimento na rotina.",
+    "intro": "Queijo mussarela já entrega proteína com mais gordura ou mais densidade do que uma base magra, então costuma render refeições mais completas sem exigir tantos complementos. A porção por fatia ajuda a comparar uma montagem mais leve com outra mais carregada, especialmente quando o alimento aparece em almoço, jantar ou lanche reforçado.",
+    "macroContext": "Na referência de 100g, queijo mussarela entrega cerca de 280 kcal, 22g de proteína, 2,2g de carboidratos e 20g de gordura, com predominância de proteína. Na prática, a combinação de proteína com mais gordura ou mais densidade muda o espaço que sobra para outros reforços calóricos no prato.",
+    "bestUse": "Na prática, queijo mussarela funciona bem em almoço, jantar, sanduíches reforçados ou pratos mais completos, porque a própria porção já entrega mais peso calórico do que uma proteína muito magra. A medida por fatia ajuda bastante a comparar uma refeição mais enxuta com outra mais carregada.",
+    "pairingHeading": "Como combinar queijo mussarela",
+    "pairingText": "Queijo mussarela costuma render melhor com pão de forma branco, wrap / tortilha de trigo e salada (alface, tomate), criando uma refeição mais completa sem precisar de muitos ingredientes.",
+    "pairingIds": [
+      "pao_forma",
+      "wrap_tortilha",
+      "salada_mista"
+    ]
+  },
+  "queijo_branco": {
+    "metaDescription": "Consulte calorias e macronutrientes de queijo branco (minas) por 100g, compare a porção em fatia e veja como encaixar esse alimento na rotina.",
+    "intro": "Queijo branco (minas) já entrega proteína com mais gordura ou mais densidade do que uma base magra, então costuma render refeições mais completas sem exigir tantos complementos. A porção por fatia ajuda a comparar uma montagem mais leve com outra mais carregada, especialmente quando o alimento aparece em almoço, jantar ou lanche reforçado.",
+    "macroContext": "Na referência de 100g, queijo branco (minas) entrega cerca de 240 kcal, 17g de proteína, 3g de carboidratos e 18g de gordura, com predominância de gordura. Na prática, a combinação de proteína com mais gordura ou mais densidade muda o espaço que sobra para outros reforços calóricos no prato.",
+    "bestUse": "Na prática, queijo branco (minas) funciona bem em almoço, jantar, sanduíches reforçados ou pratos mais completos, porque a própria porção já entrega mais peso calórico do que uma proteína muito magra. A medida por fatia ajuda bastante a comparar uma refeição mais enxuta com outra mais carregada.",
+    "pairingHeading": "Como combinar queijo branco (minas)",
+    "pairingText": "Queijo branco (minas) costuma render melhor com pão de forma branco, banana madura e azeite de oliva, criando uma refeição mais completa sem precisar de muitos ingredientes.",
+    "pairingIds": [
+      "pao_forma",
+      "banana_prata",
+      "azeite"
+    ]
+  },
+  "leite_po": {
+    "metaDescription": "Consulte calorias e macronutrientes de leite em pó integral por 100g, compare a porção em colher de sopa e veja como encaixar esse alimento na rotina.",
+    "intro": "Leite em pó integral concentra calorias e macros em uma medida pequena, então costuma entrar como ingrediente de reforço em mingaus, shakes e receitas rápidas. Comparar 100g com a colher de sopa ajuda a entender quanto a porção real pesa na refeição final.",
+    "macroContext": "Na referência de 100g, leite em pó integral entrega cerca de 496 kcal, 25g de proteína, 39g de carboidratos e 27g de gordura, com predominância de carboidratos. Como a água sai da equação, a colher concentrada costuma pesar mais do que o volume sugere à primeira vista.",
+    "bestUse": "Na prática, leite em pó integral rende melhor em mingaus, shakes, cafés da manhã e receitas simples em que a colher pode ser medida de forma objetiva. Como o alimento é concentrado, usar colher de sopa como referência evita que o reforço pareça menor do que realmente é.",
+    "pairingHeading": "Como montar um lanche com leite em pó integral",
+    "pairingText": "Leite em pó integral rende melhor com banana madura, flocos de aveia finos e proteína whey, já que esses itens aproveitam bem o reforço concentrado do ingrediente.",
+    "pairingIds": [
+      "banana_prata",
+      "aveia_flocos",
+      "whey"
+    ]
+  },
+  "skyr": {
+    "metaDescription": "Consulte calorias e macronutrientes de skyr natural por 100g, compare a porção em pote e veja como encaixar esse alimento na rotina.",
+    "intro": "Skyr natural encaixa bem em lanches frios, cafés da manhã e refeições de colher nas quais a montagem precisa ser rápida. A medida por pote ajuda a repetir a porção com menos variação quando o alimento aparece com fruta, aveia, granola, mel ou outras combinações do dia a dia.",
+    "macroContext": "Na referência de 100g, skyr natural entrega cerca de 63 kcal, 11g de proteína, 4g de carboidratos e 0,2g de gordura, com predominância de proteína. Na prática, o alimento entra como base pronta para lanche, com espaço para ajustar a energia ao redor.",
+    "bestUse": "No uso diário, skyr natural combina bem com frutas, granola, aveia e mel, formando lanches de colher ou cafés da manhã rápidos. A porção por pote ajuda a comparar um pote mais enxuto com outro reforçado sem depender só da percepção visual.",
+    "pairingHeading": "Como montar um lanche com skyr natural",
+    "pairingText": "Skyr natural costuma ficar mais completo com banana madura, flocos de aveia finos e mel, montando um lanche de colher simples e coerente.",
+    "pairingIds": [
+      "banana_prata",
+      "aveia_flocos",
+      "mel"
+    ]
+  },
+  "queijo_cottage": {
+    "metaDescription": "Entenda calorias e macronutrientes de queijo cottage por 100g, revise a porção em pote e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Queijo cottage costuma funcionar melhor em lanches, sanduíches, wraps e combinações frias em que proteína e gordura entram juntas. Como a porção já vem em pote, fica mais fácil repetir a refeição sem depender de estimativa visual.",
+    "macroContext": "Na referência de 100g, queijo cottage entrega cerca de 98 kcal, 11g de proteína, 3,4g de carboidratos e 4,3g de gordura, com predominância de proteína. Esse desenho explica por que ele funciona melhor como parte de uma combinação do que como item isolado.",
+    "bestUse": "No dia a dia, queijo cottage funciona bem em torradas, sanduíches, wraps e lanches frios em que proteína e gordura já entram juntas. Como a porção costuma ser discreta à vista, medir pote ajuda a manter a refeição mais consistente.",
+    "pairingHeading": "Como montar um lanche com queijo cottage",
+    "pairingText": "Queijo cottage combina melhor com pão de forma branco, banana madura e mel, formando lanches frios ou refeições rápidas com leitura fácil da porção.",
+    "pairingIds": [
+      "pao_forma",
+      "banana_prata",
+      "mel"
+    ]
+  },
+  "caseina": {
+    "metaDescription": "Veja calorias e macronutrientes de proteína caseína por 100g, ajuste a porção em scoop e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Proteína caseína resolve a parte proteica com uma medida prática, o que ajuda bastante em shakes e lanches líquidos. A dose por scoop facilita repetir o preparo e ajustar a refeição com mais objetividade quando entram fruta, leite, aveia ou outra fonte de energia junto.",
+    "macroContext": "Na referência de 100g, proteína caseína entrega cerca de 370 kcal, 80g de proteína, 5g de carboidratos e 2g de gordura, com predominância de proteína. Por isso, a dose resolve proteína com rapidez, mas o resto da refeição ainda depende do que entra junto no shake.",
+    "bestUse": "No uso diário, proteína caseína funciona melhor em shakes e lanches líquidos nos quais a proteína precisa entrar com rapidez e medida clara. A dose em scoop resolve a parte proteica, mas a refeição só fica completa quando recebe um carboidrato ou outro complemento coerente ao redor.",
+    "pairingHeading": "Como combinar proteína caseína",
+    "pairingText": "Proteína caseína funciona melhor com leite integral, banana madura e flocos de aveia finos, porque o shake deixa de ser só proteína e ganha uma estrutura mais útil para a rotina.",
+    "pairingIds": [
+      "leite_integral",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "tofu": {
+    "metaDescription": "Confira calorias e macronutrientes de tofu firme por 100g, ajuste a porção em porção e descubra como usar esse alimento nas refeições.",
+    "intro": "Tofu firme pode funcionar como proteína principal de pratos sólidos quando a ideia é variar das opções animais sem perder praticidade. A referência por porção ajuda a manter a porção real sob controle em montagens com arroz, legumes, molhos simples e algum reforço de gordura.",
+    "macroContext": "Na referência de 100g, tofu firme entrega cerca de 76 kcal, 8g de proteína, 1,9g de carboidratos e 4,2g de gordura, com predominância de proteína. Esse perfil ajuda o alimento a funcionar como base proteica de prato pronto, desde que o restante da refeição seja montado com critério.",
+    "bestUse": "Na prática, tofu firme costuma render melhor em bowls, salteados, pratos com arroz e refeições quentes montadas em etapas. A porção por porção ajuda a equilibrar a combinação quando o prato já leva molho, cereal ou gordura adicional.",
+    "pairingHeading": "Como combinar tofu firme",
+    "pairingText": "Tofu firme costuma funcionar melhor com arroz integral cozido, quinoa cozida e azeite de oliva, fechando uma refeição sólida sem depender de improviso.",
+    "pairingIds": [
+      "arroz_integral_cozido",
+      "quinoa_cozida",
+      "azeite"
+    ]
+  },
+  "tempeh": {
+    "metaDescription": "Entenda calorias e macronutrientes de tempeh por 100g, revise a porção em porção e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Tempeh pode funcionar como proteína principal de pratos sólidos quando a ideia é variar das opções animais sem perder praticidade. A referência por porção ajuda a manter a porção real sob controle em montagens com arroz, legumes, molhos simples e algum reforço de gordura.",
+    "macroContext": "Na referência de 100g, tempeh entrega cerca de 193 kcal, 19g de proteína, 9g de carboidratos e 11g de gordura, com predominância de proteína. Esse perfil ajuda o alimento a funcionar como base proteica de prato pronto, desde que o restante da refeição seja montado com critério.",
+    "bestUse": "Na prática, tempeh costuma render melhor em bowls, salteados, pratos com arroz e refeições quentes montadas em etapas. A porção por porção ajuda a equilibrar a combinação quando o prato já leva molho, cereal ou gordura adicional.",
+    "pairingHeading": "Como combinar tempeh",
+    "pairingText": "Tempeh costuma funcionar melhor com arroz jasmine cozido, wrap / tortilha de trigo e azeite de oliva, fechando uma refeição sólida sem depender de improviso.",
+    "pairingIds": [
+      "arroz_jasmine_cozido",
+      "wrap_tortilha",
+      "azeite"
+    ]
+  },
+  "arroz_branco_cozido": {
+    "metaDescription": "Consulte calorias e macronutrientes de arroz branco cozido por 100g, compare a porção em xícara e veja como encaixar esse alimento na rotina.",
+    "intro": "Arroz branco cozido é uma base prática para refeições principais quando a meta pede carboidratos fáceis de medir e ajustar. A porção por xícara ajuda a comparar o que foi servido com a referência de 100g, o que faz diferença quando o alimento entra ao lado de proteína, molho, feijão, legumes ou gordura.",
+    "macroContext": "Na referência de 100g, arroz branco cozido entrega cerca de 130 kcal, 2,7g de proteína, 28,2g de carboidratos e 0,3g de gordura, com predominância de carboidratos. Isso deixa claro que o alimento entra como base energética da refeição, enquanto proteína principal e gordura definem o resto do total.",
+    "bestUse": "No dia a dia, arroz branco cozido costuma render melhor ao lado de carnes, ovos, peixes, tofu ou outros acompanhamentos que fechem proteína e gordura. Quando a refeição já tem feijão, molho ou outro carboidrato, a porção por xícara ajuda a não somar volume além do necessário.",
+    "pairingHeading": "O que combinar com arroz branco cozido",
+    "pairingText": "Arroz branco cozido costuma ficar mais redondo ao lado de peito de frango grelhado, azeite de oliva e lentilha cozida, porque essa combinação fecha proteína, ajuste calórico e um acompanhamento simples de repetir.",
+    "pairingIds": [
+      "peito_frango",
+      "azeite",
+      "lentilha_cozida"
+    ]
+  },
+  "arroz_basmati_cozido": {
+    "metaDescription": "Consulte calorias e macronutrientes de arroz basmati cozido por 100g, compare a porção em xícara e veja como encaixar esse alimento na rotina.",
+    "intro": "Arroz basmati cozido é uma base prática para refeições principais quando a meta pede carboidratos fáceis de medir e ajustar. A porção por xícara ajuda a comparar o que foi servido com a referência de 100g, o que faz diferença quando o alimento entra ao lado de proteína, molho, feijão, legumes ou gordura.",
+    "macroContext": "Na referência de 100g, arroz basmati cozido entrega cerca de 121 kcal, 3g de proteína, 25g de carboidratos e 0,4g de gordura, com predominância de carboidratos. Isso deixa claro que o alimento entra como base energética da refeição, enquanto proteína principal e gordura definem o resto do total.",
+    "bestUse": "No dia a dia, arroz basmati cozido costuma render melhor ao lado de carnes, ovos, peixes, tofu ou outros acompanhamentos que fechem proteína e gordura. Quando a refeição já tem feijão, molho ou outro carboidrato, a porção por xícara ajuda a não somar volume além do necessário.",
+    "pairingHeading": "O que combinar com arroz basmati cozido",
+    "pairingText": "Arroz basmati cozido costuma ficar mais redondo ao lado de peito de frango grelhado, azeite de oliva e brócolis cozido, porque essa combinação fecha proteína, ajuste calórico e um acompanhamento simples de repetir.",
+    "pairingIds": [
+      "peito_frango",
+      "azeite",
+      "brocolis"
+    ]
+  },
+  "macarrao_cozido": {
+    "metaDescription": "Consulte calorias e macronutrientes de macarrão cozido (massa cozida) por 100g, compare a porção em xícara e veja como encaixar esse alimento na rotina.",
+    "intro": "Macarrão cozido (massa cozida) costuma funcionar bem em almoço e jantar quando a refeição precisa ganhar carboidratos sem complicar a montagem. A medida por xícara ajuda a comparar o volume já cozido com a referência de 100g, o que facilita repetir a porção com molho, carne, queijo ou outro acompanhamento.",
+    "macroContext": "Na referência de 100g, macarrão cozido (massa cozida) entrega cerca de 157 kcal, 5,8g de proteína, 30,9g de carboidratos e 0,9g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "Na prática, macarrão cozido (massa cozida) rende melhor em pratos quentes, marmitas e refeições completas em que a proteína principal e o molho já estão definidos. Quando a refeição também leva queijo, creme, azeite ou outro reforço calórico, medir xícara ajuda a não somar carboidratos além do que parecia no prato.",
+    "pairingHeading": "O que combinar com macarrão cozido (massa cozida)",
+    "pairingText": "Macarrão cozido (massa cozida) rende melhor quando aparece com carne moída (carne picada), molho de tomate simples e queijo parmesão ralado, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "carne_moida",
+      "molho_tomate",
+      "queijo_parmesao"
+    ]
+  },
+  "batata_cozida": {
+    "metaDescription": "Confira calorias e macronutrientes de batata inglesa cozida (batata branca simples) por 100g, ajuste a porção em batata pequena e descubra como usar ele no dia.",
+    "intro": "Batata inglesa cozida (batata branca simples) funciona bem como base de carboidratos em pratos quentes e refeições sólidas nas quais a porção precisa ser fácil de ajustar. A comparação entre 100g e batata pequena ajuda a repetir a quantidade real com mais constância ao lado de proteína, legumes, molho ou alguma gordura de complemento.",
+    "macroContext": "Na referência de 100g, batata inglesa cozida (batata branca simples) entrega cerca de 87 kcal, 1,9g de proteína, 20g de carboidratos e 0,1g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, batata inglesa cozida (batata branca simples) rende melhor em almoço, jantar e marmitas em que o alimento aparece como acompanhamento principal do prato. Quando a refeição também leva arroz, feijão, queijo, molho ou azeite, medir batata pequena ajuda a manter o total de carboidratos mais fiel ao que foi planejado.",
+    "pairingHeading": "O que combinar com batata inglesa cozida (batata branca simples)",
+    "pairingText": "Batata inglesa cozida (batata branca simples) rende melhor quando aparece com peito de frango grelhado, azeite de oliva e brócolis cozido, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "peito_frango",
+      "azeite",
+      "brocolis"
+    ]
+  },
+  "pure_batata": {
+    "metaDescription": "Veja calorias e macronutrientes de purê de batata por 100g, ajuste a porção em colher de sopa e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Purê de batata funciona bem como base de carboidratos em pratos quentes e refeições sólidas nas quais a porção precisa ser fácil de ajustar. A comparação entre 100g e colher de sopa ajuda a repetir a quantidade real com mais constância ao lado de proteína, legumes, molho ou alguma gordura de complemento.",
+    "macroContext": "Na referência de 100g, purê de batata entrega cerca de 110 kcal, 1,9g de proteína, 16g de carboidratos e 4,2g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, purê de batata rende melhor em almoço, jantar e marmitas em que o alimento aparece como acompanhamento principal do prato. Quando a refeição também leva arroz, feijão, queijo, molho ou azeite, medir colher de sopa ajuda a manter o total de carboidratos mais fiel ao que foi planejado.",
+    "pairingHeading": "O que combinar com purê de batata",
+    "pairingText": "Purê de batata rende melhor quando aparece com carne moída (carne picada), azeite de oliva e brócolis cozido, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "carne_moida",
+      "azeite",
+      "brocolis"
+    ]
+  },
+  "batata_doce_cozida": {
+    "metaDescription": "Veja calorias e macronutrientes de batata doce cozida por 100g, ajuste a porção em batata-doce pequena e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Batata doce cozida funciona bem como base de carboidratos em pratos quentes e refeições sólidas nas quais a porção precisa ser fácil de ajustar. A comparação entre 100g e batata-doce pequena ajuda a repetir a quantidade real com mais constância ao lado de proteína, legumes, molho ou alguma gordura de complemento.",
+    "macroContext": "Na referência de 100g, batata doce cozida entrega cerca de 86 kcal, 1,6g de proteína, 20g de carboidratos e 0,1g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, batata doce cozida rende melhor em almoço, jantar e marmitas em que o alimento aparece como acompanhamento principal do prato. Quando a refeição também leva arroz, feijão, queijo, molho ou azeite, medir batata-doce pequena ajuda a manter o total de carboidratos mais fiel ao que foi planejado.",
+    "pairingHeading": "O que combinar com batata doce cozida",
+    "pairingText": "Batata doce cozida rende melhor quando aparece com peito de frango grelhado, azeite de oliva e brócolis cozido, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "peito_frango",
+      "azeite",
+      "brocolis"
+    ]
+  },
+  "mandioca_cozida": {
+    "metaDescription": "Consulte calorias e macronutrientes de mandioca cozida por 100g, compare a porção em porção e veja como encaixar esse alimento na rotina.",
+    "intro": "Mandioca cozida funciona bem como base de carboidratos em pratos quentes e refeições sólidas nas quais a porção precisa ser fácil de ajustar. A comparação entre 100g e porção ajuda a repetir a quantidade real com mais constância ao lado de proteína, legumes, molho ou alguma gordura de complemento.",
+    "macroContext": "Na referência de 100g, mandioca cozida entrega cerca de 125 kcal, 1g de proteína, 30g de carboidratos e 0,3g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, mandioca cozida rende melhor em almoço, jantar e marmitas em que o alimento aparece como acompanhamento principal do prato. Quando a refeição também leva arroz, feijão, queijo, molho ou azeite, medir porção ajuda a manter o total de carboidratos mais fiel ao que foi planejado.",
+    "pairingHeading": "O que combinar com mandioca cozida",
+    "pairingText": "Mandioca cozida rende melhor quando aparece com coxa de frango sem pele grelhada, azeite de oliva e salada (alface, tomate), porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "coxa_frango",
+      "azeite",
+      "salada_mista"
+    ]
+  },
+  "polenta": {
+    "metaDescription": "Entenda calorias e macronutrientes de polenta cozida por 100g, revise a porção em porção e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Polenta cozida funciona bem como base de carboidratos em pratos quentes e refeições sólidas nas quais a porção precisa ser fácil de ajustar. A comparação entre 100g e porção ajuda a repetir a quantidade real com mais constância ao lado de proteína, legumes, molho ou alguma gordura de complemento.",
+    "macroContext": "Na referência de 100g, polenta cozida entrega cerca de 85 kcal, 2g de proteína, 18g de carboidratos e 0,5g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, polenta cozida rende melhor em almoço, jantar e marmitas em que o alimento aparece como acompanhamento principal do prato. Quando a refeição também leva arroz, feijão, queijo, molho ou azeite, medir porção ajuda a manter o total de carboidratos mais fiel ao que foi planejado.",
+    "pairingHeading": "O que combinar com polenta cozida",
+    "pairingText": "Polenta cozida rende melhor quando aparece com carne moída (carne picada), molho de tomate simples e queijo parmesão ralado, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "carne_moida",
+      "molho_tomate",
+      "queijo_parmesao"
+    ]
+  },
+  "cuscuz": {
+    "metaDescription": "Consulte calorias e macronutrientes de cuscuz de milho por 100g, compare a porção em porção e veja como encaixar esse alimento na rotina.",
+    "intro": "Cuscuz de milho funciona bem tanto em cafés da manhã reforçados quanto em pratos simples do dia a dia, porque a porção pronta é fácil de ajustar. A comparação entre 100g e porção ajuda a repetir a quantidade servida sem depender apenas da percepção visual.",
+    "macroContext": "Na referência de 100g, cuscuz de milho entrega cerca de 113 kcal, 2,3g de proteína, 25g de carboidratos e 0,3g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, cuscuz de milho rende melhor com ovos, queijos, carnes magras ou algum ajuste de gordura que complete a refeição. Medir porção ajuda a decidir se ele está entrando como base principal do prato ou só como um acompanhamento mais leve.",
+    "pairingHeading": "O que combinar com cuscuz de milho",
+    "pairingText": "Cuscuz de milho rende melhor quando aparece com ovo inteiro, azeite de oliva e queijo cottage, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "ovo_inteiro",
+      "azeite",
+      "queijo_cottage"
+    ]
+  },
+  "tapioca": {
+    "metaDescription": "Consulte calorias e macronutrientes de tapioca (goma hidratada) por 100g, compare a porção em colher de sopa e veja como encaixar esse alimento na rotina.",
+    "intro": "Tapioca (goma hidratada) costuma aparecer bem em cafés da manhã, lanches e refeições rápidas em que os carboidratos precisam ser fáceis de medir. A comparação entre 100g e colher de sopa ajuda a repetir a montagem com mais constância quando a tapioca entra com queijo, cottage, pasta ou fruta.",
+    "macroContext": "Na referência de 100g, tapioca (goma hidratada) entrega cerca de 240 kcal, 0,2g de proteína, 60g de carboidratos e 0,1g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "Na prática, tapioca (goma hidratada) rende melhor em lanches e refeições menores nas quais o recheio fecha proteína, gordura e sabor. Medir colher de sopa é importante porque a base pode parecer leve, mas cresce rápido quando a porção aumenta ou quando o recheio já é mais denso.",
+    "pairingHeading": "O que combinar com tapioca (goma hidratada)",
+    "pairingText": "Tapioca (goma hidratada) rende melhor quando aparece com queijo cottage, banana madura e pasta de amendoim, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "queijo_cottage",
+      "banana_prata",
+      "pasta_amendoim"
+    ]
+  },
+  "pao_frances": {
+    "metaDescription": "Consulte calorias e macronutrientes de pão branco (pão francês) por 100g, compare a porção em unidade e veja como encaixar esse alimento na rotina.",
+    "intro": "Pão branco (pão francês) costuma aparecer bem em cafés da manhã, lanches e refeições rápidas nas quais a montagem precisa ser objetiva. Como a porção já é fácil de visualizar em unidade, fica simples subir ou reduzir os carboidratos sem complicar a rotina.",
+    "macroContext": "Na referência de 100g, pão branco (pão francês) entrega cerca de 300 kcal, 8g de proteína, 58g de carboidratos e 3g de gordura, com predominância de carboidratos. Na rotina, isso costuma colocá-lo como base rápida de carboidratos, não como alimento que resolve a refeição sozinho.",
+    "bestUse": "Na prática, pão branco (pão francês) faz mais sentido em lanches, sanduíches e cafés da manhã reforçados. Como a porção já vem em unidade, fica simples montar uma refeição menor ou maior mantendo a leitura dos carboidratos sob controle.",
+    "pairingHeading": "O que combinar com pão branco (pão francês)",
+    "pairingText": "Pão branco (pão francês) costuma funcionar melhor com ovo inteiro, queijo cottage e peito de peru grelhado, criando lanches ou refeições rápidas mais equilibradas.",
+    "pairingIds": [
+      "ovo_inteiro",
+      "queijo_cottage",
+      "peito_peru"
+    ]
+  },
+  "pao_forma": {
+    "metaDescription": "Veja calorias e macronutrientes de pão de forma branco por 100g, ajuste a porção em fatia e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Pão de forma branco costuma aparecer bem em cafés da manhã, lanches e refeições rápidas nas quais a montagem precisa ser objetiva. Como a porção já é fácil de visualizar em fatia, fica simples subir ou reduzir os carboidratos sem complicar a rotina.",
+    "macroContext": "Na referência de 100g, pão de forma branco entrega cerca de 265 kcal, 9g de proteína, 49g de carboidratos e 3,2g de gordura, com predominância de carboidratos. Na rotina, isso costuma colocá-lo como base rápida de carboidratos, não como alimento que resolve a refeição sozinho.",
+    "bestUse": "Na prática, pão de forma branco faz mais sentido em lanches, sanduíches e cafés da manhã reforçados. Como a porção já vem em fatia, fica simples montar uma refeição menor ou maior mantendo a leitura dos carboidratos sob controle.",
+    "pairingHeading": "O que combinar com pão de forma branco",
+    "pairingText": "Pão de forma branco costuma funcionar melhor com queijo cottage, atum em água e banana madura, criando lanches ou refeições rápidas mais equilibradas.",
+    "pairingIds": [
+      "queijo_cottage",
+      "atum_agua",
+      "banana_prata"
+    ]
+  },
+  "aveia_flocos": {
+    "metaDescription": "Entenda calorias e macronutrientes de flocos de aveia finos por 100g, revise a porção em colher de sopa e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Flocos de aveia finos costumam render melhor em mingaus, bowls, iogurtes e shakes quando os carboidratos precisam subir com pouco trabalho. A medida por colher de sopa ajuda a comparar a porção real com a referência de 100g, o que facilita repetir a preparação sem depender de estimativa visual.",
+    "macroContext": "Na referência de 100g, flocos de aveia finos entregam cerca de 389 kcal, 16,9g de proteína, 66,3g de carboidratos e 6,9g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "Na prática, flocos de aveia finos funcionam bem em cafés da manhã, lanches e refeições de colher que precisam de uma base simples de combinar com fruta, leite, iogurte ou whey. O ponto principal é não perder a mão em colher de sopa quando a preparação já recebe outros alimentos mais densos.",
+    "pairingHeading": "O que combinar com flocos de aveia finos",
+    "pairingText": "Flocos de aveia finos rendem melhor quando aparecem com banana madura, skyr natural e pasta de amendoim, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "banana_prata",
+      "skyr",
+      "pasta_amendoim"
+    ]
+  },
+  "feijao_carioca": {
+    "metaDescription": "Entenda calorias e macronutrientes de feijão carioca cozido por 100g, revise a porção em concha e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Feijão carioca cozido é uma base prática para refeições principais quando a meta pede carboidratos fáceis de medir e ajustar. A porção por concha ajuda a comparar o que foi servido com a referência de 100g, o que faz diferença quando o alimento entra ao lado de proteína, molho, feijão, legumes ou gordura.",
+    "macroContext": "Na referência de 100g, feijão carioca cozido entrega cerca de 76 kcal, 4,8g de proteína, 13,6g de carboidratos e 0,5g de gordura, com predominância de carboidratos. Isso deixa claro que o alimento entra como base energética da refeição, enquanto proteína principal e gordura definem o resto do total.",
+    "bestUse": "No dia a dia, feijão carioca cozido costuma render melhor ao lado de carnes, ovos, peixes, tofu ou outros acompanhamentos que fechem proteína e gordura. Quando a refeição já tem feijão, molho ou outro carboidrato, a porção por concha ajuda a não somar volume além do necessário.",
+    "pairingHeading": "O que combinar com feijão carioca cozido",
+    "pairingText": "Feijão carioca cozido costuma ficar mais redondo ao lado de arroz branco cozido, peito de frango grelhado e azeite de oliva, porque essa combinação fecha proteína, ajuste calórico e um acompanhamento simples de repetir.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "peito_frango",
+      "azeite"
+    ]
+  },
+  "lentilha_cozida": {
+    "metaDescription": "Confira calorias e macronutrientes de lentilha cozida por 100g, ajuste a porção em concha e descubra como usar esse alimento nas refeições.",
+    "intro": "Lentilha cozida é uma base prática para refeições principais quando a meta pede carboidratos fáceis de medir e ajustar. A porção por concha ajuda a comparar o que foi servido com a referência de 100g, o que faz diferença quando o alimento entra ao lado de proteína, molho, feijão, legumes ou gordura.",
+    "macroContext": "Na referência de 100g, lentilha cozida entrega cerca de 93 kcal, 6,3g de proteína, 16,3g de carboidratos e 0,5g de gordura, com predominância de carboidratos. Isso deixa claro que o alimento entra como base energética da refeição, enquanto proteína principal e gordura definem o resto do total.",
+    "bestUse": "No dia a dia, lentilha cozida costuma render melhor ao lado de carnes, ovos, peixes, tofu ou outros acompanhamentos que fechem proteína e gordura. Quando a refeição já tem feijão, molho ou outro carboidrato, a porção por concha ajuda a não somar volume além do necessário.",
+    "pairingHeading": "O que combinar com lentilha cozida",
+    "pairingText": "Lentilha cozida costuma ficar mais redondo ao lado de arroz branco cozido, peito de frango grelhado e azeite de oliva, porque essa combinação fecha proteína, ajuste calórico e um acompanhamento simples de repetir.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "peito_frango",
+      "azeite"
+    ]
+  },
+  "arroz_integral_cozido": {
+    "metaDescription": "Confira calorias e macronutrientes de arroz integral cozido por 100g, ajuste a porção em xícara e descubra como usar esse alimento nas refeições.",
+    "intro": "Arroz integral cozido é uma base prática para refeições principais quando a meta pede carboidratos fáceis de medir e ajustar. A porção por xícara ajuda a comparar o que foi servido com a referência de 100g, o que faz diferença quando o alimento entra ao lado de proteína, molho, feijão, legumes ou gordura.",
+    "macroContext": "Na referência de 100g, arroz integral cozido entrega cerca de 123 kcal, 2,6g de proteína, 26g de carboidratos e 0,9g de gordura, com predominância de carboidratos. Isso deixa claro que o alimento entra como base energética da refeição, enquanto proteína principal e gordura definem o resto do total.",
+    "bestUse": "No dia a dia, arroz integral cozido costuma render melhor ao lado de carnes, ovos, peixes, tofu ou outros acompanhamentos que fechem proteína e gordura. Quando a refeição já tem feijão, molho ou outro carboidrato, a porção por xícara ajuda a não somar volume além do necessário.",
+    "pairingHeading": "O que combinar com arroz integral cozido",
+    "pairingText": "Arroz integral cozido costuma ficar mais redondo ao lado de peito de frango grelhado, azeite de oliva e brócolis cozido, porque essa combinação fecha proteína, ajuste calórico e um acompanhamento simples de repetir.",
+    "pairingIds": [
+      "peito_frango",
+      "azeite",
+      "brocolis"
+    ]
+  },
+  "arroz_jasmine_cozido": {
+    "metaDescription": "Entenda calorias e macronutrientes de arroz jasmine cozido por 100g, revise a porção em xícara e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Arroz jasmine cozido é uma base prática para refeições principais quando a meta pede carboidratos fáceis de medir e ajustar. A porção por xícara ajuda a comparar o que foi servido com a referência de 100g, o que faz diferença quando o alimento entra ao lado de proteína, molho, feijão, legumes ou gordura.",
+    "macroContext": "Na referência de 100g, arroz jasmine cozido entrega cerca de 125 kcal, 2,7g de proteína, 27g de carboidratos e 0,3g de gordura, com predominância de carboidratos. Isso deixa claro que o alimento entra como base energética da refeição, enquanto proteína principal e gordura definem o resto do total.",
+    "bestUse": "No dia a dia, arroz jasmine cozido costuma render melhor ao lado de carnes, ovos, peixes, tofu ou outros acompanhamentos que fechem proteína e gordura. Quando a refeição já tem feijão, molho ou outro carboidrato, a porção por xícara ajuda a não somar volume além do necessário.",
+    "pairingHeading": "O que combinar com arroz jasmine cozido",
+    "pairingText": "Arroz jasmine cozido costuma ficar mais redondo ao lado de salmão cozido, azeite de oliva e salada (alface, tomate), porque essa combinação fecha proteína, ajuste calórico e um acompanhamento simples de repetir.",
+    "pairingIds": [
+      "peixe_salmao",
+      "azeite",
+      "salada_mista"
+    ]
+  },
+  "quinoa_cozida": {
+    "metaDescription": "Confira calorias e macronutrientes de quinoa cozida por 100g, ajuste a porção em xícara e descubra como usar esse alimento nas refeições.",
+    "intro": "Quinoa cozida é uma base prática para refeições principais quando a meta pede carboidratos fáceis de medir e ajustar. A porção por xícara ajuda a comparar o que foi servido com a referência de 100g, o que faz diferença quando o alimento entra ao lado de proteína, molho, feijão, legumes ou gordura.",
+    "macroContext": "Na referência de 100g, quinoa cozida entrega cerca de 120 kcal, 4,4g de proteína, 22g de carboidratos e 1,9g de gordura, com predominância de carboidratos. Isso deixa claro que o alimento entra como base energética da refeição, enquanto proteína principal e gordura definem o resto do total.",
+    "bestUse": "No dia a dia, quinoa cozida costuma render melhor ao lado de carnes, ovos, peixes, tofu ou outros acompanhamentos que fechem proteína e gordura. Quando a refeição já tem feijão, molho ou outro carboidrato, a porção por xícara ajuda a não somar volume além do necessário.",
+    "pairingHeading": "O que combinar com quinoa cozida",
+    "pairingText": "Quinoa cozida costuma ficar mais redondo ao lado de tilápia cozida, azeite de oliva e abobrinha cozida (curgete), porque essa combinação fecha proteína, ajuste calórico e um acompanhamento simples de repetir.",
+    "pairingIds": [
+      "peixe_tilapia",
+      "azeite",
+      "abobrinha"
+    ]
+  },
+  "creme_arroz": {
+    "metaDescription": "Consulte calorias e macronutrientes de creme de arroz (cream of rice) por 100g, compare a porção em colher de sopa e veja como encaixar esse alimento na rotina.",
+    "intro": "Creme de arroz (cream of rice) costuma render melhor em mingaus, bowls, iogurtes e shakes quando os carboidratos precisam subir com pouco trabalho. A medida por colher de sopa ajuda a comparar a porção real com a referência de 100g, o que facilita repetir a preparação sem depender de estimativa visual.",
+    "macroContext": "Na referência de 100g, creme de arroz (cream of rice) entrega cerca de 362 kcal, 6,7g de proteína, 79g de carboidratos e 0,9g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "Na prática, creme de arroz (cream of rice) funciona bem em cafés da manhã, lanches e refeições de colher que precisam de uma base simples de combinar com fruta, leite, iogurte ou whey. O ponto principal é não perder a mão em colher de sopa quando a preparação já recebe outros alimentos mais densos.",
+    "pairingHeading": "O que combinar com creme de arroz (cream of rice)",
+    "pairingText": "Creme de arroz (cream of rice) rende melhor quando aparece com proteína whey, banana madura e pasta de amendoim, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "whey",
+      "banana_prata",
+      "pasta_amendoim"
+    ]
+  },
+  "bagel": {
+    "metaDescription": "Entenda calorias e macronutrientes de bagel simples por 100g, revise a porção em unidade e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Bagel simples costuma aparecer bem em cafés da manhã, lanches e refeições rápidas nas quais a montagem precisa ser objetiva. Como a porção já é fácil de visualizar em unidade, fica simples subir ou reduzir os carboidratos sem complicar a rotina.",
+    "macroContext": "Na referência de 100g, bagel simples entrega cerca de 272 kcal, 10g de proteína, 53g de carboidratos e 1,5g de gordura, com predominância de carboidratos. Na rotina, isso costuma colocá-lo como base rápida de carboidratos, não como alimento que resolve a refeição sozinho.",
+    "bestUse": "Na prática, bagel simples faz mais sentido em lanches, sanduíches e cafés da manhã reforçados. Como a porção já vem em unidade, fica simples montar uma refeição menor ou maior mantendo a leitura dos carboidratos sob controle.",
+    "pairingHeading": "O que combinar com bagel simples",
+    "pairingText": "Bagel simples costuma funcionar melhor com peito de peru grelhado, queijo cottage e banana madura, criando lanches ou refeições rápidas mais equilibradas.",
+    "pairingIds": [
+      "peito_peru",
+      "queijo_cottage",
+      "banana_prata"
+    ]
+  },
+  "wrap_tortilha": {
+    "metaDescription": "Veja calorias e macronutrientes de wrap / tortilha de trigo por 100g, ajuste a porção em unidade e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Wrap / tortilha de trigo costuma aparecer bem em cafés da manhã, lanches e refeições rápidas nas quais a montagem precisa ser objetiva. Como a porção já é fácil de visualizar em unidade, fica simples subir ou reduzir os carboidratos sem complicar a rotina.",
+    "macroContext": "Na referência de 100g, wrap / tortilha de trigo entrega cerca de 306 kcal, 8g de proteína, 53g de carboidratos e 7g de gordura, com predominância de carboidratos. Na rotina, isso costuma colocá-lo como base rápida de carboidratos, não como alimento que resolve a refeição sozinho.",
+    "bestUse": "Na prática, wrap / tortilha de trigo faz mais sentido em lanches, sanduíches e cafés da manhã reforçados. Como a porção já vem em unidade, fica simples montar uma refeição menor ou maior mantendo a leitura dos carboidratos sob controle.",
+    "pairingHeading": "O que combinar com wrap / tortilha de trigo",
+    "pairingText": "Wrap / tortilha de trigo costuma funcionar melhor com peito de peru grelhado, queijo mussarela e salada (alface, tomate), criando lanches ou refeições rápidas mais equilibradas.",
+    "pairingIds": [
+      "peito_peru",
+      "queijo_mussarela",
+      "salada_mista"
+    ]
+  },
+  "banana_prata": {
+    "metaDescription": "Veja calorias e macronutrientes de banana madura por 100g, ajuste a porção em banana pequena e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Banana madura é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e banana pequena ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, banana madura entrega cerca de 98 kcal, 1,3g de proteína, 26g de carboidratos e 0,1g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, banana madura funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em banana pequena ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com banana madura",
+    "pairingText": "Banana madura costuma render melhor com flocos de aveia finos, proteína whey e pasta de amendoim, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "aveia_flocos",
+      "whey",
+      "pasta_amendoim"
+    ]
+  },
+  "maca": {
+    "metaDescription": "Confira calorias e macronutrientes de maçã sem casca por 100g, ajuste a porção em maçã pequena e descubra como usar esse alimento nas refeições.",
+    "intro": "Maçã sem casca é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e maçã pequena ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, maçã sem casca entrega cerca de 56 kcal, 0,3g de proteína, 15g de carboidratos e 0,2g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, maçã sem casca funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em maçã pequena ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com maçã sem casca",
+    "pairingText": "Maçã sem casca costuma render melhor com skyr natural, flocos de aveia finos e pasta de amendoim, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "skyr",
+      "aveia_flocos",
+      "pasta_amendoim"
+    ]
+  },
+  "pera": {
+    "metaDescription": "Veja calorias e macronutrientes de pera por 100g, ajuste a porção em pera pequena e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Pera é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e pera pequena ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, pera entrega cerca de 53 kcal, 0,3g de proteína, 14g de carboidratos e 0,1g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, pera funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em pera pequena ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com pera",
+    "pairingText": "Pera costuma render melhor com iogurte grego natural, granola tradicional e mel, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "iogurte_grego",
+      "granola",
+      "mel"
+    ]
+  },
+  "manga": {
+    "metaDescription": "Veja calorias e macronutrientes de manga por 100g, ajuste a porção em manga pequena e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Manga é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e manga pequena ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, manga entrega cerca de 60 kcal, 0,8g de proteína, 15g de carboidratos e 0,4g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, manga funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em manga pequena ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com manga",
+    "pairingText": "Manga costuma render melhor com iogurte natural integral, flocos de aveia finos e leite integral, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "iogurte_natural",
+      "aveia_flocos",
+      "leite_integral"
+    ]
+  },
+  "mamao": {
+    "metaDescription": "Entenda calorias e macronutrientes de mamão por 100g, revise a porção em fatia e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Mamão é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e fatia ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, mamão entrega cerca de 43 kcal, 0,5g de proteína, 11g de carboidratos e 0,3g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, mamão funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em fatia ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com mamão",
+    "pairingText": "Mamão costuma render melhor com skyr natural, granola tradicional e mel, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "skyr",
+      "granola",
+      "mel"
+    ]
+  },
+  "datil": {
+    "metaDescription": "Confira calorias e macronutrientes de tâmara seca por 100g, ajuste a porção em unidade e descubra como usar esse alimento nas refeições.",
+    "intro": "Tâmara seca concentra carboidratos em pouco volume, então costuma funcionar como reforço medido de energia em lanches, bowls e shakes. Justamente por ser compacta, a porção por unidade evita que a refeição cresça mais do que parecia à primeira vista.",
+    "macroContext": "Na referência de 100g, tâmara seca entrega cerca de 282 kcal, 2,5g de proteína, 75g de carboidratos e 0,4g de gordura, com predominância de carboidratos. Como a densidade sobe bastante, pequenas porções já mudam o total da refeição com rapidez.",
+    "bestUse": "No dia a dia, tâmara seca faz mais sentido em lanches, bowls e shakes em que poucas unidades já mudam o total de energia. Justamente por ser compacto, contar a porção em unidade evita que o reforço de carboidratos passe despercebido.",
+    "pairingHeading": "Como montar um lanche com tâmara seca",
+    "pairingText": "Tâmara seca combina melhor com proteína whey, pasta de amendoim e leite integral, porque o conjunto ganha proteína, gordura e um uso mais controlado da fruta seca.",
+    "pairingIds": [
+      "whey",
+      "pasta_amendoim",
+      "leite_integral"
+    ]
+  },
+  "abacate": {
+    "metaDescription": "Consulte calorias e macronutrientes de abacate por 100g, compare a porção em unidade pequena e veja como encaixar esse alimento na rotina.",
+    "intro": "Abacate ajuda a concentrar calorias em lanches, bowls, shakes e pratos rápidos sem exigir muito volume do próprio alimento. A porção por unidade pequena deixa mais claro quando ele está entrando só como complemento e quando já virou parte grande da energia da refeição.",
+    "macroContext": "Na referência de 100g, abacate entrega cerca de 160 kcal, 2g de proteína, 9g de carboidratos e 15g de gordura, com predominância de gordura. Como a concentração calórica é alta, colher pequena e colher cheia passam longe de ser a mesma coisa no total final.",
+    "bestUse": "No uso diário, abacate funciona bem em pães, frutas, bowls, shakes e pratos rápidos que pedem mais densidade sem muito volume. Como a porção costuma ser servida em unidade pequena, fica mais fácil manter o ajuste realmente intencional.",
+    "pairingHeading": "Como combinar abacate",
+    "pairingText": "Abacate costuma render melhor com pão de forma branco, ovo inteiro e proteína whey, porque essa combinação segura bem a densidade do lanche sem exigir muito volume.",
+    "pairingIds": [
+      "pao_forma",
+      "ovo_inteiro",
+      "whey"
+    ]
+  },
+  "azeite": {
+    "metaDescription": "Confira calorias e macronutrientes de azeite de oliva por 100ml, ajuste a porção em colher de chá e descubra como usar esse alimento nas refeições.",
+    "intro": "Azeite de oliva muda o total calórico da refeição com uma medida pequena, por isso funciona melhor como ajuste do que como base do prato. A comparação entre 100ml e colher de chá é importante porque pequenas diferenças de colher já alteram bastante o total final.",
+    "macroContext": "Na referência de 100ml, azeite de oliva entrega cerca de 884 kcal, 0g de proteína, 0g de carboidratos e 100g de gordura, com predominância de gordura. Isso confirma que o alimento funciona como ajuste de gordura e calorias, não como componente principal da refeição.",
+    "bestUse": "Na prática, azeite de oliva entra melhor como finalização ou reforço de preparo, normalmente em pratos que já têm proteína e carboidrato definidos. A porção em colher de chá precisa ser tratada com cuidado porque uma diferença pequena de colher já mexe no total da refeição.",
+    "pairingHeading": "Como combinar azeite de oliva",
+    "pairingText": "Azeite de oliva faz mais sentido ao lado de peito de frango grelhado, arroz branco cozido e salada (alface, tomate), entrando como ajuste calórico de um prato que já está bem estruturado.",
+    "pairingIds": [
+      "peito_frango",
+      "arroz_branco_cozido",
+      "salada_mista"
+    ]
+  },
+  "oleo_coco": {
+    "metaDescription": "Confira calorias e macronutrientes de óleo de coco por 100ml, ajuste a porção em colher de sopa e descubra como usar esse alimento nas refeições.",
+    "intro": "Óleo de coco muda o total calórico da refeição com uma medida pequena, por isso funciona melhor como ajuste do que como base do prato. A comparação entre 100ml e colher de sopa é importante porque pequenas diferenças de colher já alteram bastante o total final.",
+    "macroContext": "Na referência de 100ml, óleo de coco entrega cerca de 892 kcal, 0g de proteína, 0g de carboidratos e 99g de gordura, com predominância de gordura. Isso confirma que o alimento funciona como ajuste de gordura e calorias, não como componente principal da refeição.",
+    "bestUse": "Na prática, óleo de coco entra melhor como finalização ou reforço de preparo, normalmente em pratos que já têm proteína e carboidrato definidos. A porção em colher de sopa precisa ser tratada com cuidado porque uma diferença pequena de colher já mexe no total da refeição.",
+    "pairingHeading": "Como combinar óleo de coco",
+    "pairingText": "Óleo de coco faz mais sentido ao lado de creme de arroz (cream of rice), banana madura e proteína whey, entrando como ajuste calórico de um prato que já está bem estruturado.",
+    "pairingIds": [
+      "creme_arroz",
+      "banana_prata",
+      "whey"
+    ]
+  },
+  "pasta_amendoim": {
+    "metaDescription": "Confira calorias e macronutrientes de pasta de amendoim por 100g, ajuste a porção em colher de chá e descubra como usar esse alimento nas refeições.",
+    "intro": "Pasta de amendoim ajuda a concentrar calorias em lanches, bowls, shakes e pratos rápidos sem exigir muito volume do próprio alimento. A porção por colher de chá deixa mais claro quando ele está entrando só como complemento e quando já virou parte grande da energia da refeição.",
+    "macroContext": "Na referência de 100g, pasta de amendoim entrega cerca de 588 kcal, 25g de proteína, 20g de carboidratos e 50g de gordura, com predominância de gordura. Como a concentração calórica é alta, colher pequena e colher cheia passam longe de ser a mesma coisa no total final.",
+    "bestUse": "No uso diário, pasta de amendoim funciona bem em pães, frutas, bowls, shakes e pratos rápidos que pedem mais densidade sem muito volume. Como a porção costuma ser servida em colher de chá, fica mais fácil manter o ajuste realmente intencional.",
+    "pairingHeading": "Como combinar pasta de amendoim",
+    "pairingText": "Pasta de amendoim costuma render melhor com banana madura, flocos de aveia finos e proteína whey, porque essa combinação segura bem a densidade do lanche sem exigir muito volume.",
+    "pairingIds": [
+      "banana_prata",
+      "aveia_flocos",
+      "whey"
+    ]
+  },
+  "pasta_amendoa": {
+    "metaDescription": "Consulte calorias e macronutrientes de pasta de amêndoa por 100g, compare a porção em colher de chá e veja como encaixar esse alimento na rotina.",
+    "intro": "Pasta de amêndoa ajuda a concentrar calorias em lanches, bowls, shakes e pratos rápidos sem exigir muito volume do próprio alimento. A porção por colher de chá deixa mais claro quando ele está entrando só como complemento e quando já virou parte grande da energia da refeição.",
+    "macroContext": "Na referência de 100g, pasta de amêndoa entrega cerca de 614 kcal, 21g de proteína, 19g de carboidratos e 55g de gordura, com predominância de gordura. Como a concentração calórica é alta, colher pequena e colher cheia passam longe de ser a mesma coisa no total final.",
+    "bestUse": "No uso diário, pasta de amêndoa funciona bem em pães, frutas, bowls, shakes e pratos rápidos que pedem mais densidade sem muito volume. Como a porção costuma ser servida em colher de chá, fica mais fácil manter o ajuste realmente intencional.",
+    "pairingHeading": "Como combinar pasta de amêndoa",
+    "pairingText": "Pasta de amêndoa costuma render melhor com banana madura, skyr natural e flocos de aveia finos, porque essa combinação segura bem a densidade do lanche sem exigir muito volume.",
+    "pairingIds": [
+      "banana_prata",
+      "skyr",
+      "aveia_flocos"
+    ]
+  },
+  "pasta_castanha_caju": {
+    "metaDescription": "Consulte calorias e macronutrientes de pasta de castanha de caju por 100g, compare a porção em colher de chá e veja como encaixar esse alimento na rotina.",
+    "intro": "Pasta de castanha de caju ajuda a concentrar calorias em lanches, bowls, shakes e pratos rápidos sem exigir muito volume do próprio alimento. A porção por colher de chá deixa mais claro quando ele está entrando só como complemento e quando já virou parte grande da energia da refeição.",
+    "macroContext": "Na referência de 100g, pasta de castanha de caju entrega cerca de 590 kcal, 18g de proteína, 27g de carboidratos e 47g de gordura, com predominância de gordura. Como a concentração calórica é alta, colher pequena e colher cheia passam longe de ser a mesma coisa no total final.",
+    "bestUse": "No uso diário, pasta de castanha de caju funciona bem em pães, frutas, bowls, shakes e pratos rápidos que pedem mais densidade sem muito volume. Como a porção costuma ser servida em colher de chá, fica mais fácil manter o ajuste realmente intencional.",
+    "pairingHeading": "Como combinar pasta de castanha de caju",
+    "pairingText": "Pasta de castanha de caju costuma render melhor com pão de forma branco, banana madura e proteína whey, porque essa combinação segura bem a densidade do lanche sem exigir muito volume.",
+    "pairingIds": [
+      "pao_forma",
+      "banana_prata",
+      "whey"
+    ]
+  },
+  "castanha_para": {
+    "metaDescription": "Confira calorias e macronutrientes de castanha do Pará por 100g, ajuste a porção em unidade e descubra como usar esse alimento nas refeições.",
+    "intro": "Castanha do Pará costuma entrar como complemento porque entrega bastante energia em poucas unidades ou colheres. A medida por unidade ajuda a usar o alimento de forma consistente em lanches, iogurtes, bowls e pequenas refeições.",
+    "macroContext": "Na referência de 100g, castanha do Pará entrega cerca de 656 kcal, 14g de proteína, 12g de carboidratos e 66g de gordura, com predominância de gordura. Por isso, poucas unidades ou colheres já pesam no total diário e a medida precisa ficar bem definida.",
+    "bestUse": "Na prática, castanha do Pará rende melhor em lanches, iogurtes e pequenas refeições nas quais poucas unidades ou colheres já reforçam bem as calorias. O ideal é usar unidade como referência e não deixar a porção virar um punhado sem medida Isso ajuda a usar o alimento como reforço controlado, e não como petisco sem medida ao longo do dia.",
+    "pairingHeading": "Como combinar castanha do Pará",
+    "pairingText": "Castanha do Pará conversa bem com iogurte grego natural, banana madura e granola tradicional, funcionando como reforço de energia em lanches, iogurtes, bowls ou pequenas refeições.",
+    "pairingIds": [
+      "iogurte_grego",
+      "banana_prata",
+      "granola"
+    ]
+  },
+  "amendoa": {
+    "metaDescription": "Consulte calorias e macronutrientes de amêndoas por 100g, compare a porção em unidade e veja como encaixar esse alimento na rotina.",
+    "intro": "Amêndoas costuma entrar como complemento porque entrega bastante energia em poucas unidades ou colheres. A medida por unidade ajuda a usar o alimento de forma consistente em lanches, iogurtes, bowls e pequenas refeições.",
+    "macroContext": "Na referência de 100g, amêndoas entrega cerca de 579 kcal, 21g de proteína, 22g de carboidratos e 50g de gordura, com predominância de gordura. Por isso, poucas unidades ou colheres já pesam no total diário e a medida precisa ficar bem definida.",
+    "bestUse": "Na prática, amêndoas rendem melhor em lanches, iogurtes e pequenas refeições nas quais poucas unidades já reforçam bem as calorias. O ideal é usar a unidade como referência e não deixar a porção virar um punhado sem medida. Isso ajuda a tratar o alimento como reforço controlado, e não como petisco sem direção.",
+    "pairingHeading": "Como combinar amêndoas",
+    "pairingText": "Amêndoas conversa bem com iogurte natural integral, banana madura e granola tradicional, funcionando como reforço de energia em lanches, iogurtes, bowls ou pequenas refeições.",
+    "pairingIds": [
+      "iogurte_natural",
+      "banana_prata",
+      "granola"
+    ]
+  },
+  "nozes": {
+    "metaDescription": "Entenda calorias e macronutrientes de nozes por 100g, revise a porção em unidade e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Nozes costuma entrar como complemento porque entrega bastante energia em poucas unidades ou colheres. A medida por unidade ajuda a usar o alimento de forma consistente em lanches, iogurtes, bowls e pequenas refeições.",
+    "macroContext": "Na referência de 100g, nozes entrega cerca de 654 kcal, 15g de proteína, 14g de carboidratos e 65g de gordura, com predominância de gordura. Por isso, poucas unidades ou colheres já pesam no total diário e a medida precisa ficar bem definida.",
+    "bestUse": "Na prática, nozes rendem melhor em lanches, iogurtes e pequenas refeições nas quais poucas unidades já reforçam bem as calorias. O ideal é usar a unidade como referência e não deixar a porção virar um punhado sem medida. Isso ajuda a tratar o alimento como reforço controlado, e não como petisco sem direção.",
+    "pairingHeading": "Como combinar nozes",
+    "pairingText": "Nozes conversa bem com skyr natural, maçã sem casca e granola tradicional, funcionando como reforço de energia em lanches, iogurtes, bowls ou pequenas refeições.",
+    "pairingIds": [
+      "skyr",
+      "maca",
+      "granola"
+    ]
+  },
+  "sementes_chia": {
+    "metaDescription": "Veja calorias e macronutrientes de sementes de chia por 100g, ajuste a porção em colher de sopa e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Sementes de chia costuma entrar como complemento porque entrega bastante energia em poucas unidades ou colheres. A medida por colher de sopa ajuda a usar o alimento de forma consistente em lanches, iogurtes, bowls e pequenas refeições.",
+    "macroContext": "Na referência de 100g, sementes de chia entrega cerca de 486 kcal, 17g de proteína, 42g de carboidratos e 31g de gordura, com predominância de carboidratos. Por isso, poucas unidades ou colheres já pesam no total diário e a medida precisa ficar bem definida.",
+    "bestUse": "Na prática, sementes de chia rendem melhor em iogurtes, bowls e pequenas refeições nas quais a colher já muda o total da mistura. O ideal é usar a colher de sopa como referência e não deixar a porção crescer sem medida. Isso ajuda a manter o ingrediente como reforço controlado no dia a dia.",
+    "pairingHeading": "Como combinar sementes de chia",
+    "pairingText": "Sementes de chia conversa bem com iogurte natural integral, banana madura e flocos de aveia finos, funcionando como reforço de energia em lanches, iogurtes, bowls ou pequenas refeições.",
+    "pairingIds": [
+      "iogurte_natural",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "gema_ovo": {
+    "metaDescription": "Consulte calorias e macronutrientes de gema de ovo por 100g, compare a porção em unidade e veja como encaixar esse alimento na rotina.",
+    "intro": "Gema de ovo costuma entrar como complemento porque entrega bastante energia em poucas unidades ou colheres. A medida por unidade ajuda a usar o alimento de forma consistente em lanches, iogurtes, bowls e pequenas refeições.",
+    "macroContext": "Na referência de 100g, gema de ovo entrega cerca de 322 kcal, 15,9g de proteína, 3,6g de carboidratos e 26,5g de gordura, com predominância de gordura. Por isso, poucas unidades ou colheres já pesam no total diário e a medida precisa ficar bem definida.",
+    "bestUse": "Na prática, gema de ovo rende melhor em pratos nos quais clara, arroz, legumes ou outras bases já estão definidos. O ideal é usar a unidade como referência e não deixar a porção crescer sem perceber. Isso ajuda a tratar a gema como ajuste deliberado, e não como detalhe sem peso na refeição.",
+    "pairingHeading": "Como combinar gema de ovo",
+    "pairingText": "Gema de ovo conversa bem com arroz branco cozido, clara de ovo e brócolis cozido, funcionando como reforço de energia em lanches, iogurtes, bowls ou pequenas refeições.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "clara_ovo",
+      "brocolis"
+    ]
+  },
+  "brocolis": {
+    "metaDescription": "Consulte calorias e macronutrientes de brócolis cozido por 100g, compare a porção em porção e veja como encaixar esse alimento na rotina.",
+    "intro": "Brócolis cozido ajuda a dar volume e variedade ao prato sem mudar tanto o total de calorias da refeição. A porção por porção é útil para repetir o acompanhamento com mais constância ao lado de proteínas, cereais, raízes e gorduras de ajuste.",
+    "macroContext": "Na referência de 100g, brócolis cozido entrega cerca de 35 kcal, 2,4g de proteína, 7g de carboidratos e 0,4g de gordura, com predominância de carboidratos. Na prática, o alimento soma pouco ao total de energia e funciona mais como apoio de volume e variedade no prato.",
+    "bestUse": "No dia a dia, brócolis cozido funciona melhor ao lado de proteínas, cereais, raízes e gorduras de ajuste, deixando o prato mais variado e menos monótono. A porção por porção ajuda a repetir o acompanhamento sem transformar um item leve em um volume exagerado.",
+    "pairingHeading": "Como combinar brócolis cozido",
+    "pairingText": "Brócolis cozido acompanha bem arroz branco cozido, peito de frango grelhado e azeite de oliva, deixando o prato mais variado sem roubar espaço dos alimentos mais densos.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "peito_frango",
+      "azeite"
+    ]
+  },
+  "abobrinha": {
+    "metaDescription": "Confira calorias e macronutrientes de abobrinha cozida (curgete) por 100g, ajuste a porção em porção e descubra como usar esse alimento nas refeições.",
+    "intro": "Abobrinha cozida (curgete) ajuda a dar volume e variedade ao prato sem mudar tanto o total de calorias da refeição. A porção por porção é útil para repetir o acompanhamento com mais constância ao lado de proteínas, cereais, raízes e gorduras de ajuste.",
+    "macroContext": "Na referência de 100g, abobrinha cozida (curgete) entrega cerca de 17 kcal, 1,2g de proteína, 3,1g de carboidratos e 0,3g de gordura, com predominância de carboidratos. Na prática, o alimento soma pouco ao total de energia e funciona mais como apoio de volume e variedade no prato.",
+    "bestUse": "No dia a dia, abobrinha cozida (curgete) funciona melhor ao lado de proteínas, cereais, raízes e gorduras de ajuste, deixando o prato mais variado e menos monótono. A porção por porção ajuda a repetir o acompanhamento sem transformar um item leve em um volume exagerado.",
+    "pairingHeading": "Como combinar abobrinha cozida (curgete)",
+    "pairingText": "Abobrinha cozida (curgete) acompanha bem quinoa cozida, tilápia cozida e azeite de oliva, deixando o prato mais variado sem roubar espaço dos alimentos mais densos.",
+    "pairingIds": [
+      "quinoa_cozida",
+      "peixe_tilapia",
+      "azeite"
+    ]
+  },
+  "cenoura": {
+    "metaDescription": "Consulte calorias e macronutrientes de cenoura cozida por 100g, compare a porção em porção e veja como encaixar esse alimento na rotina.",
+    "intro": "Cenoura cozida ajuda a dar volume e variedade ao prato sem mudar tanto o total de calorias da refeição. A porção por porção é útil para repetir o acompanhamento com mais constância ao lado de proteínas, cereais, raízes e gorduras de ajuste.",
+    "macroContext": "Na referência de 100g, cenoura cozida entrega cerca de 35 kcal, 0,8g de proteína, 8,2g de carboidratos e 0,2g de gordura, com predominância de carboidratos. Na prática, o alimento soma pouco ao total de energia e funciona mais como apoio de volume e variedade no prato.",
+    "bestUse": "No dia a dia, cenoura cozida funciona melhor ao lado de proteínas, cereais, raízes e gorduras de ajuste, deixando o prato mais variado e menos monótono. A porção por porção ajuda a repetir o acompanhamento sem transformar um item leve em um volume exagerado.",
+    "pairingHeading": "Como combinar cenoura cozida",
+    "pairingText": "Cenoura cozida acompanha bem arroz integral cozido, peito de frango grelhado e azeite de oliva, deixando o prato mais variado sem roubar espaço dos alimentos mais densos.",
+    "pairingIds": [
+      "arroz_integral_cozido",
+      "peito_frango",
+      "azeite"
+    ]
+  },
+  "salada_mista": {
+    "metaDescription": "Entenda calorias e macronutrientes de salada (alface, tomate) por 100g, revise a porção em prato e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Salada (alface, tomate) ajuda a dar volume e variedade ao prato sem mudar tanto o total de calorias da refeição. A porção por prato é útil para repetir o acompanhamento com mais constância ao lado de proteínas, cereais, raízes e gorduras de ajuste.",
+    "macroContext": "Na referência de 100g, salada (alface, tomate) entrega cerca de 17 kcal, 1g de proteína, 3g de carboidratos e 0,2g de gordura, com predominância de carboidratos. Na prática, o alimento soma pouco ao total de energia e funciona mais como apoio de volume e variedade no prato.",
+    "bestUse": "No dia a dia, salada (alface, tomate) funciona melhor ao lado de proteínas, cereais, raízes e gorduras de ajuste, deixando o prato mais variado e menos monótono. A porção por prato ajuda a repetir o acompanhamento sem transformar um item leve em um volume exagerado.",
+    "pairingHeading": "Como combinar salada (alface, tomate)",
+    "pairingText": "Salada (alface, tomate) acompanha bem arroz basmati cozido, salmão cozido e azeite de oliva, deixando o prato mais variado sem roubar espaço dos alimentos mais densos.",
+    "pairingIds": [
+      "arroz_basmati_cozido",
+      "peixe_salmao",
+      "azeite"
+    ]
+  },
+  "mel": {
+    "metaDescription": "Confira calorias e macronutrientes de mel por 100g, ajuste a porção em colher de chá e descubra como usar esse alimento nas refeições.",
+    "intro": "Mel aparece em medidas pequenas, normalmente para ajustar sabor e somar carboidratos em shakes, iogurtes, mingaus e lanches rápidos. A referência por colher de chá ajuda a não tratar colher pequena e colher cheia como se fossem a mesma coisa.",
+    "macroContext": "Na referência de 100g, mel entrega cerca de 304 kcal, 0,3g de proteína, 82g de carboidratos e 0g de gordura, com predominância de carboidratos. Na prática, o uso costuma ser pequeno, mas colher extra ainda aparece no total de carboidratos do preparo.",
+    "bestUse": "Na prática, mel faz mais sentido em mingaus, iogurtes, shakes e preparações rápidas que precisam de um ajuste pequeno de sabor e carboidrato. A medida por colher de chá é importante porque colher leve e colher cheia mudam o resultado final mais do que parece.",
+    "pairingHeading": "Como combinar mel",
+    "pairingText": "Mel costuma fazer mais sentido com skyr natural, banana madura e flocos de aveia finos, porque o ajuste pequeno de sabor entra numa refeição que já tem base real.",
+    "pairingIds": [
+      "skyr",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "acucar_mascavo": {
+    "metaDescription": "Veja calorias e macronutrientes de açúcar mascavo por 100g, ajuste a porção em colher de sopa e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Açúcar mascavo aparece em medidas pequenas, normalmente para ajustar sabor e somar carboidratos em shakes, iogurtes, mingaus e lanches rápidos. A referência por colher de sopa ajuda a não tratar colher pequena e colher cheia como se fossem a mesma coisa.",
+    "macroContext": "Na referência de 100g, açúcar mascavo entrega cerca de 377 kcal, 0g de proteína, 97g de carboidratos e 0g de gordura, com predominância de carboidratos. Na prática, o uso costuma ser pequeno, mas colher extra ainda aparece no total de carboidratos do preparo.",
+    "bestUse": "Na prática, açúcar mascavo faz mais sentido em mingaus, iogurtes, shakes e preparações rápidas que precisam de um ajuste pequeno de sabor e carboidrato. A medida por colher de sopa é importante porque colher leve e colher cheia mudam o resultado final mais do que parece.",
+    "pairingHeading": "Como combinar açúcar mascavo",
+    "pairingText": "Açúcar mascavo costuma fazer mais sentido com flocos de aveia finos, banana madura e leite integral, porque o ajuste pequeno de sabor entra numa refeição que já tem base real.",
+    "pairingIds": [
+      "aveia_flocos",
+      "banana_prata",
+      "leite_integral"
+    ]
+  },
+  "cacau_po": {
+    "metaDescription": "Entenda calorias e macronutrientes de cacau em pó por 100g, revise a porção em colher de chá e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Cacau em pó entra em quantidades pequenas e quase sempre acompanha outro alimento que leva o volume principal da refeição. Mesmo assim, a medida por colher de chá ajuda a manter o uso consistente em shakes, mingaus e preparações simples.",
+    "macroContext": "Na referência de 100g, cacau em pó entrega cerca de 228 kcal, 20g de proteína, 58g de carboidratos e 14g de gordura, com predominância de carboidratos. Como o uso é pequeno, o ingrediente costuma ajustar sabor e composição sem virar protagonista nutricional do preparo.",
+    "bestUse": "Na prática, cacau em pó entra em shakes, mingaus, cafés da manhã e preparações simples nas quais a porção costuma ser pequena. A medida por colher de chá ajuda a manter o ingrediente como detalhe controlado, sem virar uma adição imprecisa repetida ao longo do dia.",
+    "pairingHeading": "Como combinar cacau em pó",
+    "pairingText": "Cacau em pó combina bem com leite integral, banana madura e flocos de aveia finos, aparecendo como detalhe que reforça a preparação sem dominar os macros.",
+    "pairingIds": [
+      "leite_integral",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "canela": {
+    "metaDescription": "Veja calorias e macronutrientes de canela em pó por 100g, ajuste a porção em pitada e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Canela em pó entra em quantidades pequenas e quase sempre acompanha outro alimento que leva o volume principal da refeição. Mesmo assim, a medida por pitada ajuda a manter o uso consistente em shakes, mingaus e preparações simples.",
+    "macroContext": "Na referência de 100g, canela em pó entrega cerca de 247 kcal, 4g de proteína, 81g de carboidratos e 1,2g de gordura, com predominância de carboidratos. Como o uso é pequeno, o ingrediente costuma ajustar sabor e composição sem virar protagonista nutricional do preparo.",
+    "bestUse": "Na prática, canela em pó entra em shakes, mingaus, cafés da manhã e preparações simples nas quais a porção costuma ser pequena. A medida por pitada ajuda a manter o ingrediente como detalhe controlado, sem virar uma adição imprecisa repetida ao longo do dia.",
+    "pairingHeading": "Como combinar canela em pó",
+    "pairingText": "Canela em pó combina bem com banana madura, flocos de aveia finos e iogurte natural integral, aparecendo como detalhe que reforça a preparação sem dominar os macros.",
+    "pairingIds": [
+      "banana_prata",
+      "aveia_flocos",
+      "iogurte_natural"
+    ]
+  },
+  "molho_tomate": {
+    "metaDescription": "Veja calorias e macronutrientes de molho de tomate simples por 100ml, ajuste a porção em colher de sopa e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Molho de tomate simples costuma ser usado para finalizar pratos e mudar sabor ou textura sem virar o centro da refeição. A medida por colher de sopa ajuda a perceber quando o molho continua discreto e quando já passou a influenciar o total do prato.",
+    "macroContext": "Na referência de 100ml, molho de tomate simples entrega cerca de 32 kcal, 1,3g de proteína, 7g de carboidratos e 0,2g de gordura, com predominância de carboidratos. Isso ajuda a lembrar que o molho pode parecer discreto, mas ainda entra na conta quando a porção cresce.",
+    "bestUse": "No uso diário, molho de tomate simples rende melhor em massas, carnes, polenta e outras preparações quentes que precisam de mais umidade e sabor. Medir a porção em colher de sopa ajuda a decidir se o molho está só acompanhando ou se já passou a influenciar o total da refeição.",
+    "pairingHeading": "Como combinar molho de tomate simples",
+    "pairingText": "Molho de tomate simples rende melhor com macarrão cozido (massa cozida), carne moída (carne picada) e queijo parmesão ralado, deixando a refeição mais completa e coerente com o uso culinário do molho.",
+    "pairingIds": [
+      "macarrao_cozido",
+      "carne_moida",
+      "queijo_parmesao"
+    ]
+  },
+  "lombo_porco": {
+    "metaDescription": "Entenda calorias e macronutrientes de lombo de porco grelhado por 100g, revise a porção em porção média e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Lombo de porco grelhado já entrega proteína com mais gordura ou mais densidade do que uma base magra, então costuma render refeições mais completas sem exigir tantos complementos. A porção por porção média ajuda a comparar uma montagem mais leve com outra mais carregada, especialmente quando o alimento aparece em almoço, jantar ou lanche reforçado.",
+    "macroContext": "Na referência de 100g, lombo de porco grelhado entrega cerca de 182 kcal, 27g de proteína, 0g de carboidratos e 8g de gordura, com predominância de proteína. Na prática, a combinação de proteína com mais gordura ou mais densidade muda o espaço que sobra para outros reforços calóricos no prato.",
+    "bestUse": "Na prática, lombo de porco grelhado funciona bem em almoço, jantar, sanduíches reforçados ou pratos mais completos, porque a própria porção já entrega mais peso calórico do que uma proteína muito magra. A medida por porção média ajuda bastante a comparar uma refeição mais enxuta com outra mais carregada.",
+    "pairingHeading": "Como combinar lombo de porco grelhado",
+    "pairingText": "Lombo de porco grelhado costuma render melhor com arroz basmati cozido, mandioca cozida e azeite de oliva, criando uma refeição mais completa sem precisar de muitos ingredientes.",
+    "pairingIds": [
+      "arroz_basmati_cozido",
+      "mandioca_cozida",
+      "azeite"
+    ]
+  },
+  "sardinha_lata": {
+    "metaDescription": "Entenda calorias e macronutrientes de sardinha em lata (azeite) por 100g, revise a porção em lata pequena e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Sardinha em lata (azeite) pode entrar na rotina com bastante praticidade quando a porção está bem definida. A medida por lata pequena ajuda a repetir a refeição com menos variação.",
+    "macroContext": "Na referência de 100g, sardinha em lata (azeite) entrega cerca de 208 kcal, 24g de proteína, 0g de carboidratos e 12g de gordura, com predominância de proteína. Na prática, a lata resolve proteína com rapidez e ainda exige atenção ao que vai acompanhar para fechar a refeição.",
+    "bestUse": "Na prática, sardinha em lata (azeite) faz mais sentido em sanduíches, saladas reforçadas, pratos frios e refeições rápidas em que a lata já resolve boa parte da proteína. A medida por lata pequena ajuda a não misturar a praticidade do alimento com uma porção vaga.",
+    "pairingHeading": "Como combinar sardinha em lata (azeite)",
+    "pairingText": "Sardinha em lata (azeite) fica mais coerente com arroz branco cozido, pão de forma branco e mandioca cozida, formando refeições rápidas sem perder estrutura.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "pao_forma",
+      "mandioca_cozida"
+    ]
+  },
+  "proteina_ervilha": {
+    "metaDescription": "Veja calorias e macronutrientes de proteína de ervilha (pó) por 100g, ajuste a porção em scoop (30g) e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Proteína de ervilha (pó) resolve a parte proteica com uma medida prática, o que ajuda bastante em shakes e lanches líquidos. A dose por scoop (30g) facilita repetir o preparo e ajustar a refeição com mais objetividade quando entram fruta, leite, aveia ou outra fonte de energia junto.",
+    "macroContext": "Na referência de 100g, proteína de ervilha (pó) entrega cerca de 370 kcal, 80g de proteína, 7g de carboidratos e 2g de gordura, com predominância de proteína. Por isso, a dose resolve proteína com rapidez, mas o resto da refeição ainda depende do que entra junto no shake.",
+    "bestUse": "No uso diário, proteína de ervilha (pó) funciona melhor em shakes e lanches líquidos nos quais a proteína precisa entrar com rapidez e medida clara. A dose em scoop (30g) resolve a parte proteica, mas a refeição só fica completa quando recebe um carboidrato ou outro complemento coerente ao redor.",
+    "pairingHeading": "Como combinar proteína de ervilha (pó)",
+    "pairingText": "Proteína de ervilha (pó) funciona melhor com bebida vegetal de aveia, banana madura e flocos de aveia finos, porque o shake deixa de ser só proteína e ganha uma estrutura mais útil para a rotina.",
+    "pairingIds": [
+      "bebida_aveia",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "queijo_parmesao": {
+    "metaDescription": "Veja calorias e macronutrientes de queijo parmesão ralado por 100g, ajuste a porção em colher de sopa e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Queijo parmesão ralado costuma funcionar melhor em lanches, sanduíches, wraps e combinações frias em que proteína e gordura entram juntas. Como a porção já vem em colher de sopa, fica mais fácil repetir a refeição sem depender de estimativa visual.",
+    "macroContext": "Na referência de 100g, queijo parmesão ralado entrega cerca de 392 kcal, 36g de proteína, 3g de carboidratos e 26g de gordura, com predominância de proteína. Esse desenho explica por que ele funciona melhor como parte de uma combinação do que como item isolado.",
+    "bestUse": "No dia a dia, queijo parmesão ralado funciona bem em torradas, sanduíches, wraps e lanches frios em que proteína e gordura já entram juntas. Como a porção costuma ser discreta à vista, medir colher de sopa ajuda a manter a refeição mais consistente.",
+    "pairingHeading": "Como montar um lanche com queijo parmesão ralado",
+    "pairingText": "Queijo parmesão ralado combina melhor com arroz basmati cozido, wrap / tortilha de trigo e azeite de oliva, formando lanches frios ou refeições rápidas com leitura fácil da porção.",
+    "pairingIds": [
+      "arroz_basmati_cozido",
+      "wrap_tortilha",
+      "azeite"
+    ]
+  },
+  "ricotta": {
+    "metaDescription": "Confira calorias e macronutrientes de ricotta por 100g, ajuste a porção em porção e descubra como usar esse alimento nas refeições.",
+    "intro": "Ricotta costuma funcionar melhor em lanches, sanduíches, wraps e combinações frias em que proteína e gordura entram juntas. Como a porção já vem em porção, fica mais fácil repetir a refeição sem depender de estimativa visual.",
+    "macroContext": "Na referência de 100g, ricotta entrega cerca de 174 kcal, 11g de proteína, 3g de carboidratos e 13g de gordura, com predominância de gordura. Esse desenho explica por que ele funciona melhor como parte de uma combinação do que como item isolado.",
+    "bestUse": "No dia a dia, ricotta funciona bem em torradas, sanduíches, wraps e lanches frios em que proteína e gordura já entram juntas. Como a porção costuma ser discreta à vista, medir porção ajuda a manter a refeição mais consistente.",
+    "pairingHeading": "Como montar um lanche com ricotta",
+    "pairingText": "Ricotta combina melhor com pão de forma branco, banana madura e mel, formando lanches frios ou refeições rápidas com leitura fácil da porção.",
+    "pairingIds": [
+      "pao_forma",
+      "banana_prata",
+      "mel"
+    ]
+  },
+  "proteina_arroz": {
+    "metaDescription": "Entenda calorias e macronutrientes de proteína de arroz (pó) por 100g, revise a porção em scoop (30g) e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Proteína de arroz (pó) resolve a parte proteica com uma medida prática, o que ajuda bastante em shakes e lanches líquidos. A dose por scoop (30g) facilita repetir o preparo e ajustar a refeição com mais objetividade quando entram fruta, leite, aveia ou outra fonte de energia junto.",
+    "macroContext": "Na referência de 100g, proteína de arroz (pó) entrega cerca de 360 kcal, 78g de proteína, 8g de carboidratos e 3g de gordura, com predominância de proteína. Por isso, a dose resolve proteína com rapidez, mas o resto da refeição ainda depende do que entra junto no shake.",
+    "bestUse": "No uso diário, proteína de arroz (pó) funciona melhor em shakes e lanches líquidos nos quais a proteína precisa entrar com rapidez e medida clara. A dose em scoop (30g) resolve a parte proteica, mas a refeição só fica completa quando recebe um carboidrato ou outro complemento coerente ao redor.",
+    "pairingHeading": "Como combinar proteína de arroz (pó)",
+    "pairingText": "Proteína de arroz (pó) funciona melhor com bebida vegetal de amêndoa, banana madura e creme de arroz (cream of rice), porque o shake deixa de ser só proteína e ganha uma estrutura mais útil para a rotina.",
+    "pairingIds": [
+      "bebida_amendoa",
+      "banana_prata",
+      "creme_arroz"
+    ]
+  },
+  "mass_gainer": {
+    "metaDescription": "Consulte calorias e macronutrientes de mass gainer hipercalórico (pó) por 100g, compare a porção em dose (100g) e veja como encaixar esse alimento na rotina.",
+    "intro": "Mass gainer hipercalórico (pó) foi pensado para entregar bastante energia em uma dose prática, algo útil quando o lanche líquido precisa render mais do que um shake básico. A dose por dose (100g) ajuda a comparar preparos menores e maiores sem perder a noção do quanto o produto realmente acrescenta.",
+    "macroContext": "Na referência de 100g, mass gainer hipercalórico (pó) entrega cerca de 380 kcal, 15g de proteína, 75g de carboidratos e 3g de gordura, com predominância de carboidratos. Na prática, ele foi pensado para ser uma peça central do shake, não apenas um detalhe do preparo.",
+    "bestUse": "No uso diário, mass gainer hipercalórico (pó) costuma render melhor em shakes grandes, lanches líquidos e situações em que comer um prato sólido completo não é viável. A dose em dose (100g) ajuda a comparar preparos mais leves e mais carregados sem tratar o produto como se fosse um alimento neutro.",
+    "pairingHeading": "Como combinar mass gainer hipercalórico (pó)",
+    "pairingText": "Mass gainer hipercalórico (pó) costuma funcionar melhor com leite integral, banana madura e flocos de aveia finos, porque o shake ganha estrutura, carboidratos e uma textura mais fácil de repetir.",
+    "pairingIds": [
+      "leite_integral",
+      "banana_prata",
+      "aveia_flocos"
+    ]
+  },
+  "pao_centeio": {
+    "metaDescription": "Confira calorias e macronutrientes de pão de centeio por 100g, ajuste a porção em fatia e descubra como usar esse alimento nas refeições.",
+    "intro": "Pão de centeio costuma aparecer bem em cafés da manhã, lanches e refeições rápidas nas quais a montagem precisa ser objetiva. Como a porção já é fácil de visualizar em fatia, fica simples subir ou reduzir os carboidratos sem complicar a rotina.",
+    "macroContext": "Na referência de 100g, pão de centeio entrega cerca de 259 kcal, 8g de proteína, 48g de carboidratos e 3g de gordura, com predominância de carboidratos. Na rotina, isso costuma colocá-lo como base rápida de carboidratos, não como alimento que resolve a refeição sozinho.",
+    "bestUse": "Na prática, pão de centeio faz mais sentido em lanches, sanduíches e cafés da manhã reforçados. Como a porção já vem em fatia, fica simples montar uma refeição menor ou maior mantendo a leitura dos carboidratos sob controle.",
+    "pairingHeading": "O que combinar com pão de centeio",
+    "pairingText": "Pão de centeio costuma funcionar melhor com queijo cottage, peito de peru grelhado e azeite de oliva, criando lanches ou refeições rápidas mais equilibradas.",
+    "pairingIds": [
+      "queijo_cottage",
+      "peito_peru",
+      "azeite"
+    ]
+  },
+  "granola": {
+    "metaDescription": "Veja calorias e macronutrientes de granola tradicional por 100g, ajuste a porção em porção (50g) e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Granola tradicional costuma render melhor em mingaus, bowls, iogurtes e shakes quando os carboidratos precisam subir com pouco trabalho. A medida por porção (50g) ajuda a comparar a porção real com a referência de 100g, o que facilita repetir a preparação sem depender de estimativa visual.",
+    "macroContext": "Na referência de 100g, granola tradicional entrega cerca de 471 kcal, 10g de proteína, 64g de carboidratos e 20g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "Na prática, granola tradicional funciona bem em cafés da manhã, lanches e refeições de colher que precisam de uma base simples de combinar com fruta, leite, iogurte ou whey. O ponto principal é não perder a mão em porção (50g) quando a preparação já recebe outros alimentos mais densos.",
+    "pairingHeading": "O que combinar com granola tradicional",
+    "pairingText": "Granola tradicional rende melhor quando aparece com iogurte grego natural, banana madura e mel, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "iogurte_grego",
+      "banana_prata",
+      "mel"
+    ]
+  },
+  "farinha_aveia": {
+    "metaDescription": "Confira calorias e macronutrientes de farinha de aveia por 100g, ajuste a porção em colher de sopa e descubra como usar esse alimento nas refeições.",
+    "intro": "Farinha de aveia costuma render melhor em mingaus, bowls, iogurtes e shakes quando os carboidratos precisam subir com pouco trabalho. A medida por colher de sopa ajuda a comparar a porção real com a referência de 100g, o que facilita repetir a preparação sem depender de estimativa visual.",
+    "macroContext": "Na referência de 100g, farinha de aveia entrega cerca de 394 kcal, 13g de proteína, 66g de carboidratos e 7g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "Na prática, farinha de aveia funciona bem em cafés da manhã, lanches e refeições de colher que precisam de uma base simples de combinar com fruta, leite, iogurte ou whey. O ponto principal é não perder a mão em colher de sopa quando a preparação já recebe outros alimentos mais densos.",
+    "pairingHeading": "O que combinar com farinha de aveia",
+    "pairingText": "Farinha de aveia rende melhor quando aparece com proteína whey, banana madura e pasta de amendoim, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "whey",
+      "banana_prata",
+      "pasta_amendoim"
+    ]
+  },
+  "massa_integral": {
+    "metaDescription": "Confira calorias e macronutrientes de massa integral cozida por 100g, ajuste a porção em porção (200g) e descubra como usar esse alimento nas refeições.",
+    "intro": "Massa integral cozida costuma funcionar bem em almoço e jantar quando a refeição precisa ganhar carboidratos sem complicar a montagem. A medida por porção (200g) ajuda a comparar o volume já cozido com a referência de 100g, o que facilita repetir a porção com molho, carne, queijo ou outro acompanhamento.",
+    "macroContext": "Na referência de 100g, massa integral cozida entrega cerca de 124 kcal, 5g de proteína, 23g de carboidratos e 1g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "Na prática, massa integral cozida rende melhor em pratos quentes, marmitas e refeições completas em que a proteína principal e o molho já estão definidos. Quando a refeição também leva queijo, creme, azeite ou outro reforço calórico, medir porção (200g) ajuda a não somar carboidratos além do que parecia no prato.",
+    "pairingHeading": "O que combinar com massa integral cozida",
+    "pairingText": "Massa integral cozida rende melhor quando aparece com carne moída (carne picada), molho de tomate simples e queijo parmesão ralado, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "carne_moida",
+      "molho_tomate",
+      "queijo_parmesao"
+    ]
+  },
+  "creme_milho": {
+    "metaDescription": "Veja calorias e macronutrientes de creme de milho por 100ml, ajuste a porção em porção (200ml) e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Creme de milho funciona bem como base de carboidratos em pratos quentes e refeições sólidas nas quais a porção precisa ser fácil de ajustar. A comparação entre 100ml e porção (200ml) ajuda a repetir a quantidade real com mais constância ao lado de proteína, legumes, molho ou alguma gordura de complemento.",
+    "macroContext": "Na referência de 100ml, creme de milho entrega cerca de 72 kcal, 2g de proteína, 16g de carboidratos e 1g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, creme de milho rende melhor em almoço, jantar e marmitas em que o alimento aparece como acompanhamento principal do prato. Quando a refeição também leva arroz, feijão, queijo, molho ou azeite, medir porção (200ml) ajuda a manter o total de carboidratos mais fiel ao que foi planejado.",
+    "pairingHeading": "O que combinar com creme de milho",
+    "pairingText": "Creme de milho rende melhor quando aparece com peito de frango grelhado, azeite de oliva e queijo parmesão ralado, porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "peito_frango",
+      "azeite",
+      "queijo_parmesao"
+    ]
+  },
+  "barra_cereal": {
+    "metaDescription": "Entenda calorias e macronutrientes de barra de cereal por 100g, revise a porção em barra (30g) e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Barra de cereal costuma aparecer bem em cafés da manhã, lanches e refeições rápidas nas quais a montagem precisa ser objetiva. Como a porção já é fácil de visualizar em barra (30g), fica simples subir ou reduzir os carboidratos sem complicar a rotina.",
+    "macroContext": "Na referência de 100g, barra de cereal entrega cerca de 420 kcal, 7g de proteína, 70g de carboidratos e 12g de gordura, com predominância de carboidratos. Na rotina, isso costuma colocá-lo como base rápida de carboidratos, não como alimento que resolve a refeição sozinho.",
+    "bestUse": "Na prática, barra de cereal faz mais sentido em lanches, sanduíches e cafés da manhã reforçados. Como a porção já vem em barra (30g), fica simples montar uma refeição menor ou maior mantendo a leitura dos carboidratos sob controle.",
+    "pairingHeading": "O que combinar com barra de cereal",
+    "pairingText": "Barra de cereal costuma funcionar melhor com proteína whey, banana madura e leite integral, criando lanches ou refeições rápidas mais equilibradas.",
+    "pairingIds": [
+      "whey",
+      "banana_prata",
+      "leite_integral"
+    ]
+  },
+  "batata_frita": {
+    "metaDescription": "Confira calorias e macronutrientes de batata frita (imersão) por 100g, ajuste a porção em porção (150g) e descubra como usar esse alimento nas refeições.",
+    "intro": "Batata frita (imersão) funciona bem como base de carboidratos em pratos quentes e refeições sólidas nas quais a porção precisa ser fácil de ajustar. A comparação entre 100g e porção (150g) ajuda a repetir a quantidade real com mais constância ao lado de proteína, legumes, molho ou alguma gordura de complemento.",
+    "macroContext": "Na referência de 100g, batata frita (imersão) entrega cerca de 312 kcal, 3g de proteína, 41g de carboidratos e 15g de gordura, com predominância de carboidratos. Esse desenho ajuda a entender por que ele funciona tão bem em preparações de colher, lanches e bases quentes.",
+    "bestUse": "No dia a dia, batata frita (imersão) rende melhor em almoço, jantar e marmitas em que o alimento aparece como acompanhamento principal do prato. Quando a refeição também leva arroz, feijão, queijo, molho ou azeite, medir porção (150g) ajuda a manter o total de carboidratos mais fiel ao que foi planejado.",
+    "pairingHeading": "O que combinar com batata frita (imersão)",
+    "pairingText": "Batata frita (imersão) rende melhor quando aparece com carne moída (carne picada), molho de tomate simples e salada (alface, tomate), porque o conjunto ganha mais corpo e deixa de depender só do carboidrato.",
+    "pairingIds": [
+      "carne_moida",
+      "molho_tomate",
+      "salada_mista"
+    ]
+  },
+  "chocolate_negro": {
+    "metaDescription": "Veja calorias e macronutrientes de chocolate negro 70% por 100g, ajuste a porção em quadrado (10g) e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Chocolate negro 70% costuma entrar como complemento porque entrega bastante energia em poucas unidades ou colheres. A medida por quadrado (10g) ajuda a usar o alimento de forma consistente em lanches, iogurtes, bowls e pequenas refeições.",
+    "macroContext": "Na referência de 100g, chocolate negro 70% entrega cerca de 598 kcal, 8g de proteína, 46g de carboidratos e 43g de gordura, com predominância de carboidratos. Por isso, poucas unidades ou colheres já pesam no total diário e a medida precisa ficar bem definida.",
+    "bestUse": "Na pr\u00e1tica, chocolate negro 70% rende melhor em lanches, iogurtes e pequenas refei\u00e7\u00f5es nas quais poucos quadrados j\u00e1 mudam bem as calorias. O ideal \u00e9 usar o quadrado de 10g como refer\u00eancia e n\u00e3o deixar a por\u00e7\u00e3o crescer sem medida. Isso ajuda a manter o doce como complemento controlado dentro do plano.",
+    "pairingHeading": "Como combinar chocolate negro 70%",
+    "pairingText": "Chocolate negro 70% conversa bem com iogurte grego natural, morango e amêndoas, funcionando como reforço de energia em lanches, iogurtes, bowls ou pequenas refeições.",
+    "pairingIds": [
+      "iogurte_grego",
+      "morango",
+      "amendoa"
+    ]
+  },
+  "creme_leite": {
+    "metaDescription": "Confira calorias e macronutrientes de creme de leite por 100ml, ajuste a porção em colher de sopa (15ml) e descubra como usar esse alimento nas refeições.",
+    "intro": "Creme de leite ajuda a concentrar calorias em lanches, bowls, shakes e pratos rápidos sem exigir muito volume do próprio alimento. A porção por colher de sopa (15ml) deixa mais claro quando ele está entrando só como complemento e quando já virou parte grande da energia da refeição.",
+    "macroContext": "Na referência de 100ml, creme de leite entrega cerca de 327 kcal, 2g de proteína, 3g de carboidratos e 35g de gordura, com predominância de gordura. Como a concentração calórica é alta, colher pequena e colher cheia passam longe de ser a mesma coisa no total final.",
+    "bestUse": "No uso diário, creme de leite funciona bem em pães, frutas, bowls, shakes e pratos rápidos que pedem mais densidade sem muito volume. Como a porção costuma ser servida em colher de sopa (15ml), fica mais fácil manter o ajuste realmente intencional.",
+    "pairingHeading": "Como combinar creme de leite",
+    "pairingText": "Creme de leite costuma render melhor com macarrão cozido (massa cozida), carne moída (carne picada) e molho de tomate simples, porque essa combinação segura bem a densidade do lanche sem exigir muito volume.",
+    "pairingIds": [
+      "macarrao_cozido",
+      "carne_moida",
+      "molho_tomate"
+    ]
+  },
+  "coco_ralado": {
+    "metaDescription": "Confira calorias e macronutrientes de coco ralado seco por 100g, ajuste a porção em colher de sopa (10g) e descubra como usar esse alimento nas refeições.",
+    "intro": "Coco ralado seco costuma entrar como complemento porque entrega bastante energia em poucas unidades ou colheres. A medida por colher de sopa (10g) ajuda a usar o alimento de forma consistente em lanches, iogurtes, bowls e pequenas refeições.",
+    "macroContext": "Na referência de 100g, coco ralado seco entrega cerca de 660 kcal, 7g de proteína, 24g de carboidratos e 62g de gordura, com predominância de gordura. Por isso, poucas unidades ou colheres já pesam no total diário e a medida precisa ficar bem definida.",
+    "bestUse": "Na pr\u00e1tica, coco ralado seco rende melhor em iogurtes, bowls, mingaus e pequenas refei\u00e7\u00f5es nas quais uma colher j\u00e1 refor\u00e7a o total cal\u00f3rico. O ideal \u00e9 usar a colher de sopa de 10g como refer\u00eancia e n\u00e3o deixar a por\u00e7\u00e3o crescer sem medida. Isso ajuda a manter o ingrediente como complemento controlado.",
+    "pairingHeading": "Como combinar coco ralado seco",
+    "pairingText": "Coco ralado seco conversa bem com creme de arroz (cream of rice), banana madura e proteína whey, funcionando como reforço de energia em lanches, iogurtes, bowls ou pequenas refeições.",
+    "pairingIds": [
+      "creme_arroz",
+      "banana_prata",
+      "whey"
+    ]
+  },
+  "oleo_girassol": {
+    "metaDescription": "Confira calorias e macronutrientes de óleo de girassol por 100ml, ajuste a porção em colher de sopa (15ml) e descubra como usar esse alimento nas refeições.",
+    "intro": "Óleo de girassol muda o total calórico da refeição com uma medida pequena, por isso funciona melhor como ajuste do que como base do prato. A comparação entre 100ml e colher de sopa (15ml) é importante porque pequenas diferenças de colher já alteram bastante o total final.",
+    "macroContext": "Na referência de 100ml, óleo de girassol entrega cerca de 884 kcal, 0g de proteína, 0g de carboidratos e 100g de gordura, com predominância de gordura. Isso confirma que o alimento funciona como ajuste de gordura e calorias, não como componente principal da refeição.",
+    "bestUse": "Na prática, óleo de girassol entra melhor como finalização ou reforço de preparo, normalmente em pratos que já têm proteína e carboidrato definidos. A porção em colher de sopa (15ml) precisa ser tratada com cuidado porque uma diferença pequena de colher já mexe no total da refeição.",
+    "pairingHeading": "Como combinar óleo de girassol",
+    "pairingText": "Óleo de girassol faz mais sentido ao lado de arroz branco cozido, peito de frango grelhado e salada (alface, tomate), entrando como ajuste calórico de um prato que já está bem estruturado.",
+    "pairingIds": [
+      "arroz_branco_cozido",
+      "peito_frango",
+      "salada_mista"
+    ]
+  },
+  "azeite_abacate": {
+    "metaDescription": "Confira calorias e macronutrientes de azeite de abacate por 100ml, ajuste a porção em colher de sopa (15ml) e descubra como usar esse alimento nas refeições.",
+    "intro": "Azeite de abacate muda o total calórico da refeição com uma medida pequena, por isso funciona melhor como ajuste do que como base do prato. A comparação entre 100ml e colher de sopa (15ml) é importante porque pequenas diferenças de colher já alteram bastante o total final.",
+    "macroContext": "Na referência de 100ml, azeite de abacate entrega cerca de 884 kcal, 0g de proteína, 0g de carboidratos e 100g de gordura, com predominância de gordura. Isso confirma que o alimento funciona como ajuste de gordura e calorias, não como componente principal da refeição.",
+    "bestUse": "Na prática, azeite de abacate entra melhor como finalização ou reforço de preparo, normalmente em pratos que já têm proteína e carboidrato definidos. A porção em colher de sopa (15ml) precisa ser tratada com cuidado porque uma diferença pequena de colher já mexe no total da refeição.",
+    "pairingHeading": "Como combinar azeite de abacate",
+    "pairingText": "Azeite de abacate faz mais sentido ao lado de quinoa cozida, salmão cozido e salada (alface, tomate), entrando como ajuste calórico de um prato que já está bem estruturado.",
+    "pairingIds": [
+      "quinoa_cozida",
+      "peixe_salmao",
+      "salada_mista"
+    ]
+  },
+  "banha_porco": {
+    "metaDescription": "Veja calorias e macronutrientes de banha de porco por 100g, ajuste a porção em colher de sopa (15g) e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Banha de porco muda o total calórico da refeição com uma medida pequena, por isso funciona melhor como ajuste do que como base do prato. A comparação entre 100g e colher de sopa (15g) é importante porque pequenas diferenças de colher já alteram bastante o total final.",
+    "macroContext": "Na referência de 100g, banha de porco entrega cerca de 902 kcal, 0g de proteína, 0g de carboidratos e 100g de gordura, com predominância de gordura. Isso confirma que o alimento funciona como ajuste de gordura e calorias, não como componente principal da refeição.",
+    "bestUse": "Na prática, banha de porco entra melhor como finalização ou reforço de preparo, normalmente em pratos que já têm proteína e carboidrato definidos. A porção em colher de sopa (15g) precisa ser tratada com cuidado porque uma diferença pequena de colher já mexe no total da refeição.",
+    "pairingHeading": "Como combinar banha de porco",
+    "pairingText": "Banha de porco faz mais sentido ao lado de batata inglesa cozida (batata branca simples), ovo inteiro e brócolis cozido, entrando como ajuste calórico de um prato que já está bem estruturado.",
+    "pairingIds": [
+      "batata_cozida",
+      "ovo_inteiro",
+      "brocolis"
+    ]
+  },
+  "manteiga": {
+    "metaDescription": "Confira calorias e macronutrientes de manteiga por 100g, ajuste a porção em colher de sopa (15g) e descubra como usar esse alimento nas refeições.",
+    "intro": "Manteiga muda o total calórico da refeição com uma medida pequena, por isso funciona melhor como ajuste do que como base do prato. A comparação entre 100g e colher de sopa (15g) é importante porque pequenas diferenças de colher já alteram bastante o total final.",
+    "macroContext": "Na referência de 100g, manteiga entrega cerca de 717 kcal, 1g de proteína, 0g de carboidratos e 81g de gordura, com predominância de gordura. Isso confirma que o alimento funciona como ajuste de gordura e calorias, não como componente principal da refeição.",
+    "bestUse": "Na prática, manteiga entra melhor como finalização ou reforço de preparo, normalmente em pratos que já têm proteína e carboidrato definidos. A porção em colher de sopa (15g) precisa ser tratada com cuidado porque uma diferença pequena de colher já mexe no total da refeição.",
+    "pairingHeading": "Como combinar manteiga",
+    "pairingText": "Manteiga faz mais sentido ao lado de pão branco (pão francês), ovo inteiro e queijo cottage, entrando como ajuste calórico de um prato que já está bem estruturado.",
+    "pairingIds": [
+      "pao_frances",
+      "ovo_inteiro",
+      "queijo_cottage"
+    ]
+  },
+  "abacaxi": {
+    "metaDescription": "Consulte calorias e macronutrientes de abacaxi por 100g, compare a porção em fatia média e veja como encaixar esse alimento na rotina.",
+    "intro": "Abacaxi é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e fatia média ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, abacaxi entrega cerca de 50 kcal, 1g de proteína, 13g de carboidratos e 0g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, abacaxi funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em fatia média ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com abacaxi",
+    "pairingText": "Abacaxi costuma render melhor com iogurte grego natural, granola tradicional e mel, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "iogurte_grego",
+      "granola",
+      "mel"
+    ]
+  },
+  "uva_passa": {
+    "metaDescription": "Entenda calorias e macronutrientes de uva passa por 100g, revise a porção em porção (30g) e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Uva passa concentra carboidratos em pouco volume, então costuma funcionar como reforço medido de energia em lanches, bowls e shakes. Justamente por ser compacta, a porção por porção (30g) evita que a refeição cresça mais do que parecia à primeira vista.",
+    "macroContext": "Na referência de 100g, uva passa entrega cerca de 299 kcal, 3g de proteína, 79g de carboidratos e 0g de gordura, com predominância de carboidratos. Como a densidade sobe bastante, pequenas porções já mudam o total da refeição com rapidez.",
+    "bestUse": "No dia a dia, uva passa faz mais sentido em lanches, bowls e shakes em que poucas unidades já mudam o total de energia. Justamente por ser compacto, contar a porção em porção (30g) evita que o reforço de carboidratos passe despercebido.",
+    "pairingHeading": "Como montar um lanche com uva passa",
+    "pairingText": "Uva passa combina melhor com flocos de aveia finos, proteína whey e amêndoas, porque o conjunto ganha proteína, gordura e um uso mais controlado da fruta seca.",
+    "pairingIds": [
+      "aveia_flocos",
+      "whey",
+      "amendoa"
+    ]
+  },
+  "kiwi": {
+    "metaDescription": "Veja calorias e macronutrientes de kiwi por 100g, ajuste a porção em unidade média e entenda como esse alimento entra em refeições do dia.",
+    "intro": "Kiwi é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e unidade média ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, kiwi entrega cerca de 61 kcal, 1g de proteína, 15g de carboidratos e 1g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, kiwi funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em unidade média ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com kiwi",
+    "pairingText": "Kiwi costuma render melhor com skyr natural, granola tradicional e mel, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "skyr",
+      "granola",
+      "mel"
+    ]
+  },
+  "morango": {
+    "metaDescription": "Entenda calorias e macronutrientes de morango por 100g, revise a porção em unidade e veja como esse alimento pode entrar no plano diário.",
+    "intro": "Morango é uma fruta prática para lanches, cafés da manhã e shakes quando a ideia é somar carboidratos com pouco preparo. A comparação entre 100g e unidade ajuda bastante porque o tamanho da fruta ou da fatia muda de uma compra para outra.",
+    "macroContext": "Na referência de 100g, morango entrega cerca de 32 kcal, 1g de proteína, 8g de carboidratos e 0g de gordura, com predominância de carboidratos. Em outras palavras, ela costuma somar energia e praticidade, mas ainda precisa de companhia para virar uma refeição completa.",
+    "bestUse": "Na prática, morango funciona melhor em lanches, tigelas, cafés da manhã e shakes que pedem uma fruta fácil de combinar. A comparação entre a referência de 100g e a porção em unidade ajuda quando o tamanho da fruta ou da fatia varia bastante.",
+    "pairingHeading": "Como montar um lanche com morango",
+    "pairingText": "Morango costuma render melhor com iogurte grego natural, flocos de aveia finos e mel, seja em um lanche de colher, seja dentro de um shake mais completo.",
+    "pairingIds": [
+      "iogurte_grego",
+      "aveia_flocos",
+      "mel"
+    ]
+  }
 };
 
 export function getFoodSeoContent(foodId) {
