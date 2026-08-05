@@ -32,14 +32,62 @@
   <url><loc>https://hardgainermacros.com/blog/cardapio-economico-hardgainer</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
   <url><loc>https://hardgainermacros.com/blog/sistema-hibrido-hardgainer-explicado</loc><changefreq>yearly</changefreq><priority>0.8</priority></url>
 
-  <!-- Calculadora de alimentos — novos alimentos -->
+  <!-- Calculadora de alimentos — páginas individuais -->
+  <url><loc>https://hardgainermacros.com/calcular-alimento/ovo-inteiro</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/clara-ovo</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/peito-frango</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/carne-moida</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/peixe-tilapia</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/peixe-pescada</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/peixe-salmao</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/atum-agua</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/coxa-frango</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/peito-peru</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/alcatra-grelhada</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/camarao</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/bacalhau-fresco</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/whey</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/leite-integral</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/leite-lactose-free</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/bebida-aveia</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/bebida-amendoa</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/iogurte-natural</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/iogurte-grego</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/queijo-mussarela</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/queijo-branco</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/leite-po</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/skyr</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/queijo-cottage</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/caseina</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/tofu</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/tempeh</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/lombo-porco</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/sardinha-lata</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/proteina-ervilha</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/queijo-parmesao</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/ricotta</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/proteina-arroz</loc><priority>0.7</priority></url>
-  <url><loc>https://hardgainermacros.com/calcular-alimento/mass-gainer</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/arroz-branco-cozido</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/arroz-basmati-cozido</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/macarrao-cozido</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/batata-cozida</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/pure-batata</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/batata-doce-cozida</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/mandioca-cozida</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/polenta</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/cuscuz</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/tapioca</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/pao-frances</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/pao-forma</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/aveia-flocos</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/feijao-carioca</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/lentilha-cozida</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/arroz-integral-cozido</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/arroz-jasmine-cozido</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/quinoa-cozida</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/creme-arroz</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/bagel</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/wrap-tortilha</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/pao-centeio</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/granola</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/farinha-aveia</loc><priority>0.7</priority></url>
@@ -47,6 +95,27 @@
   <url><loc>https://hardgainermacros.com/calcular-alimento/creme-milho</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/barra-cereal</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/batata-frita</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/banana-prata</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/maca</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/pera</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/manga</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/mamao</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/datil</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/abacaxi</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/uva-passa</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/kiwi</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/morango</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/abacate</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/azeite</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/oleo-coco</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/pasta-amendoim</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/pasta-amendoa</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/pasta-castanha-caju</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/castanha-para</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/amendoa</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/nozes</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/sementes-chia</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/gema-ovo</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/chocolate-negro</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/creme-leite</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/coco-ralado</loc><priority>0.7</priority></url>
@@ -54,9 +123,15 @@
   <url><loc>https://hardgainermacros.com/calcular-alimento/azeite-abacate</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/banha-porco</loc><priority>0.7</priority></url>
   <url><loc>https://hardgainermacros.com/calcular-alimento/manteiga</loc><priority>0.7</priority></url>
-  <url><loc>https://hardgainermacros.com/calcular-alimento/abacaxi</loc><priority>0.7</priority></url>
-  <url><loc>https://hardgainermacros.com/calcular-alimento/uva-passa</loc><priority>0.7</priority></url>
-  <url><loc>https://hardgainermacros.com/calcular-alimento/kiwi</loc><priority>0.7</priority></url>
-  <url><loc>https://hardgainermacros.com/calcular-alimento/morango</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/brocolis</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/abobrinha</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/cenoura</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/salada-mista</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/mel</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/acucar-mascavo</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/cacau-po</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/canela</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/molho-tomate</loc><priority>0.7</priority></url>
+  <url><loc>https://hardgainermacros.com/calcular-alimento/mass-gainer</loc><priority>0.7</priority></url>
 
 </urlset>
