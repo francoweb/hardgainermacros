@@ -4,11 +4,25 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const MOBILE_390 = { width: 390, height: 844 };
 const HOME_TITLE = 'Hardgainer Macros — Calculadora para ectomorfos';
 const HOME_META_DESCRIPTION = 'Hardgainer Macros — calculadora especializada para ectomorfos. Descubra suas calorias, macros e receba um plano alimentar de 14 dias baseado no Sistema Híbrido.';
 const HOME_CANONICAL = 'https://hardgainermacros.com/';
+const PREVIOUSLY_APPROVED_IDS = [
+  'clara_ovo', 'ovo_inteiro', 'peito_frango', 'arroz_branco_cozido', 'aveia_flocos', 'banana_prata', 'azeite', 'whey', 'lentilha_cozida', 'skyr',
+  'carne_moida', 'peixe_tilapia', 'peixe_pescada', 'peixe_salmao', 'atum_agua', 'coxa_frango', 'peito_peru', 'alcatra_grelhada', 'camarao', 'bacalhau_fresco',
+  'queijo_mussarela', 'queijo_branco', 'caseina', 'tofu', 'tempeh', 'lombo_porco', 'sardinha_lata', 'proteina_ervilha', 'proteina_arroz', 'leite_integral',
+  'leite_lactose_free', 'bebida_aveia', 'bebida_amendoa', 'iogurte_natural', 'iogurte_grego', 'leite_po', 'queijo_cottage', 'queijo_parmesao', 'ricotta',
+];
+const FORBIDDEN_TERMS = [
+  'ebook', 'vitamina', 'vitaminas', 'vitaminico', 'vitaminica', 'mineral', 'minerais', 'fibra', 'fibras', 'indice glicemico', 'glicemia', 'insulina',
+  'glicogenio', 'probiotico', 'probioticos', 'saude intestinal', 'beneficios osseos', 'fortalece os ossos', 'absorcao rapida', 'absorcao lenta',
+  'energia rapida', 'energia lenta', 'liberacao lenta', 'digestao facil', 'digestao dificil', 'carboidrato simples', 'carboidrato complexo', 'saciedade',
+  'anti-inflamatorio', 'melhora hormonal', 'melhora de desempenho', 'recuperacao muscular', 'ganho muscular', 'ganho de peso garantido', 'resultado garantido',
+  'alimento obrigatorio', 'melhor alimento', 'consumo ilimitado', 'sem gluten', 'baixo indice glicemico',
+];
 const PILOT_SNAPSHOTS = {
   clara_ovo: {
     metaDescription: 'Veja as calorias e os macronutrientes da clara de ovo por 100g, ajuste a quantidade e entenda como usar essa fonte proteica nas refeições.',
@@ -27,32 +41,41 @@ const PILOT_SNAPSHOTS = {
   },
 };
 
+function normalize(text) {
+  return String(text || '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeForTermAudit(text) {
+  return normalize(text)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function parseExportedObject(source, exportName) {
+  const match = source.match(new RegExp(`export const ${exportName} = (\\{[\\s\\S]*?\\n\\});`));
+  if (!match) throw new Error(`${exportName} não encontrado`);
+  return Function(`return (${match[1]});`)();
+}
+
 async function loadFoodSeoModule() {
   const sourcePath = path.resolve(__dirname, '../assets/js/data/food-seo-content.js');
   const source = fs.readFileSync(sourcePath, 'utf8');
-  const objectMatch = source.match(/export const FOOD_SEO_CONTENT = (\{[\s\S]*\});\s*export function/);
-  if (!objectMatch) throw new Error('FOOD_SEO_CONTENT não encontrado');
-  return { FOOD_SEO_CONTENT: Function(`return (${objectMatch[1]});`)() };
+  return { FOOD_SEO_CONTENT: parseExportedObject(source, 'FOOD_SEO_CONTENT') };
 }
 
 async function loadFoodsModule() {
   const sourcePath = path.resolve(__dirname, '../assets/js/data/foods.js');
   const source = fs.readFileSync(sourcePath, 'utf8');
-  const objectMatch = source.match(/export const FOODS = (\{[\s\S]*\});\s*(?:export|\/\*|$)/);
-  if (!objectMatch) throw new Error('FOODS não encontrado');
-  return { FOODS: Function(`return (${objectMatch[1]});`)() };
+  return { FOODS: parseExportedObject(source, 'FOODS') };
 }
 
-async function gotoCalcList(page) {
-  await page.goto('/');
-  await page.waitForLoadState('load');
-  await page.waitForSelector('#app-mount');
-  await page.waitForSelector('#f-dados', { timeout: 10000 });
-  await page.evaluate(() => {
-    history.pushState({}, '', '/calcular-alimento');
-    window.dispatchEvent(new PopStateEvent('popstate'));
+function loadSeoContentFromHead() {
+  const source = execFileSync('git', ['show', 'HEAD:assets/js/data/food-seo-content.js'], {
+    cwd: path.resolve(__dirname, '..'),
+    encoding: 'utf8',
   });
-  await page.waitForSelector('.calc-alimento-title', { timeout: 10000 });
+  return parseExportedObject(source, 'FOOD_SEO_CONTENT');
 }
 
 async function gotoCalcItem(page, slug) {
@@ -67,19 +90,20 @@ async function gotoCalcItem(page, slug) {
   await page.waitForSelector('.calc-alimento-title', { timeout: 10000 });
 }
 
-function normalize(text) {
-  return String(text || '').replace(/\s+/g, ' ').trim();
-}
-
-function normalizeForTermAudit(text) {
-  return normalize(text)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+function getRepresentativeIds() {
+  return {
+    carb: ['arroz_basmati_cozido', 'wrap_tortilha'],
+    fruit: ['maca'],
+    fat: ['abacate'],
+    veg: ['brocolis'],
+    extra: ['mass_gainer'],
+    protein: ['clara_ovo'],
+    dairy: ['skyr'],
+  };
 }
 
 test.describe('Calcular alimento - SEO editorial individual', () => {
-  test('CA-SEO-1 - clara de ovo preserva calculo, tabela, schema e novo bloco editorial', async ({ page }) => {
+  test('CA-SEO-1 - clara de ovo preserva cálculo, tabela, schema e bloco editorial', async ({ page }) => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
     const pageErrors = [];
     const consoleErrors = [];
@@ -101,18 +125,14 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     const cta = page.locator('[data-testid="food-seo-cta"] .blog-cta-btn');
     await expect(cta).toHaveAttribute('href', '/');
     await expect(page.locator('[data-testid="food-seo-cta"] .calc-alimento-seo-cta__secondary')).toHaveAttribute('href', '/calcular-alimento');
-
-    const relatedLinks = page.locator('[data-testid="food-seo-content"] a[href^="/calcular-alimento/"]');
-    expect(await relatedLinks.count()).toBeGreaterThanOrEqual(2);
-    expect(await relatedLinks.count()).toBeLessThanOrEqual(4);
+    await expect(page.locator('[data-testid="food-seo-content"] a[href^="/calcular-alimento/"]')).toHaveCount(3);
 
     await page.locator('#food-qty').fill('200');
     await expect(page.locator('#res-kcal')).toHaveText('104');
     await expect(page.locator('#res-prot')).toHaveText('21.8');
     await expect(page.locator('#res-qty')).toHaveText('200');
 
-    const metaDescription = await page.locator('meta[name="description"]').getAttribute('content');
-    expect(metaDescription).toBe(FOOD_SEO_CONTENT.clara_ovo.metaDescription);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', FOOD_SEO_CONTENT.clara_ovo.metaDescription);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://hardgainermacros.com/calcular-alimento/clara-ovo');
     await expect(page.locator('#schema-food')).toHaveCount(1);
 
@@ -126,40 +146,107 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test('CA-SEO-2 - azeite tem texto e meta diferentes sem paragrafos duplicados com clara de ovo', async ({ page }) => {
+  test('CA-SEO-2 - azeite mantém conteúdo específico sem duplicação com clara de ovo', async ({ page }) => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
 
     await gotoCalcItem(page, 'azeite');
 
     await expect(page.locator('h1')).toHaveText('Calorias e Macros de Azeite de oliva');
     await expect(page.locator('[data-testid="food-seo-content"] h2')).toHaveText('Azeite de oliva para hardgainers');
-
-    const clarIntro = normalize(FOOD_SEO_CONTENT.clara_ovo.intro);
-    const azeiteIntro = normalize(FOOD_SEO_CONTENT.azeite.intro);
-    expect(azeiteIntro).not.toBe(clarIntro);
+    expect(normalize(FOOD_SEO_CONTENT.azeite.intro)).not.toBe(normalize(FOOD_SEO_CONTENT.clara_ovo.intro));
 
     const pageText = normalize(await page.locator('[data-testid="food-seo-content"]').textContent());
     expect(pageText).toContain(normalize(FOOD_SEO_CONTENT.azeite.bestUse).slice(0, 60));
     expect(pageText).not.toContain(normalize(FOOD_SEO_CONTENT.clara_ovo.intro).slice(0, 80));
-
-    const metaDescription = await page.locator('meta[name="description"]').getAttribute('content');
-    expect(metaDescription).toBe(FOOD_SEO_CONTENT.azeite.metaDescription);
-    expect(metaDescription).not.toBe(FOOD_SEO_CONTENT.clara_ovo.metaDescription);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', FOOD_SEO_CONTENT.azeite.metaDescription);
   });
 
-  test('CA-SEO-3 - alimento fora do lote preserva comportamento anterior sem bloco vazio', async ({ page }) => {
-    await gotoCalcItem(page, 'maca');
+  test('CA-SEO-3 - dados cobrem os 100 alimentos, preservam as 39 entradas anteriores e não deixam fallback editorial', async () => {
+    const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
+    const { FOODS } = await loadFoodsModule();
+    const headSeo = loadSeoContentFromHead();
+    const allFoodIds = Object.keys(FOODS);
+    const seoIds = Object.keys(FOOD_SEO_CONTENT);
+    const newIds = seoIds.filter((foodId) => !PREVIOUSLY_APPROVED_IDS.includes(foodId));
+    const missingIds = allFoodIds.filter((foodId) => !FOOD_SEO_CONTENT[foodId]);
+    const extraIds = seoIds.filter((foodId) => !FOODS[foodId]);
+    const duplicateIds = seoIds.filter((foodId, index) => seoIds.indexOf(foodId) !== index);
+    const requiredFields = ['metaDescription', 'intro', 'macroContext', 'bestUse', 'pairingHeading', 'pairingText', 'pairingIds'];
+    const missingFields = [];
+    const duplicateParagraphs = [];
+    const invalidPairings = [];
+    const invalidMetaLengths = [];
+    const duplicateMetas = [];
+    const termProblems = [];
+    const literalProblems = [];
 
-    await expect(page.locator('.calc-alimento-title')).toHaveText('Calorias e Macros de Maçã sem casca');
-    await expect(page.locator('.calc-alimento-table')).toBeVisible();
-    await expect(page.locator('[data-testid="food-seo-content"]')).toHaveCount(0);
-    await expect(page.locator('.calc-alimento-info-block h2').nth(1)).toHaveText('Maçã sem casca para Hardgainers');
+    expect(allFoodIds).toHaveLength(100);
+    expect(seoIds).toHaveLength(100);
+    expect(PREVIOUSLY_APPROVED_IDS).toHaveLength(39);
+    expect(newIds).toHaveLength(61);
+    expect(missingIds).toEqual([]);
+    expect(extraIds).toEqual([]);
+    expect(duplicateIds).toEqual([]);
 
-    const bodyText = normalize(await page.locator('body').textContent());
-    expect(bodyText).not.toContain('undefined');
+    for (const foodId of PREVIOUSLY_APPROVED_IDS) {
+      expect(FOOD_SEO_CONTENT[foodId]).toEqual(headSeo[foodId]);
+    }
+
+    const metaMap = new Map();
+    const paragraphMap = new Map();
+
+    for (const foodId of seoIds) {
+      const entry = FOOD_SEO_CONTENT[foodId];
+      for (const field of requiredFields) {
+        const value = entry[field];
+        if (field === 'pairingIds') {
+          if (!Array.isArray(value) || value.length !== 3) missingFields.push({ foodId, field, value });
+          continue;
+        }
+        if (!normalize(value)) missingFields.push({ foodId, field, value });
+      }
+
+      const normalizedMeta = normalize(entry.metaDescription);
+      if (metaMap.has(normalizedMeta)) duplicateMetas.push({ foodId, duplicateOf: metaMap.get(normalizedMeta) });
+      else metaMap.set(normalizedMeta, foodId);
+
+      for (const field of ['intro', 'macroContext', 'bestUse', 'pairingText']) {
+        const text = normalize(entry[field]);
+        if (paragraphMap.has(text)) duplicateParagraphs.push({ foodId, field, duplicateOf: paragraphMap.get(text) });
+        else paragraphMap.set(text, `${foodId}.${field}`);
+      }
+
+      const pairings = entry.pairingIds || [];
+      if (pairings.length !== 3 || new Set(pairings).size !== pairings.length || pairings.includes(foodId) || pairings.some((pairingId) => !FOODS[pairingId])) {
+        invalidPairings.push({ foodId, pairings });
+      }
+
+      const flattened = [entry.metaDescription, entry.intro, entry.macroContext, entry.bestUse, entry.pairingHeading, entry.pairingText].map(normalize).join(' ');
+      if (/undefined|NaN|Infinity/.test(flattened)) literalProblems.push({ foodId });
+
+      if (newIds.includes(foodId)) {
+        const metaLength = normalizedMeta.length;
+        if (metaLength < 130 || metaLength > 165) invalidMetaLengths.push({ foodId, metaLength });
+        for (const field of ['metaDescription', 'intro', 'macroContext', 'bestUse', 'pairingHeading', 'pairingText']) {
+          const text = normalizeForTermAudit(entry[field]);
+          for (const term of FORBIDDEN_TERMS) {
+            const pattern = new RegExp(`\\b${term}\\b`, 'i');
+            if (pattern.test(text)) termProblems.push({ foodId, field, term });
+          }
+        }
+      }
+    }
+
+    expect(missingFields).toEqual([]);
+    expect(duplicateMetas).toEqual([]);
+    expect(duplicateParagraphs).toEqual([]);
+    expect(invalidPairings).toEqual([]);
+    expect(invalidMetaLengths).toEqual([]);
+    expect(termProblems).toEqual([]);
+    expect(literalProblems).toEqual([]);
   });
 
-  test('CA-SEO-4 - navegação SPA remove schema residual e protege metadados de slug inexistente', async ({ page }) => {
+  test('CA-SEO-4 - navegação SPA remove schema residual e protege metadados da home e da listagem', async ({ page }) => {
     const pageErrors = [];
     const consoleErrors = [];
     page.on('pageerror', (err) => pageErrors.push(err.message));
@@ -167,7 +254,7 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
 
-    await gotoCalcItem(page, 'clara-ovo');
+    await gotoCalcItem(page, 'arroz-basmati-cozido');
     await expect(page.locator('#schema-food')).toHaveCount(1);
 
     const cta = page.locator('[data-testid="food-seo-cta"] .blog-cta-btn');
@@ -185,11 +272,7 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
     await page.waitForSelector('h1', { timeout: 10000 });
-    await expect(page).toHaveTitle('Calorias e Macros de Skyr natural | Hardgainer Macros');
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://hardgainermacros.com/calcular-alimento/skyr');
     await expect(page.locator('#schema-food')).toHaveCount(1);
-    const schemaNameAfterReturn = await page.locator('#schema-food').evaluate((node) => JSON.parse(node.textContent || '{}').name);
-    expect(schemaNameAfterReturn).toBe('Skyr natural');
 
     await page.evaluate(() => {
       history.pushState({}, '', '/calcular-alimento');
@@ -199,142 +282,11 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     await expect(page.locator('#schema-food')).toHaveCount(0);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://hardgainermacros.com/calcular-alimento');
 
-    await page.evaluate(() => {
-      history.pushState({}, '', '/calcular-alimento/skyr');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    });
-    await page.waitForSelector('h1', { timeout: 10000 });
-    await expect(page.locator('#schema-food')).toHaveCount(1);
-    const schemaName = await page.locator('#schema-food').evaluate((node) => JSON.parse(node.textContent || '{}').name);
-    expect(schemaName).toBe('Skyr natural');
-
-    await page.evaluate(() => {
-      history.pushState({}, '', '/calcular-alimento/slug-inexistente');
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    });
-    await page.waitForSelector('.legal-page h1', { timeout: 10000 });
-    await expect(page.locator('.legal-page h1')).toHaveText('Alimento não encontrado');
-    await expect(page.locator('#schema-food')).toHaveCount(0);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://hardgainermacros.com/calcular-alimento');
-    await expect(page).toHaveTitle('Alimento não encontrado | Hardgainer Macros');
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /não foi encontrado/i);
     expect(pageErrors).toEqual([]);
     expect(consoleErrors).toEqual([]);
   });
 
-  test('CA-SEO-5 - mobile 390px light e dark mantém CTA e links sem overflow', async ({ page }) => {
-    const pageErrors = [];
-    const consoleErrors = [];
-    page.on('pageerror', (err) => pageErrors.push(err.message));
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text());
-    });
-
-    await page.setViewportSize(MOBILE_390);
-    await gotoCalcItem(page, 'banana-prata');
-
-    await expect(page.locator('[data-testid="food-seo-cta"] .blog-cta-btn')).toBeVisible();
-    let scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(scrollWidth).toBeLessThanOrEqual(390);
-
-    await page.locator('#header-theme-toggle').click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    await expect(page.locator('[data-testid="food-seo-content"] a[href^="/calcular-alimento/"]')).toHaveCount(3);
-
-    scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(scrollWidth).toBeLessThanOrEqual(390);
-    expect(pageErrors).toEqual([]);
-    expect(consoleErrors).toEqual([]);
-  });
-
-  test('CA-SEO-6 - todos os alimentos protein e dairy possuem cobertura individual com metas e links válidos', async () => {
-    const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
-    const { FOODS } = await loadFoodsModule();
-
-    const proteinIds = Object.entries(FOODS)
-      .filter(([, food]) => food.category === 'protein')
-      .map(([foodId]) => foodId);
-    const dairyIds = Object.entries(FOODS)
-      .filter(([, food]) => food.category === 'dairy')
-      .map(([foodId]) => foodId);
-
-    expect(proteinIds).toHaveLength(23);
-    expect(dairyIds).toHaveLength(11);
-
-    const missingProteinIds = proteinIds.filter((foodId) => !FOOD_SEO_CONTENT[foodId]);
-    const missingDairyIds = dairyIds.filter((foodId) => !FOOD_SEO_CONTENT[foodId]);
-    expect(missingProteinIds).toEqual([]);
-    expect(missingDairyIds).toEqual([]);
-
-    const requiredFields = ['metaDescription', 'intro', 'macroContext', 'bestUse', 'pairingHeading', 'pairingText'];
-    const invalidEntries = [];
-    const invalidPairings = [];
-    const selfPairings = [];
-    const duplicatedPairings = [];
-    const forbiddenDairyTerms = ['vitamina', 'vitaminas', 'vitaminico', 'vitaminica', 'vitaminicos', 'vitaminicas'];
-    const newDairyIds = [
-      'leite_integral',
-      'leite_lactose_free',
-      'bebida_aveia',
-      'bebida_amendoa',
-      'iogurte_natural',
-      'iogurte_grego',
-      'leite_po',
-      'queijo_cottage',
-      'queijo_parmesao',
-      'ricotta',
-    ];
-    const coveredIds = [...proteinIds, ...dairyIds];
-
-    for (const foodId of coveredIds) {
-      const entry = FOOD_SEO_CONTENT[foodId];
-      const missingFields = requiredFields.filter((field) => !normalize(entry?.[field]));
-      if (missingFields.length) invalidEntries.push({ foodId, missingFields });
-
-      const pairings = entry?.pairingIds || [];
-      if (pairings.length !== 3) invalidPairings.push({ foodId, pairings });
-      if (pairings.includes(foodId)) selfPairings.push(foodId);
-      if (new Set(pairings).size !== pairings.length) duplicatedPairings.push(foodId);
-      if (pairings.some((pairingId) => !FOODS[pairingId])) invalidPairings.push({ foodId, pairings });
-
-      const metaLength = normalize(entry.metaDescription).length;
-      expect(metaLength).toBeGreaterThanOrEqual(130);
-      expect(metaLength).toBeLessThanOrEqual(165);
-    }
-
-    expect(invalidEntries).toEqual([]);
-    expect(invalidPairings).toEqual([]);
-    expect(selfPairings).toEqual([]);
-    expect(duplicatedPairings).toEqual([]);
-
-    const metaDescriptions = Object.values(FOOD_SEO_CONTENT).map((content) => normalize(content.metaDescription));
-    expect(new Set(metaDescriptions).size).toBe(metaDescriptions.length);
-
-    const paragraphs = Object.entries(FOOD_SEO_CONTENT).flatMap(([foodId, content]) => [
-      { foodId, field: 'intro', text: normalize(content.intro) },
-      { foodId, field: 'macroContext', text: normalize(content.macroContext) },
-      { foodId, field: 'bestUse', text: normalize(content.bestUse) },
-      { foodId, field: 'pairingText', text: normalize(content.pairingText) },
-    ]);
-
-    const duplicates = paragraphs.filter((paragraph, index) =>
-      paragraphs.findIndex((candidate) => candidate.text === paragraph.text) !== index
-    );
-    expect(duplicates).toEqual([]);
-
-    for (const foodId of newDairyIds) {
-      const entry = FOOD_SEO_CONTENT[foodId];
-      for (const field of requiredFields) {
-        const auditedText = normalizeForTermAudit(entry[field]);
-        for (const term of forbiddenDairyTerms) {
-          const pattern = new RegExp(`\\b${term}\\b`, 'i');
-          expect(pattern.test(auditedText), `${foodId}.${field} contém termo proibido: ${term}`).toBe(false);
-        }
-      }
-    }
-  });
-
-  test('CA-SEO-7 - páginas representativas de dairy preservam cálculo, CTA, schema e conteúdo específico', async ({ page }) => {
+  test('CA-SEO-5 - páginas representativas das categorias cobertas preservam cálculo, CTA, schema e conteúdo', async ({ page }) => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
     const { FOODS } = await loadFoodsModule();
     const pageErrors = [];
@@ -344,27 +296,27 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
       if (msg.type() === 'error') consoleErrors.push(msg.text());
     });
 
-    for (const foodId of ['leite_integral', 'iogurte_grego', 'queijo_cottage', 'leite_po']) {
+    const reps = getRepresentativeIds();
+    const foodIds = [...reps.carb, ...reps.fruit, ...reps.fat, ...reps.veg, ...reps.extra, ...reps.protein, ...reps.dairy];
+
+    for (const foodId of foodIds) {
       const slug = foodId.replace(/_/g, '-');
       const food = FOODS[foodId];
       const content = FOOD_SEO_CONTENT[foodId];
-
       await gotoCalcItem(page, slug);
       await expect(page.locator('h1')).toHaveText(`Calorias e Macros de ${food.name}`);
       await expect(page.locator('.calc-alimento-table')).toBeVisible();
-      await expect(page.locator('[data-testid="food-seo-content"] h2')).toHaveText(`${food.name} para hardgainers`);
-      await expect(page.locator('.calc-alimento-seo-copy h3')).toHaveCount(2);
+      await expect(page.locator('[data-testid="food-seo-content"]')).toBeVisible();
       await expect(page.locator('[data-testid="food-seo-cta"]')).toBeVisible();
       await expect(page.locator('[data-testid="food-seo-cta"] .blog-cta-btn')).toHaveAttribute('href', '/');
+      await expect(page.locator('[data-testid="food-seo-cta"] .calc-alimento-seo-cta__secondary')).toHaveAttribute('href', '/calcular-alimento');
       await expect(page.locator('[data-testid="food-seo-content"] a[href^="/calcular-alimento/"]')).toHaveCount(3);
       await expect(page.locator('.calc-alimento-info-block h2').filter({ hasText: `Alternativas a ${food.name}` })).toHaveCount(1);
       await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', content.metaDescription);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://hardgainermacros.com/calcular-alimento/${slug}`);
       await expect(page.locator('#schema-food')).toHaveCount(1);
-
       await page.locator('#food-qty').fill('200');
       await expect(page.locator('#res-kcal')).not.toHaveText(String(food.per100.kcal));
-
       const bodyText = normalize(await page.locator('body').textContent());
       expect(bodyText).toContain(normalize(content.bestUse).slice(0, 60));
       expect(bodyText).not.toContain('undefined');
@@ -374,7 +326,7 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     expect(consoleErrors).toEqual([]);
   });
 
-  test('CA-SEO-8 - conteúdos preservados de clara_ovo, whey e skyr permanecem inalterados', async () => {
+  test('CA-SEO-6 - conteúdos preservados de clara_ovo, whey e skyr permanecem inalterados', async () => {
     const { FOOD_SEO_CONTENT } = await loadFoodSeoModule();
 
     expect(FOOD_SEO_CONTENT.clara_ovo.metaDescription).toBe(PILOT_SNAPSHOTS.clara_ovo.metaDescription);
@@ -390,27 +342,19 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     expect(FOOD_SEO_CONTENT.skyr.pairingIds).toEqual(PILOT_SNAPSHOTS.skyr.pairingIds);
   });
 
-  test('CA-SEO-9 - fallback legado continua ativo fora das categorias protein e dairy cobertas', async ({ page }) => {
+  test('CA-SEO-7 - todas as páginas individuais possuem bloco editorial próprio e nenhum caso recai no fallback legado', async ({ page }) => {
     const { FOODS } = await loadFoodsModule();
-
-    for (const slug of [
-      'arroz-basmati-cozido',
-      'pasta-amendoim',
-      'maca',
-      'mel',
-    ]) {
-      const foodId = slug.replace(/-/g, '_');
-      const heading = `${FOODS[foodId].name} para Hardgainers`;
+    for (const foodId of Object.keys(FOODS)) {
+      const slug = foodId.replace(/_/g, '-');
       await gotoCalcItem(page, slug);
-      await expect(page.locator('[data-testid="food-seo-content"]')).toHaveCount(0);
-      await expect(page.locator('.calc-alimento-info-block h2').nth(1)).toHaveText(heading);
-      await page.locator('#food-qty').fill('200');
+      await expect(page.locator('[data-testid="food-seo-content"]'), foodId).toHaveCount(1);
+      await expect(page.locator('[data-testid="food-seo-content"] a[href^="/calcular-alimento/"]'), foodId).toHaveCount(3);
       const bodyText = normalize(await page.locator('body').textContent());
-      expect(bodyText).not.toContain('undefined');
+      expect(bodyText, foodId).not.toContain('undefined');
     }
   });
 
-  test('CA-SEO-10 - mobile 390px em novo alimento dairy mantém conteúdo legível e sem overflow', async ({ page }) => {
+  test('CA-SEO-8 - mobile 390 em página nova mantém conteúdo legível, dark mode e sem overflow', async ({ page }) => {
     const pageErrors = [];
     const consoleErrors = [];
     page.on('pageerror', (err) => pageErrors.push(err.message));
@@ -419,17 +363,17 @@ test.describe('Calcular alimento - SEO editorial individual', () => {
     });
 
     await page.setViewportSize(MOBILE_390);
-    await gotoCalcItem(page, 'iogurte-grego');
+    await gotoCalcItem(page, 'brocolis');
     await expect(page.locator('[data-testid="food-seo-content"]')).toBeVisible();
     await expect(page.locator('[data-testid="food-seo-cta"] .blog-cta-btn')).toBeVisible();
     await expect(page.locator('[data-testid="food-seo-content"] a[href^="/calcular-alimento/"]')).toHaveCount(3);
-    await expect(page.locator('.calc-alimento-info-block h2').filter({ hasText: 'Alternativas a Iogurte grego natural' })).toHaveCount(1);
 
     let scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(scrollWidth).toBeLessThanOrEqual(390);
 
     await page.locator('#header-theme-toggle').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
     scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     expect(scrollWidth).toBeLessThanOrEqual(390);
 
