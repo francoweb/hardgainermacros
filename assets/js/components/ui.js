@@ -243,14 +243,15 @@ export function renderStepper(currentStep) {
 
 /* ---------- COOKIE BANNER ---------- */
 export function mountCookieBanner() {
-  const accepted = localStorage.getItem('hg:cookies');
-  if (accepted) return;
+  const cookiePreference = localStorage.getItem('hg:cookies');
+  const analyticsPreference = localStorage.getItem('hg:analytics-consent');
+  if (cookiePreference && analyticsPreference) return;
 
   const html = `
     <div class="cookie show" id="cookie-banner" role="dialog" aria-label="Preferências de cookies">
       <p>
-        Usamos armazenamento local para salvar seu progresso nesta calculadora
-        e funcionar corretamente. Não compartilhamos seus dados.
+        Usamos armazenamento local para salvar seu progresso. Com a sua permissão,
+        o Google Analytics usa cookies para medir visitas e melhorar o site.
         <a href="/politica-de-privacidade" data-route>Saber mais</a>.
       </p>
       <div class="cookie-row">
@@ -270,11 +271,15 @@ export function mountCookieBanner() {
 
   document.getElementById('cookie-accept').addEventListener('click', () => {
     localStorage.setItem('hg:cookies', 'accepted');
+    localStorage.setItem('hg:analytics-consent', 'accepted');
     document.getElementById('cookie-banner').remove();
+    document.dispatchEvent(new CustomEvent('hg:cookie-consent', { detail: 'accepted' }));
   });
   document.getElementById('cookie-refuse').addEventListener('click', () => {
     localStorage.setItem('hg:cookies', 'refused');
+    localStorage.setItem('hg:analytics-consent', 'refused');
     document.getElementById('cookie-banner').remove();
+    document.dispatchEvent(new CustomEvent('hg:cookie-consent', { detail: 'refused' }));
   });
 }
 

@@ -164,10 +164,10 @@ Cada alimento traz o campo `source` identificando a fonte usada.
 
 ## 🔒 Privacidade
 
-- **Nada sai do dispositivo.** Não há servidor de aplicação, analytics, trackers ou píxeis.
+- **Os dados da calculadora ficam no dispositivo.** O Google Analytics 4 só é carregado após consentimento explícito.
 - `localStorage` guarda apenas os dados que o utilizador preencheu (pode ser limpo a qualquer momento).
 - `sessionStorage` guarda sinalizadores de progresso da sessão atual (apagados ao fechar o browser).
-- O banner de cookies serve apenas para registar o consentimento ao armazenamento local descrito acima.
+- O banner de cookies regista o consentimento ao armazenamento local e ao Google Analytics 4.
 
 ---
 

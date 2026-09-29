@@ -9,6 +9,7 @@
 
 import { initRouter, navigate } from './modules/router.js';
 import { renderHeader, renderFooter, mountCookieBanner, mountHelpFab, mountBackToTop } from './components/ui.js';
+import { initAnalytics, trackPageView } from './modules/analytics.js';
 
 const mount = () => document.getElementById('app-mount');
 
@@ -119,6 +120,8 @@ async function onRouteChange(page, path) {
       if (tip.hasAttribute('title')) tip.removeAttribute('title');
     }
   });
+
+  trackPageView();
 }
 
 // Inicialização
@@ -132,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   } catch {}
 
+  initAnalytics();
   initRouter(onRouteChange);
 
   // Handler delegado para fechar/abrir tooltip com tap (touch devices)

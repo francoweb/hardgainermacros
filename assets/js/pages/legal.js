@@ -49,19 +49,19 @@ export function renderPrivacyPage(mount) {
 
         <section class="legal-section">
           <h2>4. Cookies e tecnologias semelhantes</h2>
-          <p>A ferramenta em si não define cookies próprios de rastreamento. O banner que aparece ao entrar registra sua preferência sobre o armazenamento local descrito na seção 3.</p>
-          <p>O site poderá integrar ferramentas de terceiros que utilizam cookies, pixels, identificadores de dispositivo ou tecnologias similares para analytics, publicidade ou medição de desempenho. Tecnologias não essenciais podem depender do seu consentimento antes de serem ativadas, quando aplicável. Você pode gerenciar suas preferências pelo banner de cookies ou pelas configurações do seu navegador.</p>
+          <p>O banner que aparece ao entrar registra sua preferência sobre o armazenamento local descrito na seção 3 e sobre cookies de medição.</p>
+          <p>O Google Analytics e os respetivos cookies só são carregados depois de você selecionar "Aceitar". Se selecionar "Recusar" ou ainda não tiver feito uma escolha, o Google Analytics não é carregado.</p>
         </section>
 
         <section class="legal-section">
           <h2>5. Analytics, publicidade e ferramentas de terceiros</h2>
-          <p>O site poderá utilizar ferramentas como Google Analytics, Google AdSense ou outras plataformas de publicidade e medição. Essas ferramentas podem:</p>
+          <p>Com o seu consentimento, o site utiliza o Google Analytics 4 para:</p>
           <ul>
-            <li>Coletar dados de uso e navegação para análise de desempenho do site</li>
-            <li>Exibir anúncios personalizados ou não personalizados, conforme suas configurações, consentimento e requisitos aplicáveis</li>
-            <li>Usar pixels, cookies e identificadores para medir resultados, gerar relatórios e prevenir fraudes</li>
-            <li>Compartilhar dados com parceiros de tecnologia conforme suas próprias políticas</li>
+            <li>Medir utilizadores, sessões e visualizações de páginas</li>
+            <li>Analisar as páginas visitadas, a origem do tráfego e a navegação dentro da aplicação</li>
+            <li>Produzir relatórios agregados sobre dispositivos, país e utilizadores novos ou recorrentes</li>
           </ul>
+          <p>Não ativamos Google Signals nem funcionalidades de personalização de publicidade nesta integração.</p>
           <p>Cada fornecedor opera sob a sua própria política de privacidade. Para o Google, consulte <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
         </section>
 

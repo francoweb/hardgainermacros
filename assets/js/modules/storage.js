@@ -33,6 +33,7 @@ export const K = {
   RECIPE_MEALS:  `${PREFIX}recipe_meals`,   // Sprint R4-C
   THEME: `${PREFIX}theme`,
   COOKIES: `${PREFIX}cookies`,
+  ANALYTICS_CONSENT: `${PREFIX}analytics-consent`,
 
   // sessionStorage (progresso de sessão)
   STEP1_DONE: `${PREFIX}s:step1`,
