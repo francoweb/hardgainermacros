@@ -53,11 +53,13 @@ async function onRouteChange(page, path) {
     case 'results': {
       const { renderResultadosPage } = await import('./pages/resultados.js');
       renderResultadosPage(el);
+      document.title = 'Resultados | Hardgainer Macros';
       break;
     }
     case 'plan': {
       const { renderPlanoPage } = await import('./pages/plano-14-dias.js');
       renderPlanoPage(el);
+      document.title = 'Plano de 14 dias | Hardgainer Macros';
       break;
     }
     case 'privacy':
