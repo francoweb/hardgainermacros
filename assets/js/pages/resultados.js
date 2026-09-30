@@ -611,45 +611,6 @@ export function renderResultadosPage(mount) {
 
       ${calorieArchitecture}
 
-      <!-- Perfil interpretation -->
-      <div class="card">
-        <h3 class="card-title">Análise do Seu Perfil Hardgainer</h3>
-        <p class="card-sub results-card-sub">Ficha personalizada com base nos dados que você preencheu</p>
-        ${profileSummary}
-        ${profileInsightCards}
-        <div class="tag-row">
-          ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
-        </div>
-        <p class="card-body">${interpretation}</p>
-        ${profile.falsoMagro ? `
-          <div class="alert" style="margin-top: 14px;">
-            <span class="alert-icon">${icons.alertTri(18)}</span>
-            <div>
-              <strong>Perfil Falso Magro:</strong> superávit reduzido, proteína elevada e foco em carboidratos de digestão leve (arroz branco, batata, pão francês).
-              Evite excesso de açúcar simples e priorize refeições sólidas.
-            </div>
-          </div>
-        ` : ''}
-      </div>
-
-      <!-- Strategy system -->
-      <div class="card">
-        <h3 class="card-title">Resumo do Seu Plano Calculado</h3>
-        <p class="card-sub">${planDistributionText}</p>
-        ${planSummaryVisual}
-        ${sequenceHtml ? `<div class="hybrid-sequence">${sequenceHtml}</div>` : ''}
-        ${strategyInsightCards}
-        <div class="hybrid-explain">
-          <div class="hybrid-explain-label">Por que esse formato?</div>
-          <p>${sectionExplain}</p>
-        </div>
-        <div class="hint" style="margin-top: 14px;">
-          <span class="hint-icon">${icons.clock(18)}</span>
-          <div><strong>Intervalo ideal:</strong> ${hintInterval}</div>
-        </div>
-        ${nextStepsTimeline}
-      </div>
-
       <!-- Macros distribution -->
       <div class="card">
         <h3 class="card-title">Distribuição Diária de Macros</h3>
@@ -810,6 +771,57 @@ export function renderResultadosPage(mount) {
         </div>
       </div>
 
+      <div class="btn-row btn-row-center">
+        <button type="button" class="btn btn-primary btn-large" id="btn-plan">
+          Ver Plano Alimentar de 14 Dias ${icons.arrowRight(16)}
+        </button>
+      </div>
+
+      <div class="btn-row btn-row-center">
+        <button type="button" class="results-analysis-toggle" id="btn-results-analysis" aria-expanded="false" aria-controls="results-analysis">
+          <span class="results-analysis-label">Ver análise completa dos seus resultados</span> <svg class="results-analysis-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+      </div>
+      <div id="results-analysis" class="results-analysis" hidden>
+      <!-- Perfil interpretation -->
+      <div class="card">
+        <h3 class="card-title">Análise do Seu Perfil Hardgainer</h3>
+        <p class="card-sub results-card-sub">Ficha personalizada com base nos dados que você preencheu</p>
+        ${profileSummary}
+        ${profileInsightCards}
+        <div class="tag-row">
+          ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+        <p class="card-body">${interpretation}</p>
+        ${profile.falsoMagro ? `
+          <div class="alert" style="margin-top: 14px;">
+            <span class="alert-icon">${icons.alertTri(18)}</span>
+            <div>
+              <strong>Perfil Falso Magro:</strong> superávit reduzido, proteína elevada e foco em carboidratos de digestão leve (arroz branco, batata, pão francês).
+              Evite excesso de açúcar simples e priorize refeições sólidas.
+            </div>
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- Strategy system -->
+      <div class="card">
+        <h3 class="card-title">Resumo do Seu Plano Calculado</h3>
+        <p class="card-sub">${planDistributionText}</p>
+        ${planSummaryVisual}
+        ${sequenceHtml ? `<div class="hybrid-sequence">${sequenceHtml}</div>` : ''}
+        ${strategyInsightCards}
+        <div class="hybrid-explain">
+          <div class="hybrid-explain-label">Por que esse formato?</div>
+          <p>${sectionExplain}</p>
+        </div>
+        <div class="hint" style="margin-top: 14px;">
+          <span class="hint-icon">${icons.clock(18)}</span>
+          <div><strong>Intervalo ideal:</strong> ${hintInterval}</div>
+        </div>
+        ${nextStepsTimeline}
+      </div>
+
       <!-- Recommendations -->
       <div class="card">
         <h3 class="card-title">Recomendações Para Seu Perfil</h3>
@@ -834,16 +846,25 @@ export function renderResultadosPage(mount) {
       </div>
 
       <div class="btn-row btn-row-center">
-        <button type="button" class="btn btn-primary btn-large" id="btn-plan">
+        <button type="button" class="btn btn-ghost" id="btn-back-bottom">← Voltar e ajustar rotina</button>
+      </div>
+      <div class="btn-row btn-row-center no-print">
+        <button type="button" class="btn btn-primary btn-large" id="btn-plan-bottom">
           Ver Plano Alimentar de 14 Dias ${icons.arrowRight(16)}
         </button>
       </div>
-
-      <div class="btn-row btn-row-center">
-        <button type="button" class="btn btn-ghost" id="btn-back-bottom">← Voltar e ajustar rotina</button>
       </div>
     </div>
   `;
+
+  const analysisToggle = mount.querySelector('#btn-results-analysis');
+  const analysisContent = mount.querySelector('#results-analysis');
+  analysisToggle.addEventListener('click', () => {
+    const expanded = analysisToggle.getAttribute('aria-expanded') === 'true';
+    analysisToggle.setAttribute('aria-expanded', String(!expanded));
+    analysisToggle.querySelector('.results-analysis-label').textContent = expanded ? 'Ver análise completa dos seus resultados' : 'Ocultar análise completa';
+    analysisContent.hidden = expanded;
+  });
 
   // Tabs
   mount.querySelectorAll('[data-tab]').forEach(btn => {
@@ -860,13 +881,15 @@ export function renderResultadosPage(mount) {
   document.getElementById('btn-back-bottom').addEventListener('click', () => navigate('/rotina'));
 
   // Generate plan and go
-  document.getElementById('btn-plan').addEventListener('click', () => {
+  const openPlan = () => {
     const mealSlots = dedupedSlots.filter(s => s.slot !== '__train__');
     const plan = generatePlan({ ...results, slotDistribution: mealSlots });
     savePlan(plan);
     markProgress(K.PLAN_READY);
     navigate('/plano-14-dias');
-  });
+  };
+  document.getElementById('btn-plan').addEventListener('click', openPlan);
+  document.getElementById('btn-plan-bottom').addEventListener('click', openPlan);
 }
 
 /* ============================================================================ */

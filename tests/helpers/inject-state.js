@@ -61,7 +61,7 @@ async function gotoResultados(page) {
  * @param {import('@playwright/test').Page} page
  */
 async function gotoPlano(page) {
-  await page.getByText('Ver Plano Alimentar de 14 Dias').click();
+  await page.locator('#btn-plan').click();
   await page.waitForURL('**/plano-14-dias', { timeout: 10_000 });
 }
 

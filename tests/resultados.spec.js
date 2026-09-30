@@ -31,6 +31,89 @@ const {
 
 const cloneScenario = (scenario) => JSON.parse(JSON.stringify(scenario));
 
+for (const { width, theme } of [1280, 768, 390].flatMap(width => ['light', 'dark'].map(theme => ({ width, theme })))) {
+  test(`Resultados — hierarquia e análise expansível em ${width}px (${theme})`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    await injectState(page, CENARIO_1);
+    await gotoResultados(page);
+    await page.evaluate(theme => { document.documentElement.dataset.theme = theme; }, theme);
+    const toggle = page.locator('#btn-results-analysis');
+    const analysis = page.locator('#results-analysis');
+    const bottomCta = analysis.locator('#btn-plan-bottom');
+    await expect(bottomCta).toBeHidden();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(toggle).toHaveAccessibleName('Ver análise completa dos seus resultados');
+    await expect(toggle.locator('.results-analysis-arrow')).toHaveCSS('transform', 'none');
+    await expect(toggle).toHaveCSS('font-weight', '700');
+    const buttonStyles = await toggle.evaluate(el => {
+      const styles = getComputedStyle(el);
+      return {
+        background: styles.backgroundColor,
+        primaryBackground: getComputedStyle(document.querySelector('#btn-plan')).backgroundColor,
+        border: styles.borderTopWidth,
+      };
+    });
+    expect(buttonStyles.background).not.toBe(buttonStyles.primaryBackground);
+    expect(buttonStyles.border).toBe('1px');
+    await expect(toggle).toHaveCSS('background-color', theme === 'dark' ? 'rgb(38, 35, 32)' : 'rgb(255, 255, 255)');
+    await expect(toggle).toHaveAttribute('aria-controls', 'results-analysis');
+    await expect(analysis).toBeHidden();
+    await expect(analysis.locator('.card')).toHaveCount(3);
+    await expect(page.locator('.meal-list')).toHaveCount(1);
+    await expect(page.locator('#btn-plan')).toHaveCount(1);
+    await expect(page.locator('.meal-time').first()).toHaveText('07:15');
+    const structure = await page.locator('[data-testid="results-calorie-architecture"]').evaluate(el => {
+      const distribution = el.nextElementSibling;
+      const cta = distribution.nextElementSibling;
+      return [distribution.querySelector('.card-title').textContent, !!cta.querySelector('#btn-plan'), !!cta.nextElementSibling.querySelector('#btn-results-analysis')];
+    });
+    expect(structure).toEqual(['Distribuição Diária de Macros', true, true]);
+    expect(await page.locator('[id]').evaluateAll(nodes => {
+      const ids = nodes.map(node => node.id);
+      return ids.filter((id, i) => ids.indexOf(id) !== i);
+    })).toEqual([]);
+    await toggle.focus();
+    await expect(toggle).toBeFocused();
+    expect(await toggle.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none');
+    await page.keyboard.press('Enter');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(toggle).toHaveAccessibleName('Ocultar análise completa');
+    await expect(toggle.locator('.results-analysis-arrow')).toHaveCSS('transform', 'matrix(-1, 0, 0, -1, 0, 0)');
+    await expect(analysis).toBeVisible();
+    await expect(bottomCta).toBeVisible();
+    await expect(bottomCta).toHaveText(await page.locator('#btn-plan').innerText());
+    await expect(analysis.getByText('Análise do Seu Perfil Hardgainer')).toBeVisible();
+    await page.keyboard.press('Space');
+    await expect(analysis).toBeHidden();
+    await expect(toggle).toHaveAccessibleName('Ver análise completa dos seus resultados');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(toggle.locator('.results-analysis-arrow')).toHaveCSS('transform', 'none');
+    await toggle.click();
+    await expect(analysis).toBeVisible();
+    await toggle.click();
+    await expect(analysis).toBeHidden();
+    await page.emulateMedia({ media: 'print' });
+    await expect(analysis).toBeVisible();
+    await expect(toggle).toBeHidden();
+    await expect(bottomCta).toBeHidden();
+    await page.emulateMedia({ media: 'screen' });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    await page.getByRole('tab', { name: 'Tabela' }).click();
+    await expect(page.locator('#tab-content-tabela')).toBeVisible();
+    await page.getByRole('tab', { name: 'Visual', exact: true }).click();
+    await page.locator('#btn-plan').click();
+    await page.waitForURL('**/plano-14-dias');
+    await gotoResultados(page);
+    await page.locator('#btn-results-analysis').click();
+    await bottomCta.click();
+    await page.waitForURL('**/plano-14-dias');
+    expect(errors).toEqual([]);
+  });
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Grupo: Ordem da primeira refeição (Etapa 3E-A)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -415,6 +498,7 @@ test.describe('Resultados - leitura visual da meta e da estrategia', () => {
     await injectState(page, CENARIO_5);
     await gotoResultados(page);
 
+    await page.locator('#btn-results-analysis').click();
     const planSummary = page.locator('[data-testid="results-plan-summary"]');
     await expect(planSummary).toBeVisible();
     await expect(planSummary).toHaveAttribute('data-strategy', 'solid');

@@ -12,12 +12,12 @@
 const { test, expect } = require('@playwright/test');
 
 const PAGE_SIZE = 6;
-const EXPECTED_TOTAL_UPDATES = 35;
+const EXPECTED_TOTAL_UPDATES = 36;
 const EXPECTED_TOTAL_PAGES = Math.ceil(EXPECTED_TOTAL_UPDATES / PAGE_SIZE);
 const EXPECTED_PAGE_ONE_TITLES = [
+  'Resultados mais rápidos e navegação simplificada',
   'Resultados mais visuais e personalizados',
   'Mais indicadores visuais no plano de 14 dias',
-  'Dashboard dinâmico de calorias e macros',
 ];
 
 /** Navega para /atualizacoes via SPA router. */
@@ -208,7 +208,8 @@ test.describe('Paginação de Atualizações', () => {
     expect(pageOneTitles.slice(0, 3).map(t => t.trim())).toEqual(EXPECTED_PAGE_ONE_TITLES);
 
     const firstGroup = (await page.locator('[data-testid="upd-group"]').first().textContent() || '');
-    expect(firstGroup).toMatch(/Agosto 2026/i);
+    expect(firstGroup).toMatch(/Setembro 2026/i);
+    await expect(page.locator('[data-testid="upd-card"]').first()).toContainText('30 de set. de 2026');
   });
 
   // ── C-UPD-PAG-10 ─────────────────────────────────────────────────────────

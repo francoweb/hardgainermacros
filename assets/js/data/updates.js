@@ -13,6 +13,15 @@
 
 export const UPDATES = [
   {
+    date: '2026-09-30',
+    type: 'Melhoria',
+    title: 'Resultados mais rápidos e navegação simplificada',
+    description:
+      'A página de resultados foi reorganizada para facilitar o acesso às informações mais importantes. A distribuição dos horários das refeições e o acesso ao Plano de 14 dias agora aparecem logo após o resumo da meta calórica. A análise detalhada continua disponível e pode ser expandida quando quiser.',
+    tags: ['Resultados', 'Plano alimentar'],
+    highlight: false,
+  },
+  {
     date: '2026-08-04',
     type: 'Melhoria',
     title: 'Resultados mais visuais e personalizados',
